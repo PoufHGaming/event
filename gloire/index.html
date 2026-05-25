@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gloire à la Compagnie I</title>
+  <link rel="icon" type="image/png" href="../images/pouf.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --gold-dim: #9a7a3a;
+      --bg: #0a0a0e;
+      --bg2: #12121a;
+      --bg3: #1c1c28;
+      --border: rgba(201, 168, 76, 0.2);
+      --border-bright: rgba(201, 168, 76, 0.5);
+      --text: #e8e0d0;
+      --text-dim: #b0a898;
+      --text-muted: #706860;
+      --red: #c94c4c;
+      --teal: #4ca8a8;
+      --purple: #9b7fea;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 300;
+      min-height: 100vh;
+      font-size: 17px;
+    }
+
+    /* HEADER */
+    header {
+      text-align: center;
+      padding: 48px 24px 32px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .event-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(22px, 4vw, 40px);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .event-subtitle {
+      font-size: 15px;
+      color: var(--text);
+      margin-top: 6px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 300;
+      opacity: 0.65;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 12px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+    }
+
+    .social-link:hover {
+      color: var(--text);
+      border-color: var(--border-bright);
+    }
+
+    .social-link.twitch:hover {
+      border-color: #9147ff;
+      color: #9147ff;
+    }
+
+    .social-link.discord:hover {
+      border-color: #5865f2;
+      color: #5865f2;
+    }
+
+    .social-icon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+      opacity: 0.6;
+    }
+
+    .tab:hover {
+      opacity: 1;
+      border-color: var(--border);
+    }
+
+    .tab.active {
+      color: var(--gold);
+      border-color: var(--border-bright);
+      background: rgba(201, 168, 76, 0.05);
+      opacity: 1;
+    }
+
+    /* MAIN */
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* LEADERBOARD */
+    .lb-header {
+      display: grid;
+      grid-template-columns: 40px 1fr 80px 80px 80px 80px;
+      gap: 12px;
+      padding: 0 16px 10px;
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    .lb-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 80px 80px 80px 80px;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      transition: all 0.2s;
+      cursor: default;
+    }
+
+    .lb-row:hover {
+      border-color: var(--border);
+      background: var(--bg2);
+    }
+
+    .lb-row.rank-1 {
+      border-color: rgba(201, 168, 76, 0.4);
+      background: rgba(201, 168, 76, 0.04);
+    }
+
+    .lb-row.rank-2 {
+      border-color: rgba(180, 180, 180, 0.3);
+      background: rgba(180, 180, 180, 0.02);
+    }
+
+    .lb-row.rank-3 {
+      border-color: rgba(180, 120, 60, 0.3);
+      background: rgba(180, 120, 60, 0.02);
+    }
+
+    .rank-num {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .rank-1 .rank-num {
+      color: var(--gold);
+    }
+
+    .rank-2 .rank-num {
+      color: #b4b4b4;
+    }
+
+    .rank-3 .rank-num {
+      color: #b4783c;
+    }
+
+    .player-name {
+      font-size: 17px;
+      font-weight: 400;
+    }
+
+    .score-total {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: var(--gold);
+      text-align: right;
+    }
+
+    .score-base,
+    .score-bonus,
+    .hf-count {
+      font-size: 15px;
+      color: var(--text-dim);
+      text-align: right;
+    }
+
+    .score-bonus {
+      color: var(--teal);
+    }
+
+    /* PLAYER DETAIL IN LEADERBOARD */
+    .lb-detail {
+      display: none;
+      padding: 16px 16px 20px 56px;
+      grid-column: 1 / -1;
+    }
+
+    .lb-row.open .lb-detail {
+      display: block;
+    }
+
+    .lb-row {
+      cursor: pointer;
+    }
+
+    .lb-row .player-name::after {
+      content: ' \25B8';
+      font-size: 10px;
+      color: var(--text-dim);
+      opacity: 0.5;
+    }
+
+    .lb-row.open .player-name::after {
+      content: ' \25BE';
+    }
+
+    .dungeon-section {
+      margin-bottom: 16px;
+    }
+
+    .dp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dp-name {
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .dp-count {
+      color: var(--gold-dim);
+    }
+
+    .dp-count.complete {
+      color: var(--teal);
+    }
+
+    .hf-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .hf-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 8px;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+
+    .hf-item.done {
+      background: rgba(76, 168, 168, 0.07);
+    }
+
+    .hf-check-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .hf-item.done .hf-check-icon {
+      border-color: var(--teal);
+      background: rgba(76, 168, 168, 0.2);
+      color: var(--teal);
+    }
+
+    .hf-item-name {
+      flex: 1;
+      color: var(--text-dim);
+    }
+
+    .hf-item.done .hf-item-name {
+      color: var(--text);
+    }
+
+    .hf-item-pts {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .hf-item.done .hf-item-pts {
+      color: var(--teal);
+    }
+
+    .hf-item-badges {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+    }
+
+    /* ACHIEVEMENTS PAGE */
+    .dungeon-block {
+      margin-bottom: 28px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .dungeon-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.43;
+      z-index: 0;
+      border-radius: 8px;
+    }
+
+    .dungeon-inner {
+      position: relative;
+      z-index: 1;
+      padding: 16px 16px 16px 16px;
+    }
+
+    .dungeon-title {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dungeon-title .bonus-tag {
+      font-size: 12px;
+      color: var(--teal);
+      border: 1px solid var(--teal);
+      padding: 1px 7px;
+      border-radius: 20px;
+      opacity: 0.7;
+    }
+
+    .hf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 8px;
+    }
+
+    .hf-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px 14px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      user-select: none;
+    }
+
+    .hf-card:hover {
+      border-color: var(--border-bright);
+    }
+
+    .hf-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .hf-card-title {
+      font-weight: 400;
+      font-size: 15px;
+      flex: 1;
+    }
+
+    .hf-badges {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .badge img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .badge-pts {
+      width: auto;
+      height: 22px;
+      padding: 0 6px;
+      font-size: 10px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.05em;
+      background: rgba(201, 168, 76, 0.15);
+      color: var(--gold);
+      border-radius: 20px;
+    }
+
+    .hf-card-desc {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 16px;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .hf-card.open .hf-card-desc {
+      display: block;
+    }
+
+    .hf-card-title::after {
+      content: ' \25B8';
+      font-size: 10px;
+      color: var(--text-dim);
+      opacity: 0.4;
+    }
+
+    .hf-card.open .hf-card-title::after {
+      content: ' \25BE';
+    }
+
+    /* ADMIN PAGE */
+    .admin-gate {
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .admin-gate h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .admin-form {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .field {
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'Crimson Pro', serif;
+      font-size: 16px;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--border-bright);
+    }
+
+    .btn {
+      background: rgba(201, 168, 76, 0.1);
+      border: 1px solid var(--border-bright);
+      color: var(--gold);
+      padding: 10px 24px;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: rgba(201, 168, 76, 0.2);
+    }
+
+    .btn-danger {
+      border-color: var(--red);
+      color: var(--red);
+      background: rgba(201, 76, 76, 0.05);
+    }
+
+    .btn-danger:hover {
+      background: rgba(201, 76, 76, 0.15);
+    }
+
+    .admin-panel {
+      display: none;
+    }
+
+    .admin-panel.visible {
+      display: block;
+    }
+
+    .admin-toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .admin-toolbar select {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      border-radius: 4px;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .admin-toolbar select:focus {
+      outline: none;
+      border-color: var(--border-bright);
+    }
+
+    .admin-dungeon {
+      margin-bottom: 24px;
+    }
+
+    .admin-dungeon-title {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    .admin-hf-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .admin-hf-row:last-child {
+      border-bottom: none;
+    }
+
+    .admin-hf-check {
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      background: var(--bg2);
+    }
+
+    .admin-hf-check.checked {
+      background: rgba(201, 168, 76, 0.2);
+      border-color: var(--gold);
+    }
+
+    .admin-hf-check.checked::after {
+      content: '✓';
+      color: var(--gold);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .admin-hf-info {
+      flex: 1;
+    }
+
+    .admin-hf-name {
+      font-size: 15px;
+    }
+
+    .admin-hf-meta {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .save-indicator {
+      font-size: 12px;
+      color: var(--teal);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-style: italic;
+    }
+
+    .save-indicator.show {
+      opacity: 1;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg3);
+      border: 1px solid var(--border-bright);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.error {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .help-link {
+      display: block;
+      padding: 8px 10px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .help-link:hover {
+      background: var(--bg3);
+      color: var(--text);
+    }
+
+    /* RULES PAGE */
+    .rules-page {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .rules-section {
+      margin-bottom: 32px;
+    }
+
+    .rules-section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+
+    .rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rules-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: var(--bg2);
+      border-radius: 6px;
+      border-left: 2px solid var(--border);
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .rules-item.highlight {
+      border-left-color: var(--gold);
+      background: rgba(201, 168, 76, 0.05);
+    }
+
+    .rules-item.info {
+      border-left-color: var(--teal);
+    }
+
+    .rules-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+      opacity: 0.8;
+    }
+
+    .rules-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .rules-conditions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .rules-conditions img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      opacity: 0.8;
+    }
+
+    /* SECRET HF */
+    .secret-section {
+      margin-top: 40px;
+      margin-bottom: 28px;
+    }
+
+    .secret-title {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #b8a0f0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(155, 127, 234, 0.25);
+      margin-bottom: 14px;
+    }
+
+    .secret-card {
+      background: rgba(155, 127, 234, 0.08);
+      border: 1px solid rgba(155, 127, 234, 0.4);
+      border-radius: 4px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .secret-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg,
+          transparent,
+          transparent 8px,
+          rgba(155, 127, 234, 0.025) 8px,
+          rgba(155, 127, 234, 0.025) 16px);
+      pointer-events: none;
+    }
+
+    .secret-card:hover {
+      border-color: rgba(155, 127, 234, 0.45);
+      background: rgba(155, 127, 234, 0.07);
+    }
+
+    .secret-card-header {
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .secret-card-title {
+      font-size: 15px;
+      color: #b8a0f0;
+      font-style: italic;
+      letter-spacing: 0.05em;
+    }
+
+    .secret-card-title::after {
+      content: ' \25B8';
+      font-size: 10px;
+      opacity: 0.4;
+    }
+
+    .secret-card.open .secret-card-title::after {
+      content: ' \25BE';
+    }
+
+    .secret-card-desc {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(155, 127, 234, 0.15);
+      color: #a090d8;
+      font-size: 14px;
+      line-height: 1.7;
+      font-style: italic;
+      letter-spacing: 0.03em;
+    }
+
+    .secret-card.open .secret-card-desc {
+      display: block;
+    }
+
+    .secret-coming-soon {
+      color: #a090d8;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* LOADING */
+    .loading {
+      text-align: center;
+      padding: 48px;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* RESPONSIVE MOBILE */
+    @media (max-width: 640px) {
+
+      /* Header compact */
+      header {
+        padding: 24px 16px 20px;
+      }
+
+      .event-title {
+        font-size: clamp(18px, 6vw, 28px);
+      }
+
+      .event-subtitle {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      .social-links {
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .social-link {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+
+      /* Nav : wrap en 2 lignes propres */
+      nav {
+        padding: 10px 12px;
+        flex-wrap: wrap;
+        gap: 4px;
+        justify-content: flex-start;
+      }
+
+      .tab {
+        font-size: 11px;
+        padding: 6px 12px;
+        letter-spacing: 0.08em;
+      }
+
+      /* Le groupe lang+aide reste à droite sur la même ligne */
+      nav>div {
+        margin-left: auto;
+      }
+
+      /* Main padding réduit */
+      main {
+        padding: 16px 12px 48px;
+      }
+
+      /* Leaderboard : 3 colonnes sur mobile (rang + nom + total) */
+      .lb-header,
+      .lb-row {
+        grid-template-columns: 32px 1fr 52px;
+        gap: 8px;
+        padding: 10px 10px;
+      }
+
+      .lb-header .col-base,
+      .lb-header .col-bonus,
+      .lb-header .col-hf,
+      .lb-row .score-base,
+      .lb-row .score-bonus,
+      .lb-row .hf-count {
+        display: none;
+      }
+
+      .lb-header {
+        font-size: 11px;
+      }
+
+      .player-name {
+        font-size: 15px;
+      }
+
+      .score-total {
+        font-size: 16px;
+      }
+
+      /* Détail joueur : 1 colonne au lieu de 2 */
+      .lb-detail {
+        padding: 12px 8px 16px 8px;
+      }
+
+      .lb-detail>div {
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+      }
+
+      .dungeon-section {
+        margin-bottom: 10px;
+      }
+
+      /* Hauts-faits : 1 colonne */
+      .hf-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dungeon-title {
+        font-size: 13px;
+        flex-wrap: wrap;
+      }
+
+      .hf-card {
+        font-size: 14px;
+      }
+
+      .hf-card-title {
+        font-size: 14px;
+      }
+
+      .hf-card-desc {
+        font-size: 14px;
+      }
+
+      /* Règles */
+      .rules-page {
+        padding: 0;
+      }
+
+      .rules-item {
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+    }
+
+    /* ── BADGES ── */
+    .badge-wrap {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 5px;
+    }
+
+    .badge-inline {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      object-fit: cover;
+      vertical-align: middle;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .badge-inline:hover {
+      transform: scale(1.35);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .badge-wrap .badge-tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0e1210;
+      border: 1px solid rgba(201, 168, 76, 0.35);
+      border-radius: 4px;
+      padding: 6px 10px;
+      white-space: nowrap;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: #e8c96a;
+      z-index: 20;
+      pointer-events: none;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .badge-wrap .badge-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(201, 168, 76, 0.35);
+    }
+
+    .badge-wrap:hover .badge-tooltip {
+      display: block;
+    }
+
+    /* Modal profil */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: #0d1510;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-header {
+      padding: 20px 24px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-player-name {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      color: var(--gold);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 22px;
+      cursor: pointer;
+      transition: color 0.2s;
+      padding: 4px;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 20px 24px 28px;
+    }
+
+    .modal-section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 14px;
+    }
+
+    .badges-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .badge-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 72px;
+    }
+
+    .badge-card img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .badge-card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .badge-card-event {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+      font-style: italic;
+    }
+
+    .modal-no-badges {
+      color: var(--text-muted);
+      font-style: italic;
+      font-size: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="event-title" id="event-title">Gloire à la Compagnie I</div>
+    <div class="event-subtitle" id="header-subtitle">Du 21/04 au 17/05 &nbsp;·&nbsp; Classement en direct</div>
+    <div class="event-subtitle" id="header-organiser">Organisé par Pouf</div>
+    <div class="social-links">
+      <a href="https://www.twitch.tv/pouf_hgaming" target="_blank" rel="noopener" class="social-link twitch">
+        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
+        </svg>
+        Twitch
+      </a>
+      <a href="https://discord.gg/3WH65QCARa" target="_blank" rel="noopener" class="social-link discord">
+        <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.132 18.115a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+        </svg>
+        Discord
+      </a>
+    </div>
+  </header>
+
+  <nav>
+    <a href="../index.html" class="tab home-btn" title="Accueil"
+      style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:8px 14px;opacity:0.7;transition:opacity 0.2s;"
+      onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      </svg>
+    </a>
+    <div style="width:1px;height:20px;background:var(--border);margin:0 2px;align-self:center;"></div>
+    <button class="tab active" id="tab-leaderboard" onclick="showPage('leaderboard', this)">Classement</button>
+    <button class="tab" id="tab-achievements" onclick="showPage('achievements', this)">Hauts-faits</button>
+    <button class="tab" id="tab-rules" onclick="showPage('rules', this)">Règles</button>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:10px; position:relative;">
+
+      <div style="display:flex;gap:2px;">
+        <button class="tab lang-btn-fr" id="lang-btn-fr" onclick="setLang('fr')"
+          style="padding:6px 10px;font-size:12px;border-radius:3px 0 0 3px;">FR</button>
+        <button class="tab lang-btn-en" id="lang-btn-en" onclick="setLang('en')"
+          style="padding:6px 10px;font-size:12px;border-radius:0 3px 3px 0;">EN</button>
+      </div>
+
+      <button class="tab" id="help-btn" onclick="toggleHelpMenu()" style=""></button>
+
+      <div id="help-menu" style="
+    display:none;
+    position:absolute;
+    top:40px;
+    right:0;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:10px;
+    min-width:200px;
+    z-index:10;
+  ">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSc1t3Eol7FKP1efLmgBTiJSQ43mjIdSqltBys6Egv-3W-Hfzw/viewform?usp=sharing&ouid=118146898505717091637"
+          target="_blank" id="joiningform" class="help-link">Join the event</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfKiGWA_6jCTaeZVyJ_9nsNibcy2WK0u9KLaPEh1nxNZSgNtA/viewform?usp=sharing&ouid=118146898505717091637"
+          target="_blank" id="feedbackform" class="help-link">Submit feedback</a>
+      </div>
+
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- LEADERBOARD -->
+    <div id="page-leaderboard" class="page active">
+      <div id="lb-content" class="loading">Chargement...</div>
+    </div>
+
+    <!-- ACHIEVEMENTS LIST -->
+    <div id="page-achievements" class="page">
+      <div id="ach-content" class="loading">Chargement...</div>
+    </div>
+
+    <!-- RULES -->
+    <div id="page-rules" class="page">
+      <div class="rules-page" id="rules-content"></div>
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ============================================================
+    // CONFIG — remplace ces valeurs par les tiennes
+    // ============================================================
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    // ============================================================
+
+    // CONDITIONS disponibles : 'portal','dice','res','dispell','shadow','drum','poulet'
+    // Pour ajouter une condition : conditions:['portal'] ou conditions:['portal','dispell']
+    const ACHIEVEMENTS = [
+      { id: 1, dungeon: "Abime des marins", title: "Surfeur dans l'âme", title_en: "Surfer at Heart", desc: "Tous les joueurs du groupe doivent se prendre 1 vague (subir les dégâts et se faire propulser) sans utiliser de sorts pendant la vague contre Sinthara.", desc_en: "All players in the group must get hit by 1 wave (take damage and be propelled) without using movement spells while being bump during the fight against Sinthara.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 2, dungeon: "Abime des marins", title: "BIG PULL", title_en: "BIG PULL", desc: "Le groupe doit tuer 40 forgotten soul en 1 pull.", desc_en: "The group must kill 40 Forgotten Soul in 1 pull.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 3, dungeon: "Abime des marins", title: "Pourquoi choisir", title_en: "Why Choose", desc: "Le groupe doit se séparer en 2 et se rejoindre au feu de camp (Reliques Skip & Portail interdit). Chaque groupe doit réaliser au moins 40% du score de donjon", desc_en: "The group must split in 2, kill the mobs and reunite at the campfire. Each group must achieve at least 40% of Dungeon score", points: 20, hard: true, personal: false, conditions: ['portal', 'shadow'] },
+      { id: 4, dungeon: "Bois de L'aube", title: "La charge sauvage", title_en: "Wild Charge", desc: "Tous les totems doivent être détruits avec la charge du cerf pendant le combat contre Malgut. Aucun joueur ne doit en détruire (Poulet interdit)", desc_en: "All totems must be destroyed with the stag's charge during the fight against Malgut. No player should destroy any.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 5, dungeon: "Bois de L'aube", title: "Reforestation", title_en: "Reforestation", desc: "Le groupe ne doit tuer aucune créature de type plante du donjon et terminer le donjon.", desc_en: "The group must not kill any plant-type creatures and validate the dungeon", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 6, dungeon: "Bois de L'aube", title: "Sang pour 100", title_en: "A Bloody Percent", desc: "Le groupe doit tuer 4 Bloodstone Goliath à 10sec d'intervalle.", desc_en: "The group must kill 4 Bloodstone Goliath within a 10-second interval.", points: 20, hard: true, personal: false, conditions: [] },
+      { id: 7, dungeon: "Carrière tombe-dieu", title: "Incognito", title_en: "Incognito", desc: "Aucun membre du groupe ne doit aggro de mob sur la plateforme (Reliques Skip & Portail interdit).", desc_en: "No member of the group should aggro any mobs on the platform (It's where the 2 enforcers are patrolling) Spot where Ghorn spawn is allowed", points: 10, hard: false, personal: false, conditions: ['portal', 'shadow'] },
+      { id: 8, dungeon: "Carrière tombe-dieu", title: "Rock Solid", title_en: "Rock Solid", desc: "Le groupe doit commencer le combat contre le Titan avec les 2 Enraged Earth Elemental avec au moins 95% de santé. Et les vaincre.", desc_en: "The group must start the fight against the Titan with the two Enraged Earth Elementals at least 95% health, and defeat them.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 9, dungeon: "Carrière tombe-dieu", title: "Tout est dans le timing", title_en: "It's All in the Timing", desc: "Obtenir 50% de score de donjon en étant uniquement sur la plateforme et sans aggro la patrouille (Enforcer) (Pas de snap)", desc_en: "Obtain 50% dungeon score while being only on the platform (It's where the 2 enforcers are patrolling - Spot where Ghorn spawn is allowed) and without aggroing the patrols (Enforcer) NO SNAP.", points: 20, hard: true, personal: false, conditions: [] },
+      { id: 10, dungeon: "Caveau de Lamespectre", title: "Allié ou Ennemi ?", title_en: "Ally or Enemy?", desc: "Le groupe doit survivre à un combat avec 4 sentinelles dans un pull. Se valide quand les joueurs ne sont plus en combat et les sentinnelles vaincues", desc_en: "The group must survive a fight with 4 Greedspawn in one pull. Validated when players are no longer in combat.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 11, dungeon: "Caveau de Lamespectre", title: "Pierre qui roule n'amasse pas mousse", title_en: "A Rolling Stone Gathers No Moss", desc: "Aucun membre du groupe ne doit VOLONTAIREMENT infliger des dégâts à la boule d'or pendant le combat contre Bael Aurum.", desc_en: "Kill Bael Aurum without focusing the Orb of Bael'Aurum at all.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 12, dungeon: "Caveau de Lamespectre", title: "Devy Jones", title_en: "Devy Jones", desc: "1 cannonier doit être en vie au début de la P2 de Katrine.", desc_en: "1 Cannoneer must be alive at the start of Katrine's P2.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 13, dungeon: "Caveau de Lamespectre", title: "Complètement Marteau", title_en: "Completely Hammered", desc: "Le groupe doit se prendre TOUS les requins pendant le combat contre Marrow.", desc_en: "The group must take ALL the sharks during the fight against Marrow.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 14, dungeon: "Caveau de Lamespectre", title: "Je connais un passage", title_en: "I Know a Shortcut", desc: "Le groupe doit vaincre Marrow en premier SANS tuer aucune créature (Reliques Skip & Portail interdit).", desc_en: "The group must defeat Marrow first WITH 0% completion (Skip Relics & Portal forbidden).", points: 10, hard: false, personal: false, conditions: ['portal', 'shadow'] },
+      { id: 15, dungeon: "Caveau de Lamespectre", title: "Allié", title_en: "Ally", desc: "Le groupe doit tuer n'importe quel boss grâce aux sentinelles (Elles infligent le dégât final)", desc_en: "A Sentinel must deal the finishing blow to any boss in the dungeon.", points: 20, hard: true, personal: false, conditions: [] },
+      { id: 16, dungeon: "Coeur de guivre", title: "Givré", title_en: "Frozen", desc: "Le groupe ne doit JAMAIS interrompre le sort \"Frigid Mists\" de Veras.", desc_en: "The group must NEVER interrupt Veras' \"Frigid Mist\" spell.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 17, dungeon: "Coeur de guivre", title: "Transit", title_en: "Chilled", desc: "Le joueur doit atteindre 10 stacks de givre (Vous pouvez mourir après)", desc_en: "The player must reach 10 stacks of frost (You can die from it)", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 18, dungeon: "Coeur de guivre", title: "Sculpture sur Glace", title_en: "Ice Sculpture", desc: "Le groupe doit commencer le combat contre Veras avec les 2 Greater Ice Elemental (au moins 95% de santé) et vaincre les Elementals et le boss à 10sec d'intervalle.", desc_en: "The group must start the fight against Veras with the two Greater Ice Elementals (at least 95% health) and defeat the Elementals and the boss within a 10-second interval.", points: 20, hard: true, personal: false, conditions: [] },
+      { id: 19, dungeon: "Coeur de Tuzari", title: "La marche", title_en: "The March", desc: "Aucune créature ne doit être ralentie, contrôlée (Bump / Grip / Boss interdit) pendant le combat contre Ez'rath.", desc_en: "No creature should be slowed or controlled (Bump, Hook not allowed) during the fight against Ez'rath.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 20, dungeon: "Coeur de Tuzari", title: "Petits pas", title_en: "Baby Steps", desc: "Aucun membre du groupe ne doit se prendre une orbe pendant le combat contre Moar'gore.", desc_en: "No member of the group should take an orb during the fight against Moar'gore.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 21, dungeon: "Coeur de Tuzari", title: "Pulvérisateur", title_en: "Pulverizer", desc: "Toutes les plantes du donjon doivent être tuées.", desc_en: "All plants in the dungeon must be killed.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 22, dungeon: "Coeur de Tuzari", title: "Qu'ils brûlent", title_en: "Let Them Burn", desc: "Aucun membre du groupe ne doit tuer de Pyromancien (Reliques Skip & Portail interdit).", desc_en: "No member of the group should kill an Arsonist.", points: 10, hard: false, personal: false, conditions: ['portal', 'shadow', 'poulet'] },
+      { id: 23, dungeon: "Coeur de Tuzari", title: "Mauvaise graine", title_en: "Bad Seed", desc: "Pendant le combat contre Vun'Kahr, aucune plante ne doit apparaître (marcher sur TOUTES les plantes).", desc_en: "During the fight against Vun'Kahr, no plant should appear (step on ALL plants).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 24, dungeon: "Coeur de Tuzari", title: "Balo'Tuzari", title_en: "TuzBall", desc: "Aucun membre du groupe AINSI que Moar'gore ne doit se prendre une orbe.", desc_en: "No member of the group AND Moar'gore should take an orb.", points: 20, hard: true, personal: false, conditions: [] },
+      { id: 25, dungeon: "Creux Soyeux", title: "Progéniture", title_en: "Offspring", desc: "Le groupe doit vaincre Vexira alors qu'au moins 6 araignées invoquées par le boss (pas les petites) sont encore en vie. NO SNAP", desc_en: "The group must defeat Vexira while at least 6 of the boss's summoned spiders (not the small ones) are still alive. NO SNAP", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 26, dungeon: "Creux Soyeux", title: "Cent Dix Pelles", title_en: "No-Spell Dispel", desc: "Compléter le donjon sans qu'aucun membre du groupe n'ai utilisé un seul dispel.", desc_en: "Complete the dungeon without any party member using a single dispel", points: 10, hard: false, personal: false, conditions: ['dispell'] },
+      { id: 27, dungeon: "Creux Soyeux", title: "Insecticide", title_en: "Insecticide", desc: "Le groupe doit vaincre toutes les horreurs (Araignée Orange) dans le donjon et lancer le combat contre Vexira avant la fin du timer", desc_en: "The group must defeat all Carrion Horror in the dungeon and engage boss fight within timer.", points: 20, hard: true, personal: false, conditions: [] },
+      { id: 28, dungeon: "Guet Tempete", title: "Grappin", title_en: "Grappling Hook", desc: "Le groupe doit tuer Brogg sans tuer de Mancatcher (ceux invoqués par le boss)", desc_en: "The group must kill Brogg without killing Mancatchers (summoned by the boss).", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 29, dungeon: "Guet Tempete", title: "Enragé", title_en: "Enraged", desc: "Le groupe doit vaincre un pillard qui a atteint 20 stacks.", desc_en: "The group must defeat a pillager who has reached 20 stacks.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 30, dungeon: "Guet Tempete", title: "World Boss", title_en: "World Boss", desc: "Le groupe doit vaincre un pillard qui a atteint 35 stacks.", desc_en: "The group must defeat a pillager who has reached 35 stacks.", points: 20, hard: true, personal: false, conditions: [] },
+      { id: 31, dungeon: "La chute Cithrel", title: "La roulette", title_en: "Roulette", desc: "Pendant le combat contre Noor, le joueur ne doit se prendre aucun dégât de \"Cold-blooded Twist\" et \"Razor Trap\".", desc_en: "During the fight against Noor, the player must not take any damage from \"Cold-blooded Twist\" and \"Razor Trap\".", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 32, dungeon: "La chute Cithrel", title: "Soif de Sang", title_en: "Bloodlust", desc: "Pendant le combat contre Cithrel, tous les membres du groupe doivent avoir au moins 1 stack de sang à chaque utilisation du sort.", desc_en: "During the fight against Cithrel, all members of the group must have at least 1 stack of blood at each spell cast.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 33, dungeon: "La chute Cithrel", title: "Big bang", title_en: "Big Bang", desc: "Pendant le combat contre Koros, le groupe doit réussir à détruire 6 orbes en un coup.", desc_en: "During the fight against Koros, the group must successfully destroy 6 orbs in one hit.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 34, dungeon: "La chute Cithrel", title: "La montagne", title_en: "The Mountain", desc: "Le groupe ne doit tuer AUCUN Spellbound Golem.", desc_en: "The group must kill NO Spellbound Golem (big ones).", points: 10, hard: false, personal: false, conditions: ['portal', 'shadow', 'poulet'] },
+      { id: 35, dungeon: "La chute Cithrel", title: "Une Perte de.. Balle", title_en: "Waste of a Ball", desc: "Le groupe doit amener la MÊME orbe dans TOUTES les zones des boss.", desc_en: "The group must bring the SAME orb into ALL of the boss's zones.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 36, dungeon: "La chute Cithrel", title: "Zéro Absolu", title_en: "Absolute Zero", desc: "Le joueur doit obtenir 20 stacks de givre (Vous pouvez mourir après).", desc_en: "The player must obtain 20 stacks of frost (You can die from it).", points: 20, hard: true, personal: true, conditions: [] },
+      { id: 37, dungeon: "Marché d'Urrak", title: "La Paire", title_en: "The Dual", desc: "Le groupe doit faire monter un boss à 40 stacks minimum, avant de le tuer.", desc_en: "The group must have a boss reach 40 stacks minimum before killing it.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 38, dungeon: "Marché d'Urrak", title: "POUR LA FAMILLE", title_en: "For the Family", desc: "Le groupe doit libérer tous les villageois sans dépasser 100% d'accomplissement (8 Piliers) Avant la fin du timer", desc_en: "The group must free all villagers without exceeding 100% completion (8 Totems) Before the timer ends", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 39, dungeon: "Marché d'Urrak", title: "La Maire", title_en: "The Duel", desc: "Le groupe doit faire monter un boss à 80 stacks minimum, avant de le tuer.", desc_en: "The group must have a boss reach 80 stacks minimum before killing it.", points: 20, hard: true, personal: false, conditions: [] },
+      { id: 40, dungeon: "Sables Empyréens", title: "Sneaky", title_en: "Sneaky", desc: "Le groupe doit accomplir le donjon sans aggro une seule patrouille (Reliques Skip & Portail interdit).", desc_en: "The group must complete the dungeon without aggroing a single patrol.", points: 10, hard: false, personal: false, conditions: ['portal', 'shadow'] },
+      { id: 41, dungeon: "Sables Empyréens", title: "Crack le Code", title_en: "Crack the Code", desc: "Le groupe doit tuer 6-4-8-3 orbes dans cet ordre pendant le combat contre Sin-Magir", desc_en: "Kill 6-4-8-3 orbs in this exact order during the fight against Sin-Magir.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 42, dungeon: "Sables Empyréens", title: "Comme un Pro", title_en: "Like a Pro", desc: "Le groupe doit rammener le pack en bas des escalier sur le boss, et vaincre toutes les créatures de ce pack pendant le combat contre Sin-Magir. Toutes les créatures doivent avoir au moins 95% hp au début du combat contre Sin-Magir", desc_en: "The group must bring the group of enemies down the stairs to the boss and defeat all the creatures in that group during the fight against Sin-Magir. All creatures must have at least 95% HP at the start of the fight against Sin-Magir.", points: 20, hard: true, personal: false, conditions: ['poulet'] },
+      { id: 43, dungeon: "Saccage de Drakheim", title: "C'est pas comme ça qu'on fait", title_en: "Not Like This", desc: "Le joueur doit obtenir 10 stacks de Givre & 10 stacks de Feu pendant le combat contre Fodir Kaldur (pas en même temps et survivre).", desc_en: "The player must gain 10 stacks of Frost and 10 stacks of Fire during the fight against Fodir Kaldur (not at the same time). You must survive", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 44, dungeon: "Saccage de Drakheim", title: "Je ne sais pas nager", title_en: "I Can't Swim", desc: "Aucun membre du groupe ne doit mettre de pied dans l'eau (Portal & Sort de mobilité interdit)", desc_en: "No group member must step into the water (portals and mobility spells are forbidden).", points: 10, hard: false, personal: false, conditions: ['portal'] },
+      { id: 45, dungeon: "Saccage de Drakheim", title: "Dans le doute", title_en: "When in Doubt", desc: "Pendant le combat contre Auga Handhafi, vous devez détruire au moins 8 orbes avant de le tuer. (Toutes les orbes du boss comptent.)", desc_en: "During the fight against Auga Handhafi, you must destroy at least 8 orbs before killing him. (All of the boss's orbs count.)", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 46, dungeon: "Saccage de Drakheim", title: "Hydrophobe", title_en: "Hydrophobic", desc: "Pendant le combat contre Chilgar, le joueur ne doit se prendre aucune vague / pilier / tornade.", desc_en: "During the fight against Chilgar, the player must not get hit by any wave, pillar, or tornado.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 47, dungeon: "Saccage de Drakheim", title: "De feu et de glace", title_en: "Of Fire and Ice", desc: "Le groupe doit vaincre Isilagour & Eldsupptok à 10sec d'intervalle.", desc_en: "The group must defeat Isilagour and Eldsupptok within 10 seconds of each other.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 48, dungeon: "Saccage de Drakheim", title: "Jamais 203", title_en: "Third Time's the Charm", desc: "Le groupe doit commencer le combat contre Fodir Kaldur avec Isilagour & Eldsupptok à au moins 95% de santé. Se valide quand le combat est terminée et que les créatures ont été vaincues", desc_en: "The group must start the fight against Fodir Kaldur with Isilagour & Eldsupptok at least 95% health. This is validated once the fight is over and the creatures have been defeated.", points: 20, hard: true, personal: false, conditions: [] },
+    ];
+
+    const DUNGEONS_ORDER = [
+      "Abime des marins", "Bois de L'aube", "Carrière tombe-dieu",
+      "Coeur de guivre", "Creux Soyeux", "Guet Tempete",
+      "Marché d'Urrak", "Sables Empyréens", "Caveau de Lamespectre",
+      "Coeur de Tuzari", "La chute Cithrel", "Saccage de Drakheim"
+    ];
+
+    // ---- UTILS ----
+    function toast(msg, isError = false) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast show' + (isError ? ' error' : '');
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.className = 'toast', 3000);
+    }
+
+    function showPage(id, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      btn.classList.add('active');
+      if (id === 'leaderboard') loadLeaderboard();
+      if (id === 'achievements') renderAchievements();
+    }
+
+    // ---- SUPABASE FETCH ----
+    async function sbFetch(path, key, opts = {}) {
+      const url = (SUPABASE_URL === 'REMPLACE_PAR_TON_URL' ? adminUrl : SUPABASE_URL) + path;
+      const apiKey = key || SUPABASE_ANON_KEY;
+      const res = await fetch(url, {
+        headers: {
+          'apikey': apiKey,
+          'Authorization': 'Bearer ' + apiKey,
+          'Content-Type': 'application/json',
+          'Prefer': opts.prefer || '',
+          ...opts.headers
+        },
+        method: opts.method || 'GET',
+        body: opts.body ? JSON.stringify(opts.body) : undefined
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err);
+      }
+      if (res.status === 204) return null;
+      return res.json();
+    }
+
+    // ---- SCORE CALCULATION (côté client) ----
+    function computeScores(players, completions) {
+      // completions: [{player_id, achievement_id}]
+      const byPlayer = {};
+      players.forEach(p => byPlayer[p.id] = new Set());
+      completions.forEach(c => {
+        if (byPlayer[c.player_id]) byPlayer[c.player_id].add(c.achievement_id);
+      });
+
+      return players.map(p => {
+        const done = byPlayer[p.id];
+        let base = 0;
+        done.forEach(aid => {
+          const a = ACHIEVEMENTS.find(x => x.id === aid);
+          if (a) base += a.points;
+        });
+        // Bonus par donjon
+        let bonus = 0;
+        DUNGEONS_ORDER.forEach(d => {
+          const dungeonHFs = ACHIEVEMENTS.filter(a => a.dungeon === d);
+          if (dungeonHFs.every(a => done.has(a.id))) bonus += 5;
+        });
+        return {
+          id: p.id,
+          name: p.name,
+          base,
+          bonus,
+          total: base + bonus,
+          hf_count: done.size,
+          done
+        };
+      }).sort((a, b) => b.total - a.total);
+    }
+
+    // ---- LEADERBOARD ----
+    let lbData = null;
+
+    async function loadLeaderboard() {
+      if (SUPABASE_URL === 'REMPLACE_PAR_TON_URL') {
+        document.getElementById('lb-content').innerHTML = '<div class="loading">Configure ton URL Supabase dans le fichier HTML pour voir les données en direct.</div>';
+        return;
+      }
+      document.getElementById('lb-content').innerHTML = '<div class="loading">Chargement...</div>';
+      try {
+        const [players, completions] = await Promise.all([
+          sbFetch('/rest/v1/players?select=id,name&order=name'),
+          sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id')
+        ]);
+        lbData = computeScores(players, completions);
+        await loadBadges();
+        renderLeaderboard(lbData);
+      } catch (e) {
+        document.getElementById('lb-content').innerHTML = '<div class="loading">Erreur de chargement. Vérifie ta config Supabase.</div>';
+      }
+    }
+
+    function renderLeaderboard(scores) {
+      const rankIcons = ['I', 'II', 'III'];
+      let html = `<div class="lb-header">
+    <div></div>
+    <div>${t('lb.col.player')}</div>
+    <div class="col-base" style="text-align:right">${t('lb.col.base')}</div>
+    <div class="col-bonus" style="text-align:right">${t('lb.col.bonus')}</div>
+    <div class="col-hf" style="text-align:right">${t('lb.col.hf')}</div>
+    <div style="text-align:right">${t('lb.col.total')}</div>
+  </div>`;
+
+      // Rang dense : 1,1,1,2,3,4,4,4... (saute les 0 pts)
+      let nextRank = 1;
+      scores.forEach((s, i) => {
+        if (s.total === 0) {
+          s._rank = i + 1;
+        } else if (i === 0 || s.total !== scores[i - 1].total) {
+          s._rank = nextRank;
+          nextRank++;
+        } else {
+          s._rank = scores[i - 1]._rank; // égalité → même rang, nextRank n'avance pas
+        }
+      });
+
+      scores.forEach((s, i) => {
+        const rank = s._rank;
+        // Style visuel : on colore les 3 premières positions distinctes
+        const topRanks = [...new Set(scores.filter(x => x.total > 0).map(x => x._rank))].slice(0, 3);
+        const visualRank = topRanks.indexOf(rank); // 0, 1, 2 ou -1
+        const rankClass = visualRank >= 0 ? `rank-${visualRank + 1}` : '';
+
+        let rankLabel;
+        if (s.total === 0) {
+          rankLabel = `<span style="font-size:12px">${i + 1}</span>`;
+        } else if (visualRank >= 0 && rank <= 3) {
+          rankLabel = `<span style="font-style:italic;font-size:11px">${rankIcons[rank - 1] || rank}</span>`;
+        } else {
+          rankLabel = `<span style="font-size:12px">${rank}</span>`;
+        }
+
+        let detailHtml = '<div class="lb-detail"><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">';
+        DUNGEONS_ORDER.forEach(d => {
+          const dHFs = ACHIEVEMENTS.filter(a => a.dungeon === d);
+          const dDone = dHFs.filter(a => s.done.has(a.id)).length;
+          const complete = dDone === dHFs.length;
+          detailHtml += `<div class="dungeon-section">
+        <div class="dp-header">
+          <span class="dp-name">${t(d)}</span>
+          <span class="dp-count ${complete ? 'complete' : ''}">${dDone}/${dHFs.length}${complete ? ' · +5pts' : ''}</span>
+        </div>
+        <div class="hf-list">`;
+          dHFs.forEach(a => {
+            const done = s.done.has(a.id);
+            const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
+            detailHtml += `<div class="hf-item ${done ? 'done' : ''}">
+          <div class="hf-check-icon">${done ? '✓' : ''}</div>
+          <span class="hf-item-name">${title}</span>
+          <div class="hf-item-badges">${renderBadges(a)}</div>
+          <span class="hf-item-pts">${done ? '+' + a.points : a.points} pts</span>
+        </div>`;
+          });
+          detailHtml += '</div></div>';
+        });
+        detailHtml += '</div></div>';
+
+        html += `<div class="lb-row ${rankClass}" onclick="this.classList.toggle('open')">
+      <div class="rank-num">${rankLabel}</div>
+      <div class="player-name" onclick="event.stopPropagation(); openProfile(${s.id}, '${s.name.replace(/'/g, "\\'")})" style="cursor:pointer">${s.name}${renderBadgesInline(s.id)}</div>
+      <div class="score-base col-base">${s.base}</div>
+      <div class="score-bonus col-bonus">${s.bonus > 0 ? '+' + s.bonus : '—'}</div>
+      <div class="hf-count col-hf">${s.hf_count}</div>
+      <div class="score-total">${s.total}</div>
+      ${detailHtml}
+    </div>`;
+      });
+
+      document.getElementById('lb-content').innerHTML = html;
+    }
+
+    // ---- ACHIEVEMENTS LIST ----
+    const DUNGEON_IMAGES = {
+      "Abime des marins": "images/abime-des-marins.jpg",
+      "Bois de L'aube": "images/bois-de-laube.jpg",
+      "Carrière tombe-dieu": "images/carriere-tombe-dieu.jpg",
+      "Caveau de Lamespectre": "images/caveau-de-lamespectre.jpg",
+      "Coeur de guivre": "images/coeur-de-guivre.jpg",
+      "Coeur de Tuzari": "images/coeur-de-tuzari.jpg",
+      "Creux Soyeux": "images/creux-soyeux.jpg",
+      "Guet Tempete": "images/guet-tempete.jpg",
+      "La chute Cithrel": "images/la-chute-cithrel.jpg",
+      "Marché d'Urrak": "images/marche-durrak.jpg",
+      "Sables Empyréens": "images/sables-empyreens.jpg",
+      "Saccage de Drakheim": "images/saccage-de-drakheim.jpg",
+    };
+
+    function renderAchievements() {
+      let html = '';
+      DUNGEONS_ORDER.forEach(d => {
+        const hfs = ACHIEVEMENTS.filter(a => a.dungeon === d);
+        const maxPts = hfs.reduce((s, a) => s + a.points, 0) + 5;
+        const imgPath = DUNGEON_IMAGES[d] || '';
+        const bgStyle = imgPath ? `background-image: url('${imgPath}');` : '';
+        html += `<div class="dungeon-block">
+      <div class="dungeon-bg" style="${bgStyle}"></div>
+      <div class="dungeon-inner">
+        <div class="dungeon-title">${t(d)} <span class="bonus-tag">${t('hf.bonus_tag')}</span> <span style="margin-left:auto;font-size:14px;color:var(--text-dim)">${maxPts} ${t('hf.pts_max')}</span></div>
+        <div class="hf-grid">`;
+        hfs.forEach(a => {
+          const title = (currentLang === 'en' && TRANSLATIONS[a.title]?.en) ? TRANSLATIONS[a.title].en : a.title;
+          html += `<div class="hf-card" onclick="this.classList.toggle('open')">
+        <div class="hf-card-header">
+          <span class="hf-card-title">${title}</span>
+          <div class="hf-badges">${renderBadges(a)}</div>
+        </div>
+        <div class="hf-card-desc">${currentLang === 'en' && a.desc_en ? a.desc_en : a.desc}</div>
+      </div>`;
+        });
+        html += `</div></div></div>`;
+      });
+      // HF SECRET
+      html += `<div class="secret-section">
+    <div class="secret-title">${t('secret.section')}</div>
+    <div class="secret-card" onclick="this.classList.toggle('open')">
+      <div class="secret-card-header">
+        <span class="secret-card-title">${t('secret.title')}</span>
+      </div>
+      <div class="secret-card-desc">
+        <span class="secret-coming-soon">${t('secret.coming')}</span>
+      </div>
+    </div>
+  </div>`;
+
+      document.getElementById('ach-content').innerHTML = html;
+    }
+
+    // ---- ADMIN ----
+    let adminUrl = '';
+    let adminKey = '';
+    let adminPlayers = [];
+    let adminCurrentPlayer = null;
+    let adminCurrentDone = new Set();
+
+    function adminLogin() {
+      adminUrl = document.getElementById('input-url').value.trim().replace(/\/$/, '');
+      adminKey = document.getElementById('input-key').value.trim();
+      if (!adminUrl || !adminKey) { toast('Remplis les deux champs', true); return; }
+      loadAdminData();
+    }
+
+    async function loadAdminData() {
+      try {
+        adminPlayers = await sbFetch('/rest/v1/players?select=id,name&order=name', adminKey);
+        const sel = document.getElementById('admin-player-select');
+        sel.innerHTML = '<option value="">— Choisir un joueur —</option>';
+        adminPlayers.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.name;
+          sel.appendChild(opt);
+        });
+        document.getElementById('admin-gate').style.display = 'none';
+        document.getElementById('admin-panel').classList.add('visible');
+        toast('Connecté !');
+      } catch (e) {
+        toast('Erreur de connexion. Vérifie tes clés.', true);
+      }
+    }
+
+    async function loadAdminPlayer() {
+      const playerId = parseInt(document.getElementById('admin-player-select').value);
+      if (!playerId) { document.getElementById('admin-hf-list').innerHTML = ''; return; }
+      adminCurrentPlayer = playerId;
+
+      try {
+        const completions = await sbFetch(`/rest/v1/player_achievements?player_id=eq.${playerId}&select=achievement_id`, adminKey);
+        adminCurrentDone = new Set(completions.map(c => c.achievement_id));
+        renderAdminHFs();
+      } catch (e) {
+        toast('Erreur de chargement du joueur', true);
+      }
+    }
+
+    function renderAdminHFs() {
+      let html = '';
+      DUNGEONS_ORDER.forEach(d => {
+        const hfs = ACHIEVEMENTS.filter(a => a.dungeon === d);
+        html += `<div class="admin-dungeon">
+      <div class="admin-dungeon-title">${d}</div>`;
+        hfs.forEach(a => {
+          const checked = adminCurrentDone.has(a.id);
+          html += `<div class="admin-hf-row">
+        <div class="admin-hf-check ${checked ? 'checked' : ''}" onclick="toggleHF(${a.id}, this)"></div>
+        <div class="admin-hf-info">
+          <div class="admin-hf-name">${a.title} ${a.hard ? '⭐' : ''} ${a.personal ? '👤' : ''}</div>
+          <div class="admin-hf-meta">${a.points} pts</div>
+        </div>
+      </div>`;
+        });
+        html += '</div>';
+      });
+      document.getElementById('admin-hf-list').innerHTML = html;
+    }
+
+    async function toggleHF(achievementId, el) {
+      const isChecked = el.classList.contains('checked');
+      el.style.pointerEvents = 'none';
+
+      try {
+        if (isChecked) {
+          // Décocher
+          await sbFetch(
+            `/rest/v1/player_achievements?player_id=eq.${adminCurrentPlayer}&achievement_id=eq.${achievementId}`,
+            adminKey,
+            { method: 'DELETE', prefer: 'return=minimal' }
+          );
+          el.classList.remove('checked');
+          adminCurrentDone.delete(achievementId);
+        } else {
+          // Cocher
+          await sbFetch('/rest/v1/player_achievements', adminKey, {
+            method: 'POST',
+            prefer: 'return=minimal',
+            body: { player_id: adminCurrentPlayer, achievement_id: achievementId }
+          });
+          el.classList.add('checked');
+          adminCurrentDone.add(achievementId);
+        }
+        const ind = document.getElementById('save-indicator');
+        ind.classList.add('show');
+        clearTimeout(ind._t);
+        ind._t = setTimeout(() => ind.classList.remove('show'), 2000);
+      } catch (e) {
+        toast('Erreur lors de la mise à jour', true);
+      }
+      el.style.pointerEvents = '';
+    }
+
+    // ---- BADGES ----
+    // Images dans images/badges/hard.png, solo.png, group.png
+    // Images conditions dans images/conditions/portal.png, dispell.png, dice.png, res.png, shadow.png, drum.png, poulet.png
+    function renderBadges(a) {
+      let html = '';
+      if (a.hard)
+        html += `<span class="badge" title="${t('badge.hard')}"><img src="images/badges/hard.png" alt="${t('badge.hard')}"></span>`;
+      if (a.personal)
+        html += `<span class="badge" title="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
+      (a.conditions || []).forEach(c =>
+        html += `<span class="badge" title="${t('cond.' + c)}"><img src="images/conditions/${c}.png" alt="${c}"></span>`
+      );
+      html += `<span class="badge badge-pts">${a.points} pts</span>`;
+      return html;
+    }
+
+    // ---- TRADUCTIONS ----
+    // Remplis les valeurs EN ci-dessous. Les FR sont les textes par défaut.
+    const TRANSLATIONS = {
+      'nav.help': { fr: 'Aide ?', en: 'Help ?' },
+      'header.event-title': { fr: 'Gloire à la Compagnie I', en: 'Glory to the Fellowship I' },
+      'nav.joiningform': { fr: 'Rejoindre l\'événement', en: 'Join the event' },
+      'nav.feedbackform': { fr: 'Donner votre avis', en: 'Provide feedback' },
+      'nav.leaderboard': { fr: 'Classement', en: 'Leaderboard' },
+      'nav.achievements': { fr: 'Hauts-faits', en: 'Achievements' },
+      'nav.rules': { fr: 'Règles', en: 'Rules' },
+      // ---- Règles ----
+      'rules.section.gear': { fr: 'Équipement autorisé', en: 'Allowed gear' },
+      'rules.section.gear_example': { fr: 'Exemple de stuff', en: 'Gear example' },
+      'rules.section.hf': { fr: 'Hauts-faits', en: 'Achievements' },
+      'rules.section.valid': { fr: 'Validation', en: 'Validation' },
+      'rules.section.dungeon': { fr: 'Donjons', en: 'Dungeons' },
+      'rules.gear.1': { fr: '270 ilvl, sans gemmes, avec 1 légendaire (~274 ilvl effectif)', en: '270 ilvl, no gems, with 1 legendary (~274 effective ilvl)' },
+      'rules.gear.2': { fr: "Arme Eternal 270 uniquement - Tout ce qui donne plus de 3 traits d'armes n'est pas autorisé. Vous pouvez améliorer vos traits.", en: 'Eternal Weapon 270 only - Nothing that can get you more than 3 weapon trait is allowed. You can upgrade your weapon trait.' },
+      'rules.hf.1': { fr: "Les hauts-faits marqués du logo solo sont personnels : ils n'ont pas besoin d'être validés par tous les membres du groupe, ils sont liés au joueur individuellement.", en: "Achievements marked with the solo icon are personal: they don't need to be validated by all group members. They are linked to the individual player." },
+      'rules.hf.2': { fr: "Les logos de condition (portail interdit, dispell interdit, poulet interdit…) indiquent les reliques ou capacités bannies pour ce haut-fait.", en: 'Condition icons (portal forbidden, dispell forbidden, chicken forbidden…) indicate the relics or abilities banned for that achievement.' },
+      'rules.valid.1': { fr: "Pas de logs obligatoires pendant la complétion. Jouez le jeu honnêtement, c'est tout ce qu'on demande.", en: "No logs required during completion. Play honestly. That's all we ask." },
+      'rules.valid.2': { fr: "Les hauts-faits sont liés au compte. Pour les valider, envoyez un MP à Pouf ou postez un message sur le Discord avec le nom des challenges accomplis. Le score sera mis à jour en conséquence.", en: 'Achievement are bind to account. To validate them, send a DM to Pouf or post a message on Discord with the completed challenge names. The score will be updated accordingly.' },
+      'rules.dungeon.1': { fr: 'Les donjons sont à faire uniquement entre Eternal 5 & Eternal 9.', en: 'Dungeons must be completed between Eternal 5 & Eternal 9 only.' },
+      'header.subtitle': { fr: 'Event Pre-saison 2 · Classement en direct', en: 'Pre Season 2 Event · Live rankings' },
+      'header.organiser': { fr: 'Organisé par Pouf', en: 'Hosted by Pouf' },
+      'lb.col.player': { fr: 'Joueur', en: 'Player' },
+      'lb.col.base': { fr: 'Base', en: 'Base' },
+      'lb.col.bonus': { fr: 'Bonus', en: 'Bonus' },
+      'lb.col.hf': { fr: 'HF', en: 'Ach.' },
+      'lb.col.total': { fr: 'Total', en: 'Total' },
+      'hf.bonus_tag': { fr: '+5 pts si complet', en: '+5 pts if complete' },
+      'hf.pts_max': { fr: 'pts max', en: 'pts max' },
+      'secret.section': { fr: '✦ Haut-fait secret ✦', en: '✦ Secret Achievement ✦' },
+      'secret.title': { fr: '— ? —', en: '— ? —' },
+      'secret.desc': { fr: "Sous des coques immobiles, ils prennent jusqu'à sombrer sous son poids.", en: 'Beneath motionless hulls, they take until they sink under its weight.' },
+      'secret.coming': { fr: "Sous des coques immobiles, ils prennent jusqu'à sombrer sous son poids.", en: 'Beneath motionless hulls, they take until they sink under its weight.' },
+      'badge.hard': { fr: 'Difficile', en: 'Hard' },
+      'badge.solo': { fr: 'Solo', en: 'Solo' },
+      'badge.group': { fr: 'Groupe', en: 'Group' },
+      'cond.portal': { fr: 'Portail interdit', en: 'Portal forbidden' },
+      'cond.dispell': { fr: 'Dispell interdit', en: 'Dispell forbidden' },
+      'cond.dice': { fr: 'Dés interdit', en: 'Dice forbidden' },
+      'cond.res': { fr: 'Résurrection interdite', en: 'Resurrection forbidden' },
+      'cond.shadow': { fr: 'Ombre interdite', en: 'Shadow forbidden' },
+      'cond.drum': { fr: 'Tambour interdit', en: 'Drum forbidden' },
+      'cond.poulet': { fr: 'Poulet interdit', en: 'Chicken forbidden' },
+      // Noms de donjons
+      "Abime des marins": { fr: "Abime des marins", en: "Sailor's Abyss" },
+      "Bois de L'aube": { fr: "Bois de L'aube", en: "Everdawn Grove" },
+      "Carrière tombe-dieu": { fr: "Carrière tombe-dieu", en: "Godfall Quarry" },
+      "Caveau de Lamespectre": { fr: "Caveau de Lamespectre", en: "Wraithtide Vault" },
+      "Coeur de guivre": { fr: "Coeur de guivre", en: "Wyrmheart" },
+      "Coeur de Tuzari": { fr: "Coeur de Tuzari", en: "The Heart of Tuzari" },
+      "Creux Soyeux": { fr: "Creux Soyeux", en: "Silken Hollow" },
+      "Guet Tempete": { fr: "Guet Tempete", en: "Stormwatch" },
+      "La chute Cithrel": { fr: "La chute Cithrel", en: "Cithrel's Fall" },
+      "Marché d'Urrak": { fr: "Marché d'Urrak", en: "Urrak Market" },
+      "Sables Empyréens": { fr: "Sables Empyréens", en: "Empyrean Sands" },
+      "Saccage de Drakheim": { fr: "Saccage de Drakheim", en: "Ransack of Drakheim" },
+      // Titres des HF — ajoute ici tes traductions EN au fur et à mesure
+      // Exemple : "Surfeur dans l'âme": { fr: "Surfeur dans l'âme", en: "Soul Surfer" },
+      "Surfeur dans l'âme": { fr: "Surfeur dans l'âme", en: "Surfer at Heart" },
+      "BIG PULL": { fr: "BIG PULL", en: "BIG PULL" },
+      "Pourquoi choisir": { fr: "Pourquoi choisir", en: "Why Choose" },
+      "La charge sauvage": { fr: "La charge sauvage", en: "Wild Charge" },
+      "Reforestation": { fr: "Reforestation", en: "Reforestation" },
+      "Sang pour 100": { fr: "Sang pour 100", en: "Blood for Blood" },
+      "Incognito": { fr: "Incognito", en: "Incognito" },
+      "Rock Solid": { fr: "Rock Solid", en: "Rock Solid" },
+      "Tout est dans le timing": { fr: "Tout est dans le timing", en: "It's All in the Timing" },
+      "Allié ou Ennemi ?": { fr: "Allié ou Ennemi ?", en: "Ally or Enemy?" },
+      "Pierre qui roule n'amasse pas mousse": { fr: "Pierre qui roule n'amasse pas mousse", en: "A Rolling Stone Gathers No Moss" },
+      "Devy Jones": { fr: "Devy Jones", en: "Devy Jones" },
+      "Complètement Marteau": { fr: "Complètement Marteau", en: "Completely Hammered" },
+      "Je connais un passage": { fr: "Je connais un passage", en: "I Know a Shortcut" },
+      "Allié": { fr: "Allié", en: "Ally" },
+      "Givré": { fr: "Givré", en: "Frozen" },
+      "Transit": { fr: "Transit", en: "Chilled" },
+      "Sculpture sur Glace": { fr: "Sculpture sur Glace", en: "Ice Sculpture" },
+      "La marche": { fr: "La marche", en: "The March" },
+      "Balo'Tuzari": { fr: "Balo'Tuzari", en: "Baby Steps" },
+      "Pulvérisateur": { fr: "Pulvérisateur", en: "Pulverizer" },
+      "Qu'ils brûlent": { fr: "Qu'ils brûlent", en: "Let Them Burn" },
+      "Mauvaise graine": { fr: "Mauvaise graine", en: "Bad Seed" },
+      "Petits pas": { fr: "Petits pas", en: "TuzBall" },
+      "Progéniture": { fr: "Progéniture", en: "Offspring" },
+      "Insecticide": { fr: "Insecticide", en: "Insecticide" },
+      "Cent Dix Pelles": { fr: "Cent Dix Pelles", en: "No-Spell Dispel" },
+      "Grappin": { fr: "Grappin", en: "Grappling Hook" },
+      "Enragé": { fr: "Enragé", en: "Enraged" },
+      "World Boss": { fr: "World Boss", en: "World Boss" },
+      "La roulette": { fr: "La roulette", en: "Roulette" },
+      "Soif de Sang": { fr: "Soif de Sang", en: "Bloodlust" },
+      "Big bang": { fr: "Big bang", en: "Big Bang" },
+      "La montagne": { fr: "La montagne", en: "The Mountain" },
+      "Une Perte de.. Balle": { fr: "Une Perte de.. Balle", en: "Waste of a Ball" },
+      "Zéro Absolu": { fr: "Zéro Absolu", en: "Absolute Zero" },
+      "La Paire": { fr: "La Paire", en: "The Dual" },
+      "POUR LA FAMILLE": { fr: "POUR LA FAMILLE", en: "For the Family" },
+      "La Maire": { fr: "La Maire", en: "The Duel" },
+      "Crack le Code": { fr: "Crack le Code", en: "Crack the Code" },
+      "Sneaky": { fr: "Sneaky", en: "Sneaky" },
+      "Comme un Pro": { fr: "Comme un Pro", en: "Like a Pro" },
+      "C'est pas comme ça qu'on fait": { fr: "C'est pas comme ça qu'on fait", en: "Not Like This" },
+      "Je ne sais pas nager": { fr: "Je ne sais pas nager", en: "I Can't Swim" },
+      "Dans le doute": { fr: "Dans le doute", en: "When in Doubt" },
+      "Hydrophobe": { fr: "Hydrophobe", en: "Hydrophobic" },
+      "De feu et de glace": { fr: "De feu et de glace", en: "Of Fire and Ice" },
+      "Jamais 203": { fr: "Jamais 203", en: "Third Time’s the Charm" },
+    };
+
+    let currentLang = localStorage.getItem('pouf_lang') || 'fr';
+
+    function t(key) {
+      const entry = TRANSLATIONS[key];
+      if (!entry) return key;
+      return entry[currentLang] || entry.fr || key;
+    }
+
+    function applyLangToStaticElements() {
+      document.getElementById('header-subtitle').innerHTML = t('header.subtitle');
+      document.getElementById('header-organiser').textContent = t('header.organiser');
+      document.getElementById('tab-leaderboard').textContent = t('nav.leaderboard');
+      document.getElementById('tab-achievements').textContent = t('nav.achievements');
+      document.getElementById('tab-rules').textContent = t('nav.rules');
+      document.getElementById('help-btn').textContent = t('nav.help');
+      document.getElementById('event-title').textContent = t('header.event-title');
+      document.getElementById('joiningform').textContent = t('nav.joiningform');
+      document.getElementById('feedbackform').textContent = t('nav.feedbackform');
+      document.getElementById('lang-btn-fr').classList.toggle('active', currentLang === 'fr');
+      document.getElementById('lang-btn-en').classList.toggle('active', currentLang === 'en');
+      document.documentElement.lang = currentLang;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('pouf_lang', lang);
+      applyLangToStaticElements();
+      renderAchievements();
+      if (lbData) renderLeaderboard(lbData);
+      if (document.getElementById('page-rules').classList.contains('active')) renderRules();
+    }
+
+    function toggleHelpMenu() {
+      const menu = document.getElementById('help-menu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Fermer si clic ailleurs
+    document.addEventListener('click', function (e) {
+      const menu = document.getElementById('help-menu');
+      const btn = document.getElementById('help-btn');
+      if (!menu.contains(e.target) && e.target !== btn) {
+        menu.style.display = 'none';
+      }
+    });
+
+    // ---- RULES ----
+    function renderRules() {
+      document.getElementById('rules-content').innerHTML = `
+    <div class="rules-section">
+      <div class="rules-section-title">${t('rules.section.gear')}</div>
+      <div class="rules-list">
+        <div class="rules-item highlight">⚔️&nbsp; ${t('rules.gear.1')}</div>
+        <div class="rules-item highlight">🗡️&nbsp; ${t('rules.gear.2')}</div>
+      </div>
+      <div style="margin-top:14px">
+        <div class="rules-section-title" style="margin-bottom:12px">${t('rules.section.gear_example')}</div>
+        <img
+          src="images/stuff-example.png"
+          alt="Exemple de stuff autorisé"
+          style="max-width:320px;width:100%;border-radius:6px;border:1px solid var(--border);display:block;margin:0 auto;"
+        >
+      </div>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">${t('rules.section.hf')}</div>
+      <div class="rules-list">
+              <div class="rules-item" style="border-left-color:#89070e;background:rgba(137,7,14,0.08);">
+          🏰&nbsp; ${t('rules.dungeon.1')}
+        </div>
+        <div class="rules-item info">
+          <div class="rules-icon"><img src="images/badges/solo.png" alt="solo"></div>
+          <span>${t('rules.hf.1')}</span>
+        </div>
+        <div class="rules-item">
+          <div class="rules-conditions">
+            <img src="images/conditions/portal.png" alt="portal">
+            <img src="images/conditions/shadow.png" alt="shadow">
+            <img src="images/conditions/dispell.png" alt="dispell">
+            <img src="images/conditions/poulet.png" alt="poulet">
+          </div>
+          <span>${t('rules.hf.2')}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rules-section">
+      <div class="rules-section-title">${t('rules.section.valid')}</div>
+      <div class="rules-list">
+        <div class="rules-item">📋&nbsp; ${t('rules.valid.1')}</div>
+        <div class="rules-item">💬&nbsp; ${t('rules.valid.2')}</div>
+      </div>
+    </div>
+  `;
+    }
+
+    function showPage(id, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      btn.classList.add('active');
+      if (id === 'leaderboard') loadLeaderboard();
+      if (id === 'achievements') renderAchievements();
+      if (id === 'rules') renderRules();
+    }
+
+    // ---- INIT ----
+    applyLangToStaticElements();
+    loadLeaderboard();
+    renderAchievements();
+  </script>
+  <!-- ── MODAL PROFIL ── -->
+  <div class="modal-overlay" id="profile-modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-player-name" id="modal-player-name">—</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section-title">Badges</div>
+        <div class="badges-grid" id="modal-badges-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── BADGES ──
+    let _allBadges = null, _playerBadges = null;
+
+    async function loadBadges() {
+      if (_allBadges) return;
+      try {
+        const [badges, playerBadges] = await Promise.all([
+          sbFetch('/rest/v1/badges?select=id,name,description,icon,color,event_slug,sort_order&order=sort_order'),
+          sbFetch('/rest/v1/player_badges?select=player_id,badge_id')
+        ]);
+        _allBadges = {};
+        badges.forEach(b => _allBadges[b.id] = b);
+        _playerBadges = {};
+        playerBadges.forEach(pb => {
+          if (!_playerBadges[pb.player_id]) _playerBadges[pb.player_id] = [];
+          const badge = _allBadges[pb.badge_id];
+          if (badge) _playerBadges[pb.player_id].push(badge);
+        });
+      } catch (e) { console.warn('Badges unavailable:', e); _allBadges = {}; _playerBadges = {}; }
+    }
+
+    function renderBadgesInline(playerId) {
+      if (!_playerBadges) return '';
+      return (_playerBadges[playerId] || []).map(b => `
+    <span class="badge-wrap">
+      <img class="badge-inline" src="../images/${b.icon}" alt="${b.name}"
+           onerror="this.style.opacity='0.2'"
+           onclick="event.stopPropagation(); openProfile(${playerId}, '${b.name}')">
+      <span class="badge-tooltip">${b.name}</span>
+    </span>`).join('');
+    }
+
+    function openProfile(playerId, playerName) {
+      const badges = (_playerBadges && _playerBadges[playerId]) || [];
+      const lang = localStorage.getItem('pouf_lang') || 'fr';
+      document.getElementById('modal-player-name').textContent = playerName || '—';
+      const grid = document.getElementById('modal-badges-grid');
+      grid.innerHTML = !badges.length
+        ? `<div class="modal-no-badges">${lang === 'en' ? 'No badges yet.' : 'Aucun badge pour le moment.'}</div>`
+        : badges.map(b => `
+        <div class="badge-card">
+          <img src="../images/${b.icon}" alt="${b.name}" onerror="this.style.opacity='0.2'">
+          <div class="badge-card-name">${b.name}</div>
+          <div class="badge-card-event">${b.event_slug}</div>
+        </div>`).join('');
+      document.getElementById('profile-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('profile-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  </script>
+
+</body>
+
+</html>
