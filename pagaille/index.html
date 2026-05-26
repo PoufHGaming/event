@@ -325,7 +325,85 @@
       font-style: italic;
     }
 
-    /* ── JOIN ── */
+    /* ── JOIN STEPS ── */
+    .join-steps { display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px; }
+
+    .join-step {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+    .join-step-num {
+      flex-shrink: 0;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: rgba(64,212,212,0.1);
+      border: 1px solid var(--border-bright);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 13px; font-weight: 700;
+      color: var(--teal-light);
+      margin-top: 2px;
+    }
+    .join-step-body { flex: 1; }
+    .join-step-title {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      margin-bottom: 6px;
+    }
+    .join-step-desc {
+      font-size: 16px;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+    .join-step-desc a {
+      color: var(--teal-light);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(64,212,212,0.3);
+      transition: border-color 0.2s;
+    }
+    .join-step-desc a:hover { border-bottom-color: var(--teal-light); }
+    .join-step-desc strong { color: var(--text); font-weight: 400; }
+
+    .join-url-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .join-url-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 7px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .join-url-bar {
+      padding: 10px 14px;
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--text-dim);
+      word-break: break-all;
+      line-height: 1.6;
+    }
+    .url-hi { color: var(--teal-light); font-weight: 700; background: rgba(64,212,212,0.14); padding: 1px 5px; border-radius: 3px; }
+    .url-dim { color: var(--text-muted); }
+    .join-url-caption {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 0 14px 10px;
+    }
+
+    .join-divider { height: 1px; background: var(--border); margin: 4px 0 20px; }
+
+        /* ── JOIN ── */
     .join-block {
       display: flex;
       align-items: center;
@@ -411,7 +489,7 @@
       <span class="status-dot"></span>
       <span data-fr="À venir" data-en="Upcoming">À venir</span>
     </div>
-    <div class="event-title" data-fr="Donjon en Pagaille" data-en="Dungeon Mayhem">Donjon en Pagaille</div>
+    <div class="event-title" data-fr="Donjon en Pagaill" data-en="Dungeon Mayhem">Donjon en Pagaille</div>
     <div class="event-subtitle" data-fr="Tuez le plus de boss possible" data-en="Kill as many bosses as possible">Tuez le plus de boss possible</div>
     <div class="event-dates" id="h-dates" data-fr="Date à confirmer" data-en="Date TBC">Date à confirmer</div>
     <div class="social-links">
@@ -473,11 +551,40 @@
     <!-- JOIN -->
     <div class="card">
       <div class="card-title" data-fr="Participer" data-en="Join">Participer</div>
+      <div class="join-steps">
+        <div class="join-step">
+          <div class="join-step-num">1</div>
+          <div class="join-step-body">
+            <div class="join-step-title" data-fr="Activer les logs de combat" data-en="Activate combat logs">Activer les logs de combat</div>
+            <div class="join-step-desc" id="j-step1">
+              Télécharge l'application <strong>Archon</strong> et assure-toi que le paramètre <strong>Activate Combat Log</strong> est bien activé dans le jeu.<br>
+              Guide complet : <a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>
+            </div>
+          </div>
+        </div>
+        <div class="join-step">
+          <div class="join-step-num">2</div>
+          <div class="join-step-body">
+            <div class="join-step-title" data-fr="Récupérer ton ID Fellowship" data-en="Get your Fellowship ID">Récupérer ton ID Fellowship</div>
+            <div class="join-step-desc" id="j-step2">
+              Rends-toi sur <strong>fellowshiplogs.com</strong> et cherche ton personnage. Ton <strong>ID</strong> est le nombre dans la barre d'URL.
+            </div>
+            <div class="join-url-box">
+              <div class="join-url-label" data-fr="Exemple — barre d'URL" data-en="Example — URL bar">Exemple — barre d'URL</div>
+              <div class="join-url-bar">
+                <span class="url-dim">fellowshiplogs.com/characters/</span><span class="url-hi">151451</span><span class="url-dim">/overview</span>
+              </div>
+              <div class="join-url-caption" id="j-caption">👆 Le nombre en surbrillance, c'est ton ID. Note-le pour le formulaire.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="join-divider"></div>
       <div class="join-block">
         <div class="join-text">
           <div class="join-title" data-fr="Prêt à rejoindre la pagaille ?" data-en="Ready to join the mayhem?">Prêt à rejoindre la pagaille ?</div>
           <div class="join-desc" id="j-desc">
-            Inscris-toi via le formulaire, active tes logs de combat dans <strong>Archon</strong> et rejoins la communauté sur Discord. Pouf s'occupe du reste.
+            Remplis le formulaire avec ton nom de personnage et ton ID Fellowship. Pouf t'ajoutera dès que possible.
           </div>
         </div>
         <a class="join-btn" href="https://docs.google.com/forms/d/e/1FAIpQLScs9iALvfOe3cWvW0nudi7zY5cFrSRsdy3_WAMY65HoCaeIag/viewform" target="_blank" rel="noopener" id="j-btn">
@@ -505,13 +612,23 @@
       if (lang === 'en') {
         document.getElementById('c-concept').innerHTML =
           '<strong>Dungeon Mayhem</strong> is a community event with a simple goal: <strong>kill as many bosses as possible</strong> together, across all Fellowship dungeons.<br><br>Every boss killed counts toward the community total. The more the community plays, the more milestone rewards unlock.';
+        document.getElementById('j-step1').innerHTML =
+          'Download the <strong>Archon</strong> app and make sure the <strong>Activate Combat Log</strong> setting is enabled in-game.<br>Full guide: <a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>';
+        document.getElementById('j-step2').innerHTML =
+          'Go to <strong>fellowshiplogs.com</strong> and search for your character. Your <strong>ID</strong> is the number in the URL bar.';
+        document.getElementById('j-caption').textContent = '👆 The highlighted number is your ID. Note it down for the form.';
         document.getElementById('j-desc').innerHTML =
-          'Register via the form, activate your combat logs in <strong>Archon</strong> and join the community on Discord. Pouf handles the rest.';
+          'Fill in the form with your character name and Fellowship ID. Pouf will add you as soon as possible.';
       } else {
         document.getElementById('c-concept').innerHTML =
           '<strong>Donjon en Pagaille</strong> est un event communautaire où l\'objectif est simple : <strong>tuer le plus de boss possible</strong> en équipe, dans tous les donjons de Fellowship.<br><br>Chaque boss tué compte pour le total communautaire. Plus la communauté joue, plus les paliers de récompenses se débloquent.';
         document.getElementById('j-desc').innerHTML =
-          'Inscris-toi via le formulaire, active tes logs de combat dans <strong>Archon</strong> et rejoins la communauté sur Discord. Pouf s\'occupe du reste.';
+          'Remplis le formulaire avec ton nom de personnage et ton ID Fellowship. Pouf t\'ajoutera dès que possible.';
+        document.getElementById('j-step1').innerHTML =
+          'Télécharge l\'application <strong>Archon</strong> et assure-toi que le paramètre <strong>Activate Combat Log</strong> est bien activé dans le jeu.<br>Guide complet : <a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>';
+        document.getElementById('j-step2').innerHTML =
+          'Rends-toi sur <strong>fellowshiplogs.com</strong> et cherche ton personnage. Ton <strong>ID</strong> est le nombre dans la barre d\'URL.';
+        document.getElementById('j-caption').textContent = '👆 Le nombre en surbrillance, c\'est ton ID. Note-le pour le formulaire.';
       }
     }
 
