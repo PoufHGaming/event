@@ -621,50 +621,81 @@
     }
 
     // ── PARTICIPANTS ──
-    async function loadParticipants() {
-      const grid = document.getElementById('p-grid');
-      const count = document.getElementById('p-count');
-      const lang = currentLang;
-      grid.className = 'participants-loading';
-      grid.textContent = lang === 'en' ? 'Loading…' : 'Chargement…';
+async function loadParticipants() {
+  const grid = document.getElementById('p-grid');
+  const count = document.getElementById('p-count');
+  const lang = currentLang;
 
-      try {
-        const res = await fetch(
-          `${SB_URL}/rest/v1/players?select=id,name&not.fellowship_character_id=is.null&order=name.asc`,
-          { headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` } }
-        );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const players = await res.json();
+  grid.className = 'participants-loading';
+  grid.textContent = lang === 'en' ? 'Loading…' : 'Chargement…';
 
-        participantsLoaded = true;
-
-        const n = players.length;
-        count.innerHTML = lang === 'en'
-          ? `<strong>${n}</strong> registered player${n !== 1 ? 's' : ''}`
-          : `<strong>${n}</strong> joueur${n !== 1 ? 's' : ''} inscrit${n !== 1 ? 's' : ''}`;
-
-        if (!n) {
-          grid.className = 'participants-empty';
-          grid.textContent = lang === 'en' ? 'No registered players yet.' : 'Aucun participant inscrit pour le moment.';
-          return;
+  try {
+    const res = await fetch(
+      `${SB_URL}/rest/v1/pagaille_leaderboard?select=player_id,player_name,total_kills,total_runs&order=player_name.asc`,
+      {
+        headers: {
+          'apikey': SB_KEY,
+          'Authorization': `Bearer ${SB_KEY}`
         }
-
-        grid.className = 'participants-grid';
-        grid.innerHTML = players.map(p => `
-          <div class="participant-card">
-            <div class="participant-avatar">${p.name.charAt(0).toUpperCase()}</div>
-            <div class="participant-name">${escHtml(p.name)}</div>
-          </div>
-        `).join('');
-
-      } catch(e) {
-        grid.className = 'participants-empty';
-        grid.textContent = lang === 'en' ? 'Unable to load participants.' : 'Impossible de charger les participants.';
-        console.error('Participants fetch error:', e);
       }
+    );
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const players = await res.json();
+
+    participantsLoaded = true;
+
+    const n = players.length;
+
+    count.innerHTML = lang === 'en'
+      ? `<strong>${n}</strong> registered player${n !== 1 ? 's' : ''}`
+      : `<strong>${n}</strong> joueur${n !== 1 ? 's' : ''} inscrit${n !== 1 ? 's' : ''}`;
+
+    if (!n) {
+      grid.className = 'participants-empty';
+      grid.textContent = lang === 'en'
+        ? 'No registered players yet.'
+        : 'Aucun participant inscrit pour le moment.';
+      return;
     }
 
-    function escHtml(s) {
+    grid.className = 'participants-grid';
+
+    grid.innerHTML = players.map(p => `
+      <div class="participant-card">
+        <div class="participant-avatar">
+          ${p.player_name.charAt(0).toUpperCase()}
+        </div>
+
+        <div style="flex:1;">
+          <div class="participant-name">
+            ${escHtml(p.player_name)}
+          </div>
+
+          <div style="
+            font-size:12px;
+            color:var(--text-muted);
+            margin-top:2px;
+          ">
+            ⚔️ ${p.total_kills ?? 0} kills · 🏃 ${p.total_runs ?? 0} runs
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+  } catch(e) {
+    grid.className = 'participants-empty';
+
+    grid.textContent = lang === 'en'
+      ? 'Unable to load participants.'
+      : 'Impossible de charger les participants.';
+
+    console.error('Participants fetch error:', e);
+  }
+}
+    
+function escHtml(s) {
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
