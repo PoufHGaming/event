@@ -383,37 +383,18 @@
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 10px;
     }
-    .participant-card {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: border-color 0.2s;
-    }
+.participant-card {
+  justify-content: center;
+  padding: 18px 20px;
+}
+
+.participant-name {
+  font-size: 20px;
+  color: var(--text);
+  text-align: center;
+  width: 100%;
+}
     .participant-card:hover { border-color: rgba(64,212,212,0.3); }
-    .participant-avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: rgba(64,212,212,0.1);
-      border: 1px solid var(--border-bright);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Cinzel', serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--teal-light);
-      flex-shrink: 0;
-    }
-    .participant-name {
-      font-size: 16px;
-      color: var(--text-dim);
-      line-height: 1.2;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
 
     .participants-loading {
       text-align: center;
@@ -662,27 +643,13 @@ async function loadParticipants() {
 
     grid.className = 'participants-grid';
 
-    grid.innerHTML = players.map(p => `
-      <div class="participant-card">
-        <div class="participant-avatar">
-          ${p.player_name.charAt(0).toUpperCase()}
-        </div>
-
-        <div style="flex:1;">
-          <div class="participant-name">
-            ${escHtml(p.player_name)}
-          </div>
-
-          <div style="
-            font-size:12px;
-            color:var(--text-muted);
-            margin-top:2px;
-          ">
-            ⚔️ ${p.total_kills ?? 0} kills · 🏃 ${p.total_runs ?? 0} runs
-          </div>
-        </div>
-      </div>
-    `).join('');
+grid.innerHTML = players.map(p => `
+  <div class="participant-card">
+    <div class="participant-name">
+      ${escHtml(p.player_name)}
+    </div>
+  </div>
+`).join('');
 
   } catch(e) {
     grid.className = 'participants-empty';
