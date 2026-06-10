@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Overlay — Dungeon Mayhem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: transparent;
+      overflow: hidden;
+      width: 500px;
+      font-family: 'Crimson Pro', Georgia, serif;
+    }
+    .overlay {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 18px 16px;
+      background: rgba(7, 11, 11, 0.92);
+      border: 1px solid rgba(64, 212, 212, 0.55);
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(64,212,212,0.08);
+    }
+
+    /* Titre event */
+    .event-title {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(64, 212, 212, 0.75);
+      text-align: center;
+    }
+
+    /* Séparateur */
+    .sep {
+      height: 4px;
+      background: rgba(64, 212, 212, 0.25);
+    }
+
+    /* Ligne principale : label + chiffre */
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .label {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #9fd8d8;
+    }
+    .kills {
+      font-family: 'Cinzel', serif;
+      font-size: 55px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 28px rgba(64, 212, 212, 1), 0 0 60px rgba(64, 212, 212, 0.5);
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+
+    /* Barre */
+    .bar-section { display: flex; flex-direction: column; gap: 5px; }
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+    .bar-meta .next-lbl { color: #9fd8d8; }
+    .bar-meta .rem-lbl  { color: #72e8e8; font-weight: 600; }
+
+    .bar-track {
+      height: 30px;
+      background: rgba(13, 26, 26, 0.95);
+      border-radius: 4px;
+      border: 1px solid rgba(64, 212, 212, 0.12);
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      right: -1px; top: 1px; bottom: 1px;
+      width: 3px;
+      background: white;
+      border-radius: 2px;
+      opacity: 0.9;
+      box-shadow: 0 0 6px white;
+    }
+    .bar-fill.t0 { background: linear-gradient(90deg,#1a991a,#44ee44); box-shadow:0 0 8px rgba(68,238,68,0.5); }
+    .bar-fill.t1 { background: linear-gradient(90deg,#1a991a,#44ee44 30%,#1f8888,#40d4d4); box-shadow:0 0 8px rgba(64,212,212,0.5); }
+    .bar-fill.t2 { background: linear-gradient(90deg,#1f8888,#40d4d4 40%,#7744cc,#c4a0ff); box-shadow:0 0 8px rgba(196,160,255,0.5); }
+    .bar-fill.done { background: linear-gradient(90deg,#7744cc,#c4a0ff); box-shadow:0 0 10px rgba(196,160,255,0.8); }
+
+    @keyframes pop {
+      0%   { transform:scale(1); }
+      50%  { transform:scale(1.1); text-shadow:0 0 40px rgba(64,212,212,1); }
+      100% { transform:scale(1); }
+    }
+    .kills.pop { animation: pop 0.5s ease; }
+  </style>
+</head>
+<body>
+<div class="overlay">
+  <div class="event-title">✦ Dongeon Mayhem — Season 1 ✦</div>
+  <div class="sep"></div>
+  <div class="top-row">
+    <span class="label">Boss killed</span>
+    <span class="kills" id="kills">—</span>
+  </div>
+  <div class="bar-section">
+    <div class="bar-meta">
+      <span class="next-lbl" id="next-lbl">—</span>
+      <span class="rem-lbl"  id="rem-lbl">—</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill t0" id="bar-fill" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL      = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+  const SEASON            = 'S1';
+  const N_PLAYERS         = 21;
+  const TIERS_BASE        = [1000, 2500, 5000];
+  const N_REF             = 20;
+  const REFRESH_MS        = 60 * 1000;
+
+  function computeTiers(n) {
+    const f = Math.sqrt(Math.max(1, n) / N_REF);
+    return TIERS_BASE.map(b => Math.round(b * f));
+  }
+
+  async function fetchKills() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_pagaille_summary`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ season_filter: SEASON })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return (await res.json()).reduce((s, r) => s + (Number(r.total_kills) || 0), 0);
+  }
+
+  let lastKills = null;
+
+  async function update() {
+    try {
+      const total  = await fetchKills();
+      const tiers  = computeTiers(N_PLAYERS);
+      const killEl = document.getElementById('kills');
+
+      // Animation si changement
+      if (lastKills !== null && total !== lastKills) {
+        killEl.classList.remove('pop');
+        void killEl.offsetWidth;
+        killEl.classList.add('pop');
+      }
+      lastKills = total;
+      killEl.textContent = total.toLocaleString('fr-FR');
+
+      // Prochain palier
+      const fill    = document.getElementById('bar-fill');
+      const nextLbl = document.getElementById('next-lbl');
+      const remLbl  = document.getElementById('rem-lbl');
+      const idx     = tiers.findIndex(t => total < t);
+
+      if (idx === -1) {
+        // Tout débloqué
+        fill.style.width = '100%';
+        fill.className   = 'bar-fill done';
+        nextLbl.textContent = '✓ All tiers unlocked';
+        remLbl.textContent  = '';
+      } else {
+        const nextVal = tiers[idx];
+        const maxVal  = tiers[tiers.length - 1];
+        const pct     = Math.min(100, Math.max(0, total / maxVal * 100));
+        const rem     = nextVal - total;
+
+        fill.style.width = pct + '%';
+        fill.className   = `bar-fill t${idx}`;
+        nextLbl.textContent = `Tier ${idx + 1} — ${nextVal.toLocaleString('en-EN')}`;
+        remLbl.textContent  = `Still ${rem.toLocaleString('en-EN')}`;
+      }
+    } catch(e) {
+      document.getElementById('kills').textContent = '—';
+      console.error(e);
+    }
+  }
+
+  update();
+  setInterval(update, REFRESH_MS);
+</script>
+</body>
+</html>

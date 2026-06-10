@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Donjon en Pagaille — Pouf HGaming</title>
+  <title>Donjon en Pagaille</title>
   <link rel="icon" type="image/png" href="../images/pouf.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
@@ -12,449 +13,662 @@
       --teal: #40d4d4;
       --teal-light: #72e8e8;
       --teal-dim: #2a9898;
-      --teal-dark: #1a5c5c;
       --bg: #070b0b;
       --bg2: #0d1a1a;
       --bg3: #122424;
-      --border: rgba(64,212,212,0.15);
-      --border-bright: rgba(64,212,212,0.4);
-      --text: #e8f4f4;
-      --text-dim: #9abfbf;
-      --text-muted: #3d6666;
+      --border: rgba(64,212,212,0.22);
+      --border-bright: rgba(64,212,212,0.65);
+      --text: #f0fafa;
+      --text-dim: #9fd8d8;
+      --text-muted: #4d8080;
+      --tier1: #44ee44;
+      --tier2: #40d4d4;
+      --tier3: #c4a0ff;
       --twitch: #9147ff;
       --discord: #5865f2;
       --youtube: #ff0000;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 300;
       min-height: 100vh;
+      font-size: 19px;
     }
-
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse 70% 40% at 50% 0%, rgba(64,212,212,0.07) 0%, transparent 65%),
-        radial-gradient(ellipse 40% 50% at 10% 80%, rgba(64,212,212,0.04) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 50% at 50% -5%, rgba(64,212,212,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 5% 85%, rgba(64,212,212,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse 30% 30% at 95% 15%, rgba(196,160,255,0.05) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
     }
 
-    /* ── NAV ── */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(7,11,11,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-      height: 52px;
-      gap: 8px;
-    }
-    .nav-home {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px; height: 32px;
-      color: var(--text-muted);
-      text-decoration: none;
-      border-right: 1px solid var(--border);
-      padding-right: 12px;
-      margin-right: 4px;
-      transition: color 0.2s;
-      flex-shrink: 0;
-    }
-    .nav-home:hover { color: var(--teal-light); }
-    .nav-spacer { flex: 1; }
-    .lang-toggle {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .lang-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-family: 'Cinzel', serif;
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      padding: 5px 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .lang-btn.active { background: rgba(64,212,212,0.12); color: var(--teal-light); }
-    .lang-btn:hover:not(.active) { color: var(--text-dim); }
-
-    /* ── TABS ── */
-    .tabs-bar {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 0;
-      padding: 0 24px;
-      background: var(--bg2);
-      border-bottom: 1px solid var(--border);
-      overflow-x: auto;
-    }
-    .tab {
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--text-muted);
-      font-family: 'Cinzel', serif;
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      padding: 14px 18px;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-      margin-bottom: -1px;
-    }
-    .tab:hover { color: var(--text-dim); }
-    .tab.active { color: var(--teal-light); border-bottom-color: var(--teal); }
-
-    /* ── HEADER ── */
-    header {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 56px 24px 48px;
-      border-bottom: 1px solid var(--border);
-    }
-    header::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 15%; right: 15%;
-      height: 1px;
+    .top-line {
+      height: 2px;
       background: linear-gradient(90deg, transparent, var(--teal-dim) 20%, var(--teal) 50%, var(--teal-dim) 80%, transparent);
     }
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--teal-light);
-      background: rgba(64,212,212,0.08);
-      border: 1px solid rgba(64,212,212,0.3);
-      border-radius: 20px;
-      padding: 5px 14px;
-      margin-bottom: 22px;
-    }
-    .status-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--teal-light);
-      box-shadow: 0 0 8px var(--teal);
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-    .event-title {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(28px, 6vw, 52px);
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--teal-light);
-      text-shadow: 0 0 40px rgba(64,212,212,0.4), 0 0 80px rgba(64,212,212,0.15);
-      margin-bottom: 12px;
-      line-height: 1.1;
-    }
-    .event-subtitle {
-      font-size: 18px;
-      color: var(--text-dim);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      font-family: 'Cinzel', serif;
-      font-weight: 400;
-      margin-bottom: 8px;
-    }
-    .event-dates {
-      font-size: 15px;
-      color: var(--text-muted);
-      letter-spacing: 0.1em;
-      margin-bottom: 24px;
-    }
-    .social-links {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-    }
+
+    /* ── SOCIAL LINKS ── */
+    .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
     .social-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      text-decoration: none;
-      color: var(--text-dim);
-      font-size: 12px;
-      font-family: 'Cinzel', serif;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      transition: all 0.25s;
-      background: rgba(255,255,255,0.02);
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 14px; border: 1px solid var(--border); border-radius: 3px;
+      text-decoration: none; color: var(--text-dim); font-size: 12px;
+      font-family: 'Cinzel', serif; letter-spacing: 0.1em; text-transform: uppercase;
+      transition: all 0.25s; background: rgba(255,255,255,0.02); white-space: nowrap;
     }
-    .social-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .social-link svg { flex-shrink: 0; width: 14px; height: 14px; }
     .social-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
     .social-link.twitch:hover  { border-color: var(--twitch); color: var(--twitch); box-shadow: 0 0 12px rgba(145,71,255,0.15); }
     .social-link.discord:hover { border-color: var(--discord); color: var(--discord); box-shadow: 0 0 12px rgba(88,101,242,0.15); }
     .social-link.youtube:hover { border-color: var(--youtube); color: var(--youtube); box-shadow: 0 0 12px rgba(255,0,0,0.12); }
 
-    /* ── PAGES ── */
+    /* ── HEADER ── */
+    header {
+      text-align: center; padding: 44px 24px 28px;
+      border-bottom: 1px solid var(--border);
+      position: relative; z-index: 1;
+    }
+    .event-title {
+      font-family: 'Cinzel', serif; font-size: clamp(24px,5vw,44px); font-weight: 700;
+      color: var(--teal-light); letter-spacing: 0.08em; text-transform: uppercase;
+      text-shadow: 0 0 40px rgba(64,212,212,0.6), 0 0 80px rgba(64,212,212,0.2);
+      cursor: default;
+    }
+    .event-subtitle { font-size: 15px; color: var(--text-dim); margin-top: 8px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 300; }
+    .event-dates { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; color: var(--text-muted); font-family: 'Cinzel', serif; letter-spacing: 0.1em; }
+
+    /* ── NAV — STICKY ── */
+    nav {
+      display: flex; align-items: center; gap: 2px;
+      padding: 10px 24px;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7,11,11,0.95);
+      backdrop-filter: blur(12px);
+    }
+    .tab {
+      font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 8px 16px;
+      background: none; border: 1px solid transparent;
+      color: var(--text-muted); cursor: pointer; transition: all 0.2s; border-radius: 3px;
+    }
+    .tab:hover { border-color: var(--border); color: var(--text-dim); }
+    .tab.active { color: var(--teal-light); border-color: var(--border-bright); background: rgba(64,212,212,0.08); }
+    .home-btn { opacity: 0.65; color: var(--text-dim); }
+    .home-btn:hover { opacity: 1; color: var(--teal-light); }
+    .nav-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; align-self: center; }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .lang-toggle { display: flex; gap: 2px; }
+    .lang-btn {
+      font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.1em;
+      padding: 6px 11px; background: var(--bg2); border: 1px solid var(--border);
+      color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn:first-child { border-radius: 3px 0 0 3px; }
+    .lang-btn:last-child { border-radius: 0 3px 3px 0; }
+    .lang-btn.active { color: var(--teal-light); border-color: var(--border-bright); background: rgba(64,212,212,0.1); font-weight: 600; }
+
+    /* ── MAIN ── */
+    main { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 36px 24px 80px; }
     .page { display: none; }
     .page.active { display: block; }
 
-    /* ── MAIN ── */
-    main {
-      position: relative;
-      z-index: 1;
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 48px 24px 80px;
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-    }
-
-    /* ── CARDS ── */
-    .card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
+    /* ── PROGRESS BAR ── */
+    .progress-section { margin-bottom: 48px; }
+    .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 22px; }
+    .progress-title { font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-dim); }
+    .progress-count { font-family: 'Cinzel', serif; font-size: 32px; color: var(--teal-light); font-weight: 700; text-shadow: 0 0 28px rgba(64,212,212,0.65); }
+    .progress-count span { font-size: 15px; color: var(--text-dim); font-weight: 300; margin-left: 5px; }
+    .progress-track { position: relative; height: 16px; background: var(--bg3); border-radius: 8px; border: 1px solid var(--border); overflow: visible; margin-bottom: 12px; }
+    /* Fond atténué pleine largeur */
+    .progress-track::before {
+      content: '';
+      position: absolute; inset: 0;
       border-radius: 8px;
-      padding: 32px 36px;
-      position: relative;
+      background: linear-gradient(90deg,
+        #1a991a 0%, var(--tier1) 20%,
+        #1f8888 40%, var(--tier2) 55%,
+        #7744cc 78%, var(--tier3) 100%
+      );
+      opacity: 0.18;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    /* Clip interne pour la fill */
+    .progress-track-inner {
+      position: absolute; inset: 0;
+      border-radius: 8px;
       overflow: hidden;
     }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--teal-dim), transparent);
+    .progress-fill {
+      height: 100%;
+      border-radius: 8px;
+      /* background-size en % de la track via padding trick */
+      background: linear-gradient(90deg,
+        #1a991a 0%, var(--tier1) 20%,
+        #1f8888 40%, var(--tier2) 55%,
+        #7744cc 78%, var(--tier3) 100%
+      );
+      background-size: var(--track-w, 900px) 100%;
+      background-repeat: no-repeat;
+      transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+      min-width: 0; position: relative;
     }
-    .card-title {
+    .progress-fill::after { content:''; position:absolute; right:-1px; top:2px; bottom:2px; width:5px; background:white; border-radius:3px; opacity:0.85; box-shadow:0 0 10px white; }
+    .progress-fill.tier-2 { box-shadow: 0 0 22px rgba(64,212,212,0.75), 0 0 44px rgba(64,212,212,0.3); }
+    .progress-fill.tier-3 { box-shadow: 0 0 22px rgba(196,160,255,0.75), 0 0 44px rgba(196,160,255,0.3); }
+    .tier-markers { position: absolute; inset: 0; pointer-events: none; }
+    .tier-marker { position: absolute; top: -6px; bottom: -6px; width: 2px; border-radius: 2px; transform: translateX(-50%); }
+    .tier-marker::after { content: attr(data-label); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.08em; white-space: nowrap; color: inherit; }
+    .tier-marker.t1 { background: var(--tier1); color: var(--tier1); left: 20%; box-shadow: 0 0 7px var(--tier1); }
+    .tier-marker.t2 { background: var(--tier2); color: var(--tier2); left: 50%; box-shadow: 0 0 7px var(--tier2); }
+    .tier-marker.t3 { background: var(--tier3); color: var(--tier3); left: 100%; box-shadow: 0 0 7px var(--tier3); }
+
+    /* ── TIER CARDS ── */
+    .tiers-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-top: 28px; }
+    .tier-card { border-radius: 8px; padding: 20px 22px 18px; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); }
+    .tier-card.t1.locked { background: linear-gradient(145deg,rgba(68,238,68,0.05) 0%,var(--bg2) 60%); border: 1px solid rgba(68,238,68,0.2); border-top: 2px solid rgba(68,238,68,0.35); }
+    .tier-card.t2.locked { background: linear-gradient(145deg,rgba(64,212,212,0.05) 0%,var(--bg2) 60%); border: 1px solid rgba(64,212,212,0.2); border-top: 2px solid rgba(64,212,212,0.35); }
+    .tier-card.t3.locked { background: linear-gradient(145deg,rgba(196,160,255,0.05) 0%,var(--bg2) 60%); border: 1px solid rgba(196,160,255,0.2); border-top: 2px solid rgba(196,160,255,0.35); }
+    .tier-card.locked::after { content:'🔒'; position:absolute; bottom:14px; right:16px; font-size:16px; opacity:0.3; pointer-events:none; }
+    .tier-card.t1.unlocked { background: linear-gradient(145deg,rgba(68,238,68,0.14) 0%,rgba(13,26,13,0.95) 55%,var(--bg2) 100%); border: 1px solid rgba(68,238,68,0.55); border-top: 2px solid var(--tier1); animation: tier-glow-1 3s ease-in-out infinite; }
+    .tier-card.t2.unlocked { background: linear-gradient(145deg,rgba(64,212,212,0.14) 0%,rgba(13,26,26,0.95) 55%,var(--bg2) 100%); border: 1px solid rgba(64,212,212,0.55); border-top: 2px solid var(--tier2); animation: tier-glow-2 3s ease-in-out infinite; }
+    .tier-card.t3.unlocked { background: linear-gradient(145deg,rgba(196,160,255,0.14) 0%,rgba(18,13,26,0.95) 55%,var(--bg2) 100%); border: 1px solid rgba(196,160,255,0.55); border-top: 2px solid var(--tier3); animation: tier-glow-3 3s ease-in-out infinite; }
+    @keyframes tier-glow-1 { 0%,100%{box-shadow:0 0 24px rgba(68,238,68,0.15)} 50%{box-shadow:0 0 48px rgba(68,238,68,0.35)} }
+    @keyframes tier-glow-2 { 0%,100%{box-shadow:0 0 24px rgba(64,212,212,0.15)} 50%{box-shadow:0 0 48px rgba(64,212,212,0.35)} }
+    @keyframes tier-glow-3 { 0%,100%{box-shadow:0 0 24px rgba(196,160,255,0.15)} 50%{box-shadow:0 0 48px rgba(196,160,255,0.35)} }
+    .tier-badge-unlocked { display:none; position:absolute; top:12px; right:12px; font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.18em; text-transform:uppercase; font-weight:700; padding:3px 9px; border-radius:20px; }
+    .tier-card.unlocked .tier-badge-unlocked { display:block; }
+    .tier-card.t1.unlocked .tier-badge-unlocked { color:var(--tier1); background:rgba(68,238,68,0.12); border:1px solid rgba(68,238,68,0.4); }
+    .tier-card.t2.unlocked .tier-badge-unlocked { color:var(--tier2); background:rgba(64,212,212,0.12); border:1px solid rgba(64,212,212,0.4); }
+    .tier-card.t3.unlocked .tier-badge-unlocked { color:var(--tier3); background:rgba(196,160,255,0.12); border:1px solid rgba(196,160,255,0.4); }
+    .tier-num { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.25em; text-transform:uppercase; margin-bottom:10px; }
+    .tier-card.t1 .tier-num { color:rgba(68,238,68,0.6); } .tier-card.t2 .tier-num { color:rgba(64,212,212,0.6); } .tier-card.t3 .tier-num { color:rgba(196,160,255,0.6); }
+    .tier-card.t1.unlocked .tier-num { color:rgba(68,238,68,0.9); } .tier-card.t2.unlocked .tier-num { color:rgba(64,212,212,0.9); } .tier-card.t3.unlocked .tier-num { color:rgba(196,160,255,0.9); }
+    .tier-threshold { font-family:'Cinzel',serif; font-weight:700; margin-bottom:10px; transition:all 0.4s; }
+    .tier-card.t1.locked .tier-threshold { font-size:28px; color:rgba(68,238,68,0.5); text-shadow:0 0 16px rgba(68,238,68,0.15); }
+    .tier-card.t2.locked .tier-threshold { font-size:28px; color:rgba(64,212,212,0.5); text-shadow:0 0 16px rgba(64,212,212,0.15); }
+    .tier-card.t3.locked .tier-threshold { font-size:28px; color:rgba(196,160,255,0.5); text-shadow:0 0 16px rgba(196,160,255,0.15); }
+    .tier-card.t1.unlocked .tier-threshold { font-size:34px; color:var(--tier1); text-shadow:0 0 28px rgba(68,238,68,0.7),0 0 56px rgba(68,238,68,0.3); }
+    .tier-card.t2.unlocked .tier-threshold { font-size:34px; color:var(--tier2); text-shadow:0 0 28px rgba(64,212,212,0.7),0 0 56px rgba(64,212,212,0.3); }
+    .tier-card.t3.unlocked .tier-threshold { font-size:34px; color:var(--tier3); text-shadow:0 0 28px rgba(196,160,255,0.7),0 0 56px rgba(196,160,255,0.3); }
+    .tier-reward { font-size:15px; line-height:1.55; font-style:italic; margin-bottom:14px; }
+    .tier-card.locked .tier-reward { color:var(--text-dim); } .tier-card.unlocked .tier-reward { color:var(--text); }
+
+    /* Récompenses multiples */
+    .tier-rewards { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+    .tier-reward-item {
+      display:flex; align-items:flex-start; gap:9px;
+      padding:8px 10px;
+      background:rgba(0,0,0,0.25); border-radius:4px;
+      border-left:2px solid transparent;
+      font-size:14px; line-height:1.5; font-style:italic;
+    }
+    .tier-card.t2 .tier-reward-item { border-left-color:rgba(64,212,212,0.35); }
+    .tier-card.t3 .tier-reward-item { border-left-color:rgba(196,160,255,0.35); }
+    .tier-card.locked .tier-reward-item { color:var(--text-dim); }
+    .tier-card.unlocked .tier-reward-item { color:var(--text); }
+    .tier-reward-icon { font-size:15px; flex-shrink:0; margin-top:1px; }
+    .tier-reward-badge-img { width:28px; height:28px; border-radius:4px; object-fit:cover; border:1px solid rgba(64,212,212,0.25); flex-shrink:0; }
+
+    /* Bannière Weekend Double Boss */
+    .weekend-banner {
+      display:none;
+      align-items:center; justify-content:center;
+      padding:9px 18px; margin-bottom:20px;
+      background: rgba(64,212,212,0.06);
+      border:1px solid rgba(64,212,212,0.3);
+      border-radius:4px;
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
+      color:var(--teal-light);
+    }
+    .weekend-banner.visible { display:flex; }
+    .tier-status { display:inline-flex; align-items:center; gap:7px; font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; font-weight:600; }
+    .tier-status::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+    .tier-card.t1.locked .tier-status { color:rgba(68,238,68,0.45); } .tier-card.t2.locked .tier-status { color:rgba(64,212,212,0.45); } .tier-card.t3.locked .tier-status { color:rgba(196,160,255,0.45); }
+    .tier-card.t1.unlocked .tier-status { color:var(--tier1); } .tier-card.t2.unlocked .tier-status { color:var(--tier2); } .tier-card.t3.unlocked .tier-status { color:var(--tier3); }
+    .tier-card.unlocked .tier-status::before { animation:pdot 2s ease-in-out infinite; }
+    .tier-card.t1.unlocked .tier-status::before { box-shadow:0 0 8px var(--tier1); } .tier-card.t2.unlocked .tier-status::before { box-shadow:0 0 8px var(--tier2); } .tier-card.t3.unlocked .tier-status::before { box-shadow:0 0 8px var(--tier3); }
+    @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    /* ── LEADERBOARD ── */
+    .lb-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:12px; }
+    .sync-info { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--text-muted); font-style:italic; }
+    .sync-dot { width:8px; height:8px; border-radius:50%; background:var(--text-muted); flex-shrink:0; }
+    .sync-dot.ok { background:var(--tier1); box-shadow:0 0 6px var(--tier1); }
+    .sync-dot.error { background:#f07070; box-shadow:0 0 6px #f07070; }
+    .sync-dot.live { background:var(--tier1); box-shadow:0 0 6px var(--tier1); animation:pdot 2s ease-in-out infinite; }
+    .refresh-btn { display:flex; align-items:center; gap:6px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; padding:7px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:3px; color:var(--text-dim); cursor:pointer; transition:all 0.2s; }
+    .refresh-btn:hover { color:var(--teal-light); border-color:var(--border-bright); }
+    .refresh-btn.spinning svg { animation:spin 1s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .lb-header { display:grid; grid-template-columns:48px 1fr 110px 90px; gap:12px; padding:0 18px 12px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); border-bottom:1px solid var(--border); margin-bottom:8px; }
+    .lb-row { display:grid; grid-template-columns:48px 1fr 110px 90px; gap:12px; align-items:center; padding:16px 18px; border:1px solid transparent; border-radius:4px; margin-bottom:5px; cursor:pointer; transition:all 0.2s; }
+    .lb-row:hover { border-color:var(--border); background:var(--bg2); }
+    .lb-row.rank-1 { border-color:rgba(64,212,212,0.55); background:rgba(64,212,212,0.07); }
+    .lb-row.rank-2 { border-color:rgba(64,212,212,0.3); background:rgba(64,212,212,0.03); }
+    .lb-row.rank-3 { border-color:rgba(64,212,212,0.15); }
+    .rank-num { font-family:'Cinzel',serif; font-size:15px; color:var(--text-muted); text-align:center; }
+    .lb-row.rank-1 .rank-num { color:var(--teal-light); font-size:18px; text-shadow:0 0 14px rgba(64,212,212,0.7); }
+    .lb-row.rank-2 .rank-num { color:var(--text-dim); font-size:16px; }
+    .lb-row.rank-3 .rank-num { color:var(--text-dim); }
+    .player-name { font-size:19px; font-weight:400; color:var(--text); display:flex; align-items:center; gap:4px; overflow:hidden; }
+    .player-name-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .player-name-text:hover { text-decoration:underline; text-decoration-color:rgba(64,212,212,0.4); text-underline-offset:3px; }
+    .player-badges { display:inline-flex; align-items:center; gap:3px; flex-shrink:0; position:relative; z-index:10; }
+    .lb-chevron { font-size:11px; color:var(--text-muted); transition:transform 0.2s; display:inline-block; }
+    .lb-row.open .lb-chevron { transform:rotate(90deg); }
+    .badge-wrap .badge-tooltip { display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:#071212; border:1px solid rgba(64,212,212,0.35); border-radius:4px; padding:6px 10px; white-space:nowrap; font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.08em; color:var(--teal-light); z-index:50; pointer-events:none; box-shadow:0 4px 16px rgba(0,0,0,0.5); }
+    .badge-wrap:hover .badge-tooltip { display:block; }
+    .score-boss { font-family:'Cinzel',serif; font-size:22px; color:var(--teal-light); text-align:right; text-shadow:0 0 14px rgba(64,212,212,0.55); }
+    .score-dungeons { font-size:15px; color:var(--text-muted); text-align:right; }
+    .lb-detail { display:none; padding:14px 18px 18px 66px; grid-column:1/-1; }
+    .lb-row.open .lb-detail { display:block; }
+
+
+    /* ── STATS PAGE ── */
+    .stats-section-title {
       font-family: 'Cinzel', serif;
       font-size: 11px;
       letter-spacing: 0.26em;
       text-transform: uppercase;
       color: var(--teal-dim);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .stats-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
 
-    /* ── CONCEPT ── */
-    .concept-text {
-      font-size: 18px;
-      line-height: 1.8;
-      color: var(--text-dim);
-      margin-bottom: 24px;
-    }
-    .concept-text strong { color: var(--text); font-weight: 400; }
-    .rules-grid {
+    .stats-summary {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-top: 8px;
+      grid-template-columns: repeat(2,1fr);
+      gap: 14px;
+      margin-bottom: 36px;
     }
-    .rule-item {
-      background: var(--bg3);
+    .stats-kpi {
+      background: var(--bg2);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 14px 18px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      font-size: 16px;
-      color: var(--text-dim);
-      line-height: 1.5;
+      padding: 18px 22px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
     }
-    .rule-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .stats-kpi:hover { border-color: rgba(64,212,212,0.4); }
+    .stats-kpi.active { border-color: var(--border-bright); background: rgba(64,212,212,0.07); }
+    .stats-kpi.active::before { background: linear-gradient(90deg,transparent,var(--teal-light),transparent); }
+    .stats-kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--teal-dim),transparent); transition: background 0.2s; }
+    .stats-kpi-label { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.22em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+    .stats-kpi.active .stats-kpi-label { color: var(--teal-dim); }
+    .stats-kpi-value { font-family:'Cinzel',serif; font-size:28px; font-weight:700; color:var(--teal-light); text-shadow:0 0 20px rgba(64,212,212,0.5); }
 
-    /* ── TIERS ── */
-    .tiers-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-    .tier-card { border-radius: 6px; padding: 18px 20px; position: relative; overflow: hidden; }
-    .tier-card.t1 { background: linear-gradient(145deg, rgba(68,238,68,0.06) 0%, var(--bg3) 60%); border: 1px solid rgba(68,238,68,0.2); border-top: 2px solid rgba(68,238,68,0.35); }
-    .tier-card.t2 { background: linear-gradient(145deg, rgba(64,212,212,0.06) 0%, var(--bg3) 60%); border: 1px solid rgba(64,212,212,0.2); border-top: 2px solid rgba(64,212,212,0.35); }
-    .tier-card.t3 { background: linear-gradient(145deg, rgba(196,160,255,0.06) 0%, var(--bg3) 60%); border: 1px solid rgba(196,160,255,0.2); border-top: 2px solid rgba(196,160,255,0.35); }
-    .tier-num { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 8px; }
-    .tier-card.t1 .tier-num { color: rgba(68,238,68,0.6); }
-    .tier-card.t2 .tier-num { color: rgba(64,212,212,0.6); }
-    .tier-card.t3 .tier-num { color: rgba(196,160,255,0.6); }
-    .tier-threshold { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-    .tier-card.t1 .tier-threshold { color: #44ee44; text-shadow: 0 0 16px rgba(68,238,68,0.4); }
-    .tier-card.t2 .tier-threshold { color: var(--teal-light); text-shadow: 0 0 16px rgba(64,212,212,0.4); }
-    .tier-card.t3 .tier-threshold { color: #c4a0ff; text-shadow: 0 0 16px rgba(196,160,255,0.4); }
-    .tier-reward { font-size: 15px; color: var(--text-dim); line-height: 1.5; font-style: italic; }
+    /* ── RULES / LOGS ── */
+    .rules-page { max-width:660px; margin:0 auto; }
+    .rules-section { margin-bottom:30px; }
+    .rules-section-title { font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; color:var(--teal-dim); margin-bottom:14px; padding-bottom:9px; border-bottom:1px solid var(--border); }
+    .rules-list { display:flex; flex-direction:column; gap:9px; }
+    .rules-item { padding:13px 18px; background:var(--bg2); border:1px solid var(--border); border-left:3px solid var(--teal-dim); border-radius:0 4px 4px 0; font-size:16px; color:var(--text-dim); line-height:1.65; }
+    .rules-item strong { color:var(--text); font-weight:400; }
 
-    /* ── JOIN STEPS ── */
-    .join-steps { display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px; }
-    .join-step { display: flex; gap: 18px; align-items: flex-start; }
-    .join-step-num {
-      flex-shrink: 0;
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      background: rgba(64,212,212,0.1);
-      border: 1px solid var(--border-bright);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Cinzel', serif;
-      font-size: 13px; font-weight: 700;
-      color: var(--teal-light);
-      margin-top: 2px;
+    /* Sous-tabs logs */
+    .logs-subtabs { display:flex; gap:6px; margin-bottom:24px; }
+    .logs-subtab {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+      padding:8px 18px; background:var(--bg2); border:1px solid var(--border);
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s; border-radius:3px;
     }
-    .join-step-body { flex: 1; }
-    .join-step-title { font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 6px; }
-    .join-step-desc { font-size: 16px; color: var(--text-dim); line-height: 1.65; }
-    .join-step-desc a { color: var(--teal-light); text-decoration: none; border-bottom: 1px solid rgba(64,212,212,0.3); transition: border-color 0.2s; }
-    .join-step-desc a:hover { border-bottom-color: var(--teal-light); }
-    .join-step-desc strong { color: var(--text); font-weight: 400; }
-    .join-url-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-top: 10px; }
-    .join-url-label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); padding: 7px 14px; border-bottom: 1px solid var(--border); }
-    .join-url-bar { padding: 10px 14px; font-family: monospace; font-size: 13px; color: var(--text-dim); word-break: break-all; line-height: 1.6; }
-    .url-hi { color: var(--teal-light); font-weight: 700; background: rgba(64,212,212,0.14); padding: 1px 5px; border-radius: 3px; }
-    .url-dim { color: var(--text-muted); }
-    .join-url-caption { font-size: 13px; color: var(--text-muted); font-style: italic; padding: 0 14px 10px; }
-    .join-divider { height: 1px; background: var(--border); margin: 4px 0 20px; }
-    .join-block { display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
-    .join-text { flex: 1; min-width: 240px; }
-    .join-title { font-family: 'Cinzel', serif; font-size: 20px; color: var(--teal-light); margin-bottom: 10px; }
-    .join-desc { font-size: 17px; color: var(--text-dim); line-height: 1.7; }
-    .join-btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.14em;
-      text-transform: uppercase; font-weight: 700;
-      padding: 15px 36px;
-      background: rgba(64,212,212,0.1);
-      border: 1px solid var(--border-bright);
-      border-radius: 4px;
-      color: var(--teal-light);
-      text-decoration: none;
-      transition: all 0.25s;
-      white-space: nowrap;
-      animation: pulse-join 3s ease-in-out infinite;
-    }
-    .join-btn:hover { background: rgba(64,212,212,0.2); box-shadow: 0 0 32px rgba(64,212,212,0.2); transform: translateY(-2px); }
-    .join-btn svg { width: 16px; height: 16px; flex-shrink: 0; transition: transform 0.25s; }
-    .join-btn:hover svg { transform: translateX(3px); }
-    @keyframes pulse-join { 0%,100% { box-shadow: 0 0 16px rgba(64,212,212,0.1); } 50% { box-shadow: 0 0 32px rgba(64,212,212,0.25); } }
+    .logs-subtab.active { color:var(--teal-light); border-color:var(--border-bright); background:rgba(64,212,212,0.08); }
 
-    /* ── PARTICIPANTS ── */
-    .participants-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 12px;
+    /* Warning block */
+    .logs-warning {
+      display:flex; align-items:flex-start; gap:12px;
+      padding:14px 18px; margin-bottom:24px;
+      background:rgba(240,180,50,0.07); border:1px solid rgba(240,180,50,0.35);
+      border-left:3px solid #f0b432; border-radius:0 6px 6px 0;
+      font-size:15px; color:#f0d080; line-height:1.6;
     }
-    .participants-count {
-      font-family: 'Cinzel', serif;
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      color: var(--text-muted);
-    }
-    .participants-count strong { color: var(--teal-light); font-size: 18px; }
+    .logs-warning .warn-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
 
-    .participants-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 10px;
+    /* Étapes tuto */
+    .logs-steps { display:flex; flex-direction:column; gap:20px; }
+    .logs-step { display:flex; gap:18px; align-items:flex-start; }
+    .logs-step-num {
+      flex-shrink:0; width:32px; height:32px; border-radius:50%;
+      background:rgba(64,212,212,0.1); border:1px solid var(--border-bright);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:var(--teal-light);
     }
-.participant-card {
-  justify-content: center;
-  padding: 18px 20px;
-}
+    .logs-step-body { flex:1; }
+    .logs-step-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.12em; text-transform:uppercase; color:var(--teal-light); margin-bottom:8px; }
+    .logs-step-desc { font-size:16px; color:var(--text-dim); line-height:1.7; margin-bottom:12px; }
+    .logs-step-desc strong { color:var(--text); font-weight:400; }
+    .logs-step-desc a { color:var(--teal-light); text-decoration:none; border-bottom:1px solid rgba(64,212,212,0.35); }
+    .logs-step-desc a:hover { border-bottom-color:var(--teal-light); }
 
-.participant-name {
-  font-size: 20px;
-  color: var(--text);
-  text-align: center;
-  width: 100%;
-}
-    .participant-card:hover { border-color: rgba(64,212,212,0.3); }
-
-    .participants-loading {
-      text-align: center;
-      padding: 40px 0;
-      color: var(--text-muted);
-      font-style: italic;
-      font-size: 16px;
+    /* Placeholder screenshot */
+    .screenshot-placeholder {
+      background:var(--bg2); border:1px dashed rgba(64,212,212,0.25);
+      border-radius:6px; overflow:hidden;
     }
-    .participants-loading::after {
-      content: '';
-      display: inline-block;
-      width: 16px; height: 16px;
-      border: 2px solid var(--border);
-      border-top-color: var(--teal-dim);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-left: 10px;
-      vertical-align: middle;
+    .screenshot-placeholder-label {
+      font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.15em; text-transform:uppercase;
+      color:var(--text-muted); padding:7px 14px; border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:8px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .participants-empty {
-      text-align: center;
-      padding: 40px 0;
-      color: var(--text-muted);
-      font-style: italic;
-      font-size: 16px;
+    .screenshot-placeholder-label::before { content:'📷'; font-size:12px; }
+    .screenshot-placeholder-img {
+      height:140px; display:flex; align-items:center; justify-content:center;
+      color:var(--text-muted); font-size:13px; font-style:italic; letter-spacing:0.05em;
+      background:repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(64,212,212,0.02) 10px, rgba(64,212,212,0.02) 20px);
+    }
+    /* Tip inline */
+    .logs-tip {
+      display:inline-flex; align-items:center; gap:7px;
+      padding:8px 14px; margin-top:8px;
+      background:rgba(64,212,212,0.06); border:1px solid rgba(64,212,212,0.2);
+      border-radius:4px; font-size:14px; color:var(--text-dim); font-style:italic;
     }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 600px) {
-      .card { padding: 24px 20px; }
-      .tiers-grid { grid-template-columns: 1fr; }
-      .join-block { flex-direction: column; align-items: flex-start; }
-      .join-btn { width: 100%; justify-content: center; }
-      .participants-grid { grid-template-columns: 1fr 1fr; }
+    /* ── ADMIN ── */
+    .admin-gate { text-align:center; padding:48px 24px; }
+    .admin-gate h2 { font-family:'Cinzel',serif; font-size:20px; color:var(--teal-light); margin-bottom:20px; }
+    .admin-form { max-width:360px; margin:0 auto; }
+    .field { margin-bottom:14px; text-align:left; }
+    .field label { display:block; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+    .field input,.field select,.field textarea { width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:4px; padding:10px 12px; color:var(--text); font-family:'Crimson Pro',serif; font-size:16px; }
+    .field textarea { min-height:160px; resize:vertical; font-size:13px; font-family:monospace; }
+    .field input:focus,.field select:focus,.field textarea:focus { outline:none; border-color:var(--border-bright); }
+    .btn { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; padding:10px 24px; background:rgba(64,212,212,0.1); border:1px solid var(--border-bright); border-radius:4px; color:var(--teal-light); cursor:pointer; transition:all 0.2s; }
+    .btn:hover { background:rgba(64,212,212,0.2); }
+    .btn.danger { color:#f07070; border-color:rgba(240,112,112,0.5); background:rgba(240,112,112,0.07); }
+    .btn.danger:hover { background:rgba(240,112,112,0.15); }
+    .admin-panel { display:none; } .admin-panel.visible { display:block; }
+    .import-section { background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:22px 26px; margin-bottom:26px; }
+    .import-section h3 { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.15em; text-transform:uppercase; color:var(--teal-dim); margin-bottom:16px; }
+    .import-result { margin-top:12px; padding:10px 14px; background:var(--bg3); border-radius:4px; font-size:14px; color:var(--text-dim); display:none; }
+    .import-result.show { display:block; }
+    .import-result.ok { color:var(--tier1); border-left:3px solid var(--tier1); }
+    .import-result.err { color:#f07070; border-left:3px solid #f07070; }
+    .admin-players-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:16px; }
+    .admin-player-row { display:flex; align-items:center; justify-content:space-between; padding:9px 13px; background:var(--bg3); border-radius:4px; font-size:15px; }
+    .admin-player-del { cursor:pointer; color:var(--text-muted); font-size:17px; transition:color 0.2s; }
+    .admin-player-del:hover { color:#f07070; }
+
+    /* ── BADGES ── */
+    .badge-wrap { position:relative; display:inline-block; vertical-align:middle; margin-left:5px; }
+    .badge-inline { display:inline-block; width:20px; height:20px; border-radius:3px; object-fit:cover; vertical-align:middle; cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; }
+    .badge-inline:hover { transform:scale(1.35); box-shadow:0 2px 10px rgba(0,0,0,0.5); }
+    .badge-wrap .badge-tooltip { display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:#071212; border:1px solid rgba(64,212,212,0.35); border-radius:4px; padding:6px 10px; white-space:nowrap; font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.08em; color:var(--teal-light); z-index:20; pointer-events:none; box-shadow:0 4px 16px rgba(0,0,0,0.5); }
+    .badge-wrap .badge-tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:rgba(64,212,212,0.35); }
+    .badge-wrap:hover .badge-tooltip { display:block; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center; padding:24px; backdrop-filter:blur(4px); }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--bg2); border:1px solid var(--border-bright); border-radius:8px; max-width:520px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 40px rgba(64,212,212,0.1); }
+    .modal-header { padding:20px 24px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+    .modal-player-name { font-family:'Cinzel',serif; font-size:20px; color:var(--teal-light); }
+    .modal-close { background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; transition:color 0.2s; padding:4px; }
+    .modal-close:hover { color:var(--text); }
+    .modal-body { padding:20px 24px 28px; }
+    .modal-section-title { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--teal-dim); margin-bottom:14px; }
+    .badges-grid { display:flex; flex-wrap:wrap; gap:14px; }
+    .badge-card { display:flex; flex-direction:column; align-items:center; gap:6px; width:72px; }
+    .badge-card img { width:40px; height:40px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.1); }
+    .badge-card-name { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-dim); text-align:center; line-height:1.3; }
+    .badge-card-event { font-size:10px; color:var(--text-muted); text-align:center; font-style:italic; }
+    .modal-no-badges { color:var(--text-muted); font-style:italic; font-size:15px; }
+
+    /* ── TOAST ── */
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--bg3); border:1px solid var(--border-bright); border-radius:6px; padding:11px 22px; font-size:15px; color:var(--text); opacity:0; transition:all 0.3s; pointer-events:none; z-index:999; white-space:nowrap; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast.error { border-color:rgba(240,112,112,0.5); color:#f07070; }
+    .loading { text-align:center; padding:52px; color:var(--text-muted); font-style:italic; font-size:16px; }
+    .empty { text-align:center; padding:52px; color:var(--text-muted); font-size:16px; }
+
+    /* ── JOIN PAGE ── */
+    .join-page { max-width:700px; margin:0 auto; }
+    .join-step { display:flex; gap:22px; margin-bottom:32px; align-items:flex-start; }
+    .join-step-num { flex-shrink:0; width:36px; height:36px; border-radius:50%; background:rgba(64,212,212,0.1); border:1px solid var(--border-bright); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:15px; font-weight:700; color:var(--teal-light); margin-top:2px; }
+    .join-step-body { flex:1; }
+    .join-step-title { font-family:'Cinzel',serif; font-size:14px; letter-spacing:0.15em; text-transform:uppercase; color:var(--teal-light); margin-bottom:10px; }
+    .join-step-desc { font-size:16px; color:var(--text-dim); line-height:1.7; margin-bottom:14px; }
+    .join-step-desc a { color:var(--teal-light); text-decoration:none; border-bottom:1px solid rgba(64,212,212,0.35); transition:border-color 0.2s; }
+    .join-step-desc a:hover { border-bottom-color:var(--teal-light); }
+    .join-step-desc strong { color:var(--text); font-weight:400; }
+    .join-screenshot { background:var(--bg2); border:1px solid var(--border); border-radius:6px; overflow:hidden; margin-top:4px; }
+    .join-screenshot-label { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); padding:8px 14px; border-bottom:1px solid var(--border); }
+    .join-url-demo { padding:14px 18px; }
+    .join-url-bar { background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:9px 14px; font-family:monospace; font-size:13px; color:var(--text-dim); word-break:break-all; line-height:1.6; }
+    .url-highlight { color:var(--teal-light); font-weight:700; background:rgba(64,212,212,0.14); padding:1px 5px; border-radius:3px; }
+    .url-dim { color:var(--text-muted); }
+    .join-url-caption { font-size:14px; color:var(--text-muted); font-style:italic; margin-top:8px; padding:0 2px 4px; }
+    .join-divider { height:1px; background:var(--border); margin:4px 0 32px; }
+    .join-cta-block { background:var(--bg2); border:1px solid var(--border-bright); border-radius:8px; padding:28px 32px; text-align:center; box-shadow:0 0 40px rgba(64,212,212,0.06); }
+    .join-cta-title { font-family:'Cinzel',serif; font-size:16px; letter-spacing:0.15em; text-transform:uppercase; color:var(--teal-light); margin-bottom:10px; }
+    .join-cta-desc { font-size:16px; color:var(--text-dim); font-style:italic; margin-bottom:22px; line-height:1.6; }
+    .join-btn { display:inline-flex; align-items:center; gap:10px; font-family:'Cinzel',serif; font-size:14px; letter-spacing:0.12em; text-transform:uppercase; padding:13px 32px; background:rgba(64,212,212,0.12); border:1px solid var(--border-bright); border-radius:4px; color:var(--teal-light); text-decoration:none; transition:all 0.25s; box-shadow:0 0 20px rgba(64,212,212,0.1); }
+    .join-btn:hover { background:rgba(64,212,212,0.22); box-shadow:0 0 32px rgba(64,212,212,0.2); transform:translateY(-1px); }
+
+
+    /* ── DUNGEON DETAIL BLOCKS ── */
+    .lb-detail-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:8px; }
+
+    .dng-block { position:relative; border-radius:6px; overflow:hidden; border:1px solid rgba(64,212,212,0.15); transition:border-color 0.2s; }
+    .dng-block.has-kills { border-color:rgba(64,212,212,0.4); }
+    .dng-bg { position:absolute; inset:0; background-size:cover; background-position:center; opacity:0.25; z-index:0; }
+    .dng-inner { position:relative; z-index:1; padding:10px 14px 12px; }
+
+    .dng-header { display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; padding-bottom:8px; border-bottom:1px solid rgba(64,212,212,0.15); margin-bottom:8px; }
+    .dng-name { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--teal-dim); }
+    .dng-block.has-kills .dng-name { color:var(--teal-light); }
+    .dng-col-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); text-align:right; width:48px; }
+
+    .dng-boss-list { display:flex; flex-direction:column; gap:4px; }
+    .dng-boss-row { display:grid; grid-template-columns:1fr 48px; align-items:center; gap:6px; padding:4px 6px; background:rgba(7,11,11,0.5); border-radius:3px; border:1px solid transparent; font-size:13px; }
+    .dng-boss-row.done { border-color:rgba(64,212,212,0.2); }
+    .dng-boss-name { color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dng-boss-row.done .dng-boss-name { color:var(--text-dim); }
+    .dng-boss-kills { font-family:'Cinzel',serif; font-size:12px; color:var(--text-muted); text-align:right; }
+    .dng-boss-row.done .dng-boss-kills { color:var(--teal-light); text-shadow:0 0 6px rgba(64,212,212,0.4); }
+
+    /* ── STATS HORIZONTAL BARS ── */
+    .shbar-list { display:flex; flex-direction:column; gap:4px; }
+    .shbar-wrap { border-radius:4px; overflow:hidden; }
+    .shbar-wrap.expanded .shbar-row { border-bottom-left-radius:0; border-bottom-right-radius:0; }
+    .shbar-row { display:grid; grid-template-columns:200px 80px 1fr 60px 20px; align-items:center; gap:12px; padding:0 16px 0 0; height:44px; background:var(--bg2); border:1px solid var(--border); border-radius:4px; transition:border-color 0.2s; overflow:hidden; position:relative; }
+    .shbar-row.top { border-color:rgba(64,212,212,0.5); }
+    .shbar-row.empty { opacity:0.4; }
+    .shbar-row:hover:not(.empty) { border-color:rgba(64,212,212,0.35); }
+    .shbar-name { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.1em; color:var(--text-dim); padding-left:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .shbar-row.top .shbar-name { color:var(--text); }
+    .shbar-count { font-family:'Cinzel',serif; font-size:14px; color:var(--teal-light); text-align:right; text-shadow:0 0 10px rgba(64,212,212,0.4); }
+    .shbar-track { position:relative; height:100%; overflow:hidden; background:var(--bg); }
+    .shbar-img {
+      position:absolute; left:0; top:0; bottom:0;
+      background-size:cover; background-position:center left;
+      transition:width 0.8s cubic-bezier(0.4,0,0.2,1);
+      /* Léger assombrissement sur l'image pour lisibilité */
+      filter: brightness(0.55);
     }
+    .shbar-img::after {
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent 60%, rgba(7,11,11,0.6) 100%);
+    }
+    /* Trait teal à droite de la barre image */
+    .shbar-marker {
+      position:absolute; top:0; bottom:0; width:2px;
+      background: rgba(64,212,212,0.7);
+      box-shadow: 0 0 6px rgba(64,212,212,0.5);
+      transition:left 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+    .shbar-row.top .shbar-marker { background:var(--teal-light); box-shadow:0 0 10px rgba(64,212,212,0.8); }
+    .shbar-row.empty .shbar-marker { display:none; }
+    .shbar-pct { font-family:'Cinzel',serif; font-size:12px; color:var(--text-muted); text-align:right; }
+    .shbar-row.top .shbar-pct { color:var(--text-dim); }
+    .shbar-chevron { font-size:9px; color:var(--text-muted); text-align:center; }
+    .shbar-detail { background:var(--bg3); border:1px solid var(--border); border-top:none; border-bottom-left-radius:4px; border-bottom-right-radius:4px; padding:10px 16px; display:flex; flex-direction:column; gap:6px; }
+    .shbar-boss-row { display:grid; grid-template-columns:1fr 60px 120px; align-items:center; gap:10px; font-size:13px; }
+    .shbar-boss-name { color:var(--text-dim); }
+    .shbar-boss-count { font-family:'Cinzel',serif; font-size:12px; color:var(--teal-light); text-align:right; }
+    .shbar-boss-track { height:4px; background:var(--bg2); border-radius:2px; overflow:hidden; }
+    .shbar-boss-fill { height:100%; background:linear-gradient(90deg,var(--teal-dim),var(--teal-light)); border-radius:2px; transition:width 0.6s ease; }
+
+    /* ── STATS TOGGLE VIEW ── */
+    .stats-view-toggle { display:flex; justify-content:center; gap:6px; margin-bottom:28px; }
+    .stats-view-btn {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+      padding:7px 18px; background:var(--bg2); border:1px solid var(--border);
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s; border-radius:3px;
+    }
+    .stats-view-btn:first-child { border-radius:3px 0 0 3px; }
+    .stats-view-btn:last-child  { border-radius:0 3px 3px 0; }
+    .stats-view-btn.active { color:var(--teal-light); border-color:var(--border-bright); background:rgba(64,212,212,0.08); }
+
+    /* ── BOSS BARS ── */
+    .bossbar-list { display:flex; flex-direction:column; gap:4px; }
+    .bossbar-wrap {
+      border:1px solid var(--border); border-radius:4px;
+      overflow:hidden; position:relative;
+      height:52px; display:flex; align-items:stretch;
+      transition:border-color 0.2s;
+    }
+    .bossbar-wrap.top   { border-color:rgba(64,212,212,0.5); }
+    .bossbar-wrap.empty { opacity:0.4; }
+
+    /* partie gauche : fond noir fixe, nom + count */
+    .bossbar-left {
+      display:flex; align-items:center; gap:12px;
+      flex-shrink:0; width:290px;
+      padding:0 16px 0 16px;
+      background:var(--bg2);
+      position:relative; z-index:1;
+    }
+    .bossbar-name {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.1em;
+      color:var(--text-dim); flex:1;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .bossbar-wrap.top .bossbar-name { color:var(--text); }
+    .bossbar-count {
+      font-family:'Cinzel',serif; font-size:14px;
+      color:var(--teal-light); text-align:right; flex-shrink:0; width:60px; text-align:right;
+      text-shadow:0 0 10px rgba(64,212,212,0.4);
+    }
+
+    /* séparateur */
+    .bossbar-sep { width:1px; background:var(--border); flex-shrink:0; z-index:1; }
+
+    /* partie droite : track avec image clippée + avatar curseur + pct */
+    .bossbar-right {
+      flex:1; display:flex; align-items:center;
+      position:relative; background:var(--bg);
+      overflow:hidden;
+    }
+    /* image donjon clippée à barPct% */
+    .bossbar-dng-img {
+      position:absolute; left:0; top:0; bottom:0;
+      background-size:cover; background-position:center left;
+      filter:brightness(0.5);
+      transition:width 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+    /* avatar rond positionné au bout de l'image */
+    .bossbar-avatar {
+      position:absolute;
+      top:50%; transform:translate(-50%,-50%);
+      width:40px; height:40px; border-radius:50%;
+      background:var(--bg3) center/cover no-repeat;
+      border:2px solid rgba(64,212,212,0.5);
+      box-shadow:0 0 0 2px var(--bg), 0 0 10px rgba(64,212,212,0.3);
+      transition:left 0.8s cubic-bezier(0.4,0,0.2,1);
+      z-index:2; flex-shrink:0;
+    }
+    .bossbar-wrap.top .bossbar-avatar {
+      border-color:var(--teal-light);
+      box-shadow:0 0 0 2px var(--bg), 0 0 16px rgba(64,212,212,0.6);
+    }
+    /* pct dans sa propre colonne après le track, fond noir */
+    .bossbar-pct-col {
+      flex-shrink:0; width:64px;
+      display:flex; align-items:center; justify-content:flex-end;
+      padding-right:14px;
+      background:var(--bg2);
+      position:relative; z-index:1;
+      font-family:'Cinzel',serif; font-size:12px; color:var(--text-muted);
+    }
+    .bossbar-wrap.top .bossbar-pct-col { color:var(--text-dim); }
+
+    /* pct à droite, toujours visible — supprimé du track */
+    .bossbar-pct { display:none; }
+
+    /* ── LB SEARCH + PAGINATION ── */
+    .lb-search-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .lb-search-wrap {
+      flex:1; display:flex; align-items:center; gap:8px;
+      background:var(--bg2); border:1px solid var(--border); border-radius:4px;
+      padding:0 12px; transition:border-color 0.2s;
+    }
+    .lb-search-wrap:focus-within { border-color:var(--border-bright); }
+    .lb-search-wrap input {
+      flex:1; background:none; border:none; outline:none;
+      color:var(--text); font-family:'Crimson Pro',serif; font-size:16px;
+      padding:9px 0; caret-color:var(--teal-light);
+    }
+    .lb-search-wrap input::placeholder { color:var(--text-muted); }
+    .lb-search-clear {
+      background:none; border:none; color:var(--text-muted);
+      cursor:pointer; font-size:14px; padding:4px; transition:color 0.2s;
+    }
+    .lb-search-clear:hover { color:var(--text); }
+    .lb-count {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.12em;
+      color:var(--text-muted); white-space:nowrap;
+    }
+
+    /* Pagination */
+    #lb-pagination { display:flex; align-items:center; justify-content:center; gap:4px; margin-top:16px; flex-wrap:wrap; }
+    .pg-btn {
+      font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.08em;
+      min-width:36px; height:36px; padding:0 10px;
+      background:var(--bg2); border:1px solid var(--border); border-radius:3px;
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .pg-btn:hover:not(:disabled) { border-color:var(--border-bright); color:var(--text-dim); }
+    .pg-btn.active { color:var(--teal-light); border-color:var(--border-bright); background:rgba(64,212,212,0.08); }
+    .pg-btn:disabled { opacity:0.3; cursor:default; }
+    .pg-sep { color:var(--text-muted); font-size:12px; padding:0 4px; }
+    @media (max-width:600px) {
+      main { padding:20px 14px 64px; }
+      .lb-header,.lb-row { grid-template-columns:36px 1fr 78px; }
+      .lb-header .col-dng,.lb-row .score-dungeons { display:none; }
+      .tiers-grid { grid-template-columns:1fr; }
+      nav { padding:8px 12px; flex-wrap:wrap; gap:4px; }
+      .nav-right { margin-left:auto; }
+      .dungeon-kills-grid { grid-template-columns:1fr; }
+      .stats-summary { grid-template-columns:1fr; }
+      .shbar-row { grid-template-columns:140px 60px 1fr 50px 20px; gap:8px; }
+      .bossbar-left { width:200px; }    }
   </style>
 </head>
-
 <body>
-  <nav>
-    <a href="../index.html" class="nav-home" title="Accueil">
-      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    </a>
-    <div class="nav-spacer"></div>
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')">FR</button>
-      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
-    </div>
-  </nav>
+
+  <div class="top-line"></div>
 
   <header>
-    <div class="status-badge">
-      <span class="status-dot"></span>
-      <span data-fr="À venir" data-en="Upcoming">À venir</span>
-    </div>
-    <div class="event-title" data-fr="Donjon en Pagaille" data-en="Dungeon Mayhem">Donjon en Pagaille</div>
+    <div class="event-title" id="event-title" data-fr="Donjon en Pagaille" data-en="Dungeon Mayhem">Donjon en Pagaille</div>
     <div class="event-subtitle" data-fr="Tuez le plus de boss possible" data-en="Kill as many bosses as possible">Tuez le plus de boss possible</div>
-    <div class="event-dates" data-fr="Date à confirmer" data-en="Date TBC">Date à confirmer</div>
+    <div class="event-dates"><span data-fr="22 Juin - 13 Juillet" data-en="June 22 - July 13">Date à confirmer</span></div>
     <div class="social-links">
       <a href="https://twitch.tv/pouf_hgaming" target="_blank" class="social-link twitch">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
@@ -471,245 +685,1149 @@
     </div>
   </header>
 
-  <!-- TABS -->
-  <div class="tabs-bar">
-    <button class="tab active" id="tab-overview" onclick="showTab('overview', this)" data-fr="Présentation" data-en="Overview">Présentation</button>
-    <button class="tab" id="tab-participants" onclick="showTab('participants', this)" data-fr="Participants" data-en="Participants">Participants</button>
-    <button class="tab" id="tab-join" onclick="showTab('join', this)" data-fr="Rejoindre" data-en="Join">Rejoindre</button>
-  </div>
-
-  <!-- PAGE OVERVIEW -->
-  <div id="page-overview" class="page active">
-    <main>
-
-      <!-- CONCEPT -->
-      <div class="card">
-        <div class="card-title" data-fr="L'Event" data-en="The Event">L'Event</div>
-        <p class="concept-text" id="c-concept">
-          <strong>Donjon en Pagaille</strong> est un event communautaire où l'objectif est simple :
-          <strong>tuer le plus de boss possible</strong> en équipe, dans tous les donjons de Fellowship.<br><br>
-          Chaque boss tué compte pour le total communautaire. Plus la communauté joue, plus les paliers de récompenses se débloquent.
-        </p>
-        <div class="rules-grid">
-          <div class="rule-item"><span class="rule-icon">⚔️</span><span data-fr="Tous les donjons Fellowship sont éligibles" data-en="All Fellowship dungeons are eligible">Tous les donjons Fellowship sont éligibles</span></div>
-          <div class="rule-item"><span class="rule-icon">📊</span><span data-fr="Les kills sont comptabilisés via Fellowship Logs" data-en="Kills are tracked via Fellowship Logs">Les kills sont comptabilisés via Fellowship Logs</span></div>
-          <div class="rule-item"><span class="rule-icon">👥</span><span data-fr="Open à toute la communauté ➡️ inscriptions requises" data-en="Open to the whole community ➡️ registration required">Open à toute la communauté — inscriptions requises</span></div>
-          <div class="rule-item"><span class="rule-icon">🔄</span><span data-fr="Synchronisation automatique toutes les 15 minutes" data-en="Automatic sync every 15 minutes">Synchronisation automatique toutes les 15 minutes</span></div>
-        </div>
+  <nav>
+    <a href="../index.html" class="tab home-btn" title="Accueil" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:8px 14px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </a>
+    <div class="nav-sep"></div>
+    <button class="tab active" id="tab-leaderboard" onclick="showPage('leaderboard',this)" data-fr="Classement" data-en="Leaderboard">Classement</button>
+    <button class="tab" id="tab-stats" onclick="showPage('stats',this)" data-fr="Carnage" data-en="Slaughtered">Carnage</button>
+    <button class="tab" id="tab-rules" onclick="showPage('rules',this)" data-fr="Logs & Règles" data-en="Logs & Rules">Logs & Règles</button>
+    <button class="tab" id="tab-join" onclick="showPage('join',this)" data-fr="Rejoindre" data-en="Join">Rejoindre</button>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" id="lang-btn-en" onclick="setLang('en')">EN</button>
       </div>
+    </div>
+  </nav>
 
-      <!-- PALIERS -->
-      <div class="card">
-        <div class="card-title" data-fr="Paliers Communautaires" data-en="Community Milestones">Paliers Communautaires</div>
+  <main>
+
+    <!-- ── LEADERBOARD ── -->
+    <div id="page-leaderboard" class="page active">
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-title" data-fr="Boss tués (Les données actuelles sont fausses et seront reset au début de l'event)" data-en="Bosses killed (Current data are fake and will be reseted when event will start)">Boss tués — total communauté</span>
+          <span class="progress-count"><span id="total-kills">—</span><span data-fr=" boss" data-en=" bosses"> boss</span></span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-track-inner">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+          <div class="tier-markers">
+            <div class="tier-marker t1" data-label="1 000"></div>
+            <div class="tier-marker t2" data-label="2 500"></div>
+            <div class="tier-marker t3" data-label="5 000"></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:8px;font-family:'Cinzel',serif;font-size:10px;color:var(--text-muted);letter-spacing:0.12em;opacity:0.7;">
+          <span id="tier-player-label" data-fr="Paliers calculés pour" data-en="Tiers calculated for">Tiers calculated for</span>
+          <span id="tier-player-count" style="color:var(--teal-dim)">—</span>
+        </div>
+        <div class="weekend-banner" id="weekend-banner">
+          <span data-fr="Weekend Double Boss actif — tous les kills comptent double !" data-en="Double Boss Weekend active — all kills count double!">Weekend Double Boss actif — tous les kills comptent double !</span>
+        </div>
         <div class="tiers-grid">
-          <div class="tier-card t1">
+          <div class="tier-card t1 locked" id="tier-1">
+            <div class="tier-badge-unlocked" data-fr="Débloqué ✓" data-en="Unlocked ✓">Débloqué ✓</div>
             <div class="tier-num" data-fr="Palier 1" data-en="Tier 1">Palier 1</div>
             <div class="tier-threshold">1 000</div>
-            <div class="tier-reward" data-fr="Débloque de nouveaux émotes" data-en="Unlocks new emotes">Débloque de nouveaux émotes</div>
+            <div class="tier-reward-item">
+              <span class="tier-reward" data-fr="Nouvelles emotes faites par Ciri" data-en="New emotes made by Ciri">Nouvelles emotes faites par Ciri</span>
+            </div>      
+            <div class="tier-status" data-fr="Verrouillé" data-en="Locked">Verrouillé</div>
           </div>
-          <div class="tier-card t2">
+          <div class="tier-card t2 locked" id="tier-2">
+            <div class="tier-badge-unlocked" data-fr="Débloqué ✓" data-en="Unlocked ✓">Débloqué ✓</div>
             <div class="tier-num" data-fr="Palier 2" data-en="Tier 2">Palier 2</div>
             <div class="tier-threshold">2 500</div>
-            <div class="tier-reward" data-fr="Organisation de Gloire à la Compagnie II" data-en="Glory to the Fellowship II confirmed">Organisation de Gloire à la Compagnie II</div>
-          </div>
-          <div class="tier-card t3">
-            <div class="tier-num" data-fr="Palier 3" data-en="Tier 3">Palier 3</div>
-            <div class="tier-threshold">5 000</div>
-            <div class="tier-reward" data-fr="Indice sur le secret de la Saison 1" data-en="Hint about Season 1's secret">Indice sur le secret de la Saison 1</div>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-
-  <!-- PAGE PARTICIPANTS -->
-  <div id="page-participants" class="page">
-    <main>
-      <div class="card">
-        <div class="card-title" data-fr="Participants inscrits" data-en="Registered participants">Participants inscrits</div>
-        <div class="participants-header">
-          <div class="participants-count" id="p-count"></div>
-        </div>
-        <div id="p-grid" class="participants-loading" data-fr="Chargement…" data-en="Loading…">Chargement…</div>
-      </div>
-    </main>
-  </div>
-
-  <!-- PAGE JOIN -->
-  <div id="page-join" class="page">
-    <main>
-      <div class="card">
-        <div class="card-title" data-fr="Participer" data-en="Join">Participer</div>
-        <div class="join-steps">
-          <div class="join-step">
-            <div class="join-step-num">1</div>
-            <div class="join-step-body">
-              <div class="join-step-title" data-fr="Activer les logs de combat" data-en="Activate combat logs">Activer les logs de combat</div>
-              <div class="join-step-desc" id="j-step1">
-                Télécharge l'application <strong>Archon</strong> et assure-toi que le paramètre <strong>Activate Combat Log</strong> est bien activé dans le jeu.<br>
-                Guide complet : <a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>
+            <div class="tier-rewards">
+              <div class="tier-reward-item">
+                <span data-fr="Glory to the Fellowship Saison II confirmée" data-en="Glory to the Fellowship Season II confirmed">Glory to the Fellowship Saison II confirmée</span>
+              </div>
+              <div class="tier-reward-item">
+                <img src="../images/DM1.png" alt="Badge" class="tier-reward-badge-img">
+                <span data-fr="Badge exclusif débloqué" data-en="Exclusive badge unlocked">Badge exclusif débloqué</span>
               </div>
             </div>
+            <div class="tier-status" data-fr="Verrouillé" data-en="Locked">Verrouillé</div>
           </div>
-          <div class="join-step">
-            <div class="join-step-num">2</div>
-            <div class="join-step-body">
-              <div class="join-step-title" data-fr="Récupérer ton ID Fellowship" data-en="Get your Fellowship ID">Récupérer ton ID Fellowship</div>
-              <div class="join-step-desc" id="j-step2">
-                Rends-toi sur <strong>fellowshiplogs.com</strong> et cherche ton personnage. Ton <strong>ID</strong> est le nombre dans la barre d'URL.
+          <div class="tier-card t3 locked" id="tier-3">
+            <div class="tier-badge-unlocked" data-fr="Débloqué ✓" data-en="Unlocked ✓">Débloqué ✓</div>
+            <div class="tier-num" data-fr="Palier 3" data-en="Tier 3">Palier 3</div>
+            <div class="tier-threshold">5 000</div>
+            <div class="tier-rewards">
+              <div class="tier-reward-item">
+                <span data-fr="Indice sur le secret de la Saison 1" data-en="Hint about Season 1's secret">Indice sur le secret de la Saison 1</span>
               </div>
-              <div class="join-url-box">
-                <div class="join-url-label" data-fr="Exemple — barre d'URL" data-en="Example — URL bar">Exemple — barre d'URL</div>
-                <div class="join-url-bar">
-                  <span class="url-dim">fellowshiplogs.com/characters/</span><span class="url-hi">151451</span><span class="url-dim">/overview</span>
-                </div>
-                <div class="join-url-caption" id="j-caption">👆 Le nombre en surbrillance, c'est ton ID. Note-le pour le formulaire.</div>
+              <div class="tier-reward-item">
+                <span data-fr="Fellowship Hardcore débloqué" data-en="Fellowship Hardcore unlocked">Fellowship Hardcore débloqué</span>
+              </div>
+            </div>
+            <div class="tier-status" data-fr="Verrouillé" data-en="Locked">Verrouillé</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lb-toolbar">
+        <div class="sync-info" id="sync-info">
+          <span class="sync-dot" id="sync-dot"></span>
+          <span id="sync-text">—</span>
+        </div>
+        <button class="refresh-btn" id="refresh-btn" onclick="refreshLeaderboard()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          <span data-fr="Actualiser" data-en="Refresh">Actualiser</span>
+        </button>
+      </div>
+      <div class="lb-search-row">
+        <div class="lb-search-wrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-muted);flex-shrink:0"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" id="lb-search" placeholder="Rechercher un joueur…" oninput="onLbSearch()" autocomplete="off">
+          <button class="lb-search-clear" id="lb-search-clear" onclick="clearLbSearch()" style="display:none">✕</button>
+        </div>
+        <div class="lb-count" id="lb-count"></div>
+      </div>
+      <div class="lb-header">
+        <div>#</div>
+        <div data-fr="Joueur" data-en="Player">Joueur</div>
+        <div style="text-align:right" data-fr="Boss tués" data-en="Bosses">Boss tués</div>
+        <div class="col-dng" style="text-align:right" data-fr="Donjons" data-en="Dungeons">Donjons</div>
+      </div>
+      <div id="lb-content"><div class="loading">Chargement…</div></div>
+      <div id="lb-pagination"></div>
+    </div>
+
+    <!-- ── STATS / CARNAGE ── -->
+    <div id="page-stats" class="page">
+      <div id="stats-content"><div class="loading">Chargement…</div></div>
+    </div>
+
+    <!-- ── RULES ── -->
+    <div id="page-rules" class="page">
+      <div class="rules-page" id="rules-content"></div>
+    </div>
+
+    <!-- ── JOIN ── -->
+    <div id="page-join" class="page">
+      <div class="join-page" id="join-content"></div>
+    </div>
+
+    <!-- ── ADMIN ── -->
+    <div id="page-admin" class="page">
+      <div class="admin-gate" id="admin-gate">
+        <h2>Administration</h2>
+        <div class="admin-form">
+          <div class="field"><label>Service Role Key</label><input type="password" id="input-key" placeholder="eyJ…"></div>
+          <button class="btn" onclick="adminLogin()">Connexion</button>
+        </div>
+      </div>
+      <div class="admin-panel" id="admin-panel">
+        <div class="import-section">
+          <h3>Importer des logs</h3>
+          <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px;font-style:italic;">Format : <code style="font-size:12px;color:var(--text-dim);">[{"player":"Nom","dungeon":"Abime des marins","boss_kills":3,"completed":true}]</code></p>
+          <div class="field"><label>JSON des logs</label><textarea id="import-json" placeholder='[{"player":"NomJoueur","dungeon":"Abime des marins","boss_kills":3,"completed":true}]'></textarea></div>
+          <button class="btn" onclick="importLogs()">Importer</button>
+          <div class="import-result" id="import-result"></div>
+        </div>
+        <div class="import-section">
+          <h3>Joueurs inscrits</h3>
+          <div style="display:flex;gap:8px;align-items:flex-end;">
+            <div class="field" style="flex:1;margin:0"><label>Nom du joueur</label><input type="text" id="new-player-name" placeholder="NomJoueur"></div>
+            <button class="btn" onclick="addPlayer()">+</button>
+          </div>
+          <div class="admin-players-grid" id="admin-players-grid"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let _tc = 0, _tt;
+    document.getElementById('event-title').addEventListener('click', () => {
+      _tc++; clearTimeout(_tt); _tt = setTimeout(() => _tc = 0, 600);
+      if (_tc >= 3) { _tc = 0; document.querySelectorAll('.tab,.page').forEach(e => e.classList.remove('active')); document.getElementById('page-admin').classList.add('active'); loadAdminPlayers(); }
+    });
+  </script>
+
+  <script>
+    // HERE CHANGE BONUS ── CONFIG EVENT — modifier BONUS_KILLS pour activer le bonus weekend ──
+    const PAGAILLE_CONFIG = {
+      BONUS_KILLS:    0,       // ← mettre ex: 300 pour afficher "+300 bonus weekend"
+      BONUS_LABEL_FR: 'bonus weekend',
+      BONUS_LABEL_EN: 'weekend bonus',
+      // Dates du weekend double boss (inclusives)
+      DOUBLE_BOSS_START: new Date('2026-06-26T18:00:00'),
+      DOUBLE_BOSS_END:   new Date('2026-06-29T9:00:00'),
+    };
+  </script>
+  <script> 
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    const CACHE_MS = 60 * 1000;
+    const SEASON   = 'S1';
+    const N_PLAYERS_AT_LAUNCH = 21;
+    const TIERS_BASE = [1000, 2500, 5000]; // paliers calibrés pour N_REF joueurs
+    const N_REF      = 20;                  // référence de calibration
+    // Formule : palier(N) = base × √(N / N_REF)  — racine carrée
+    function computeTiers(n) {
+      const factor = Math.sqrt(Math.max(1, n) / N_REF);
+      return TIERS_BASE.map(b => Math.round(b * factor));
+    }
+    const DUNGEONS = [
+      "Abime des marins","Bois de L'aube","Carrière tombe-dieu",
+      "Coeur de guivre","Creux Soyeux","Guet Tempete",
+      "Marché d'Urrak","Sables Empyréens","Caveau de Lamespectre",
+      "Coeur de Tuzari","La chute Cithrel","Saccage de Drakheim"
+    ];
+
+    const DUNGEON_IMAGES = {
+      "Abime des marins":      "../gloire/images/abime-des-marins.jpg",
+      "Bois de L'aube":        "../gloire/images/bois-de-laube.jpg",
+      "Carrière tombe-dieu":   "../gloire/images/carriere-tombe-dieu.jpg",
+      "Caveau de Lamespectre": "../gloire/images/caveau-de-lamespectre.jpg",
+      "Coeur de guivre":       "../gloire/images/coeur-de-guivre.jpg",
+      "Coeur de Tuzari":       "../gloire/images/coeur-de-tuzari.jpg",
+      "Creux Soyeux":          "../gloire/images/creux-soyeux.jpg",
+      "Guet Tempete":          "../gloire/images/guet-tempete.jpg",
+      "La chute Cithrel":      "../gloire/images/la-chute-cithrel.jpg",
+      "Marché d'Urrak":        "../gloire/images/marche-durrak.jpg",
+      "Sables Empyréens":      "../gloire/images/sables-empyreens.jpg",
+      "Saccage de Drakheim":   "../gloire/images/saccage-de-drakheim.jpg"
+    };
+
+    // Mapping : tout nom Fellowship (boss, alias donjon, nom FR) → nom FR canonique
+    // Source de vérité : BOSS_TO_DUNGEON dans sync-pagaille/index.ts
+    const DUNGEON_NAME_MAP = {
+      // Abime des marins
+      "Sinthara":                        "Abime des marins",
+      "Sailor's Abyss":                  "Abime des marins",
+      "Abime des marins":                "Abime des marins",
+      // Bois de L'aube
+      "Malgut the Fetid":                "Bois de L'aube",
+      "Everdawn Grove":                  "Bois de L'aube",
+      "Bois de L'aube":                  "Bois de L'aube",
+      // Carrière tombe-dieu
+      "Godfall Titan":                   "Carrière tombe-dieu",
+      "Godfall Quarry":                  "Carrière tombe-dieu",
+      "Carrière tombe-dieu":             "Carrière tombe-dieu",
+      // Caveau de Lamespectre
+      "Deathless Katrine":               "Caveau de Lamespectre",
+      "Bael'Aurum":                      "Caveau de Lamespectre",
+      "First Mate Marrow":               "Caveau de Lamespectre",
+      "Wraithtide Vault":                "Caveau de Lamespectre",
+      "Caveau de Lamespectre":           "Caveau de Lamespectre",
+      // Coeur de guivre
+      "Apostate Veras":                  "Coeur de guivre",
+      "Wyrmheart":                       "Coeur de guivre",
+      "The Wyrmheart":                   "Coeur de guivre",
+      "Coeur de guivre":                 "Coeur de guivre",
+      // Coeur de Tuzari
+      "Moar'gore, Master of Sacrifice":  "Coeur de Tuzari",
+      "Vun'Kahr, The Thorned Maw":       "Coeur de Tuzari",
+      "Prophet Ez'rath":                 "Coeur de Tuzari",
+      "The Heart of Tuzari":             "Coeur de Tuzari",
+      "Coeur de Tuzari":                 "Coeur de Tuzari",
+      // Creux Soyeux
+      "Vexira, Mother of Nightmares":    "Creux Soyeux",
+      "Silken Hollow":                   "Creux Soyeux",
+      "Creux Soyeux":                    "Creux Soyeux",
+      // Guet Tempete
+      "Warlord Brogg":                   "Guet Tempete",
+      "Stormwatch":                      "Guet Tempete",
+      "Guet Tempete":                    "Guet Tempete",
+      // La chute Cithrel
+      "Noor, The Betrayer":              "La chute Cithrel",
+      "Ancient Koros":                   "La chute Cithrel",
+      "Cithrel":                         "La chute Cithrel",
+      "Cithrel's Fall":                  "La chute Cithrel",
+      "La chute Cithrel":                "La chute Cithrel",
+      // Marché d'Urrak
+      "Drazhul the Fleshbroker":         "Marché d'Urrak",
+      "Slavetrader Brull":               "Marché d'Urrak",
+      "Urrak Markets":                   "Marché d'Urrak",
+      "Marché d'Urrak":                  "Marché d'Urrak",
+      // Sables Empyréens
+      "Sin-Magir":                       "Sables Empyréens",
+      "Empyrean Sands":                  "Sables Empyréens",
+      "Sables Empyréens":                "Sables Empyréens",
+      // Saccage de Drakheim
+      "Fodir Kaldur":                    "Saccage de Drakheim",
+      "Chilgar the Drowned":             "Saccage de Drakheim",
+      "Auga Handhafi the Blind":         "Saccage de Drakheim",
+      "Ransack of Drakheim":             "Saccage de Drakheim",
+      "Saccage de Drakheim":             "Saccage de Drakheim",
+    };
+    // Normalise dungeon_name ou boss_name Fellowship → nom FR canonique du donjon
+    function normDungeon(name) { return DUNGEON_NAME_MAP[name] || name; }
+
+    const DUNGEON_BOSSES = {
+      "Abime des marins":      ["Sinthara"],
+      "Bois de L'aube":        ["Malgut the Fetid"],
+      "Carrière tombe-dieu":   ["Godfall Titan"],
+      "Coeur de guivre":       ["Apostate Veras"],
+      "Creux Soyeux":          ["Vexira, Mother of Nightmares"],
+      "Guet Tempete":          ["Warlord Brogg"],
+      "Marché d'Urrak":        ["Drazhul the Fleshbroker","Slavetrader Brull"],
+      "Sables Empyréens":      ["Sin-Magir"],
+      "Caveau de Lamespectre": ["Deathless Katrine","Bael'Aurum","First Mate Marrow"],
+      "Coeur de Tuzari":       ["Moar'gore, Master of Sacrifice","Vun'Kahr, The Thorned Maw","Prophet Ez'rath"],
+      "La chute Cithrel":      ["Noor, The Betrayer","Ancient Koros","Cithrel"],
+      "Saccage de Drakheim":   ["Fodir Kaldur","Chilgar the Drowned","Auga Handhafi the Blind"]
+    };
+
+    // Traductions FR → EN des noms de donjons
+    const DUNGEON_NAMES_EN = {
+      "Abime des marins":      "Sailor's Abyss",
+      "Bois de L'aube":        "Everdawn Grove",
+      "Carrière tombe-dieu":   "Godfall Quarry",
+      "Coeur de guivre":       "Wyrmheart",
+      "Creux Soyeux":          "Silken Hollow",
+      "Guet Tempete":          "Stormwatch",
+      "Marché d'Urrak":        "Urrak Markets",
+      "Sables Empyréens":      "Empyrean Sands",
+      "Caveau de Lamespectre": "Wraithtide Vault",
+      "Coeur de Tuzari":       "Heart of Tuzari",
+      "La chute Cithrel":      "Cithrel's Fall",
+      "Saccage de Drakheim":   "Ransack of Drakheim",
+    };
+    // Les noms de boss sont déjà en anglais — pas de traduction nécessaire
+
+    let currentLang = localStorage.getItem('pouf_lang') || 'fr';
+
+    // Retourne le nom du donjon dans la langue courante
+    function tDungeon(nameFR) {
+      return currentLang === 'en' ? (DUNGEON_NAMES_EN[nameFR] || nameFR) : nameFR;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('pouf_lang', lang);
+      document.getElementById('lang-btn-fr').classList.toggle('active', lang === 'fr');
+      document.getElementById('lang-btn-en').classList.toggle('active', lang === 'en');
+      document.querySelectorAll('[data-fr]').forEach(el => el.textContent = el.dataset[lang] || el.dataset.fr);
+      const searchEl = document.getElementById('lb-search');
+      if (searchEl) searchEl.placeholder = lang === 'fr' ? 'Rechercher un joueur…' : 'Search a player…';
+      renderRules();
+      renderJoin();
+      renderSyncInfo();
+      if (_lbScores.length) renderLbPage();
+    }
+
+    function toast(msg, err = false) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast show' + (err ? ' error' : '');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.className = 'toast', 3000);
+    }
+
+    async function showPage(id, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      if (btn) btn.classList.add('active');
+      if (id === 'leaderboard') loadLeaderboard();
+      if (id === 'rules') renderRules();
+      if (id === 'stats') await renderStats();
+    }
+
+    async function sbFetch(path, key, opts = {}) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { 'apikey': key || SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + (key || SUPABASE_ANON_KEY), 'Content-Type': 'application/json', 'Prefer': opts.prefer || '' },
+        method: opts.method || 'GET',
+        body: opts.body ? JSON.stringify(opts.body) : undefined
+      });
+      if (!res.ok) throw new Error(await res.text());
+      if (res.status === 204) return null;
+      return res.json();
+    }
+
+    let _syncMeta = null, _syncTimer = null;
+    async function loadSyncMeta() {
+      try {
+        const data = await sbFetch('/rest/v1/pagaille_sync_meta?id=eq.1&select=last_sync,next_sync,last_status,runs_added');
+        _syncMeta = data?.[0] ?? null;
+        renderSyncInfo();
+        clearInterval(_syncTimer);
+        _syncTimer = setInterval(renderSyncInfo, 1000);
+      } catch(e) { console.warn('sync_meta unavailable'); }
+    }
+
+    function renderSyncInfo() {
+      const dot = document.getElementById('sync-dot');
+      const text = document.getElementById('sync-text');
+      if (!_syncMeta) { text.textContent = '—'; return; }
+      const { last_sync, next_sync, last_status } = _syncMeta;
+      const now = Date.now();
+      dot.className = 'sync-dot ' + (last_status === 'ok' ? 'ok' : last_status === 'error' ? 'error' : '');
+      const agoMs = last_sync ? now - new Date(last_sync).getTime() : null;
+      const nextMs = next_sync ? new Date(next_sync).getTime() - now : null;
+      let agoStr = '';
+      if (agoMs !== null) { const s = Math.round(agoMs/1000); agoStr = s < 60 ? `${s}s` : `${Math.round(s/60)}min`; }
+      let nextStr = '';
+      if (nextMs !== null && nextMs > 0) { const s = Math.round(nextMs/1000); nextStr = s < 60 ? (currentLang==='en'?`next sync in ${s}s`:`prochain sync dans ${s}s`) : (currentLang==='en'?`next sync in ${Math.round(s/60)}min`:`prochain sync dans ${Math.round(s/60)}min`); }
+      else if (nextMs !== null) { nextStr = currentLang==='en'?'syncing soon…':'sync imminent…'; dot.className='sync-dot live'; }
+      if (last_status === 'error') text.textContent = currentLang==='en'?`Sync error · ${nextStr}`:`Erreur sync · ${nextStr}`;
+      else if (agoStr && nextStr) text.textContent = currentLang==='en'?`Updated ${agoStr} ago · ${nextStr}`:`Mis à jour il y a ${agoStr} · ${nextStr}`;
+      else text.textContent = nextStr || '—';
+    }
+
+    let _cache = null, _cacheTs = 0;
+    function getCached() { return (_cache && Date.now()-_cacheTs < CACHE_MS) ? _cache : null; }
+    function setCache(d) { _cache = d; _cacheTs = Date.now(); }
+
+    // ── Fetch via RPC summary (1 ligne/joueur, JSON agrégé) ──
+    async function loadLeaderboard(force = false) {
+      const cached = force ? null : getCached();
+      if (cached) { renderLeaderboard(cached); return; }
+      const btn = document.getElementById('refresh-btn');
+      if (btn) btn.classList.add('spinning');
+      try {
+        const [summary, players] = await Promise.all([
+          sbFetch(`/rest/v1/rpc/get_pagaille_summary`, null, {
+            method: 'POST',
+            body: { season_filter: SEASON }
+          }),
+          sbFetch('/rest/v1/players?select=id,name&order=name')
+        ]);
+        const data = { summary, players };
+        setCache(data);
+        await loadBadges();
+        if (document.getElementById('page-leaderboard').classList.contains('active')) {
+          renderLeaderboard(data);
+        }
+        loadSyncMeta();
+      } catch(e) {
+        console.error('loadLeaderboard error:', e);
+        const lbContent = document.getElementById('lb-content');
+        if (lbContent) lbContent.innerHTML = `<div class="empty">Erreur de chargement. <a href="#" onclick="refreshLeaderboard()" style="color:var(--teal-light)">Réessayer</a></div>`;
+      }
+      if (btn) btn.classList.remove('spinning');
+    }
+    function refreshLeaderboard() { loadLeaderboard(true); }
+
+    // ── computeLB : lit la summary JSON directement ──
+    function computeLB({ summary, players }) {
+      // Index players par id pour les joueurs sans runs
+      const playerMap = {};
+      players.forEach(p => playerMap[p.id] = p.name);
+
+      // Construit les scores depuis la summary
+      const scores = summary.map(row => {
+        // by_boss : { "Sinthara": { kills, deaths, dungeon }, ... }
+        // on normalise dungeon_name via normDungeon
+        const byBoss = {};
+        const byDungeon = {};
+        if (row.by_boss) {
+          Object.entries(row.by_boss).forEach(([boss, v]) => {
+            byBoss[boss] = { kills: v.kills || 0, deaths: v.deaths || 0 };
+          });
+        }
+        if (row.by_dungeon) {
+          Object.entries(row.by_dungeon).forEach(([dng, v]) => {
+            const normDng = normDungeon(dng);
+            const existing = byDungeon[normDng] || { kills: 0, deaths: 0 };
+            byDungeon[normDng] = {
+              kills:  existing.kills  + (v.kills  || 0),
+              deaths: existing.deaths + (v.deaths || 0),
+            };
+          });
+        }
+        return {
+          id:       row.player_id,
+          name:     row.player_name || playerMap[row.player_id] || '?',
+          total:    Number(row.total_kills)  || 0,
+          deaths:   Number(row.total_deaths) || 0,
+          byDungeon,
+          byBoss,
+        };
+      });
+
+      // Ajoute les joueurs inscrits sans aucun run
+      const inSummary = new Set(summary.map(r => r.player_id));
+      players.forEach(p => {
+        if (!inSummary.has(p.id)) {
+          scores.push({ id: p.id, name: p.name, total: 0, deaths: 0, byDungeon: {}, byBoss: {} });
+        }
+      });
+
+      return scores.sort((a,b) => b.total - a.total);
+    }
+
+    // ── computeStatsGlobal : recalcule depuis la summary agrégée ──
+    function computeStatsGlobal(summary) {
+      const byDungeon = {};
+      const byBoss    = {};
+      DUNGEONS.forEach(d => byDungeon[d] = { kills: 0, deaths: 0 });
+
+      summary.forEach(row => {
+        if (row.by_dungeon) {
+          Object.entries(row.by_dungeon).forEach(([dng, v]) => {
+            const nd = normDungeon(dng);
+            if (byDungeon[nd]) {
+              byDungeon[nd].kills  += v.kills  || 0;
+              byDungeon[nd].deaths += v.deaths || 0;
+            }
+          });
+        }
+        if (row.by_boss) {
+          Object.entries(row.by_boss).forEach(([boss, v]) => {
+            if (!byBoss[boss]) byBoss[boss] = { kills: 0, deaths: 0, dungeon: normDungeon(v.dungeon || '') };
+            byBoss[boss].kills  += v.kills  || 0;
+            byBoss[boss].deaths += v.deaths || 0;
+          });
+        }
+      });
+      return { byDungeon, byBoss };
+    }
+
+    // ── LEADERBOARD SEARCH + PAGINATION ──
+    const LB_PAGE_SIZE = 20;
+    let _lbPage        = 1;
+    let _lbSearch      = '';
+    let _lbScores      = []; // cache des scores calculés
+
+    function onLbSearch() {
+      const val = document.getElementById('lb-search').value;
+      _lbSearch = val.trim().toLowerCase();
+      _lbPage   = 1;
+      document.getElementById('lb-search-clear').style.display = _lbSearch ? '' : 'none';
+      renderLbPage();
+    }
+    function clearLbSearch() {
+      document.getElementById('lb-search').value = '';
+      _lbSearch = '';
+      _lbPage   = 1;
+      document.getElementById('lb-search-clear').style.display = 'none';
+      renderLbPage();
+    }
+    function goToPage(p) { _lbPage = p; renderLbPage(); }
+
+    function renderLbPage() {
+      const fr       = currentLang === 'fr';
+      const filtered = _lbSearch
+        ? _lbScores.filter(s => s.name.toLowerCase().includes(_lbSearch))
+        : _lbScores;
+
+      const total    = filtered.length;
+      const pages    = Math.max(1, Math.ceil(total / LB_PAGE_SIZE));
+      _lbPage        = Math.min(_lbPage, pages);
+      const start    = (_lbPage - 1) * LB_PAGE_SIZE;
+      const slice    = filtered.slice(start, start + LB_PAGE_SIZE);
+
+      // Compteur
+      const countEl = document.getElementById('lb-count');
+      if (countEl) countEl.textContent = _lbSearch
+        ? `${total} ${fr ? 'résultat' + (total > 1 ? 's' : '') : 'result' + (total > 1 ? 's' : '')}`
+        : `${total} ${fr ? 'joueur' + (total > 1 ? 's' : '') : 'player' + (total > 1 ? 's' : '')}`;
+
+      // Rows
+      if (!slice.length) {
+        document.getElementById('lb-content').innerHTML = `<div class="empty">${fr ? 'Aucun joueur trouvé.' : 'No player found.'}</div>`;
+      } else {
+        let html = '';
+        slice.forEach(s => {
+          // Rang global = position dans _lbScores complet (indépendant de la recherche)
+          const globalIdx = _lbScores.indexOf(s);
+          const dRank     = globalIdx + 1;
+          const rc        = dRank <= 3 ? 'rank-' + dRank : '';
+          const dngCount  = Object.values(s.byDungeon).filter(v => v.kills > 0).length;
+          const fr2       = currentLang === 'fr';
+          let detail      = '<div class="lb-detail"><div class="lb-detail-grid">';
+          DUNGEONS.forEach(d => {
+            const img    = DUNGEON_IMAGES[d] || '';
+            const bosses = DUNGEON_BOSSES[d] || [];
+            const dng    = s.byDungeon[d] || { kills: 0, deaths: 0 };
+            const hasAny = dng.kills > 0;
+            detail += `<div class="dng-block ${hasAny ? 'has-kills' : ''}">`;
+            if (img) detail += `<div class="dng-bg" style="background-image:url('${img}')"></div>`;
+            detail += `<div class="dng-inner">`;
+            detail += `<div class="dng-header"><span class="dng-name">${tDungeon(d)}</span><span class="dng-col-label">${fr2 ? 'Tués' : 'Killed'}</span></div>`;
+            detail += `<div class="dng-boss-list">`;
+            bosses.forEach(boss => {
+              const bk   = s.byBoss[boss] || { kills: 0, deaths: 0 };
+              const done = bk.kills > 0;
+              detail += `<div class="dng-boss-row ${done ? 'done' : ''}"><span class="dng-boss-name" title="${boss}">${boss}</span><span class="dng-boss-kills">${bk.kills > 0 ? bk.kills : '—'}</span></div>`;
+            });
+            detail += `</div></div></div>`;
+          });
+          detail += '</div></div>';
+          html += `<div class="lb-row ${rc}" onclick="this.classList.toggle('open')" style="cursor:pointer"><div class="rank-num">${dRank}</div><div class="player-name"><span class="player-name-text" onclick="event.stopPropagation();openProfile(${s.id},'${s.name.replace(/'/g, "\\'")}');" style="cursor:pointer">${s.name}</span><span class="player-badges" onclick="event.stopPropagation()">${renderBadgesInline(s.id)}</span></div><div class="score-boss">${s.total}</div><div class="score-dungeons col-dng">${dngCount}</div>${detail}</div>`;
+        });
+        document.getElementById('lb-content').innerHTML = html;
+      }
+
+      // Pagination (masquée si recherche active ou 1 seule page)
+      const pgEl = document.getElementById('lb-pagination');
+      if (_lbSearch || pages <= 1) { pgEl.innerHTML = ''; return; }
+
+      let pg = '';
+      // Précédent
+      pg += `<button class="pg-btn" onclick="goToPage(${_lbPage - 1})" ${_lbPage === 1 ? 'disabled' : ''}>‹</button>`;
+      // Pages
+      const range = [];
+      for (let i = 1; i <= pages; i++) {
+        if (i === 1 || i === pages || (i >= _lbPage - 2 && i <= _lbPage + 2)) range.push(i);
+        else if (range[range.length - 1] !== '…') range.push('…');
+      }
+      range.forEach(p => {
+        if (p === '…') pg += `<span class="pg-sep">…</span>`;
+        else pg += `<button class="pg-btn ${p === _lbPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+      });
+      // Suivant
+      pg += `<button class="pg-btn" onclick="goToPage(${_lbPage + 1})" ${_lbPage === pages ? 'disabled' : ''}>›</button>`;
+      pgEl.innerHTML = pg;
+    }
+    function renderLeaderboard(data) {
+      const scores = computeLB(data);
+      const N      = N_PLAYERS_AT_LAUNCH;
+      const TIERS  = computeTiers(N);
+      const total  = scores.reduce((s,p) => s+p.total, 0);
+      const fr     = currentLang === 'fr';
+
+      // Bannière Weekend Double Boss — déléguée à updateWeekendBanner()
+      updateWeekendBanner();
+
+      // Bonus weekend
+      const bonus = (typeof PAGAILLE_CONFIG !== 'undefined' && PAGAILLE_CONFIG.BONUS_KILLS) || 0;
+      const totalDisplay = total + bonus;
+      const killsEl = document.getElementById('total-kills');
+      if (bonus > 0) {
+        const bonusLabel = fr
+          ? (PAGAILLE_CONFIG.BONUS_LABEL_FR || 'bonus weekend')
+          : (PAGAILLE_CONFIG.BONUS_LABEL_EN || 'weekend bonus');
+        killsEl.innerHTML = `${total.toLocaleString('fr-FR')} <span style="font-size:14px;color:#00ffff;font-weight:300">+ ${bonus.toLocaleString('fr-FR')} <em style="font-size:12px;letter-spacing:0.08em">${bonusLabel}</em></span>`;
+      } else {
+        killsEl.textContent = total.toLocaleString('fr-FR');
+      }
+
+      const playerCountEl = document.getElementById('tier-player-count');
+      if (playerCountEl) playerCountEl.textContent = fr ? `${N} joueurs` : `${N} players`;
+      const pct  = Math.min(100, (totalDisplay / TIERS[TIERS.length-1]) * 100);
+      const fill = document.getElementById('progress-fill');
+      fill.style.width = pct + '%';
+      // Sync background-size avec largeur réelle de la track (responsive)
+      const syncTrackW = () => {
+        const inner = document.querySelector('.progress-track-inner');
+        if (inner) fill.style.setProperty('--track-w', inner.offsetWidth + 'px');
+      };
+      syncTrackW();
+      if (!window._trackObserver) {
+        window._trackObserver = new ResizeObserver(syncTrackW);
+        const inner = document.querySelector('.progress-track-inner');
+        if (inner) window._trackObserver.observe(inner);
+      }
+      fill.classList.remove('tier-2','tier-3');
+      if (totalDisplay >= TIERS[1]) fill.classList.add('tier-3');
+      else if (totalDisplay >= TIERS[0]) fill.classList.add('tier-2');
+      // Mise à jour des marqueurs et labels sur la barre
+      const markers = document.querySelectorAll('.tier-marker');
+      const maxTier = TIERS[TIERS.length-1];
+      markers.forEach((m, i) => {
+        const t = TIERS[i];
+        m.style.left = Math.min(100, (t/maxTier)*100) + '%';
+        m.dataset.label = t.toLocaleString('fr-FR');
+      });
+      TIERS.forEach((threshold, i) => {
+        const card   = document.getElementById('tier-'+(i+1));
+        const status = card.querySelector('.tier-status');
+        const thresh = card.querySelector('.tier-threshold');
+        if (thresh) thresh.textContent = threshold.toLocaleString('fr-FR');
+
+        // Un palier atteint est définitivement acquis — on stocke en localStorage
+        const storageKey = `pagaille_tier_${i+1}_unlocked`;
+        const alreadyUnlocked = localStorage.getItem(storageKey) === '1';
+        const nowUnlocked = totalDisplay >= threshold;
+        if (nowUnlocked) localStorage.setItem(storageKey, '1');
+        const isUnlocked = alreadyUnlocked || nowUnlocked;
+
+        if (isUnlocked) {
+          card.classList.remove('locked'); card.classList.add('unlocked');
+          status.dataset.fr = 'Débloqué ✓'; status.dataset.en = 'Unlocked ✓';
+          status.textContent = fr ? 'Débloqué ✓' : 'Unlocked ✓';
+        } else {
+          card.classList.add('locked'); card.classList.remove('unlocked');
+          const rem = (threshold - totalDisplay).toLocaleString('fr-FR');
+          status.dataset.fr = `encore ${rem} boss`; status.dataset.en = `${rem} more bosses`;
+          status.textContent = fr ? `encore ${rem} boss` : `${rem} more bosses`;
+        }
+      });
+      if (!scores.length) {
+        document.getElementById('lb-content').innerHTML = `<div class="empty">${currentLang==='en'?'No data yet.':'Aucune donnée pour le moment.'}</div>`;
+        return;
+      }
+      // Alimente le cache et délègue l'affichage à renderLbPage
+      _lbScores = scores;
+      renderLbPage();
+    }
+
+    // ── STATS : barres horizontales kills/deaths toggle ──
+    let _statsExpanded = null;
+    let _statsMode = 'kills'; // 'kills' | 'deaths'
+    let _statsView = 'dungeon'; // 'dungeon' | 'boss'
+
+    async function toggleStatsDungeon(name) {
+      _statsExpanded = _statsExpanded === name ? null : name;
+      await renderStats();
+    }
+
+    async function setStatsMode(mode) {
+      _statsMode = mode;
+      _statsExpanded = null;
+      await renderStats();
+    }
+
+    async function setStatsView(view) {
+      _statsView = view;
+      _statsExpanded = null;
+      await renderStats();
+    }
+
+    // Mapping exact boss → nom de fichier image (sans extension)
+    const BOSS_IMG = {
+      "Sinthara":                        "sinthara",
+      "Malgut the Fetid":                "malgutthefetid",
+      "Godfall Titan":                   "godfalltitan",
+      "Deathless Katrine":               "deathlesskatrine",
+      "Bael'Aurum":                      "baelaurum",
+      "First Mate Marrow":               "firstmatemarrow",
+      "Apostate Veras":                  "apostateveras",
+      "Moar'gore, Master of Sacrifice":  "moargoremasterofsacrifice",
+      "Vun'Kahr, The Thorned Maw":       "vunkahrthethornedmaw",
+      "Prophet Ez'rath":                 "prophetezrath",
+      "Vexira, Mother of Nightmares":    "vexira",
+      "Warlord Brogg":                   "warlordbrogg",
+      "Noor, The Betrayer":              "noor",
+      "Ancient Koros":                   "koros",
+      "Cithrel":                         "cithrel",
+      "Drazhul the Fleshbroker":         "drazhulthefleshbroker",
+      "Slavetrader Brull":               "slavetraderbrull",
+      "Sin-Magir":                       "sinmagir",
+      "Fodir Kaldur":                    "fodirkaldur",
+      "Chilgar the Drowned":             "chilgarthedrowned",
+      "Auga Handhafi the Blind":         "augahandhafitheblind",
+    };
+    function bossImgName(boss) { return BOSS_IMG[boss] || boss.replace(/'/g,'').replace(/,/g,'').replace(/\s+/g,'').toLowerCase(); }
+
+    async function renderStats() {
+      let data = getCached();
+      if (!data) {
+        document.getElementById('stats-content').innerHTML = '<div class="loading">Chargement…</div>';
+        await loadLeaderboard();
+        data = getCached();
+        if (!data) { document.getElementById('stats-content').innerHTML = '<div class="empty">Erreur de chargement.</div>'; return; }
+      }
+      const fr   = currentLang === 'fr';
+      const mode = _statsMode;
+      const view = _statsView;
+      const { byDungeon, byBoss } = computeStatsGlobal(data.summary);
+
+      const totalKills  = DUNGEONS.reduce((s,d) => s + byDungeon[d].kills,  0);
+      const totalDeaths = DUNGEONS.reduce((s,d) => s + byDungeon[d].deaths, 0);
+      const totalVal    = mode === 'kills' ? totalKills : totalDeaths;
+
+      // ── KPI + toggle vue ──
+      let html = `
+        <div class="stats-section-title">${fr?'Vue d\'ensemble':'Overview'}</div>
+        <div class="stats-summary">
+          <div class="stats-kpi ${mode==='kills'?'active':''}" onclick="setStatsMode('kills')">
+            <div class="stats-kpi-label">${fr?'Boss tués':'Bosses killed'}</div>
+            <div class="stats-kpi-value">${totalKills.toLocaleString('fr-FR')}</div>
+          </div>
+          <div class="stats-kpi ${mode==='deaths'?'active':''}" onclick="setStatsMode('deaths')">
+            <div class="stats-kpi-label">${fr?'Morts':'Deaths'}</div>
+            <div class="stats-kpi-value">${totalDeaths > 0 ? totalDeaths.toLocaleString('fr-FR') : `<span style="color:var(--text-muted);font-size:20px">—</span>`}</div>
+          </div>
+        </div>
+        <div class="stats-view-toggle">
+          <button class="stats-view-btn ${view==='dungeon'?'active':''}" onclick="setStatsView('dungeon')">
+            ${fr?'Par donjon':'By dungeon'}
+          </button><button class="stats-view-btn ${view==='boss'?'active':''}" onclick="setStatsView('boss')">
+            ${fr?'Par boss':'By boss'}
+          </button>
+        </div>`;
+
+      // ── VUE DONJON ──
+      if (view === 'dungeon') {
+        const sectionLabel = mode === 'kills'
+          ? (fr ? 'Boss tués par donjon'  : 'Bosses killed per dungeon')
+          : (fr ? 'Morts par donjon'      : 'Deaths per dungeon');
+
+        const sorted = [...DUNGEONS]
+          .map(d => ({ name: d, kills: byDungeon[d].kills, deaths: byDungeon[d].deaths }))
+          .sort((a,b) => b[mode] - a[mode]);
+        const maxVal = sorted[0]?.[mode] || 1;
+
+        html += `<div class="stats-section-title">${sectionLabel}</div><div class="shbar-list">`;
+
+        sorted.forEach((d, i) => {
+          const val    = d[mode];
+          const pct    = totalVal > 0 ? (val/totalVal*100) : 0;
+          const barPct = maxVal   > 0 ? (val/maxVal*100)   : 0;
+          const img    = DUNGEON_IMAGES[d.name] || '';
+          const isTop  = i === 0 && val > 0;
+          const isExp  = _statsExpanded === d.name;
+          const bosses = DUNGEON_BOSSES[d.name] || [];
+          const clickable = bosses.length > 0 && val > 0;
+
+          html += `<div class="shbar-wrap${isExp?' expanded':''}">
+            <div class="shbar-row${isTop?' top':''}${val===0?' empty':''}" ${clickable?`onclick="toggleStatsDungeon('${d.name.replace(/'/g,"\\'")}')"`:''}  style="${clickable?'cursor:pointer':''}">
+              <div class="shbar-name">${tDungeon(d.name).toUpperCase()}</div>
+              <div class="shbar-count">${val > 0 ? val.toLocaleString('fr-FR') : '—'}</div>
+              <div class="shbar-track">
+                ${img ? `<div class="shbar-img" style="width:${barPct}%;background-image:url('${img}')"></div><div class="shbar-marker" style="left:${barPct}%"></div>` : ''}
+              </div>
+              <div class="shbar-pct">${val > 0 ? pct.toFixed(1)+'%' : ''}</div>
+              ${clickable ? `<div class="shbar-chevron">${isExp?'▲':'▼'}</div>` : '<div class="shbar-chevron"></div>'}
+            </div>`;
+
+          if (isExp && clickable) {
+            const maxBoss = Math.max(...bosses.map(b => byBoss[b]?.[mode]||0), 1);
+            html += `<div class="shbar-detail">`;
+            bosses.forEach(boss => {
+              const bk   = byBoss[boss] || { kills: 0, deaths: 0 };
+              const bval = bk[mode] || 0;
+              html += `<div class="shbar-boss-row">
+                <div class="shbar-boss-name">${boss}</div>
+                <div class="shbar-boss-count">${bval > 0 ? bval.toLocaleString(fr ? 'fr-FR' : 'en-US') : '—'}</div>
+                <div class="shbar-boss-track"><div class="shbar-boss-fill" style="width:${bval/maxBoss*100}%"></div></div>
+              </div>`;
+            });
+            html += `</div>`;
+          }
+          html += `</div>`;
+        });
+        html += '</div>';
+
+      // ── VUE BOSS ──
+      } else {
+        const sectionLabel = mode === 'kills'
+          ? (fr ? 'Boss tués'  : 'Bosses killed')
+          : (fr ? 'Morts par boss' : 'Deaths per boss');
+
+        // Tous les boss de tous les donjons, triés desc par mode
+        const allBosses = [];
+        DUNGEONS.forEach(d => {
+          (DUNGEON_BOSSES[d] || []).forEach(boss => {
+            const bk  = byBoss[boss] || { kills: 0, deaths: 0 };
+            allBosses.push({ boss, dungeon: d, kills: bk.kills, deaths: bk.deaths });
+          });
+        });
+        allBosses.sort((a,b) => b[mode] - a[mode]);
+
+        const maxVal = allBosses[0]?.[mode] || 1;
+
+        html += `<div class="stats-section-title">${sectionLabel}</div><div class="bossbar-list">`;
+
+        allBosses.forEach((b, i) => {
+          const val    = b[mode];
+          const pct    = totalVal > 0 ? (val/totalVal*100) : 0;
+          const barPct = maxVal   > 0 ? (val/maxVal*100)   : 0;
+          const dngImg = DUNGEON_IMAGES[b.dungeon] || '';
+          const avatarSrc = `../images/bosses/${bossImgName(b.boss)}.jpg`;
+          const isTop  = i === 0 && val > 0;
+
+          html += `<div class="bossbar-wrap${isTop?' top':''}${val===0?' empty':''}">
+            <div class="bossbar-left">
+              <div class="bossbar-name">${b.boss}</div>
+              <div class="bossbar-count">${val > 0 ? val.toLocaleString('fr-FR') : '—'}</div>
+            </div>
+            <div class="bossbar-sep"></div>
+            <div class="bossbar-right">
+              ${dngImg ? `<div class="bossbar-dng-img" style="width:${barPct}%;background-image:url('${dngImg}')"></div>` : ''}
+              <div class="bossbar-avatar" style="left:calc(clamp(20px, ${barPct}%, 100% - 20px));background-image:url('${avatarSrc}')"></div>
+            </div>
+            <div class="bossbar-sep"></div>
+            <div class="bossbar-pct-col">${val > 0 ? pct.toFixed(1)+'%' : ''}</div>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      document.getElementById('stats-content').innerHTML = html;
+    }
+
+    // ── JOIN ──
+    function renderJoin() {
+      const fr = currentLang === 'fr';
+      document.getElementById('join-content').innerHTML = `
+        <div class="join-step">
+          <div class="join-step-num">1</div>
+          <div class="join-step-body">
+            <div class="join-step-title">${fr?'Activer les logs de combat':'Activate combat logs'}</div>
+            <div class="join-step-desc">${fr?`Télécharge l'application <strong>Archon</strong> et assure-toi que le paramètre <strong>Activate Combat Log</strong> est bien activé dans le jeu.<br><br>Le guide complet est disponible ici : <a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg Getting started</a>`:`Download the <strong>Archon</strong> app and make sure the <strong>Activate Combat Log</strong> setting is enabled in-game.<br><br>Full guide available here: <a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg Getting started</a>`}</div>
+          </div>
+        </div>
+        <div class="join-step">
+          <div class="join-step-num">2</div>
+          <div class="join-step-body">
+            <div class="join-step-title">${fr?'Récupérer ton ID Fellowship':'Get your Fellowship ID'}</div>
+            <div class="join-step-desc">${fr?`Rends-toi sur <strong>fellowshiplogs.com</strong> et cherche ton utilisateur en tapant ton pseudo dans la barre de recherche. Ton <strong>ID</strong> est le nombre visible directement dans la barre d'URL.`:`Go to <strong>fellowshiplogs.com</strong> and search for your user by entering your username in the search bar. Your <strong>ID</strong> is the number visible directly in the URL bar.`}</div>
+            <div class="join-screenshot">
+              <div class="join-screenshot-label">${fr?'Exemple barre d\'URL':'Example URL bar'}</div>
+              <div class="join-url-demo">
+                <div class="join-url-bar"><span class="url-dim">fellowshiplogs.com/characters/</span><span class="url-highlight">151451</span><span class="url-dim">/overview</span></div>
+                <div class="join-url-caption">${fr?'👆 Le nombre en surbrillance, c\'est ton ID. Note-le, tu en auras besoin pour le formulaire.':'👆 The highlighted number is your ID. Note it down, you\'ll need it for the form.'}</div>
               </div>
             </div>
           </div>
         </div>
         <div class="join-divider"></div>
-        <div class="join-block">
-          <div class="join-text">
-            <div class="join-title" data-fr="Prêt à rejoindre la pagaille ?" data-en="Ready to join the mayhem?">Prêt à rejoindre la pagaille ?</div>
-            <div class="join-desc" id="j-desc">
-              Remplis le formulaire avec ton nom de personnage et ton ID Fellowship. Pouf t'ajoutera dès que possible.
+        <div class="join-cta-block">
+          <div class="join-cta-title">${fr?'Prêt à rejoindre ?':'Ready to join?'}</div>
+          <div class="join-cta-desc">${fr?'Remplis le formulaire d\'inscription avec ton nom de personnage et ton ID Fellowship. Pouf ajoutera ton compte dès que possible.':'Fill in the registration form with your character name and Fellowship ID. Pouf will add your account as soon as possible.'}</div>
+          <a class="join-btn" href="https://docs.google.com/forms/d/e/1FAIpQLScs9iALvfOe3cWvW0nudi7zY5cFrSRsdy3_WAMY65HoCaeIag/viewform" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+            ${fr?'Formulaire d\'inscription':'Registration form'}
+          </a>
+        </div>`;
+    }
+
+    // ── RULES / LOGS ──
+    let _logsTab = 'live';
+    function setLogsTab(t) { _logsTab = t; renderRules(); }
+
+    function renderRules() {
+      const fr = currentLang === 'fr';
+      const t  = _logsTab;
+
+      const warning = `
+        <div class="logs-warning">
+          <span class="warn-icon">⚠️</span>
+          <span>${fr
+            ? '<strong>Tout donjon effectué sans logs actifs ne sera pas comptabilisé.</strong> Assure-toi que tes logs sont activés avant chaque session de jeu.'
+            : '<strong>Any dungeon completed without active logs will not be counted.</strong> Make sure your logs are enabled before each gaming session.'}</span>
+        </div>`;
+
+      const step0 = `
+          <div class="logs-step">
+            <div class="logs-step-num">0</div>
+            <div class="logs-step-body">
+              <div class="logs-step-title">${fr ? 'Activer les journaux de combat avancés' : 'Enable advanced combat logs'}</div>
+              <div class="logs-step-desc">${fr
+                ? 'Dans <strong>Fellowship</strong>, ouvre les paramètres du jeu et active l\'option <strong>"Journaux de combat avancés"</strong> (Advanced Combat Logging). Sans cette option, aucun log ne sera enregistré.'
+                : 'In <strong>Fellowship</strong>, open the game settings and enable the <strong>"Advanced Combat Logging"</strong> option. Without this setting, no logs will be recorded.'}</div>
+              <div class="screenshot-placeholder">
+                <div class="screenshot-placeholder-label">${fr ? 'Paramètre dans Fellowship' : 'Setting in Fellowship'}</div>
+                <img src="../pagaille/images/ingamesettings.png" alt="Advanced Combat Logging setting" style="width:100%;display:block;border-radius:0 0 5px 5px;">
+              </div>
+              <div class="logs-tip">⚠️ ${fr ? 'Ce paramètre est à activer une seule fois. Il reste actif entre les sessions.' : 'This setting only needs to be enabled once. It stays active between sessions.'}</div>
+            </div>
+          </div>`;
+
+      const liveContent = `
+        <div class="logs-steps">
+          ${step0}
+          <div class="logs-step">
+            <div class="logs-step-num">1</div>
+            <div class="logs-step-body">
+              <div class="logs-step-title">${fr ? 'Ouvrir Archon' : 'Open Archon'}</div>
+              <div class="logs-step-desc">${fr
+                ? 'Lance l\'application <strong>Archon</strong> sur ton PC. Elle doit tourner en arrière-plan pendant que tu joues.'
+                : 'Launch the <strong>Archon</strong> application on your PC. It must run in the background while you play.'}</div>
             </div>
           </div>
-          <a class="join-btn" href="https://docs.google.com/forms/d/e/1FAIpQLScs9iALvfOe3cWvW0nudi7zY5cFrSRsdy3_WAMY65HoCaeIag/viewform" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
-            <span data-fr="Formulaire d'inscription" data-en="Registration form">Formulaire d'inscription</span>
-          </a>
+          <div class="logs-step">
+            <div class="logs-step-num">2</div>
+            <div class="logs-step-body">
+              <div class="logs-step-title">${fr ? 'Activer les Live Logs' : 'Enable Live Logs'}</div>
+              <div class="logs-step-desc">${fr
+                ? 'Dans Archon, clique sur le bouton <strong>"Live Logs"</strong> pour démarrer l\'enregistrement en temps réel. Le bouton doit passer au vert.'
+                : 'In Archon, click the <strong>"Live Logs"</strong> button to start real-time recording. The button should turn green.'}</div>
+              <div class="screenshot-placeholder">
+                <div class="screenshot-placeholder-label">${fr ? 'Bouton Live Logs dans Archon' : 'Live Logs button in Archon'}</div>
+                <img src="../pagaille/images/livelog.png" alt="Live Logs button in Archon" style="width:100%;display:block;border-radius:0 0 5px 5px;">
+              </div>
+              <div class="logs-tip">💡 ${fr ? 'Vérifie que le message <strong>"Report Created. Live logging has started"</strong> s\'affiche dans Archon.' : 'Make sure the message <strong>"Report Created. Live logging has started"</strong> appears in Archon.'}</div>
+            </div>
+          </div>
+          <div class="logs-step">
+            <div class="logs-step-num">3</div>
+            <div class="logs-step-body">
+              <div class="logs-step-title">${fr ? 'Joue normalement' : 'Play normally'}</div>
+              <div class="logs-step-desc">${fr
+                ? 'C\'est tout. Tes runs sont enregistrés automatiquement et synchronisés sur le leaderboard toutes les 15 minutes.'
+                : 'That\'s it. Your runs are recorded automatically and synced to the leaderboard every 15 minutes.'}</div>
+            </div>
+          </div>
+        </div>`;
+
+      const uploadContent = `
+        <div class="logs-steps">
+          ${step0}
+          <div class="logs-step">
+            <div class="logs-step-num">1</div>
+            <div class="logs-step-body">
+              <div class="logs-step-title">${fr ? 'Ouvrir Archon' : 'Open Archon'}</div>
+              <div class="logs-step-desc">${fr
+                ? 'Lance l\'application <strong>Archon</strong>. Tes logs locaux sont stockés automatiquement sur ton PC après chaque session.'
+                : 'Launch the <strong>Archon</strong> application. Your local logs are automatically stored on your PC after each session.'}</div>
+            </div>
+          </div>
+          <div class="logs-step">
+            <div class="logs-step-num">2</div>
+            <div class="logs-step-body">
+              <div class="logs-step-title">${fr ? 'Uploader les logs' : 'Upload the logs'}</div>
+              <div class="logs-step-desc">${fr
+                ? 'Dans Archon, retrouve la session que tu veux uploader et clique sur <strong>"Upload"</strong>. Le rapport sera disponible sur <a href="https://www.fellowshiplogs.com" target="_blank" rel="noopener">fellowshiplogs.com</a> dans quelques minutes.'
+                : 'In Archon, find the session you want to upload and click <strong>"Upload"</strong>. The report will be available on <a href="https://www.fellowshiplogs.com" target="_blank" rel="noopener">fellowshiplogs.com</a> within a few minutes.'}</div>
+              <div class="screenshot-placeholder">
+                <div class="screenshot-placeholder-label">${fr ? 'Bouton Upload dans Archon' : 'Upload button in Archon'}</div>
+                <img src="../pagaille/images/manuallog.png" alt="Upload button in Archon" style="width:100%;display:block;border-radius:0 0 5px 5px;">
+              </div>
+            </div>
+          </div>
+          <div class="logs-step">
+            <div class="logs-step-num">3</div>
+            <div class="logs-step-body">
+              <div class="logs-step-title">${fr ? 'Attendre la synchronisation' : 'Wait for sync'}</div>
+              <div class="logs-step-desc">${fr
+                ? 'Une fois uploadé, le leaderboard se met à jour automatiquement lors du prochain sync (toutes les 15 min). Pas besoin de faire quoi que ce soit d\'autre.'
+                : 'Once uploaded, the leaderboard updates automatically at the next sync (every 15 min). No further action needed.'}</div>
+              <div class="logs-tip">💡 ${fr
+                ? 'Si un donjon n\'apparaît pas après 30 min, contacte Pouf sur Discord.'
+                : 'If a dungeon doesn\'t appear after 30 min, contact Pouf on Discord.'}</div>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById('rules-content').innerHTML = `
+        <div class="rules-section">
+          <div class="rules-section-title">${fr ? 'Logs de combat' : 'Combat Logs'}</div>
+          ${warning}
+          <div class="logs-subtabs">
+            <button class="logs-subtab ${t==='live'?'active':''}" onclick="setLogsTab('live')">
+              ${fr ? '⚡ Live Logs (recommandé)' : '⚡ Live Logs (recommended)'}
+            </button>
+            <button class="logs-subtab ${t==='upload'?'active':''}" onclick="setLogsTab('upload')">
+              ${fr ? '📤 Upload manuel' : '📤 Manual upload'}
+            </button>
+          </div>
+          ${t === 'live' ? liveContent : uploadContent}
         </div>
+        <div class="rules-section" style="margin-top:36px;">
+          <div class="rules-section-title">${fr?'Règles de l\'event':'Event Rules'}</div>
+          <div class="rules-list">
+            <div class="rules-item">⚔️ ${fr?'Tuez le plus de <strong>boss de donjons</strong> possible en équipe pendant la durée de l\'événement.':'Kill as many <strong>dungeon bosses</strong> as possible as a group during the event.'}</div>
+            <div class="rules-item">✅ ${fr?'Tous les boss de sont comptabilisés.':'All bosses in dungeons count.'}</div>
+            <div class="rules-item">🚫 ${fr?'<strong>Tout donjon sans logs actifs</strong> ne sera pas pris en compte, sans exception.':'<strong>Any dungeon without active logs</strong> will not be counted, no exceptions.'}</div>
+            <div class="rules-item">👥 ${fr?'Les kills sont liés au compte. Un boss tué par ton groupe compte pour toi et tous les membres participants.':'Kills are account-wide. A boss killed by your party counts toward all participating members.'}</div>
+            <div class="rules-item">💬 ${fr?'En cas de problème, contacte Pouf sur Discord.':'For issues, contact Pouf on Discord.'}</div>
+          </div>
+        </div>`;
+    }
+
+    // ── ADMIN ──
+    let adminKey = '', adminPlayers = [];
+    function adminLogin() { adminKey = document.getElementById('input-key').value.trim(); if (!adminKey) { toast('Entre la service role key',true); return; } loadAdminPlayers(); }
+    async function loadAdminPlayers() {
+      try { adminPlayers = await sbFetch('/rest/v1/players?select=id,name&order=name', adminKey); document.getElementById('admin-gate').style.display='none'; document.getElementById('admin-panel').classList.add('visible'); renderAdminPlayers(); toast('Connecté !'); }
+      catch(e) { toast('Erreur de connexion',true); }
+    }
+    function renderAdminPlayers() {
+      const g = document.getElementById('admin-players-grid');
+      g.innerHTML = adminPlayers.length ? adminPlayers.map(p=>`<div class="admin-player-row"><span>${p.name}</span><span class="admin-player-del" onclick="deletePlayer(${p.id},'${p.name}')">✕</span></div>`).join('') : '<div style="color:var(--text-muted);font-size:14px;margin-top:8px;">Aucun joueur.</div>';
+    }
+    async function addPlayer() {
+      const name = document.getElementById('new-player-name').value.trim(); if (!name) return;
+      try { await sbFetch('/rest/v1/players',adminKey,{method:'POST',prefer:'return=minimal',body:{name}}); document.getElementById('new-player-name').value=''; adminPlayers=await sbFetch('/rest/v1/players?select=id,name&order=name',adminKey); renderAdminPlayers(); toast('Joueur ajouté !'); }
+      catch(e) { toast('Erreur',true); }
+    }
+    async function deletePlayer(id, name) {
+      if (!confirm(`Supprimer ${name} ?`)) return;
+      try { await sbFetch(`/rest/v1/pagaille_runs?player_id=eq.${id}`,adminKey,{method:'DELETE',prefer:'return=minimal'}); await sbFetch(`/rest/v1/players?id=eq.${id}`,adminKey,{method:'DELETE',prefer:'return=minimal'}); adminPlayers=adminPlayers.filter(p=>p.id!==id); renderAdminPlayers(); toast('Supprimé'); }
+      catch(e) { toast('Erreur',true); }
+    }
+    async function importLogs() {
+      const raw=document.getElementById('import-json').value.trim(); const result=document.getElementById('import-result'); let logs;
+      try { logs=JSON.parse(raw); } catch(e) { result.className='import-result show err'; result.textContent='JSON invalide : '+e.message; return; }
+      if (!Array.isArray(logs)||!logs.length) { result.className='import-result show err'; result.textContent='Le JSON doit être un tableau non vide.'; return; }
+      const players=await sbFetch('/rest/v1/players?select=id,name',adminKey);
+      const pm={}; players.forEach(p=>pm[p.name.toLowerCase()]=p.id);
+      let inserted=0,skipped=0,errors=[];
+      for (const e of logs) {
+        if (!e.completed) { skipped++; continue; }
+        const pid=pm[e.player?.toLowerCase()]; if (!pid) { errors.push(`Inconnu: ${e.player}`); skipped++; continue; }
+        try { await sbFetch('/rest/v1/pagaille_runs',adminKey,{method:'POST',prefer:'return=minimal',body:{player_id:pid,dungeon_name:e.dungeon,boss_kills:e.boss_kills,run_source:'manual'}}); inserted++; }
+        catch(err) { errors.push(`Erreur ${e.player}`); skipped++; }
+      }
+      _cache=null; result.className='import-result show '+(errors.length?'err':'ok');
+      result.textContent=`${inserted} run(s) importé(s), ${skipped} ignoré(s).`+(errors.length?' Erreurs : '+errors.slice(0,3).join(', '):'');
+      if (inserted>0) toast(`${inserted} runs importés !`);
+    }
+
+    function updateWeekendBanner() {
+      const banner = document.getElementById('weekend-banner');
+      const cfg    = typeof PAGAILLE_CONFIG !== 'undefined' ? PAGAILLE_CONFIG : null;
+      const now    = new Date();
+      if (!banner) { console.warn('[Banner] element not found'); return; }
+      if (!cfg || !cfg.DOUBLE_BOSS_START || !cfg.DOUBLE_BOSS_END) { console.warn('[Banner] config missing'); return; }
+      const active = now >= cfg.DOUBLE_BOSS_START && now <= cfg.DOUBLE_BOSS_END;
+      banner.classList.toggle('visible', active);
+      banner.querySelectorAll('[data-fr]').forEach(el => {
+        el.textContent = el.dataset[currentLang] || el.dataset.fr;
+      });
+    }
+
+    // ── INIT ──
+    setLang(currentLang);
+    renderRules();
+    renderJoin();
+    updateWeekendBanner();
+    loadLeaderboard();
+  </script>
+
+  <!-- ── MODAL PROFIL ── -->
+  <div class="modal-overlay" id="profile-modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-player-name" id="modal-player-name">—</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
-    </main>
+      <div class="modal-body">
+        <div class="modal-section-title">Badges</div>
+        <div class="badges-grid" id="modal-badges-grid"></div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const SB_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
-    const SB_KEY  = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
-    let currentLang = localStorage.getItem('pouf_lang') || 'fr';
-    let participantsLoaded = false;
-
-    // ── TABS ──
-    function showTab(name, btn) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('page-' + name).classList.add('active');
-      btn.classList.add('active');
-      if (name === 'participants' && !participantsLoaded) loadParticipants();
+    let _allBadges = null, _playerBadges = null;
+    async function loadBadges() {
+      if (_allBadges) return;
+      try {
+        const [badges, playerBadges] = await Promise.all([
+          sbFetch('/rest/v1/badges?select=id,name,description,icon,color,event_slug,sort_order&order=sort_order'),
+          sbFetch('/rest/v1/player_badges?select=player_id,badge_id')
+        ]);
+        _allBadges = {}; badges.forEach(b => _allBadges[b.id] = b);
+        _playerBadges = {}; playerBadges.forEach(pb => {
+          if (!_playerBadges[pb.player_id]) _playerBadges[pb.player_id] = [];
+          const badge = _allBadges[pb.badge_id]; if (badge) _playerBadges[pb.player_id].push(badge);
+        });
+      } catch(e) { console.warn('Badges unavailable:',e); _allBadges={}; _playerBadges={}; }
     }
-
-    // ── PARTICIPANTS ──
-async function loadParticipants() {
-  const grid = document.getElementById('p-grid');
-  const count = document.getElementById('p-count');
-  const lang = currentLang;
-
-  grid.className = 'participants-loading';
-  grid.textContent = lang === 'en' ? 'Loading…' : 'Chargement…';
-
-  try {
-    const res = await fetch(
-      `${SB_URL}/rest/v1/pagaille_leaderboard?select=player_id,player_name,total_kills,total_runs&order=player_name.asc`,
-      {
-        headers: {
-          'apikey': SB_KEY,
-          'Authorization': `Bearer ${SB_KEY}`
-        }
-      }
-    );
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const players = await res.json();
-
-    participantsLoaded = true;
-
-    const n = players.length;
-
-    count.innerHTML = lang === 'en'
-      ? `<strong>${n}</strong> registered player${n !== 1 ? 's' : ''}`
-      : `<strong>${n}</strong> joueur${n !== 1 ? 's' : ''} inscrit${n !== 1 ? 's' : ''}`;
-
-    if (!n) {
-      grid.className = 'participants-empty';
-      grid.textContent = lang === 'en'
-        ? 'No registered players yet.'
-        : 'Aucun participant inscrit pour le moment.';
-      return;
+    function renderBadgesInline(playerId) {
+      if (!_playerBadges) return '';
+      return (_playerBadges[playerId]||[]).map(b=>`<span class="badge-wrap"><img class="badge-inline" src="../images/${b.icon}" alt="${b.name}" onerror="this.style.opacity='0.2'" onclick="event.stopPropagation();openProfile(${playerId},'${b.name.replace(/'/g,"\\'")}')"><span class="badge-tooltip">${b.name}</span></span>`).join('');
     }
-
-    grid.className = 'participants-grid';
-
-grid.innerHTML = players.map(p => `
-  <div class="participant-card">
-    <div class="participant-name">
-      ${escHtml(p.player_name)}
-    </div>
-  </div>
-`).join('');
-
-  } catch(e) {
-    grid.className = 'participants-empty';
-
-    grid.textContent = lang === 'en'
-      ? 'Unable to load participants.'
-      : 'Impossible de charger les participants.';
-
-    console.error('Participants fetch error:', e);
-  }
-}
-    
-function escHtml(s) {
-      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function openProfile(playerId, playerName) {
+      const badges=(_playerBadges&&_playerBadges[playerId])||[];
+      const lang=localStorage.getItem('pouf_lang')||'fr';
+      document.getElementById('modal-player-name').textContent=playerName||'—';
+      const grid=document.getElementById('modal-badges-grid');
+      grid.innerHTML=!badges.length
+        ?`<div class="modal-no-badges">${lang==='en'?'No badges yet.':'Aucun badge pour le moment.'}</div>`
+        :badges.map(b=>`<div class="badge-card"><img src="../images/${b.icon}" alt="${b.name}" onerror="this.style.opacity='0.2'"><div class="badge-card-name">${b.name}</div><div class="badge-card-event">${b.event_slug}</div></div>`).join('');
+      document.getElementById('profile-modal').classList.add('open');
+      document.body.style.overflow='hidden';
     }
-
-    // ── LANG ──
-    function setLang(lang) {
-      currentLang = lang;
-      localStorage.setItem('pouf_lang', lang);
-      document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
-      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-
-      document.querySelectorAll('[data-fr][data-en]').forEach(el => {
-        el.textContent = lang === 'en' ? el.dataset.en : el.dataset.fr;
-      });
-
-      if (lang === 'en') {
-        document.getElementById('c-concept').innerHTML =
-          '<strong>Dungeon Mayhem</strong> is a community event with a simple goal: <strong>kill as many bosses as possible</strong> together, across all Fellowship dungeons.<br><br>Every boss killed counts toward the community total. The more the community plays, the more milestone rewards unlock.';
-        document.getElementById('j-step1').innerHTML =
-          'Download the <strong>Archon</strong> app and make sure the <strong>Activate Combat Log</strong> setting is enabled in-game.<br>Full guide: <a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg ➡️ Getting started</a>';
-        document.getElementById('j-step2').innerHTML =
-          'Go to <strong>fellowshiplogs.com</strong> and search for your character. Your <strong>ID</strong> is the number in the URL bar.';
-        document.getElementById('j-caption').textContent = '👆 The highlighted number is your ID. Note it down for the form.';
-        document.getElementById('j-desc').innerHTML =
-          'Fill in the form with your character name and Fellowship ID. Pouf will add you as soon as possible.';
-      } else {
-        document.getElementById('c-concept').innerHTML =
-          '<strong>Donjon en Pagaille</strong> est un event communautaire où l\'objectif est simple : <strong>tuer le plus de boss possible</strong> en équipe, dans tous les donjons de Fellowship.<br><br>Chaque boss tué compte pour le total communautaire. Plus la communauté joue, plus les paliers de récompenses se débloquent.';
-        document.getElementById('j-step1').innerHTML =
-          'Télécharge l\'application <strong>Archon</strong> et assure-toi que le paramètre <strong>Activate Combat Log</strong> est bien activé dans le jeu.<br>Guide complet : <a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg ➡️ Getting started</a>';
-        document.getElementById('j-step2').innerHTML =
-          'Rends-toi sur <strong>fellowshiplogs.com</strong> et cherche ton personnage. Ton <strong>ID</strong> est le nombre dans la barre d\'URL.';
-        document.getElementById('j-caption').textContent = '👆 Le nombre en surbrillance, c\'est ton ID. Note-le pour le formulaire.';
-        document.getElementById('j-desc').innerHTML =
-          'Remplis le formulaire avec ton nom de personnage et ton ID Fellowship. Pouf t\'ajoutera dès que possible.';
-      }
-
-      // Refresh participants count label if already loaded
-      if (participantsLoaded) {
-        const grid = document.getElementById('p-grid');
-        const n = grid.querySelectorAll('.participant-card').length;
-        document.getElementById('p-count').innerHTML = lang === 'en'
-          ? `<strong>${n}</strong> registered player${n !== 1 ? 's' : ''}`
-          : `<strong>${n}</strong> joueur${n !== 1 ? 's' : ''} inscrit${n !== 1 ? 's' : ''}`;
-      }
-    }
-
-    setLang(currentLang);
+    function closeModal() { document.getElementById('profile-modal').classList.remove('open'); document.body.style.overflow=''; }
+    document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
   </script>
 </body>
 </html>
