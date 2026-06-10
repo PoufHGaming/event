@@ -696,8 +696,8 @@
     <button class="tab" id="tab-join" onclick="showPage('join',this)" data-fr="Rejoindre" data-en="Join">Rejoindre</button>
     <div class="nav-right">
       <div class="lang-toggle">
-        <button class="lang-btn active" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
-        <button class="lang-btn" id="lang-btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn active" id="lang-btn-en" onclick="setLang('en')">EN</button>
       </div>
     </div>
   </nav>
@@ -1817,7 +1817,7 @@
     }
     function openProfile(playerId, playerName) {
       const badges=(_playerBadges&&_playerBadges[playerId])||[];
-      const lang=localStorage.getItem('pouf_lang')||'fr';
+      const lang=localStorage.getItem('pouf_lang')||'en';
       document.getElementById('modal-player-name').textContent=playerName||'—';
       const grid=document.getElementById('modal-badges-grid');
       grid.innerHTML=!badges.length
