@@ -1,214 +1,1039 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Overlay — Dungeon Mayhem</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donjon en Pagaille — Overlay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      background: transparent;
-      overflow: hidden;
-      width: 500px;
-      font-family: 'Crimson Pro', Georgia, serif;
+    :root {
+      --teal:      #40d4d4;
+      --teal-light:#72e8e8;
+      --teal-dim:  #2a9898;
+      --tier1:     #44ee44;
+      --tier2:     #40d4d4;
+      --tier3:     #c4a0ff;
+      --bg:        rgba(5, 10, 10, 0.88);
+      --bg2:       rgba(10, 20, 20, 0.75);
+      --border:    rgba(64,212,212,0.3);
+      --text:      #f0fafa;
+      --text-dim:  #9fd8d8;
+      --text-muted:#4d8080;
+      --h: 80px;
     }
-    .overlay {
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1920px;
+      height: var(--h);
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ── HUD CONTAINER ── */
+    .hud {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--h);
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding: 14px 18px 16px;
-      background: rgba(7, 11, 11, 0.92);
-      border: 1px solid rgba(64, 212, 212, 0.55);
-      border-radius: 10px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 20px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(64,212,212,0.08);
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(12px);
     }
 
-    /* Titre event */
-    .event-title {
-      font-family: 'Cinzel', serif;
-      font-size: 24px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: rgba(64, 212, 212, 0.75);
-      text-align: center;
-    }
-
-    /* Séparateur */
-    .sep {
-      height: 4px;
-      background: rgba(64, 212, 212, 0.25);
-    }
-
-    /* Ligne principale : label + chiffre */
-    .top-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .label {
-      font-family: 'Cinzel', serif;
-      font-size: 24px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: #9fd8d8;
-    }
-    .kills {
-      font-family: 'Cinzel', serif;
-      font-size: 55px;
-      font-weight: 700;
-      color: #ffffff;
-      text-shadow: 0 0 28px rgba(64, 212, 212, 1), 0 0 60px rgba(64, 212, 212, 0.5);
-      line-height: 1;
-      letter-spacing: 0.04em;
-    }
-
-    /* Barre */
-    .bar-section { display: flex; flex-direction: column; gap: 5px; }
-    .bar-meta {
-      display: flex;
-      justify-content: space-between;
-      font-family: 'Cinzel', serif;
-      font-size: 20px;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-    }
-    .bar-meta .next-lbl { color: #9fd8d8; }
-    .bar-meta .rem-lbl  { color: #72e8e8; font-weight: 600; }
-
-    .bar-track {
-      height: 30px;
-      background: rgba(13, 26, 26, 0.95);
-      border-radius: 4px;
-      border: 1px solid rgba(64, 212, 212, 0.12);
-      overflow: hidden;
-      position: relative;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-    .bar-fill::after {
+    /* Trait lumineux en haut */
+    .hud::before {
       content: '';
       position: absolute;
-      right: -1px; top: 1px; bottom: 1px;
-      width: 3px;
-      background: white;
-      border-radius: 2px;
-      opacity: 0.9;
-      box-shadow: 0 0 6px white;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%, var(--teal-dim) 15%,
+        var(--teal) 50%, var(--teal-dim) 85%, transparent 100%
+      );
+      z-index: 2;
     }
-    .bar-fill.t0 { background: linear-gradient(90deg,#1a991a,#44ee44); box-shadow:0 0 8px rgba(68,238,68,0.5); }
-    .bar-fill.t1 { background: linear-gradient(90deg,#1a991a,#44ee44 30%,#1f8888,#40d4d4); box-shadow:0 0 8px rgba(64,212,212,0.5); }
-    .bar-fill.t2 { background: linear-gradient(90deg,#1f8888,#40d4d4 40%,#7744cc,#c4a0ff); box-shadow:0 0 8px rgba(196,160,255,0.5); }
-    .bar-fill.done { background: linear-gradient(90deg,#7744cc,#c4a0ff); box-shadow:0 0 10px rgba(196,160,255,0.8); }
 
-    @keyframes pop {
-      0%   { transform:scale(1); }
-      50%  { transform:scale(1.1); text-shadow:0 0 40px rgba(64,212,212,1); }
-      100% { transform:scale(1); }
+    /* ── LIGNE PRINCIPALE ── */
+    .hud-main {
+      display: flex;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
     }
-    .kills.pop { animation: pop 0.5s ease; }
+
+    /* ── SECTION GAUCHE — fixe ── */
+    .hud-left {
+      flex-shrink: 0;
+      width: 380px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .event-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .event-name {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .event-season {
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      font-weight: 700;
+    }
+
+    .divider-v { width: 1px; background: var(--border); align-self: stretch; margin: 10px 0; flex-shrink:0; }
+
+    /* Compteur kills */
+    .kills-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+    .kills-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .kills-count {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--teal-light);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      text-shadow: 0 0 24px rgba(64,212,212,0.85), 0 0 2px rgba(64,212,212,0.5);
+      transition: color 0.3s;
+    }
+    .kills-count.bump {
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,255,255,0.9), 0 0 60px rgba(64,212,212,0.5);
+    }
+
+    /* Next tier compact */
+    .next-tier-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .next-tier-label {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .next-tier-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+    .next-tier-remain {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--teal-dim);
+      font-weight: 600;
+    }
+
+    /* ── SÉPARATEUR CENTRAL ── */
+    .hud-sep {
+      flex-shrink: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    /* ── SECTION DROITE — rotation ── */
+    .hud-right {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Chaque panneau */
+    .panel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 20px;
+      opacity: 0;
+      transform: translateX(30px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none;
+    }
+    .panel.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    .panel.exit {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .panel-icon { font-size: 22px; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(64,212,212,0.5)); }
+
+    .panel-title {
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    /* ── PANNEAU : Leaderboard ── */
+    .panel-lb-rows { display: flex; gap: 10px; align-items: center; }
+    .lb-entry {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 12px 4px 8px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 3px;
+    }
+    .lb-rank { font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em; font-weight: 700; min-width: 18px; }
+    .lb-entry.r1 { border-color: rgba(64,212,212,0.6); }
+    .lb-entry.r1 .lb-rank { color: var(--teal-light); }
+    .lb-entry.r2 { border-color: rgba(64,212,212,0.35); }
+    .lb-name { font-size: 15px; color: var(--text); letter-spacing: 0.04em; font-weight: 600; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-score { font-size: 15px; color: var(--teal-light); font-weight: 700; letter-spacing: 0.05em; text-shadow: 0 0 12px rgba(64,212,212,0.6); }
+
+    /* ── PANNEAU : Boss meurtriers ── */
+    .panel-boss-rows { display: flex; gap: 8px; align-items: center; }
+    .boss-entry { display: flex; align-items: center; gap: 7px; padding: 4px 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; }
+    .boss-avatar { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(64,212,212,0.3); object-fit: cover; flex-shrink: 0; background: rgba(64,212,212,0.05); }
+    .boss-name { font-size: 14px; color: var(--text); font-weight: 600; letter-spacing: 0.04em; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .boss-deaths { font-size: 14px; color: #f07070; font-weight: 700; letter-spacing: 0.06em; text-shadow: 0 0 8px rgba(240,112,112,0.5); }
+
+    /* ── PANNEAU : !event ── */
+    .panel-event { display: flex; flex-direction: column; gap: 3px; }
+    .panel-event-main { font-size: 20px; letter-spacing: 0.06em; color: var(--text); font-weight: 600; }
+    .panel-event-main strong { color: var(--teal-light); font-weight: 700; text-shadow: 0 0 16px rgba(64,212,212,0.7); }
+    .panel-event-sub { font-size: 11px; letter-spacing: 0.16em; color: var(--text-dim); font-weight: 600; text-transform: uppercase; }
+
+    /* ── PANNEAU : Milestone ── */
+    .panel-milestone { display: flex; flex-direction: column; gap: 3px; }
+    .panel-milestone-main { font-size: 20px; font-weight: 700; letter-spacing: 0.06em; color: var(--tier1); text-shadow: 0 0 24px rgba(68,238,68,0.6); }
+    .panel-milestone-sub { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: var(--text-dim); text-transform: uppercase; }
+
+    /* ── BARRE DE PROGRESSION EN BAS ── */
+    .hud-bottom {
+      height: 12px;
+      position: relative;
+      background: rgba(64,212,212,0.04);
+      border-top: 1px solid rgba(64,212,212,0.12);
+      flex-shrink: 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg,
+        #1a991a 0%, var(--tier1) 20%,
+        #1f8888 40%, var(--tier2) 55%,
+        #7744cc 78%, var(--tier3) 100%
+      );
+      background-size: var(--track-w, 1920px) 100%;
+      background-repeat: no-repeat;
+      transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 0 10px rgba(64,212,212,0.35);
+    }
+    .progress-markers { position: absolute; inset: 0; pointer-events: none; }
+    .tier-marker {
+      position: absolute; top: 0; bottom: 0; width: 1px;
+      background: rgba(255,255,255,0.3);
+    }
+    .tier-marker::after {
+      content: attr(data-label);
+      position: absolute; bottom: calc(100% + 2px);
+      left: 50%; transform: translateX(-50%);
+      font-size: 8px; letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      white-space: nowrap;
+    }
+
+    /* ── DOTS + TIMER PANEL ── */
+    .panel-dots { position: absolute; bottom: 6px; right: 16px; display: flex; gap: 5px; align-items: center; }
+    .panel-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); transition: background 0.3s, transform 0.3s; }
+    .panel-dot.active { background: var(--teal-light); transform: scale(1.4); }
+
+    @keyframes killbump {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.15); }
+      60%  { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    .kills-count.bump { animation: killbump 0.5s ease; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1920px;
+      height: var(--h);
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ── HUD CONTAINER ── */
+    .hud {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--h);
+      display: flex;
+      align-items: stretch;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    /* Trait lumineux en haut */
+    .hud::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        var(--teal-dim) 15%,
+        var(--teal) 50%,
+        var(--teal-dim) 85%,
+        transparent 100%
+      );
+    }
+
+    /* ── SECTION GAUCHE — fixe, toujours visible ── */
+    .hud-left {
+      flex-shrink: 0;
+      width: 420px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .event-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .event-name {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .event-season {
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      font-weight: 700;
+    }
+
+    .divider-v { width: 1px; background: var(--border); align-self: stretch; margin: 12px 0; }
+
+    /* Compteur kills */
+    .kills-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+    .kills-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .kills-count {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--teal-light);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      text-shadow: 0 0 24px rgba(64,212,212,0.85), 0 0 2px rgba(64,212,212,0.5);
+      transition: color 0.3s;
+    }
+    .kills-count.bump {
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,255,255,0.9), 0 0 60px rgba(64,212,212,0.5);
+    }
+
+    /* Barre de progression */
+    .progress-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      justify-content: center;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .progress-next {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .progress-remain {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--teal-light);
+      font-weight: 700;
+    }
+    .progress-track {
+      position: relative;
+      height: 8px;
+      background: rgba(64,212,212,0.08);
+      border-radius: 4px;
+      border: 1px solid rgba(64,212,212,0.15);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg,
+        #1a991a 0%, var(--tier1) 20%,
+        #1f8888 40%, var(--tier2) 55%,
+        #7744cc 78%, var(--tier3) 100%
+      );
+      background-size: var(--track-w, 340px) 100%;
+      background-repeat: no-repeat;
+      transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 0 8px rgba(64,212,212,0.4);
+    }
+    /* Marqueurs de paliers */
+    .progress-markers {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .tier-marker {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* ── SÉPARATEUR CENTRAL ── */
+    .hud-sep {
+      flex-shrink: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    /* ── SECTION DROITE — rotation ── */
+    .hud-right {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Chaque panneau */
+    .panel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 20px;
+      opacity: 0;
+      transform: translateX(30px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none;
+    }
+    .panel.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    .panel.exit {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .panel-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 8px rgba(64,212,212,0.5));
+    }
+
+    .panel-title {
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    /* ── PANNEAU : Leaderboard ── */
+    .panel-lb-rows {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .lb-entry {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px 3px 7px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+    .lb-rank {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      min-width: 18px;
+    }
+    .lb-entry.r1 { border-color: rgba(64,212,212,0.6); }
+    .lb-entry.r1 .lb-rank { color: var(--teal-light); }
+    .lb-entry.r2 { border-color: rgba(64,212,212,0.35); }
+    .lb-name {
+      font-size: 15px;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lb-score {
+      font-size: 15px;
+      color: var(--teal-light);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 12px rgba(64,212,212,0.6);
+    }
+
+    /* ── PANNEAU : Boss meurtriers ── */
+    .panel-boss-rows {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .boss-entry {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 3px 10px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+    .boss-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(64,212,212,0.3);
+      object-fit: cover;
+      flex-shrink: 0;
+      background: rgba(64,212,212,0.05);
+    }
+    .boss-name {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .boss-deaths {
+      font-size: 14px;
+      color: #f07070;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 8px rgba(240,112,112,0.5);
+    }
+
+    /* ── PANNEAU : !event ── */
+    .panel-event {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .panel-event-main {
+      font-size: 20px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .panel-event-main strong {
+      color: var(--teal-light);
+      font-weight: 700;
+      text-shadow: 0 0 16px rgba(64,212,212,0.7);
+    }
+    .panel-event-sub {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* ── PANNEAU : Milestone (palier atteint) ── */
+    .panel-milestone {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .panel-milestone-main {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--tier1);
+      text-shadow: 0 0 24px rgba(68,238,68,0.6);
+    }
+    .panel-milestone-sub {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    /* ── INDICATEUR DE PANEL (dots) ── */
+    .panel-dots {
+      position: absolute;
+      bottom: 8px;
+      right: 16px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    .panel-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: background 0.3s, transform 0.3s;
+    }
+    .panel-dot.active {
+      background: var(--teal-light);
+      transform: scale(1.4);
+    }
+
+    /* ── TIMER BAR (durée du panel courant) ── */
+    .panel-timer {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      background: rgba(64,212,212,0.35);
+      transition: width linear;
+    }
+
+    /* Animation bump kills */
+    @keyframes killbump {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.15); }
+      60%  { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    .kills-count.bump { animation: killbump 0.5s ease; }
   </style>
 </head>
 <body>
-<div class="overlay">
-  <div class="event-title">✦ Dongeon Mayhem — Season 1 ✦</div>
-  <div class="sep"></div>
-  <div class="top-row">
-    <span class="label">Boss killed</span>
-    <span class="kills" id="kills">—</span>
-  </div>
-  <div class="bar-section">
-    <div class="bar-meta">
-      <span class="next-lbl" id="next-lbl">—</span>
-      <span class="rem-lbl"  id="rem-lbl">—</span>
+
+<div class="hud">
+
+  <div class="hud-main">
+
+    <!-- ── GAUCHE : fixe ── -->
+    <div class="hud-left">
+      <div class="event-label">
+        <div class="event-name">Dungeon Mayhem</div>
+        <div class="event-season">Season 1</div>
+      </div>
+
+      <div class="divider-v"></div>
+
+      <div class="kills-block">
+        <div class="kills-label">Bosses killed</div>
+        <div class="kills-count" id="kills-count">—</div>
+      </div>
+
+      <div class="divider-v"></div>
+
+      <div class="next-tier-block">
+        <div class="next-tier-label" id="next-tier-label">Next tier</div>
+        <div class="next-tier-value" id="next-tier-value">—</div>
+        <div class="next-tier-remain" id="next-tier-remain"></div>
+      </div>
     </div>
-    <div class="bar-track">
-      <div class="bar-fill t0" id="bar-fill" style="width:0%"></div>
-    </div>
+
+    <div class="hud-sep"></div>
+
+    <!-- ── DROITE : rotation ── -->
+    <div class="hud-right" id="hud-right">
+
+      <div class="panel" id="panel-lb">
+        <div class="panel-icon">🏆</div>
+        <div>
+          <div class="panel-title">Leaderboard</div>
+          <div class="panel-lb-rows" id="panel-lb-rows"><div class="lb-entry">—</div></div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-boss">
+        <div class="panel-icon">💀</div>
+        <div>
+          <div class="panel-title">Most deadly bosses</div>
+          <div class="panel-boss-rows" id="panel-boss-rows"><div class="boss-entry">—</div></div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-event">
+        <div class="panel-icon">🎮</div>
+        <div class="panel-event">
+          <div class="panel-event-main">Want to join? Type <strong>!event</strong> in chat or visit <strong>poufhgaming.github.io</strong></div>
+          <div class="panel-event-sub">Kill bosses · Earn rewards · Free to join</div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-milestone" style="display:none">
+        <div class="panel-icon">✨</div>
+        <div class="panel-milestone">
+          <div class="panel-milestone-main" id="milestone-text">Tier 1 unlocked!</div>
+          <div class="panel-milestone-sub">Community reward available</div>
+        </div>
+      </div>
+
+    <!-- Timer de panel : fine ligne en bas de la zone droite -->
+    <div id="panel-timer" style="
+      position:absolute; bottom:0; left:0; right:0; height:2px;
+      background:rgba(64,212,212,0.3);
+      transition:none;
+      z-index:3;
+    "></div>
+
+    <div class="panel-dots" id="panel-dots"></div>
   </div>
+
+  </div>
+
+  <!-- ── BARRE DE PROGRESSION EN BAS ── -->
+  <div class="hud-bottom" id="hud-bottom">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    <div class="progress-markers" id="progress-markers"></div>
+  </div>
+
 </div>
 
 <script>
-  const SUPABASE_URL      = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
-  const SEASON            = 'S1';
-  const N_PLAYERS         = 21;
-  const TIERS_BASE        = [1000, 2500, 5000];
-  const N_REF             = 20;
-  const REFRESH_MS        = 60 * 1000;
+  const SUPABASE_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+  const SUPABASE_KEY  = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+  const SEASON        = 'S1';
+  const REFRESH_MS    = 60 * 1000;       // refresh données toutes les 60s
 
+  const N_PLAYERS     = 21;
+  const TIERS_BASE    = [1000, 2500, 5000];
+  const N_REF         = 20;
   function computeTiers(n) {
-    const f = Math.sqrt(Math.max(1, n) / N_REF);
+    const f = Math.sqrt(Math.max(1,n) / N_REF);
     return TIERS_BASE.map(b => Math.round(b * f));
   }
 
-  async function fetchKills() {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_pagaille_summary`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ season_filter: SEASON })
-    });
-    if (!res.ok) throw new Error(await res.text());
-    return (await res.json()).reduce((s, r) => s + (Number(r.total_kills) || 0), 0);
+  const BOSS_IMG = {
+    "Sinthara":                        "sinthara",
+    "Malgut the Fetid":                "malgutthefetid",
+    "Godfall Titan":                   "godfalltitan",
+    "Deathless Katrine":               "deathlesskatrine",
+    "Bael'Aurum":                      "baelaurum",
+    "First Mate Marrow":               "firstmatemarrow",
+    "Apostate Veras":                  "apostateveras",
+    "Moar'gore, Master of Sacrifice":  "moargoremasterofsacrifice",
+    "Vun'Kahr, The Thorned Maw":       "vunkahrthethornedmaw",
+    "Prophet Ez'rath":                 "prophetezrath",
+    "Vexira, Mother of Nightmares":    "vexira",
+    "Warlord Brogg":                   "warlordbrogg",
+    "Noor, The Betrayer":              "noor",
+    "Ancient Koros":                   "koros",
+    "Cithrel":                         "cithrel",
+    "Drazhul & Brull":                 "drazhulthefleshbroker",
+    "Sin-Magir":                       "sinmagir",
+    "Fodir Kaldur":                    "fodirkaldur",
+    "Chilgar the Drowned":             "chilgarthedrowned",
+    "Auga Handhafi the Blind":         "augahandhafitheblind",
+  };
+  function bossImg(name) {
+    const key = BOSS_IMG[name] || name.replace(/[',]/g,'').replace(/\s+/g,'').toLowerCase();
+    return `../images/bosses/${key}.jpg`;
   }
 
-  let lastKills = null;
+  async function sbPost(path, body) {
+    const r = await fetch(SUPABASE_URL + path, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  }
 
-  async function update() {
+  // ── État ──
+  let _data       = null;
+  let _prevTotal  = null;
+  let _unlockedTiers = new Set();
+
+  // ── Fetch ──
+  async function fetchData() {
     try {
-      const total  = await fetchKills();
-      const tiers  = computeTiers(N_PLAYERS);
-      const killEl = document.getElementById('kills');
-
-      // Animation si changement
-      if (lastKills !== null && total !== lastKills) {
-        killEl.classList.remove('pop');
-        void killEl.offsetWidth;
-        killEl.classList.add('pop');
-      }
-      lastKills = total;
-      killEl.textContent = total.toLocaleString('fr-FR');
-
-      // Prochain palier
-      const fill    = document.getElementById('bar-fill');
-      const nextLbl = document.getElementById('next-lbl');
-      const remLbl  = document.getElementById('rem-lbl');
-      const idx     = tiers.findIndex(t => total < t);
-
-      if (idx === -1) {
-        // Tout débloqué
-        fill.style.width = '100%';
-        fill.className   = 'bar-fill done';
-        nextLbl.textContent = '✓ All tiers unlocked';
-        remLbl.textContent  = '';
-      } else {
-        const nextVal = tiers[idx];
-        const maxVal  = tiers[tiers.length - 1];
-        const pct     = Math.min(100, Math.max(0, total / maxVal * 100));
-        const rem     = nextVal - total;
-
-        fill.style.width = pct + '%';
-        fill.className   = `bar-fill t${idx}`;
-        nextLbl.textContent = `Tier ${idx + 1} — ${nextVal.toLocaleString('en-EN')}`;
-        remLbl.textContent  = `Still ${rem.toLocaleString('en-EN')}`;
-      }
+      const summary = await sbPost('/rest/v1/rpc/get_pagaille_summary', { season_filter: SEASON });
+      _data = summary;
+      updateHUD();
     } catch(e) {
-      document.getElementById('kills').textContent = '—';
-      console.error(e);
+      console.error('Fetch error:', e);
     }
   }
 
-  update();
-  setInterval(update, REFRESH_MS);
+  function updateHUD() {
+    if (!_data) return;
+    const TIERS    = computeTiers(N_PLAYERS);
+    const maxTier  = TIERS[TIERS.length - 1];
+
+    // Total kills
+    const total = _data.reduce((s, r) => s + (Number(r.total_kills) || 0), 0);
+
+    // Bump animation si nouveau kill
+    const countEl = document.getElementById('kills-count');
+    if (_prevTotal !== null && total > _prevTotal) {
+      countEl.classList.remove('bump');
+      void countEl.offsetWidth;
+      countEl.classList.add('bump');
+      setTimeout(() => countEl.classList.remove('bump'), 600);
+    }
+    _prevTotal = total;
+    countEl.textContent = total.toLocaleString();
+
+    // Barre de progression (en bas)
+    const bottom   = document.getElementById('hud-bottom');
+    const fill     = document.getElementById('progress-fill');
+    const pct      = Math.min(100, total / maxTier * 100);
+    fill.style.width = pct + '%';
+    fill.style.setProperty('--track-w', bottom.offsetWidth + 'px');
+
+    // Marqueurs de paliers
+    const markersEl = document.getElementById('progress-markers');
+    markersEl.innerHTML = TIERS.map(t =>
+      `<div class="tier-marker" data-label="${t.toLocaleString()}" style="left:${(t/maxTier*100).toFixed(2)}%"></div>`
+    ).join('');
+
+    // Prochain palier (compact dans la zone gauche)
+    const nextTier = TIERS.find(t => total < t);
+    if (nextTier) {
+      document.getElementById('next-tier-label').textContent = 'NEXT TIER';
+      document.getElementById('next-tier-value').textContent = nextTier.toLocaleString();
+      document.getElementById('next-tier-remain').textContent = `${(nextTier - total).toLocaleString()} to go`;
+    } else {
+      document.getElementById('next-tier-label').textContent = 'STATUS';
+      document.getElementById('next-tier-value').textContent = 'ALL TIERS';
+      document.getElementById('next-tier-remain').textContent = 'UNLOCKED ✓';
+    }
+
+    // Vérifier milestones
+    TIERS.forEach((t, i) => {
+      if (total >= t && !_unlockedTiers.has(i)) {
+        _unlockedTiers.add(i);
+        showMilestone(`Tier ${i+1} unlocked! 🎉`);
+      }
+    });
+
+    // Mise à jour des panneaux
+    updatePanelLB();
+    updatePanelBoss();
+  }
+
+  function showMilestone(text) {
+    const panel = document.getElementById('panel-milestone');
+    document.getElementById('milestone-text').textContent = text;
+    panel.style.display = '';
+  }
+
+  function updatePanelLB() {
+    if (!_data) return;
+    const scores = _data
+      .map(r => ({ name: r.player_name || '?', total: Number(r.total_kills) || 0 }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
+    document.getElementById('panel-lb-rows').innerHTML = scores.map((s, i) =>
+      `<div class="lb-entry ${i===0?'r1':i===1?'r2':''}">
+        <span class="lb-rank">#${i+1}</span>
+        <span class="lb-name">${s.name}</span>
+        <span class="lb-score">${s.total}</span>
+      </div>`
+    ).join('');
+  }
+
+  function updatePanelBoss() {
+    if (!_data) return;
+    const bossDeaths = {};
+    _data.forEach(r => {
+      if (!r.by_boss) return;
+      Object.entries(r.by_boss).forEach(([boss, v]) => {
+        if (!bossDeaths[boss]) bossDeaths[boss] = 0;
+        bossDeaths[boss] += Number(v.deaths) || 0;
+      });
+    });
+
+    const sorted = Object.entries(bossDeaths)
+      .sort(([,a],[,b]) => b - a)
+      .filter(([,d]) => d > 0)
+      .slice(0, 4);
+
+    if (!sorted.length) {
+      document.getElementById('panel-boss-rows').innerHTML = '<div class="boss-entry" style="color:var(--text-muted);font-size:13px">No deaths yet</div>';
+      return;
+    }
+
+    document.getElementById('panel-boss-rows').innerHTML = sorted.map(([boss, deaths]) =>
+      `<div class="boss-entry">
+        <img class="boss-avatar" src="${bossImg(boss)}" alt="${boss}" onerror="this.style.opacity='0.2'">
+        <span class="boss-name">${boss}</span>
+        <span class="boss-deaths">${deaths}☠</span>
+      </div>`
+    ).join('');
+  }
+
+  // ── ROTATION PANNEAUX ──
+  const PANELS_BASE = ['panel-lb', 'panel-boss'];  // panels normaux
+  const PANEL_EVENT = 'panel-event';
+  const PANEL_MILESTONE = 'panel-milestone';
+  const EVENT_CHANCE = 0.25;        // 1 chance sur 4
+  const EVENT_DURATION_MS = 20000;  // 20s pour le panel event
+
+  let _currentPanel  = null;
+  let _rotationTimer = null;
+  let _milestoneQueue = [];
+
+  function buildRotation() {
+    // Panels normaux + milestone si dispo
+    const panels = [...PANELS_BASE];
+    const milestoneEl = document.getElementById('panel-milestone');
+    if (milestoneEl && milestoneEl.style.display !== 'none') {
+      panels.push(PANEL_MILESTONE);
+    }
+    return panels;
+  }
+
+  function showPanel(id, duration) {
+    // Retirer l'ancien
+    if (_currentPanel) {
+      const old = document.getElementById(_currentPanel);
+      if (old) { old.classList.add('exit'); setTimeout(() => { old.classList.remove('active','exit'); }, 500); }
+    }
+    _currentPanel = id;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('active');
+    updateDots(id);
+    animateTimerBar(duration);
+    clearTimeout(_rotationTimer);
+    _rotationTimer = setTimeout(nextPanel, duration);
+  }
+
+  function animateTimerBar(duration) {
+    const bar = document.getElementById('panel-timer');
+    if (!bar) return;
+    // Reset instantané
+    bar.style.transition = 'none';
+    bar.style.width = '100%';
+    void bar.offsetWidth; // force reflow
+    // Vidage progressif sur toute la durée
+    bar.style.transition = `width ${duration}ms linear`;
+    bar.style.width = '0%';
+  }
+
+  function nextPanel() {
+    const panels = buildRotation();
+
+    // 1 chance sur 4 : afficher panel event d'abord
+    if (Math.random() < EVENT_CHANCE) {
+      showPanel(PANEL_EVENT, EVENT_DURATION_MS);
+      // Après le panel event, reprendre la rotation normale
+      clearTimeout(_rotationTimer);
+      _rotationTimer = setTimeout(() => rotateTo(panels), EVENT_DURATION_MS);
+      return;
+    }
+
+    rotateTo(panels);
+  }
+
+  function rotateTo(panels) {
+    // Choisit un panel différent du courant
+    const available = panels.filter(p => p !== _currentPanel);
+    const next = available[Math.floor(Math.random() * available.length)] || panels[0];
+    const duration = randomDuration();
+    showPanel(next, duration);
+  }
+
+  function randomDuration() {
+    // Entre 60s et 120s
+    return (60 + Math.random() * 60) * 1000;
+  }
+
+  function updateDots(activeId) {
+    const panels = [...PANELS_BASE, PANEL_EVENT];
+    const dotsEl = document.getElementById('panel-dots');
+    dotsEl.innerHTML = panels.map(id =>
+      `<div class="panel-dot ${id === activeId ? 'active' : ''}"></div>`
+    ).join('');
+  }
+
+  // ── INIT ──
+  async function init() {
+    await fetchData();
+
+    // Sync background-size au resize
+    new ResizeObserver(() => {
+      const bottom = document.getElementById('hud-bottom');
+      const fill   = document.getElementById('progress-fill');
+      if (bottom && fill) fill.style.setProperty('--track-w', bottom.offsetWidth + 'px');
+    }).observe(document.getElementById('hud-bottom'));
+
+    // Démarrer la rotation sur le leaderboard
+    showPanel('panel-lb', randomDuration());
+
+    // Refresh données toutes les 60s
+    setInterval(fetchData, REFRESH_MS);
+  }
+
+  init();
 </script>
 </body>
 </html>

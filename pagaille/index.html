@@ -129,37 +129,20 @@
     .progress-track { position: relative; height: 16px; background: var(--bg3); border-radius: 8px; border: 1px solid var(--border); overflow: visible; margin-bottom: 12px; }
     /* Fond atténué pleine largeur */
     .progress-track::before {
-      content: '';
-      position: absolute; inset: 0;
-      border-radius: 8px;
-      background: linear-gradient(90deg,
-        #1a991a 0%, var(--tier1) 20%,
-        #1f8888 40%, var(--tier2) 55%,
-        #7744cc 78%, var(--tier3) 100%
-      );
+      content: ''; position: absolute; inset: 0; border-radius: 8px; pointer-events: none;
+      background: linear-gradient(90deg, #1a991a 0%, var(--tier1) 20%, #1f8888 40%, var(--tier2) 55%, #7744cc 78%, var(--tier3) 100%);
       opacity: 0.18;
-      overflow: hidden;
-      border-radius: 8px;
     }
-    /* Clip interne pour la fill */
-    .progress-track-inner {
-      position: absolute; inset: 0;
-      border-radius: 8px;
-      overflow: hidden;
-    }
+    /* Clip interne pour la fill uniquement */
+    .progress-track-inner { position: absolute; inset: 0; border-radius: 8px; overflow: hidden; }
     .progress-fill {
-      height: 100%;
-      border-radius: 8px;
-      /* background-size en % de la track via padding trick */
-      background: linear-gradient(90deg,
-        #1a991a 0%, var(--tier1) 20%,
-        #1f8888 40%, var(--tier2) 55%,
-        #7744cc 78%, var(--tier3) 100%
-      );
+      height: 100%; border-radius: 8px; position: relative;
+      /* Gradient fixe — background-size = largeur totale de la track, setté par JS */
+      background: linear-gradient(90deg, #1a991a 0%, var(--tier1) 20%, #1f8888 40%, var(--tier2) 55%, #7744cc 78%, var(--tier3) 100%);
       background-size: var(--track-w, 900px) 100%;
       background-repeat: no-repeat;
       transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
-      min-width: 0; position: relative;
+      min-width: 0;
     }
     .progress-fill::after { content:''; position:absolute; right:-1px; top:2px; bottom:2px; width:5px; background:white; border-radius:3px; opacity:0.85; box-shadow:0 0 10px white; }
     .progress-fill.tier-2 { box-shadow: 0 0 22px rgba(64,212,212,0.75), 0 0 44px rgba(64,212,212,0.3); }
@@ -696,8 +679,8 @@
     <button class="tab" id="tab-join" onclick="showPage('join',this)" data-fr="Rejoindre" data-en="Join">Rejoindre</button>
     <div class="nav-right">
       <div class="lang-toggle">
-        <button class="lang-btn" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
-        <button class="lang-btn active" id="lang-btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn active" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" id="lang-btn-en" onclick="setLang('en')">EN</button>
       </div>
     </div>
   </nav>
@@ -948,6 +931,7 @@
       // Marché d'Urrak
       "Drazhul the Fleshbroker":         "Marché d'Urrak",
       "Slavetrader Brull":               "Marché d'Urrak",
+      "Drazhul & Brull":                 "Marché d'Urrak",
       "Urrak Markets":                   "Marché d'Urrak",
       "Marché d'Urrak":                  "Marché d'Urrak",
       // Sables Empyréens
@@ -964,22 +948,6 @@
     // Normalise dungeon_name ou boss_name Fellowship → nom FR canonique du donjon
     function normDungeon(name) { return DUNGEON_NAME_MAP[name] || name; }
 
-    const DUNGEON_BOSSES = {
-      "Abime des marins":      ["Sinthara"],
-      "Bois de L'aube":        ["Malgut the Fetid"],
-      "Carrière tombe-dieu":   ["Godfall Titan"],
-      "Coeur de guivre":       ["Apostate Veras"],
-      "Creux Soyeux":          ["Vexira, Mother of Nightmares"],
-      "Guet Tempete":          ["Warlord Brogg"],
-      "Marché d'Urrak":        ["Drazhul the Fleshbroker","Slavetrader Brull"],
-      "Sables Empyréens":      ["Sin-Magir"],
-      "Caveau de Lamespectre": ["Deathless Katrine","Bael'Aurum","First Mate Marrow"],
-      "Coeur de Tuzari":       ["Moar'gore, Master of Sacrifice","Vun'Kahr, The Thorned Maw","Prophet Ez'rath"],
-      "La chute Cithrel":      ["Noor, The Betrayer","Ancient Koros","Cithrel"],
-      "Saccage de Drakheim":   ["Fodir Kaldur","Chilgar the Drowned","Auga Handhafi the Blind"]
-    };
-
-    // Traductions FR → EN des noms de donjons
     const DUNGEON_NAMES_EN = {
       "Abime des marins":      "Sailor's Abyss",
       "Bois de L'aube":        "Everdawn Grove",
@@ -994,14 +962,26 @@
       "La chute Cithrel":      "Cithrel's Fall",
       "Saccage de Drakheim":   "Ransack of Drakheim",
     };
-    // Les noms de boss sont déjà en anglais — pas de traduction nécessaire
-
-    let currentLang = localStorage.getItem('pouf_lang') || 'fr';
-
-    // Retourne le nom du donjon dans la langue courante
     function tDungeon(nameFR) {
       return currentLang === 'en' ? (DUNGEON_NAMES_EN[nameFR] || nameFR) : nameFR;
     }
+
+    const DUNGEON_BOSSES = {
+      "Abime des marins":      ["Sinthara"],
+      "Bois de L'aube":        ["Malgut the Fetid"],
+      "Carrière tombe-dieu":   ["Godfall Titan"],
+      "Coeur de guivre":       ["Apostate Veras"],
+      "Creux Soyeux":          ["Vexira, Mother of Nightmares"],
+      "Guet Tempete":          ["Warlord Brogg"],
+      "Marché d'Urrak":        ["Drazhul & Brull"],
+      "Sables Empyréens":      ["Sin-Magir"],
+      "Caveau de Lamespectre": ["Deathless Katrine","Bael'Aurum","First Mate Marrow"],
+      "Coeur de Tuzari":       ["Moar'gore, Master of Sacrifice","Vun'Kahr, The Thorned Maw","Prophet Ez'rath"],
+      "La chute Cithrel":      ["Noor, The Betrayer","Ancient Koros","Cithrel"],
+      "Saccage de Drakheim":   ["Fodir Kaldur","Chilgar the Drowned","Auga Handhafi the Blind"]
+    };
+
+    let currentLang = localStorage.getItem('pouf_lang') || 'en';
 
     function setLang(lang) {
       currentLang = lang;
@@ -1246,7 +1226,7 @@
             detail += `<div class="dng-block ${hasAny ? 'has-kills' : ''}">`;
             if (img) detail += `<div class="dng-bg" style="background-image:url('${img}')"></div>`;
             detail += `<div class="dng-inner">`;
-            detail += `<div class="dng-header"><span class="dng-name">${tDungeon(d)}</span><span class="dng-col-label">${fr2 ? 'Tués' : 'Killed'}</span></div>`;
+            detail += `<div class="dng-header"><span class="dng-name">${d}</span><span class="dng-col-label">${fr2 ? 'Tués' : 'Killed'}</span></div>`;
             detail += `<div class="dng-boss-list">`;
             bosses.forEach(boss => {
               const bk   = s.byBoss[boss] || { kills: 0, deaths: 0 };
@@ -1310,7 +1290,7 @@
       const pct  = Math.min(100, (totalDisplay / TIERS[TIERS.length-1]) * 100);
       const fill = document.getElementById('progress-fill');
       fill.style.width = pct + '%';
-      // Sync background-size avec largeur réelle de la track (responsive)
+      // Sync background-size = largeur réelle de la track (gradient fixe)
       const syncTrackW = () => {
         const inner = document.querySelector('.progress-track-inner');
         if (inner) fill.style.setProperty('--track-w', inner.offsetWidth + 'px');
@@ -1337,15 +1317,7 @@
         const status = card.querySelector('.tier-status');
         const thresh = card.querySelector('.tier-threshold');
         if (thresh) thresh.textContent = threshold.toLocaleString('fr-FR');
-
-        // Un palier atteint est définitivement acquis — on stocke en localStorage
-        const storageKey = `pagaille_tier_${i+1}_unlocked`;
-        const alreadyUnlocked = localStorage.getItem(storageKey) === '1';
-        const nowUnlocked = totalDisplay >= threshold;
-        if (nowUnlocked) localStorage.setItem(storageKey, '1');
-        const isUnlocked = alreadyUnlocked || nowUnlocked;
-
-        if (isUnlocked) {
+        if (totalDisplay >= threshold) {
           card.classList.remove('locked'); card.classList.add('unlocked');
           status.dataset.fr = 'Débloqué ✓'; status.dataset.en = 'Unlocked ✓';
           status.textContent = fr ? 'Débloqué ✓' : 'Unlocked ✓';
@@ -1404,8 +1376,7 @@
       "Noor, The Betrayer":              "noor",
       "Ancient Koros":                   "koros",
       "Cithrel":                         "cithrel",
-      "Drazhul the Fleshbroker":         "drazhulthefleshbroker",
-      "Slavetrader Brull":               "slavetraderbrull",
+      "Drazhul & Brull":                 "drazhulthefleshbroker",
       "Sin-Magir":                       "sinmagir",
       "Fodir Kaldur":                    "fodirkaldur",
       "Chilgar the Drowned":             "chilgarthedrowned",
@@ -1493,7 +1464,7 @@
               const bval = bk[mode] || 0;
               html += `<div class="shbar-boss-row">
                 <div class="shbar-boss-name">${boss}</div>
-                <div class="shbar-boss-count">${bval > 0 ? bval.toLocaleString(fr ? 'fr-FR' : 'en-US') : '—'}</div>
+                <div class="shbar-boss-count">${bval > 0 ? bval.toLocaleString('fr-FR') : '—'}</div>
                 <div class="shbar-boss-track"><div class="shbar-boss-fill" style="width:${bval/maxBoss*100}%"></div></div>
               </div>`;
             });
@@ -1817,7 +1788,7 @@
     }
     function openProfile(playerId, playerName) {
       const badges=(_playerBadges&&_playerBadges[playerId])||[];
-      const lang=localStorage.getItem('pouf_lang')||'en';
+      const lang=localStorage.getItem('pouf_lang')||'fr';
       document.getElementById('modal-player-name').textContent=playerName||'—';
       const grid=document.getElementById('modal-badges-grid');
       grid.innerHTML=!badges.length
