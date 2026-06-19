@@ -347,13 +347,17 @@
 
     .event-banner-pagaille {
       background: linear-gradient(135deg, #080d12 0%, #0d1520 40%, #080d12 100%);
+      background-image: url('images/event/dungeonmayhem.jpg');
+      background-size: cover;
+      background-position: center;
     }
 
     .event-banner-pagaille::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at 50% 50%, rgba(76, 168, 168, 0.1) 0%, transparent 70%);
+      background: linear-gradient(180deg, rgba(8,13,18,0.35) 0%, rgba(8,13,18,0.75) 100%),
+                  radial-gradient(ellipse at 50% 50%, rgba(76, 168, 168, 0.1) 0%, transparent 70%);
     }
 
     .event-banner-empty {
@@ -1049,7 +1053,6 @@
         <div class="events-grid">
           <a href="pagaille/index.html" class="event-card"> 
             <div class="event-banner event-banner-pagaille">
-              <div class="placeholder-icon">💣</div>
             </div>
             <div class="event-body">
               <div class="event-status upcoming" data-fr="À venir" data-en="Coming soon">À venir</div>
@@ -1060,7 +1063,7 @@
   Tuez le plus de boss possible dans tous les donjons Fellowship. Classement en direct, paliers communautaires et récompenses à débloquer.
 </div>
 <div class="event-meta">
-  <span class="event-dates" data-fr="Début pré-saison 3" data-en="Start of Preseason 3">Début pré-saison 3</span>
+  <span class="event-dates" data-fr="22 Juin - 13 Juillet" data-en="22nd June - 13th July">22 juin</span>
   <span class="event-cta">
     <span data-fr="Voir" data-en="View">Voir</span>
     <span class="event-cta-arrow">→</span>
