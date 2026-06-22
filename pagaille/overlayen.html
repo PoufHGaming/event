@@ -21,67 +21,625 @@
       --text-muted:#4d8080;
       --h: 80px;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 1920px; height: var(--h); overflow: hidden; background: transparent; font-family: 'Cinzel', serif; }
-    .hud { position: fixed; bottom: 0; left: 0; right: 0; height: var(--h); display: flex; flex-direction: column; background: var(--bg); border-top: 1px solid var(--border); backdrop-filter: blur(12px); }
-    .hud::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 0%, var(--teal-dim) 15%, var(--teal) 50%, var(--teal-dim) 85%, transparent 100%); z-index: 2; }
-    .hud-main { display: flex; align-items: stretch; flex: 1; min-height: 0; }
-    .hud-left { flex-shrink: 0; width: 380px; display: flex; align-items: center; gap: 14px; padding: 0 20px; border-right: 1px solid var(--border); }
-    .event-label { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
-    .event-name { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); font-weight: bold; }
-    .event-season { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal-light); font-weight: 600; }
+
+    html, body {
+      width: 1920px;
+      height: var(--h);
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ── HUD CONTAINER ── */
+    .hud {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--h);
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    /* Trait lumineux en haut */
+    .hud::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%, var(--teal-dim) 15%,
+        var(--teal) 50%, var(--teal-dim) 85%, transparent 100%
+      );
+      z-index: 2;
+    }
+
+    /* ── LIGNE PRINCIPALE ── */
+    .hud-main {
+      display: flex;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── SECTION GAUCHE — fixe ── */
+    .hud-left {
+      flex-shrink: 0;
+      width: 380px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .event-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .event-name {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .event-season {
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      font-weight: 700;
+    }
+
     .divider-v { width: 1px; background: var(--border); align-self: stretch; margin: 10px 0; flex-shrink:0; }
-    .kills-block { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
-    .kills-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
-    .kills-count { font-size: 34px; font-weight: 700; color: var(--teal-light); letter-spacing: 0.05em; line-height: 1; text-shadow: 0 0 24px rgba(64,212,212,0.85), 0 0 2px rgba(64,212,212,0.5); transition: color 0.3s; }
-    .kills-count.bump { color: #fff; text-shadow: 0 0 30px rgba(255,255,255,0.9), 0 0 60px rgba(64,212,212,0.5); }
-    .next-tier-block { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
-    .next-tier-label { font-size: 9px; letter-spacing: 0.18em; color: var(--text-dim); text-transform: uppercase; font-weight: 600; }
-    .next-tier-value { font-size: 16px; font-weight: 700; letter-spacing: 0.06em; color: var(--text-dim); transition: color 0.3s; }
-    .next-tier-remain { font-size: 11px; letter-spacing: 0.08em; font-weight: 600; color: var(--text-dim); transition: color 0.3s; }
+
+    /* Compteur kills */
+    .kills-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+    .kills-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .kills-count {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--teal-light);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      text-shadow: 0 0 24px rgba(64,212,212,0.85), 0 0 2px rgba(64,212,212,0.5);
+      transition: color 0.3s;
+    }
+    .kills-count.bump {
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,255,255,0.9), 0 0 60px rgba(64,212,212,0.5);
+    }
+
+    /* Next tier compact */
+    .next-tier-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .next-tier-label {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .next-tier-value {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      transition: color 0.3s;
+    }
+    .next-tier-remain {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--text-dim);
+      transition: color 0.3s;
+    }
+    /* Couleurs vives par palier, contrastées sur fond noir/transparent */
     .next-tier-value.tier-1, .next-tier-remain.tier-1 { color: #5dff5d; text-shadow: 0 0 10px rgba(93,255,93,0.5); }
     .next-tier-value.tier-2, .next-tier-remain.tier-2 { color: #5df0f0; text-shadow: 0 0 10px rgba(93,240,240,0.5); }
     .next-tier-value.tier-3, .next-tier-remain.tier-3 { color: #d4aaff; text-shadow: 0 0 10px rgba(212,170,255,0.5); }
     .next-tier-value.tier-done, .next-tier-remain.tier-done { color: #5dff5d; text-shadow: 0 0 12px rgba(93,255,93,0.6); }
-    .hud-sep { flex-shrink: 0; width: 1px; background: var(--border); }
-    .hud-right { flex: 1; position: relative; overflow: hidden; }
-    .panel { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 28px; gap: 20px; opacity: 0; transform: translateX(30px); transition: opacity 0.5s ease, transform 0.5s ease; pointer-events: none; }
-    .panel.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
-    .panel.exit { opacity: 0; transform: translateX(-30px); }
+
+    /* ── SÉPARATEUR CENTRAL ── */
+    .hud-sep {
+      flex-shrink: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    /* ── SECTION DROITE — rotation ── */
+    .hud-right {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Chaque panneau */
+    .panel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 20px;
+      opacity: 0;
+      transform: translateX(30px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none;
+    }
+    .panel.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    .panel.exit {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
     .panel-icon { font-size: 22px; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(64,212,212,0.5)); }
-    .panel-title { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 6px; font-weight: 700; }
+
+    .panel-title {
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    /* ── PANNEAU : Leaderboard ── */
     .panel-lb-rows { display: flex; gap: 10px; align-items: center; }
-    .lb-entry { display: flex; align-items: center; gap: 6px; padding: 4px 12px 4px 8px; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; }
+    .lb-entry {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 12px 4px 8px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 3px;
+    }
     .lb-rank { font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em; font-weight: 700; min-width: 18px; }
     .lb-entry.r1 { border-color: rgba(64,212,212,0.6); }
     .lb-entry.r1 .lb-rank { color: var(--teal-light); }
     .lb-entry.r2 { border-color: rgba(64,212,212,0.35); }
     .lb-name { font-size: 15px; color: var(--text); letter-spacing: 0.04em; font-weight: 600; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lb-score { font-size: 15px; color: var(--teal-light); font-weight: 700; letter-spacing: 0.05em; text-shadow: 0 0 12px rgba(64,212,212,0.6); }
+
+    /* ── PANNEAU : Boss meurtriers ── */
     .panel-boss-rows { display: flex; gap: 8px; align-items: center; }
-    .boss-entry { display: flex; align-items: center; gap: 7px; padding: 4px 12px; border: 1px solid var(--border); border-radius: 3px; position: relative; overflow: hidden; }
-    .boss-entry-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.2; z-index: 0; }
-    .boss-entry-overlay { position: absolute; inset: 0; background: var(--bg2); z-index: 1; }
+    .boss-entry {
+      display: flex; align-items: center; gap: 7px;
+      padding: 4px 12px; border: 1px solid var(--border); border-radius: 3px;
+      position: relative; overflow: hidden;
+    }
+    .boss-entry-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0.35; z-index: 0;
+    }
+    .boss-entry-overlay {
+      position: absolute; inset: 0;
+      background: var(--bg2); opacity: 0.55; z-index: 1;
+    }
     .boss-avatar { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(64,212,212,0.4); object-fit: cover; flex-shrink: 0; background: rgba(64,212,212,0.05); position: relative; z-index: 2; }
     .boss-name { font-size: 14px; color: var(--text); font-weight: 600; letter-spacing: 0.04em; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 2; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
     .boss-deaths { font-size: 22px; color: #ff5050; font-weight: 700; letter-spacing: 0.06em; text-shadow: 0 0 10px rgba(255,80,80,0.7), 0 1px 4px rgba(0,0,0,0.8); position: relative; z-index: 2; }
+
+    /* ── PANNEAU : !event ── */
     .panel-event { display: flex; flex-direction: column; gap: 3px; }
     .panel-event-main { font-size: 20px; letter-spacing: 0.06em; color: var(--text); font-weight: 600; }
     .panel-event-main strong { color: var(--teal-light); font-weight: 700; text-shadow: 0 0 16px rgba(64,212,212,0.7); }
     .panel-event-sub { font-size: 11px; letter-spacing: 0.16em; color: var(--text-dim); font-weight: 600; text-transform: uppercase; }
+
+    /* ── PANNEAU : Milestone ── */
     .panel-milestone { display: flex; flex-direction: column; gap: 3px; }
     .panel-milestone-main { font-size: 20px; font-weight: 700; letter-spacing: 0.06em; color: var(--tier1); text-shadow: 0 0 24px rgba(68,238,68,0.6); }
     .panel-milestone-sub { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: var(--text-dim); text-transform: uppercase; }
-    .hud-bottom { height: 12px; position: relative; background: rgba(64,212,212,0.04); border-top: 1px solid rgba(64,212,212,0.12); flex-shrink: 0; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, #1a991a 0%, var(--tier1) 20%, #1f8888 40%, var(--tier2) 55%, #7744cc 78%, var(--tier3) 100%); background-size: var(--track-w, 1920px) 100%; background-repeat: no-repeat; transition: width 1.5s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 0 10px rgba(64,212,212,0.35); }
+
+    /* ── BARRE DE PROGRESSION EN BAS ── */
+    .hud-bottom {
+      height: 12px;
+      position: relative;
+      background: rgba(64,212,212,0.04);
+      border-top: 1px solid rgba(64,212,212,0.12);
+      flex-shrink: 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg,
+        #1a991a 0%, var(--tier1) 20%,
+        #1f8888 40%, var(--tier2) 55%,
+        #7744cc 78%, var(--tier3) 100%
+      );
+      background-size: var(--track-w, 1920px) 100%;
+      background-repeat: no-repeat;
+      transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 0 10px rgba(64,212,212,0.35);
+    }
     .progress-markers { position: absolute; inset: 0; pointer-events: none; }
-    .tier-marker { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.3); }
-    .tier-marker::after { content: attr(data-label); position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%); font-size: 8px; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); white-space: nowrap; }
-    .panel-dots { position: absolute; bottom: 8px; right: 16px; display: flex; gap: 5px; align-items: center; }
+    .tier-marker {
+      position: absolute; top: 0; bottom: 0; width: 1px;
+      background: rgba(255,255,255,0.3);
+    }
+    .tier-marker::after {
+      content: attr(data-label);
+      position: absolute; bottom: calc(100% + 2px);
+      left: 50%; transform: translateX(-50%);
+      font-size: 8px; letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      white-space: nowrap;
+    }
+
+    /* ── DOTS + TIMER PANEL ── */
+    .panel-dots { position: absolute; bottom: 6px; right: 16px; display: flex; gap: 5px; align-items: center; }
     .panel-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); transition: background 0.3s, transform 0.3s; }
     .panel-dot.active { background: var(--teal-light); transform: scale(1.4); }
-    .panel-timer { position: absolute; bottom: 0; left: 0; height: 2px; background: rgba(64,212,212,0.35); transition: width linear; }
-    @keyframes killbump { 0% { transform: scale(1); } 30% { transform: scale(1.15); } 60% { transform: scale(0.97); } 100% { transform: scale(1); } }
+
+    @keyframes killbump {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.15); }
+      60%  { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
+    .kills-count.bump { animation: killbump 0.5s ease; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1920px;
+      height: var(--h);
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ── HUD CONTAINER ── */
+    .hud {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--h);
+      display: flex;
+      align-items: stretch;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    /* Trait lumineux en haut */
+    .hud::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        var(--teal-dim) 15%,
+        var(--teal) 50%,
+        var(--teal-dim) 85%,
+        transparent 100%
+      );
+    }
+
+    /* ── SECTION GAUCHE — fixe, toujours visible ── */
+    .hud-left {
+      flex-shrink: 0;
+      width: 420px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .event-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .event-name {
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: bold;
+    }
+    .event-season {
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      font-weight: 600;
+    }
+
+    .divider-v { width: 1px; background: var(--border); align-self: stretch; margin: 12px 0; }
+
+    /* Compteur kills */
+    .kills-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+    .kills-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .kills-count {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--teal-light);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      text-shadow: 0 0 24px rgba(64,212,212,0.85), 0 0 2px rgba(64,212,212,0.5);
+      transition: color 0.3s;
+    }
+    .kills-count.bump {
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,255,255,0.9), 0 0 60px rgba(64,212,212,0.5);
+    }
+
+    /* Barre de progression */
+    .progress-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      justify-content: center;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .progress-next {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .progress-remain {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--teal-light);
+      font-weight: 700;
+    }
+    .progress-track {
+      position: relative;
+      height: 8px;
+      background: rgba(64,212,212,0.08);
+      border-radius: 4px;
+      border: 1px solid rgba(64,212,212,0.15);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg,
+        #1a991a 0%, var(--tier1) 20%,
+        #1f8888 40%, var(--tier2) 55%,
+        #7744cc 78%, var(--tier3) 100%
+      );
+      background-size: var(--track-w, 340px) 100%;
+      background-repeat: no-repeat;
+      transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 0 8px rgba(64,212,212,0.4);
+    }
+    /* Marqueurs de paliers */
+    .progress-markers {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .tier-marker {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* ── SÉPARATEUR CENTRAL ── */
+    .hud-sep {
+      flex-shrink: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    /* ── SECTION DROITE — rotation ── */
+    .hud-right {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Chaque panneau */
+    .panel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 20px;
+      opacity: 0;
+      transform: translateX(30px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none;
+    }
+    .panel.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    .panel.exit {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .panel-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 8px rgba(64,212,212,0.5));
+    }
+
+    .panel-title {
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    /* ── PANNEAU : Leaderboard ── */
+    .panel-lb-rows {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .lb-entry {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px 3px 7px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+    .lb-rank {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      min-width: 18px;
+    }
+    .lb-entry.r1 { border-color: rgba(64,212,212,0.6); }
+    .lb-entry.r1 .lb-rank { color: var(--teal-light); }
+    .lb-entry.r2 { border-color: rgba(64,212,212,0.35); }
+    .lb-name {
+      font-size: 15px;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lb-score {
+      font-size: 15px;
+      color: var(--teal-light);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 12px rgba(64,212,212,0.6);
+    }
+
+    /* ── PANNEAU : Boss meurtriers (styles dans bloc principal plus haut) ── */
+
+    /* ── PANNEAU : !event ── */
+    .panel-event {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .panel-event-main {
+      font-size: 20px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .panel-event-main strong {
+      color: var(--teal-light);
+      font-weight: 700;
+      text-shadow: 0 0 16px rgba(64,212,212,0.7);
+    }
+    .panel-event-sub {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* ── PANNEAU : Milestone (palier atteint) ── */
+    .panel-milestone {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .panel-milestone-main {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--tier1);
+      text-shadow: 0 0 24px rgba(68,238,68,0.6);
+    }
+    .panel-milestone-sub {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    /* ── INDICATEUR DE PANEL (dots) ── */
+    .panel-dots {
+      position: absolute;
+      bottom: 8px;
+      right: 16px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    .panel-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: background 0.3s, transform 0.3s;
+    }
+    .panel-dot.active {
+      background: var(--teal-light);
+      transform: scale(1.4);
+    }
+
+    /* ── TIMER BAR (durée du panel courant) ── */
+    .panel-timer {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      background: rgba(64,212,212,0.35);
+      transition: width linear;
+    }
+
+    /* Animation bump kills */
+    @keyframes killbump {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.15); }
+      60%  { transform: scale(0.97); }
+      100% { transform: scale(1); }
+    }
     .kills-count.bump { animation: killbump 0.5s ease; }
   </style>
 </head>
@@ -91,6 +649,7 @@
 
   <div class="hud-main">
 
+    <!-- ── GAUCHE : fixe ── -->
     <div class="hud-left">
       <div class="event-label">
         <div class="event-name">Dungeon Mayhem</div>
@@ -115,6 +674,7 @@
 
     <div class="hud-sep"></div>
 
+    <!-- ── DROITE : rotation ── -->
     <div class="hud-right" id="hud-right">
 
       <div class="panel" id="panel-lb">
@@ -149,13 +709,20 @@
         </div>
       </div>
 
-      <div id="panel-timer" style="position:absolute; bottom:0; left:0; right:0; height:2px; background:rgba(64,212,212,0.3); transition:none; z-index:3;"></div>
+    <!-- Timer de panel : fine ligne en bas de la zone droite -->
+    <div id="panel-timer" style="
+      position:absolute; bottom:0; left:0; right:0; height:2px;
+      background:rgba(64,212,212,0.3);
+      transition:none;
+      z-index:3;
+    "></div>
 
-      <div class="panel-dots" id="panel-dots"></div>
-    </div>
+    <div class="panel-dots" id="panel-dots"></div>
+  </div>
 
   </div>
 
+  <!-- ── BARRE DE PROGRESSION EN BAS ── -->
   <div class="hud-bottom" id="hud-bottom">
     <div class="progress-fill" id="progress-fill" style="width:0%"></div>
     <div class="progress-markers" id="progress-markers"></div>
@@ -167,10 +734,10 @@
   const SUPABASE_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
   const SUPABASE_KEY  = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
   const SEASON        = 'S1';
-  const REFRESH_MS    = 60 * 1000;
-    const N_PLAYERS_AT_LAUNCH = 45;
+  const REFRESH_MS    = 20 * 60 * 1000;  // refresh toutes les 20min, décalé de 5min vs le cron Edge Function
+  const N_PLAYERS     = 45;
     const TIERS_BASE = [2000, 5000, 10000]; // paliers calibrés pour N_REF joueurs
-    const N_REF      = 40;    
+    const N_REF      = 40; 
   function computeTiers(n) {
     const f = Math.sqrt(Math.max(1,n) / N_REF);
     return TIERS_BASE.map(b => Math.round(b * f));
@@ -201,13 +768,14 @@
     "Overlord Varux":                  "overlordvarux",
     "Xul'vorith, Sentinel of the Bloodbound Gate": "xulvorith",
     "Han-Eth, Sentry of Xul":          "haneth",
-    "Vel'korath the Sanctified, Vision of the Covenant": "velkorath"
+    "Vel'korath the Sanctified, Vision of the Covenant": "velkorath",
   };
   function bossImg(name) {
     const key = BOSS_IMG[name] || name.replace(/[',]/g,'').replace(/\s+/g,'').toLowerCase();
     return `../images/bosses/${key}.jpg`;
   }
 
+  // Boss → image de fond du donjon (pour les cartes "boss meurtriers")
   const BOSS_TO_DUNGEON_IMG = {
     "Sinthara":                        "../gloire/images/abime-des-marins.jpg",
     "Malgut the Fetid":                "../gloire/images/bois-de-laube.jpg",
@@ -233,7 +801,7 @@
     "Overlord Varux":                  "../gloire/images/scyers-peak.jpg",
     "Xul'vorith, Sentinel of the Bloodbound Gate": "../gloire/images/xul-the-blood-monolith.jpg",
     "Han-Eth, Sentry of Xul":          "../gloire/images/xul-the-blood-monolith.jpg",
-    "Vel'korath the Sanctified, Vision of the Covenant": "../gloire/images/xul-the-blood-monolith.jpg"
+    "Vel'korath the Sanctified, Vision of the Covenant": "../gloire/images/xul-the-blood-monolith.jpg",
   };
   function dungeonImg(boss) { return BOSS_TO_DUNGEON_IMG[boss] || ''; }
 
@@ -251,10 +819,12 @@
     return r.json();
   }
 
+  // ── État ──
   let _data       = null;
   let _prevTotal  = null;
   let _unlockedTiers = new Set();
 
+  // ── Fetch ──
   async function fetchData() {
     try {
       const summary = await sbPost('/rest/v1/rpc/get_pagaille_summary', { season_filter: SEASON });
@@ -267,11 +837,13 @@
 
   function updateHUD() {
     if (!_data) return;
-    const TIERS    = computeTiers(N_PLAYERS_AT_LAUNCH);
+    const TIERS    = computeTiers(N_PLAYERS);
     const maxTier  = TIERS[TIERS.length - 1];
 
+    // Total kills
     const total = _data.reduce((s, r) => s + (Number(r.total_kills) || 0), 0);
 
+    // Bump animation si nouveau kill
     const countEl = document.getElementById('kills-count');
     if (_prevTotal !== null && total > _prevTotal) {
       countEl.classList.remove('bump');
@@ -282,19 +854,22 @@
     _prevTotal = total;
     countEl.textContent = total.toLocaleString();
 
+    // Barre de progression (en bas)
     const bottom   = document.getElementById('hud-bottom');
     const fill     = document.getElementById('progress-fill');
     const pct      = Math.min(100, total / maxTier * 100);
     fill.style.width = pct + '%';
     fill.style.setProperty('--track-w', bottom.offsetWidth + 'px');
 
+    // Marqueurs de paliers
     const markersEl = document.getElementById('progress-markers');
     markersEl.innerHTML = TIERS.map(t =>
       `<div class="tier-marker" data-label="${t.toLocaleString()}" style="left:${(t/maxTier*100).toFixed(2)}%"></div>`
     ).join('');
 
+    // Prochain palier (compact dans la zone gauche)
     const nextTier    = TIERS.find(t => total < t);
-    const nextTierIdx = TIERS.findIndex(t => total < t);
+    const nextTierIdx = TIERS.findIndex(t => total < t); // 0,1,2 ou -1 si tout débloqué
     const valueEl  = document.getElementById('next-tier-value');
     const remainEl = document.getElementById('next-tier-remain');
     valueEl.classList.remove('tier-1','tier-2','tier-3','tier-done');
@@ -304,7 +879,7 @@
       document.getElementById('next-tier-label').textContent = 'NEXT TIER';
       valueEl.textContent  = nextTier.toLocaleString();
       remainEl.textContent = `${(nextTier - total).toLocaleString()} to go`;
-      const tierClass = `tier-${nextTierIdx + 1}`;
+      const tierClass = `tier-${nextTierIdx + 1}`; // tier-1, tier-2, tier-3
       valueEl.classList.add(tierClass);
       remainEl.classList.add(tierClass);
     } else {
@@ -315,6 +890,7 @@
       remainEl.classList.add('tier-done');
     }
 
+    // Vérifier milestones
     TIERS.forEach((t, i) => {
       if (total >= t && !_unlockedTiers.has(i)) {
         _unlockedTiers.add(i);
@@ -322,6 +898,7 @@
       }
     });
 
+    // Mise à jour des panneaux
     updatePanelLB();
     updatePanelBoss();
   }
@@ -380,16 +957,19 @@
     }).join('');
   }
 
-  const PANELS_BASE = ['panel-lb', 'panel-boss'];
+  // ── ROTATION PANNEAUX ──
+  const PANELS_BASE = ['panel-lb', 'panel-boss'];  // panels normaux
   const PANEL_EVENT = 'panel-event';
   const PANEL_MILESTONE = 'panel-milestone';
-  const EVENT_CHANCE = 0.25;
-  const EVENT_DURATION_MS = 20000;
+  const EVENT_CHANCE = 0.25;        // 1 chance sur 4
+  const EVENT_DURATION_MS = 20000;  // 20s pour le panel event
 
   let _currentPanel  = null;
   let _rotationTimer = null;
+  let _milestoneQueue = [];
 
   function buildRotation() {
+    // Panels normaux + milestone si dispo
     const panels = [...PANELS_BASE];
     const milestoneEl = document.getElementById('panel-milestone');
     if (milestoneEl && milestoneEl.style.display !== 'none') {
@@ -399,6 +979,7 @@
   }
 
   function showPanel(id, duration) {
+    // Retirer l'ancien
     if (_currentPanel) {
       const old = document.getElementById(_currentPanel);
       if (old) { old.classList.add('exit'); setTimeout(() => { old.classList.remove('active','exit'); }, 500); }
@@ -416,9 +997,11 @@
   function animateTimerBar(duration) {
     const bar = document.getElementById('panel-timer');
     if (!bar) return;
+    // Reset instantané
     bar.style.transition = 'none';
     bar.style.width = '100%';
-    void bar.offsetWidth;
+    void bar.offsetWidth; // force reflow
+    // Vidage progressif sur toute la durée
     bar.style.transition = `width ${duration}ms linear`;
     bar.style.width = '0%';
   }
@@ -426,8 +1009,10 @@
   function nextPanel() {
     const panels = buildRotation();
 
+    // 1 chance sur 4 : afficher panel event d'abord
     if (Math.random() < EVENT_CHANCE) {
       showPanel(PANEL_EVENT, EVENT_DURATION_MS);
+      // Après le panel event, reprendre la rotation normale
       clearTimeout(_rotationTimer);
       _rotationTimer = setTimeout(() => rotateTo(panels), EVENT_DURATION_MS);
       return;
@@ -437,6 +1022,7 @@
   }
 
   function rotateTo(panels) {
+    // Choisit un panel différent du courant
     const available = panels.filter(p => p !== _currentPanel);
     const next = available[Math.floor(Math.random() * available.length)] || panels[0];
     const duration = randomDuration();
@@ -444,6 +1030,7 @@
   }
 
   function randomDuration() {
+    // Entre 60s et 120s
     return (60 + Math.random() * 60) * 1000;
   }
 
@@ -455,21 +1042,37 @@
     ).join('');
   }
 
+  // ── INIT ──
   async function init() {
     await fetchData();
 
+    // Sync background-size au resize
     new ResizeObserver(() => {
       const bottom = document.getElementById('hud-bottom');
       const fill   = document.getElementById('progress-fill');
       if (bottom && fill) fill.style.setProperty('--track-w', bottom.offsetWidth + 'px');
     }).observe(document.getElementById('hud-bottom'));
 
+    // Démarrer la rotation sur le leaderboard
     showPanel('panel-lb', randomDuration());
 
-    setInterval(fetchData, REFRESH_MS);
+    // Refresh toutes les 20min, décalé de 5min après chaque créneau du cron (:00,:20,:40)
+    // Ex: cron à 9h00 → overlay refetch à 9h05, 9h25, 9h45...
+    const now = new Date();
+    const minutes = now.getMinutes();
+    const msSinceLastSlot = (minutes % 20) * 60000 + now.getSeconds() * 1000;
+    const msToOffset = ((5 * 60000) - msSinceLastSlot + (20 * 60000)) % (20 * 60000);
+    const initialDelay = msToOffset || (20 * 60000);
+
+    setTimeout(() => {
+      fetchData();
+      setInterval(fetchData, REFRESH_MS);
+    }, initialDelay);
   }
 
   init();
 </script>
 </body>
 </html>
+
+ 
