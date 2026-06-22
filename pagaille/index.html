@@ -850,11 +850,12 @@
   <script> 
     const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
-    const CACHE_MS = 60 * 1000;
+    const CACHE_MS         = 60 * 1000;       // cache summary : 60s
+    const PLAYERS_CACHE_MS = 10 * 60 * 1000;  // cache players : 10min (change très rarement)
     const SEASON   = 'S1';
     const N_PLAYERS_AT_LAUNCH = 39;
     const TIERS_BASE = [1200, 3000, 6000]; // paliers calibrés pour N_REF joueurs
-    const N_REF      = 20;                  // référence de calibration
+    const N_REF      = 20;                 // référence de calibration
     // Formule : palier(N) = base × √(N / N_REF)  — racine carrée
     function computeTiers(n) {
       const factor = Math.sqrt(Math.max(1, n) / N_REF);
@@ -864,7 +865,8 @@
       "Abime des marins","Bois de L'aube","Carrière tombe-dieu",
       "Coeur de guivre","Creux Soyeux","Guet Tempete",
       "Marché d'Urrak","Sables Empyréens","Caveau de Lamespectre",
-      "Coeur de Tuzari","La chute Cithrel","Saccage de Drakheim"
+      "Coeur de Tuzari","La chute Cithrel","Saccage de Drakheim",
+      "Ruins of Regath","Scyer's Peak","Xul, the Blood Monolith"
     ];
 
     const DUNGEON_IMAGES = {
@@ -879,7 +881,11 @@
       "La chute Cithrel":      "../gloire/images/la-chute-cithrel.jpg",
       "Marché d'Urrak":        "../gloire/images/marche-durrak.jpg",
       "Sables Empyréens":      "../gloire/images/sables-empyreens.jpg",
-      "Saccage de Drakheim":   "../gloire/images/saccage-de-drakheim.jpg"
+      "Saccage de Drakheim":   "../gloire/images/saccage-de-drakheim.jpg",
+      // ── Nouveaux donjons ──
+      "Ruins of Regath":       "../gloire/images/ruins-of-regath.jpg",
+      "Scyer's Peak":          "../gloire/images/scyers-peak.jpg",
+      "Xul, the Blood Monolith": "../gloire/images/xul-the-blood-monolith.jpg",
     };
 
     // Mapping : tout nom Fellowship (boss, alias donjon, nom FR) → nom FR canonique
@@ -944,6 +950,17 @@
       "Auga Handhafi the Blind":         "Saccage de Drakheim",
       "Ransack of Drakheim":             "Saccage de Drakheim",
       "Saccage de Drakheim":             "Saccage de Drakheim",
+      // ── Ruins of Regath ──
+      "Ruins of Regath":                 "Ruins of Regath",
+      "Xurath, Fist of the Warden":       "Ruins of Regath",
+      // ── Scyer's Peak ──
+      "Scyer's Peak":                     "Scyer's Peak",
+      "Overlord Varux":                   "Scyer's Peak",
+      // ── Xul, the Blood Monolith (capstone) ──
+      "Xul, the Blood Monolith":          "Xul, the Blood Monolith",
+      "Xul'vorith, Sentinel of the Bloodbound Gate": "Xul, the Blood Monolith",
+      "Han-Eth, Sentry of Xul":           "Xul, the Blood Monolith",
+      "Vel'korath the Sanctified, Vision of the Covenant": "Xul, the Blood Monolith",
     };
     // Normalise dungeon_name ou boss_name Fellowship → nom FR canonique du donjon
     function normDungeon(name) { return DUNGEON_NAME_MAP[name] || name; }
@@ -961,6 +978,9 @@
       "Coeur de Tuzari":       "Heart of Tuzari",
       "La chute Cithrel":      "Cithrel's Fall",
       "Saccage de Drakheim":   "Ransack of Drakheim",
+      "Ruins of Regath":       "Ruins of Regath",
+      "Scyer's Peak":          "Scyer's Peak",
+      "Xul, the Blood Monolith": "Xul, the Blood Monolith",
     };
     function tDungeon(nameFR) {
       return currentLang === 'en' ? (DUNGEON_NAMES_EN[nameFR] || nameFR) : nameFR;
@@ -978,7 +998,10 @@
       "Caveau de Lamespectre": ["Deathless Katrine","Bael'Aurum","First Mate Marrow"],
       "Coeur de Tuzari":       ["Moar'gore, Master of Sacrifice","Vun'Kahr, The Thorned Maw","Prophet Ez'rath"],
       "La chute Cithrel":      ["Noor, The Betrayer","Ancient Koros","Cithrel"],
-      "Saccage de Drakheim":   ["Fodir Kaldur","Chilgar the Drowned","Auga Handhafi the Blind"]
+      "Saccage de Drakheim":   ["Fodir Kaldur","Chilgar the Drowned","Auga Handhafi the Blind"],
+      "Ruins of Regath":       ["Xurath, Fist of the Warden"],
+      "Scyer's Peak":          ["Overlord Varux"],
+      "Xul, the Blood Monolith": ["Xul'vorith, Sentinel of the Bloodbound Gate","Han-Eth, Sentry of Xul","Vel'korath the Sanctified, Vision of the Covenant"],
     };
 
     let currentLang = localStorage.getItem('pouf_lang') || 'en';
@@ -1060,6 +1083,10 @@
     function getCached() { return (_cache && Date.now()-_cacheTs < CACHE_MS) ? _cache : null; }
     function setCache(d) { _cache = d; _cacheTs = Date.now(); }
 
+    let _playersCache = null, _playersCacheTs = 0;
+    function getCachedPlayers() { return (_playersCache && Date.now()-_playersCacheTs < PLAYERS_CACHE_MS) ? _playersCache : null; }
+    function setCachedPlayers(d) { _playersCache = d; _playersCacheTs = Date.now(); }
+
     // ── Fetch via RPC summary (1 ligne/joueur, JSON agrégé) ──
     async function loadLeaderboard(force = false) {
       const cached = force ? null : getCached();
@@ -1067,13 +1094,20 @@
       const btn = document.getElementById('refresh-btn');
       if (btn) btn.classList.add('spinning');
       try {
-        const [summary, players] = await Promise.all([
+        // players changent très rarement → cache séparé de 10min
+        let players = getCachedPlayers();
+        const fetchPromises = [
           sbFetch(`/rest/v1/rpc/get_pagaille_summary`, null, {
             method: 'POST',
             body: { season_filter: SEASON }
-          }),
-          sbFetch('/rest/v1/players?select=id,name&order=name')
-        ]);
+          })
+        ];
+        if (!players) fetchPromises.push(sbFetch('/rest/v1/players?select=id,name&order=name'));
+
+        const results = await Promise.all(fetchPromises);
+        const summary = results[0];
+        if (!players) { players = results[1]; setCachedPlayers(players); }
+
         const data = { summary, players };
         setCache(data);
         await loadBadges();
@@ -1381,6 +1415,12 @@
       "Fodir Kaldur":                    "fodirkaldur",
       "Chilgar the Drowned":             "chilgarthedrowned",
       "Auga Handhafi the Blind":         "augahandhafitheblind",
+      // ── Nouveaux boss ──
+      "Xurath, Fist of the Warden":      "xurath",
+      "Overlord Varux":                  "overlordvarux",
+      "Xul'vorith, Sentinel of the Bloodbound Gate": "xulvorith",
+      "Han-Eth, Sentry of Xul":          "haneth",
+      "Vel'korath the Sanctified, Vision of the Covenant": "velkorath",
     };
     function bossImgName(boss) { return BOSS_IMG[boss] || boss.replace(/'/g,'').replace(/,/g,'').replace(/\s+/g,'').toLowerCase(); }
 
