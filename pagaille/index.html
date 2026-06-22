@@ -1260,7 +1260,7 @@
             detail += `<div class="dng-block ${hasAny ? 'has-kills' : ''}">`;
             if (img) detail += `<div class="dng-bg" style="background-image:url('${img}')"></div>`;
             detail += `<div class="dng-inner">`;
-            detail += `<div class="dng-header"><span class="dng-name">${d}</span><span class="dng-col-label">${fr2 ? 'Tués' : 'Killed'}</span></div>`;
+            detail += `<div class="dng-header"><span class="dng-name">${tDungeon(d)}</span><span class="dng-col-label">${fr2 ? 'Tués' : 'Killed'}</span></div>`;
             detail += `<div class="dng-boss-list">`;
             bosses.forEach(boss => {
               const bk   = s.byBoss[boss] || { kills: 0, deaths: 0 };
