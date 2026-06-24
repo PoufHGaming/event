@@ -1468,13 +1468,58 @@
           ? (fr ? 'Boss tués par donjon'  : 'Bosses killed per dungeon')
           : (fr ? 'Morts par donjon'      : 'Deaths per dungeon');
 
-        const sorted = [...DUNGEONS]
-          .map(d => ({ name: d, kills: byDungeon[d].kills, deaths: byDungeon[d].deaths }))
-          .sort((a,b) => b[mode] - a[mode]);
-        const maxVal = sorted[0]?.[mode] || 1;
+        const allDungeons = DUNGEONS.map(d => ({ name: d, kills: byDungeon[d].kills, deaths: byDungeon[d].deaths }));
+
+        // Xul, the Blood Monolith est isolé : ses chiffres sont disproportionnés
+        // (capstone à 3 boss) et écrasent visuellement les autres donjons.
+        const XUL_NAME = "Xul, the Blood Monolith";
+        const xulEntry   = allDungeons.find(d => d.name === XUL_NAME);
+        const otherDungeons = allDungeons.filter(d => d.name !== XUL_NAME);
+
+        const sorted = [...otherDungeons].sort((a,b) => b[mode] - a[mode]);
+        const maxVal = sorted[0]?.[mode] || 1; // recalculé SANS Xul
 
         html += `<div class="stats-section-title">${sectionLabel}</div><div class="shbar-list">`;
 
+        // ── Ligne Xul, séparée, toujours pleine, % calculé sur le total global ──
+        if (xulEntry) {
+          const xulVal     = xulEntry[mode];
+          const xulPct     = totalVal > 0 ? (xulVal/totalVal*100) : 0;
+          const xulImg     = DUNGEON_IMAGES[xulEntry.name] || '';
+          const xulIsExp   = _statsExpanded === xulEntry.name;
+          const xulBosses  = DUNGEON_BOSSES[xulEntry.name] || [];
+          const xulClickable = xulBosses.length > 0 && xulVal > 0;
+
+          html += `<div class="shbar-wrap${xulIsExp?' expanded':''}" style="margin-bottom:14px;">
+            <div class="shbar-row top${xulVal===0?' empty':''}" ${xulClickable?`onclick="toggleStatsDungeon('${xulEntry.name.replace(/'/g,"\\'")}')"`:''} style="${xulClickable?'cursor:pointer':''}">
+              <div class="shbar-name">${tDungeon(xulEntry.name).toUpperCase()}</div>
+              <div class="shbar-count">${xulVal > 0 ? xulVal.toLocaleString('fr-FR') : '—'}</div>
+              <div class="shbar-track">
+                ${xulImg ? `<div class="shbar-img" style="width:100%;background-image:url('${xulImg}')"></div><div class="shbar-marker" style="left:100%"></div>` : ''}
+              </div>
+              <div class="shbar-pct">${xulVal > 0 ? '('+xulPct.toFixed(1)+'%)' : ''}</div>
+              ${xulClickable ? `<div class="shbar-chevron">${xulIsExp?'▲':'▼'}</div>` : '<div class="shbar-chevron"></div>'}
+            </div>`;
+
+          if (xulIsExp && xulClickable) {
+            const maxBoss = Math.max(...xulBosses.map(b => byBoss[b]?.[mode]||0), 1);
+            html += `<div class="shbar-detail">`;
+            xulBosses.forEach(boss => {
+              const bk   = byBoss[boss] || { kills: 0, deaths: 0 };
+              const bval = bk[mode] || 0;
+              html += `<div class="shbar-boss-row">
+                <div class="shbar-boss-name">${boss}</div>
+                <div class="shbar-boss-count">${bval > 0 ? bval.toLocaleString('fr-FR') : '—'}</div>
+                <div class="shbar-boss-track"><div class="shbar-boss-fill" style="width:${bval/maxBoss*100}%"></div></div>
+              </div>`;
+            });
+            html += `</div>`;
+          }
+          html += `</div>
+          <div style="height:1px;background:var(--border);margin:4px 0 14px;"></div>`;
+        }
+
+        // ── Les autres donjons, classés entre eux uniquement ──
         sorted.forEach((d, i) => {
           const val    = d[mode];
           const pct    = totalVal > 0 ? (val/totalVal*100) : 0;
@@ -1528,13 +1573,48 @@
             allBosses.push({ boss, dungeon: d, kills: bk.kills, deaths: bk.deaths });
           });
         });
-        allBosses.sort((a,b) => b[mode] - a[mode]);
 
-        const maxVal = allBosses[0]?.[mode] || 1;
+        // Les boss de Xul, the Blood Monolith sont isolés : leurs chiffres
+        // sont disproportionnés (capstone) et écrasent les autres boss.
+        const XUL_DUNGEON_NAME = "Xul, the Blood Monolith";
+        const xulBosses   = allBosses.filter(b => b.dungeon === XUL_DUNGEON_NAME).sort((a,b) => b[mode] - a[mode]);
+        const otherBosses = allBosses.filter(b => b.dungeon !== XUL_DUNGEON_NAME);
+        otherBosses.sort((a,b) => b[mode] - a[mode]);
+
+        const maxVal = otherBosses[0]?.[mode] || 1; // recalculé SANS les boss de Xul
 
         html += `<div class="stats-section-title">${sectionLabel}</div><div class="bossbar-list">`;
 
-        allBosses.forEach((b, i) => {
+        // ── Boss de Xul, séparés, comparés entre eux, % calculé sur le total global ──
+        const maxValXul = Math.max(...xulBosses.map(b => b[mode] || 0), 1);
+        xulBosses.forEach((b, i) => {
+          const val      = b[mode];
+          const pct      = totalVal  > 0 ? (val/totalVal*100)  : 0;
+          const barPct   = maxValXul > 0 ? (val/maxValXul*100) : 0;
+          const dngImg   = DUNGEON_IMAGES[b.dungeon] || '';
+          const avatarSrc = `../images/bosses/${bossImgName(b.boss)}.jpg`;
+          const isTopXul = i === 0 && val > 0;
+
+          html += `<div class="bossbar-wrap${isTopXul?' top':''}${val===0?' empty':''}" style="margin-bottom:8px;">
+            <div class="bossbar-left">
+              <div class="bossbar-name">${b.boss}</div>
+              <div class="bossbar-count">${val > 0 ? val.toLocaleString('fr-FR') : '—'}</div>
+            </div>
+            <div class="bossbar-sep"></div>
+            <div class="bossbar-right">
+              ${dngImg ? `<div class="bossbar-dng-img" style="width:${barPct}%;background-image:url('${dngImg}')"></div>` : ''}
+              <div class="bossbar-avatar" style="left:calc(clamp(20px, ${barPct}%, 100% - 20px));background-image:url('${avatarSrc}')"></div>
+            </div>
+            <div class="bossbar-sep"></div>
+            <div class="bossbar-pct-col">${val > 0 ? '('+pct.toFixed(1)+'%)' : ''}</div>
+          </div>`;
+        });
+        if (xulBosses.length) {
+          html += `<div style="height:1px;background:var(--border);margin:4px 0 14px;"></div>`;
+        }
+
+        // ── Les autres boss, classés entre eux uniquement ──
+        otherBosses.forEach((b, i) => {
           const val    = b[mode];
           const pct    = totalVal > 0 ? (val/totalVal*100) : 0;
           const barPct = maxVal   > 0 ? (val/maxVal*100)   : 0;
