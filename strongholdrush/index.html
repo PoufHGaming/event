@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fellowship Stronghold Rush</title>
+<link rel="icon" type="image/png" href="../images/pouf.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:        #40d4d4;
+    --teal-light:  #72e8e8;
+    --teal-dim:    #2a9898;
+    --bg:          #070b0b;
+    --bg2:         #0d1a1a;
+    --bg3:         #122424;
+    --border:      rgba(64,212,212,0.22);
+    --border-bright: rgba(64,212,212,0.65);
+    --text:        #f0fafa;
+    --text-dim:    #9fd8d8;
+    --text-muted:  #4d8080;
+    --tier1:       #44ee44;
+    --tier2:       #40d4d4;
+    --tier3:       #c4a0ff;
+    --goober-a:    #d744b1;
+    --goober-b:    #e8895b;
+    --goober-grad: linear-gradient(90deg, #d744b1, #e8895b);
+    --gold:        #e8c96a;
+    --twitch:      #9147ff;
+    --youtube:     #ff0000;
+    --r:           4px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-weight: 300;
+    font-size: 18px;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -5%, rgba(64,212,212,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 5% 90%,  rgba(215,68,177,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 30% 30% at 95% 10%, rgba(232,137,91,0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── TOP LINE ── */
+  .top-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #d744b1 20%, #e8895b 80%, transparent);
+  }
+
+  /* ── SOCIAL LINKS ── */
+  .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+  .social-link {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 14px; border: 1px solid var(--border); border-radius: var(--r);
+    text-decoration: none; color: var(--text-dim); font-size: 12px;
+    font-family: 'Cinzel', serif; letter-spacing: 0.1em; text-transform: uppercase;
+    transition: all 0.25s; background: rgba(255,255,255,0.02); white-space: nowrap;
+  }
+  .social-link svg { flex-shrink: 0; width: 14px; height: 14px; }
+  .social-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .social-link.twitch:hover  { border-color: var(--twitch);  color: var(--twitch);  box-shadow: 0 0 12px rgba(145,71,255,0.15); }
+  .social-link.youtube:hover { border-color: var(--youtube); color: var(--youtube); box-shadow: 0 0 12px rgba(255,0,0,0.12); }
+  .social-link.goober:hover  { border-color: var(--goober-a); color: var(--goober-a); box-shadow: 0 0 12px rgba(215,68,177,0.2); }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center; padding: 44px 24px 28px;
+    border-bottom: 1px solid var(--border);
+    position: relative; z-index: 1;
+  }
+  .eyebrow {
+    font-family: 'Cinzel', serif; font-size: 11px;
+    letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 10px;
+  }
+  .event-title {
+    font-family: 'Cinzel', serif; font-size: clamp(22px, 4.5vw, 42px); font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    line-height: 1.15;
+    color: var(--text);
+  }
+  .event-title .rush {
+    background: var(--goober-grad);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 18px rgba(215,68,177,0.45));
+  }
+  .event-subtitle {
+    font-size: 14px; color: var(--text-muted);
+    margin-top: 8px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 300;
+  }
+  .created-by {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 14px; font-size: 13px; color: var(--text-muted);
+    font-family: 'Cinzel', serif; letter-spacing: 0.08em;
+  }
+  .goober-tag {
+    background: var(--goober-grad);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; font-weight: 700;
+  }
+
+  /* ── SEASON CONTROLS ── */
+  .controls {
+    display: flex; justify-content: center; align-items: center;
+    gap: 4px; padding: 16px 24px; border-bottom: 1px solid var(--border);
+    background: rgba(7,11,11,0.9); position: sticky; top: 0;
+    z-index: 100; backdrop-filter: blur(12px); flex-wrap: wrap;
+  }
+  .controls-label {
+    font-family: 'Cinzel', serif; font-size: 11px;
+    letter-spacing: 0.18em; color: var(--text-muted);
+    text-transform: uppercase; margin-right: 8px;
+  }
+  .season-btn {
+    font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 7px 16px;
+    background: none; border: 1px solid transparent;
+    color: var(--text-muted); cursor: pointer;
+    transition: all 0.2s; border-radius: var(--r);
+  }
+  .season-btn:hover { border-color: var(--border); color: var(--text-dim); }
+  .season-btn.active {
+    color: var(--teal-light); border-color: var(--border-bright);
+    background: rgba(64,212,212,0.08);
+  }
+  .season-status {
+    margin-left: 12px; font-size: 11px; font-family: 'Cinzel', serif;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--text-muted);
+  }
+  .season-status.live {
+    border-color: rgba(215,68,177,0.5); color: var(--goober-a);
+    box-shadow: 0 0 10px rgba(215,68,177,0.15);
+  }
+
+  /* ── MAIN ── */
+  main { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Cinzel', serif; font-size: 11px;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-title::before, .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border));
+  }
+  .section-title::before { background: linear-gradient(270deg, transparent, var(--border)); }
+
+  /* ── QUALIFIERS GRID ── */
+  .qualifiers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 12px; margin-bottom: 56px;
+  }
+  .qualifier-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 16px;
+    cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .qualifier-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: var(--border); transition: background 0.2s;
+  }
+  .qualifier-card:hover { border-color: rgba(64,212,212,0.4); background: var(--bg3); }
+  .qualifier-card:hover::before { background: var(--teal-dim); }
+  .qualifier-card.rejected {
+    opacity: 0.65;
+    border-color: rgba(180,60,60,0.2);
+  }
+  .qualifier-card.rejected::before { background: rgba(180,60,60,0.5); }
+  .qualifier-card.rejected .qualifier-team-name { color: var(--text-dim); }
+  .qualifier-card.rejected .qualifier-time { color: var(--text-muted); text-shadow: none; }
+  .qualifier-card.temp_qualified { border-color: rgba(64,212,212,0.2); }
+  .qualifier-card.temp_qualified::before { background: var(--teal-dim); }
+
+  .vod-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.1em;
+    color: var(--youtube); border: 1px solid rgba(255,0,0,0.3);
+    border-radius: var(--r); padding: 3px 10px;
+    text-decoration: none; transition: all 0.2s; white-space: nowrap;
+  }
+  .vod-link:hover { background: rgba(255,0,0,0.08); border-color: rgba(255,0,0,0.6); }
+
+  .replay-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.1em;
+    color: var(--twitch); border: 1px solid rgba(145,71,255,0.3);
+    border-radius: var(--r); padding: 3px 8px;
+    text-decoration: none; transition: all 0.2s; white-space: nowrap;
+  }
+  .replay-link:hover { background: rgba(145,71,255,0.1); border-color: rgba(145,71,255,0.6); }
+
+  .qualifier-rank {
+    font-family: 'Cinzel', serif; font-size: 10px;
+    letter-spacing: 0.18em; color: var(--text-muted); margin-bottom: 6px;
+  }
+  .qualifier-rank .rank-num {
+    font-size: 16px; font-weight: 700;
+    background: var(--goober-grad);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .qualifier-team-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .qualifier-color-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .qualifier-team-name {
+    font-family: 'Cinzel', serif; font-size: 15px;
+    letter-spacing: 0.04em; color: var(--text);
+  }
+  .qualifier-dungeon { font-size: 13px; color: var(--text-dim); margin-bottom: 4px; }
+  .qualifier-time {
+    font-family: 'Cinzel', serif; font-size: 18px;
+    color: var(--teal-light); letter-spacing: 0.04em;
+    text-shadow: 0 0 16px rgba(64,212,212,0.5);
+  }
+  .qualifier-time.pending { font-size: 13px; color: var(--text-muted); font-family: 'Crimson Pro', serif; font-style: italic; }
+
+  .qualifier-roster {
+    display: flex; gap: 5px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .qualifier-hero-wrap { position: relative; }
+  .qualifier-hero-img {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid rgba(64,212,212,0.2);
+    object-fit: cover; background: var(--bg3); display: block;
+  }
+  .qualifier-hero-img.captain {
+    border-color: var(--gold);
+    box-shadow: 0 0 8px rgba(232,201,106,0.3);
+  }
+  .hero-tooltip {
+    display: none; position: absolute;
+    bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 3px 8px;
+    font-size: 11px; color: var(--text); white-space: nowrap;
+    z-index: 20; pointer-events: none;
+    font-family: 'Cinzel', serif; letter-spacing: 0.05em;
+  }
+  .qualifier-hero-wrap:hover .hero-tooltip { display: block; }
+
+  /* ── BRACKET ── */
+  .bracket-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+  .bracket-scroll::-webkit-scrollbar { height: 4px; }
+  .bracket-scroll::-webkit-scrollbar-track { background: var(--bg2); }
+  .bracket-scroll::-webkit-scrollbar-thumb { background: var(--teal-dim); border-radius: 2px; }
+
+  .bracket {
+    display: flex; align-items: stretch; gap: 0;
+    min-width: 820px; position: relative; padding: 16px 0 24px;
+  }
+  .bracket-connectors {
+    position: absolute; inset: 0;
+    pointer-events: none; overflow: visible;
+  }
+  .connector-line {
+    fill: none; stroke: rgba(64,212,212,0.15); stroke-width: 1.5;
+    transition: stroke 0.6s ease, filter 0.6s ease;
+  }
+  .connector-line.active {
+    stroke: url(#connector-grad);
+    filter: drop-shadow(0 0 4px rgba(215,68,177,0.4));
+  }
+
+  .round-col { flex: 1; display: flex; flex-direction: column; }
+  .round-col.center-col { flex: 0 0 200px; }
+  .round-label {
+    text-align: center; font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-muted); padding-bottom: 20px;
+  }
+  .match-group {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; padding: 8px 12px;
+  }
+
+  /* ── MATCH CARD ── */
+  .match-card {
+    width: 100%; max-width: 200px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--r); overflow: hidden;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .match-card:hover { border-color: rgba(64,212,212,0.4); background: var(--bg3); }
+  .match-card.completed { border-color: rgba(215,68,177,0.3); }
+  .match-card.finals {
+    border-color: rgba(215,68,177,0.45);
+    box-shadow: 0 0 24px rgba(215,68,177,0.12), 0 0 48px rgba(232,137,91,0.06);
+  }
+
+  .match-round-badge {
+    text-align: center; font-family: 'Cinzel', serif;
+    font-size: 9px; letter-spacing: 0.16em; padding: 5px 8px;
+    background: var(--bg3); color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .match-card.finals .match-round-badge {
+    background: linear-gradient(90deg, rgba(215,68,177,0.12), rgba(232,137,91,0.12));
+    color: var(--goober-b);
+  }
+
+  .team-slot {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; transition: background 0.15s;
+  }
+  .team-slot:first-of-type { border-bottom: 1px solid var(--border); }
+  .team-slot.winner { background: rgba(64,212,212,0.05); }
+  .team-slot.loser .team-name { color: var(--text-muted); }
+  .team-slot.loser .vp-badge { opacity: 0.4; }
+
+  .team-color-bar { width: 2px; height: 26px; border-radius: 1px; flex-shrink: 0; }
+  .team-name {
+    flex: 1; font-family: 'Cinzel', serif; font-size: 11px;
+    letter-spacing: 0.04em; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .team-name.tbd { color: var(--text-muted); font-style: italic; font-family: 'Crimson Pro', serif; }
+  .vp-badge {
+    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700;
+    min-width: 1.4rem; text-align: right; color: var(--teal-light);
+  }
+  .vp-badge.dim { color: var(--text-muted); font-size: 11px; }
+
+  /* ── TROPHY ── */
+  .trophy-slot {
+    text-align: center; padding: 20px 16px;
+    background: var(--bg2);
+    border: 1px solid rgba(215,68,177,0.4);
+    border-radius: var(--r);
+    box-shadow: 0 0 32px rgba(215,68,177,0.1), 0 0 64px rgba(232,137,91,0.05);
+    max-width: 180px; margin: 0 auto;
+  }
+  .trophy-icon { font-size: 2rem; margin-bottom: 8px; }
+  .trophy-name {
+    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.06em;
+    background: var(--goober-grad);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .trophy-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
+
+  /* ── DETAIL PANEL ── */
+  .panel-backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(7,11,11,0.85); z-index: 200;
+    backdrop-filter: blur(6px);
+    align-items: flex-end; justify-content: center;
+  }
+  .panel-backdrop.open { display: flex; }
+  @media (min-width: 640px) { .panel-backdrop { align-items: center; } }
+
+  .detail-panel {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px 6px 0 0;
+    width: 100%; max-width: 580px; max-height: 85vh;
+    overflow-y: auto; position: relative;
+    animation: slideUp 0.22s ease;
+  }
+  @media (min-width: 640px) { .detail-panel { border-radius: 6px; max-height: 80vh; } }
+  @keyframes slideUp { from { transform: translateY(32px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 14px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--bg2); z-index: 1;
+  }
+  .panel-title {
+    font-family: 'Cinzel', serif; font-size: 11px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim);
+  }
+  .panel-close {
+    background: none; border: 1px solid var(--border);
+    color: var(--text-muted); width: 26px; height: 26px;
+    border-radius: 50%; cursor: pointer; font-size: 12px;
+    line-height: 1; transition: all 0.2s;
+  }
+  .panel-close:hover { border-color: var(--teal); color: var(--teal-light); }
+
+  .panel-teams {
+    display: flex; align-items: stretch; border-bottom: 1px solid var(--border);
+  }
+  .panel-team {
+    flex: 1; text-align: center; padding: 20px 16px;
+    position: relative;
+  }
+  .panel-team + .panel-team { border-left: 1px solid var(--border); }
+  .panel-team-name {
+    font-family: 'Cinzel', serif; font-size: 14px;
+    letter-spacing: 0.06em; color: var(--text);
+    padding-bottom: 4px; display: inline-block;
+  }
+  .panel-vp {
+    font-family: 'Cinzel', serif; font-size: 36px; font-weight: 700;
+    line-height: 1; margin-top: 6px; color: var(--teal-light);
+    text-shadow: 0 0 24px rgba(64,212,212,0.6);
+  }
+  .panel-vp.dim { color: var(--text-muted); text-shadow: none; }
+  .panel-vp-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.1em; }
+  .panel-winner-badge {
+    position: absolute; top: 8px; right: 8px; font-size: 10px;
+    font-family: 'Cinzel', serif; letter-spacing: 0.12em;
+    background: var(--goober-grad); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .panel-section {
+    font-family: 'Cinzel', serif; font-size: 10px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-muted); padding: 14px 20px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .roster-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .roster-col {
+    padding: 14px 20px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .roster-col + .roster-col { border-left: 1px solid var(--border); }
+  .roster-col-label {
+    font-family: 'Cinzel', serif; font-size: 10px;
+    letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 4px;
+  }
+
+  .hero-slot { display: flex; align-items: center; gap: 10px; }
+  .hero-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid rgba(64,212,212,0.2);
+    object-fit: cover; background: var(--bg3); flex-shrink: 0;
+  }
+  .hero-avatar.captain { border-color: var(--gold); box-shadow: 0 0 8px rgba(232,201,106,0.3); }
+  .hero-player {
+    font-family: 'Crimson Pro', serif; font-size: 15px; font-weight: 400; color: var(--text);
+  }
+  .hero-name { font-size: 12px; color: var(--text-muted); font-style: italic; }
+  .captain-crown { color: var(--gold); font-size: 11px; margin-left: 3px; }
+
+  .runs-list { padding: 12px 20px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .dungeon-block-label {
+    font-family: 'Cinzel', serif; font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-muted); padding: 8px 0 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .dungeon-block-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .run-row {
+    display: grid; grid-template-columns: auto 1fr auto auto;
+    align-items: center; gap: 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 8px 12px;
+    position: relative; overflow: hidden; min-height: 52px;
+  }
+  .run-row::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: var(--run-bg, none);
+    background-size: cover; background-position: center;
+    opacity: var(--run-bg-opacity, 0.08); transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .run-row:hover::before { opacity: calc(var(--run-bg-opacity, 0.08) + 0.05); }
+  .run-row > * { position: relative; z-index: 1; }
+  .run-team-bar { width: 2px; height: 30px; border-radius: 1px; flex-shrink: 0; }
+  .run-team-name { font-family: 'Cinzel', serif; font-size: 11px; color: var(--text); }
+  .run-time { font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 2px; }
+  .run-score {
+    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;
+    min-width: 1.4rem; text-align: center;
+  }
+  .run-score.win  { color: var(--teal-light); text-shadow: 0 0 10px rgba(64,212,212,0.5); }
+  .run-score.loss { color: var(--text-muted); }
+  .run-score.pending { color: var(--text-muted); font-size: 13px; }
+
+  /* ── STATE MESSAGES ── */
+  .state-msg {
+    text-align: center; padding: 60px 24px;
+    color: var(--text-muted); font-style: italic; font-size: 15px;
+  }
+  .state-msg.error { color: #e06060; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px; text-align: center;
+    color: var(--text-muted); font-size: 13px;
+    position: relative; z-index: 1;
+  }
+  footer a { color: var(--teal-dim); text-decoration: none; transition: color 0.2s; }
+  footer a:hover { color: var(--teal-light); }
+  .footer-goober {
+    background: var(--goober-grad);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .roster-grid { grid-template-columns: 1fr; }
+    .roster-col + .roster-col { border-left: none; border-top: 1px solid var(--border); }
+    .panel-teams { flex-direction: column; }
+    .panel-team + .panel-team { border-left: none; border-top: 1px solid var(--border); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-line"></div>
+
+<header>
+  <p class="eyebrow">Fellowship · Speed Run Tournament</p>
+  <h1 class="event-title">Stronghold <span class="rush">Rush</span></h1>
+  <p class="event-subtitle">Team dungeons · Race to the fastest time</p>
+  <p class="created-by">
+    Created by <span class="goober-tag">GooberTroy</span>
+    <span style="color:var(--text-muted);margin:0 6px">·</span>
+    <span style="color:var(--text-muted);font-size:0.85em">Hosted by <span style="color:var(--teal-dim)">Pouf</span></span>
+  </p>
+  <div class="social-links" style="margin-top:14px">
+    <a href="https://www.twitch.tv/itsgoobertroy/about" target="_blank" rel="noopener" class="social-link twitch">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+      GooberTroy
+    </a>
+    <a href="https://www.youtube.com/channel/UCox2SOqSgk5_v6TYO37lL6g" target="_blank" rel="noopener" class="social-link youtube">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      YouTube
+    </a>
+  </div>
+</header>
+
+<div class="controls" id="season-controls">
+  <span class="controls-label">Season</span>
+  <span id="season-status-pill" class="season-status"></span>
+</div>
+
+<main>
+  <div id="app"><div class="state-msg">Loading tournament data…</div></div>
+</main>
+
+<div class="panel-backdrop" id="panel-backdrop" role="dialog" aria-modal="true">
+  <div class="detail-panel" id="detail-panel">
+    <div class="panel-header">
+      <span class="panel-title" id="panel-title"></span>
+      <button class="panel-close" id="panel-close" aria-label="Close">✕</button>
+    </div>
+    <div id="panel-body"></div>
+  </div>
+</div>
+
+<footer>
+  <p>
+    A <a href="https://www.twitch.tv/pouf_hgaming" target="_blank" rel="noopener">pouf_hgaming</a> community event
+    &nbsp;·&nbsp;
+    Tournament by <a href="https://www.twitch.tv/itsgoobertroy/about" target="_blank" rel="noopener" class="footer-goober">GooberTroy</a>
+  </p>
+</footer>
+
+<script>
+const SB_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+const SB_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+
+async function sb(table, params = '') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}${params}`, {
+    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Accept': 'application/json' }
+  });
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+
+const DUNGEONS = {
+  'abime-des-marins':      { name: "Sailor's Abyss",      img: 'abime-des-marins.jpg',      capstone: false },
+  'bois-de-laube':         { name: 'Everdawn Grove',      img: 'bois-de-laube.jpg',          capstone: false },
+  'carriere-tombe-dieu':   { name: 'Godfall Quarry',      img: 'carriere-tombe-dieu.jpg',    capstone: false },
+  'caveau-de-lamespectre': { name: 'Wraithtide Vault',    img: 'caveau-de-lamespectre.jpg',  capstone: true  },
+  'coeur-de-guivre':       { name: 'Wyrmheart',           img: 'coeur-de-guivre.jpg',        capstone: false },
+  'coeur-de-tuzari':       { name: 'The Heart of Tuzari', img: 'coeur-de-tuzari.jpg',        capstone: true  },
+  'creux-soyeux':          { name: 'Silken Hollow',       img: 'creux-soyeux.jpg',           capstone: false },
+  'guet-tempete':          { name: 'Stormwatch',          img: 'guet-tempete.jpg',           capstone: false },
+  'la-chute-cithrel':      { name: "Cithrel's Fall",      img: 'la-chute-cithrel.jpg',       capstone: true  },
+  'marche-durrak':         { name: 'Urrak Markets',       img: 'marche-durrak.jpg',          capstone: false },
+  'sables-empyreens':      { name: 'Empyrean Sands',      img: 'sables-empyreens.jpg',       capstone: false },
+  'saccage-de-drakheim':   { name: 'Ransack of Drakheim', img: 'saccage-de-drakheim.jpg',    capstone: true  },
+  'ruins-of-regath':       { name: 'Ruins of Regath',     img: 'ruins-of-regath.jpg',        capstone: false },
+  'scryers-peak':          { name: "Scryer's Peak",       img: 'scryers-peak.jpg',           capstone: false },
+  'xul-the-blood-monolith': { name: "Xul, the Blood Monolith",  img: 'xul-the-blood-monolith.jpg',  capstone: false },
+};
+
+// Build absolute base URL for images (avoids relative path issues on GitHub Pages)
+const IMG_BASE = (() => {
+  const parts = location.pathname.split('/');
+  parts.pop(); // remove current page
+  parts.pop(); // remove stronghold/
+  return location.origin + parts.join('/') + '/gloire/images/';
+})();
+
+function dungeonImg(slug) {
+  const d = DUNGEONS[slug];
+  return d ? IMG_BASE + d.img : '';
+}
+function dungeonName(slug) {
+  return DUNGEONS[slug]?.name || slug;
+}
+
+function heroImg(slug) { return slug ? `../images/heroes/${slug}.jpg` : ''; }
+
+function fmtTime(interval) {
+  if (!interval) return '—';
+  const t = String(interval).trim();
+  const h = t.match(/^\d+:(\d{2}):(\d{2})$/);
+  if (h) return `${h[1]}:${h[2]}`;
+  if (/^\d{1,2}:\d{2}$/.test(t)) return t;
+  return t;
+}
+
+function vpTarget(round) { return round === 'final' ? 4 : 3; }
+
+const ROLE_ORDER = { tank: 0, healer: 1, dps: 2 };
+function sortRoster(roster) {
+  return [...roster].sort((a, b) => {
+    const ra = ROLE_ORDER[a.hero?.role] ?? 9;
+    const rb = ROLE_ORDER[b.hero?.role] ?? 9;
+    if (ra !== rb) return ra - rb;
+    return (a.hero?.name || '').localeCompare(b.hero?.name || '');
+  });
+}
+
+const state = { seasons:[], current:null, teams:[], matches:[], runs:[], rosters:[] };
+
+async function boot() {
+  try {
+    state.seasons = await sb('sr_seasons', '?order=created_at.asc&select=*');
+    if (!state.seasons.length) {
+      app('No seasons yet — check back soon!');
+      return;
+    }
+    state.current = state.seasons.find(s => s.status !== 'upcoming') || state.seasons[state.seasons.length-1];
+    renderControls();
+    await loadSeason(state.current);
+  } catch(e) {
+    app(`Failed to load: ${e.message}`, true);
+  }
+}
+
+function app(msg, err) {
+  document.getElementById('app').innerHTML = `<div class="state-msg${err?' error':''}">${msg}</div>`;
+}
+
+function renderControls() {
+  const el = document.getElementById('season-controls');
+  const btns = state.seasons.map(s =>
+    `<button class="season-btn${s.id===state.current.id?' active':''}" data-id="${s.id}">${s.name}</button>`
+  ).join('');
+  el.innerHTML = `<span class="controls-label">Season</span>${btns}<span id="season-status-pill" class="season-status"></span>`;
+  el.querySelectorAll('.season-btn').forEach(btn => btn.addEventListener('click', async () => {
+    const s = state.seasons.find(x=>x.id===btn.dataset.id);
+    if (!s || s.id===state.current.id) return;
+    state.current = s;
+    el.querySelectorAll('.season-btn').forEach(b=>b.classList.toggle('active',b.dataset.id===s.id));
+    await loadSeason(s);
+  }));
+}
+
+function updateStatusPill(season) {
+  const pill = document.getElementById('season-status-pill');
+  if (!pill) return;
+  const labels = {upcoming:'Upcoming',qualifiers:'Qualifiers',semifinals:'Semifinals',finals:'Finals',completed:'Completed'};
+  const live = ['semifinals','finals'].includes(season.status);
+  pill.textContent = labels[season.status] || season.status;
+  pill.className = 'season-status' + (live ? ' live' : '');
+}
+
+async function loadSeason(season) {
+  app('Loading…');
+  updateStatusPill(season);
+
+  // Get team & match IDs for this season first
+  const [teams, matchIds] = await Promise.all([
+    sb('sr_teams', `?season_id=eq.${season.id}&order=qualifier_rank.asc.nullslast`),
+    sb('sr_matches', `?season_id=eq.${season.id}&select=id`),
+  ]);
+  state.teams = teams;
+
+  const teamIdList = teams.map(t=>t.id).join(',') || 'null';
+  const matchIdList = matchIds.map(m=>m.id).join(',') || 'null';
+
+  const [matches, runs, rosters, heroes] = await Promise.all([
+    sb('sr_matches', `?season_id=eq.${season.id}&order=round.asc,match_number.asc`),
+    matchIdList !== 'null' ? sb('sr_match_runs', `?match_id=in.(${matchIdList})&order=submitted_at.asc`) : Promise.resolve([]),
+    teamIdList !== 'null' ? sb('sr_roster', `?team_id=in.(${teamIdList})&select=*`) : Promise.resolve([]),
+    sb('sr_heroes', '?select=*'),
+  ]);
+
+  state.matches = matches;
+  state.runs    = runs;
+  state.rosters = rosters.map(r => ({ ...r, hero: heroes.find(h=>h.id===r.hero_id)||null }));
+
+  renderPage();
+}
+
+function renderPage() {
+  const semis  = state.matches.filter(m=>m.round==='semifinal');
+  const finals = state.matches.filter(m=>m.round==='final');
+  let html = '';
+
+  html += `<div class="section-title">Qualifiers</div>`;
+  html += renderQualifiers();
+
+  if (semis.length || finals.length) {
+    html += `<div class="section-title">Bracket</div>`;
+    html += renderBracket(semis, finals);
+  }
+
+  document.getElementById('app').innerHTML = html;
+  drawConnectors();
+  bindClicks();
+}
+
+// ── QUALIFIERS ────────────────────────────────────────────────────────────────
+function renderQualifiers() {
+  if (!state.teams.length) return '<div class="state-msg">No teams registered yet.</div>';
+  return `<div class="qualifiers-grid">${state.teams.map(renderQualifierCard).join('')}</div>`;
+}
+
+function qualifierStatus(team) {
+  const s = team.qualifier_status || 'pending';
+  if (s === 'qualified')      return { cls: 'qualified',      label: team.qualifier_rank ? `Rank <span class="rank-num">#${team.qualifier_rank}</span>` : 'Qualified',             color: 'var(--teal-dim)' };
+  if (s === 'temp_qualified') return { cls: 'temp_qualified', label: team.qualifier_rank ? `Rank <span class="rank-num">#${team.qualifier_rank}</span> <span style="color:var(--text-muted);font-size:0.85em">· Provisional</span>` : 'Provisional', color: 'var(--teal-dim)' };
+  if (s === 'rejected')       return { cls: 'rejected',       label: team.qualifier_rank ? `Eliminated · <span style="opacity:.6">#${team.qualifier_rank}</span>` : 'Not accepted', color: '#804040' };
+  return { cls: '', label: team.qualifier_rank ? `Rank <span class="rank-num">#${team.qualifier_rank}</span>` : '<span style="color:var(--text-muted)">Pending</span>', color: 'var(--border)' };
+}
+
+function renderQualifierCard(team) {
+  const roster = sortRoster(state.rosters.filter(r=>r.team_id===team.id));
+  const st = qualifierStatus(team);
+  return `
+    <div class="qualifier-card ${st.cls}" data-team-id="${team.id}">
+      <div class="qualifier-rank">${st.label}</div>
+      <div class="qualifier-team-header">
+        <span class="qualifier-color-dot" style="background:${team.color}"></span>
+        <span class="qualifier-team-name">${team.name}</span>
+      </div>
+      ${team.qualifier_dungeon
+        ? `<div class="qualifier-dungeon">${team.qualifier_dungeon}</div>`
+        : `<div class="qualifier-dungeon" style="color:var(--text-muted)">Dungeon not submitted</div>`}
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+        <div class="qualifier-time${team.qualifier_time?'':' pending'}">${team.qualifier_time ? fmtTime(team.qualifier_time) : 'Time pending'}</div>
+        ${team.qualifier_vod_url ? `<a href="${team.qualifier_vod_url}" target="_blank" rel="noopener" class="vod-link" onclick="event.stopPropagation()">▶ VOD</a>` : ''}
+      </div>
+      ${roster.length ? `<div class="qualifier-roster">${roster.map(r=>`
+        <div class="qualifier-hero-wrap">
+          <img class="qualifier-hero-img${r.is_captain?' captain':''}"
+               src="${r.hero ? heroImg(r.hero.slug) : ''}" alt="${r.hero?.name||'?'}"
+               onerror="this.style.opacity=0.25">
+          <div class="hero-tooltip">${r.player_name}${r.is_captain?' 👑':''}<br><em>${r.hero?.name||'Unknown hero'}</em></div>
+        </div>`).join('')}</div>` : ''}
+    </div>`;
+}
+
+// ── BRACKET ───────────────────────────────────────────────────────────────────
+function renderBracket(semis, finals) {
+  const leftSemis  = semis.filter((_,i)=>i%2===0);
+  const rightSemis = semis.filter((_,i)=>i%2===1);
+  const final      = finals[0]||null;
+  const winner     = final?.winner_id ? state.teams.find(t=>t.id===final.winner_id) : null;
+
+  return `<div class="bracket-scroll"><div class="bracket" id="bracket-root">
+    <svg class="bracket-connectors" id="bracket-svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="connector-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#d744b1"/>
+          <stop offset="100%" stop-color="#e8895b"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="round-col" id="col-left">
+      <div class="round-label">Semifinals</div>
+      ${leftSemis.map(renderMatchCard).join('')}
+    </div>
+    <div class="round-col center-col" id="col-center">
+      <div class="round-label">Finals</div>
+      <div class="match-group">
+        ${final ? renderMatchCard(final) : `<div class="match-card finals">
+          <div class="match-round-badge">GRAND FINAL · FIRST TO 4 VP</div>
+          ${renderTeamSlot(null,null,null)}${renderTeamSlot(null,null,null)}
+        </div>`}
+      </div>
+      ${winner ? `<div class="match-group"><div class="trophy-slot">
+        <div class="trophy-icon">🏆</div>
+        <div class="trophy-name">${winner.name}</div>
+        <div class="trophy-label">Season Champion</div>
+      </div></div>` : ''}
+    </div>
+    <div class="round-col" id="col-right">
+      <div class="round-label">Semifinals</div>
+      ${rightSemis.map(renderMatchCard).join('')}
+    </div>
+  </div></div>`;
+}
+
+function renderMatchCard(m) {
+  const a = state.teams.find(t=>t.id===m.team_a_id);
+  const b = state.teams.find(t=>t.id===m.team_b_id);
+  const done = !!m.winner_id;
+  const fin  = m.round==='final';
+  const target = vpTarget(m.round);
+  const outcomeA = m.winner_id ? (m.winner_id===m.team_a_id?'winner':'loser') : null;
+  const outcomeB = m.winner_id ? (m.winner_id===m.team_b_id?'winner':'loser') : null;
+  return `<div class="match-group"><div class="match-card${done?' completed':''}${fin?' finals':''}"
+    data-match-id="${m.id}" role="button" tabindex="0"
+    aria-label="${a?.name||'TBD'} vs ${b?.name||'TBD'}">
+    <div class="match-round-badge">${fin?'GRAND FINAL':'SEMI'} · FIRST TO ${target} VP</div>
+    ${renderTeamSlot(a,m.vp_a,outcomeA)}
+    ${renderTeamSlot(b,m.vp_b,outcomeB)}
+  </div></div>`;
+}
+
+function renderTeamSlot(team, vp, outcome) {
+  const cls = outcome==='winner'?' winner':outcome==='loser'?' loser':'';
+  const vpStr = (vp != null && (vp > 0 || outcome)) ? vp : '—';
+  return `<div class="team-slot${cls}">
+    <div class="team-color-bar" style="background:${team?.color||'rgba(64,212,212,0.1)'}"></div>
+    <span class="team-name${!team?' tbd':''}">${team?.name||'TBD'}</span>
+    <span class="vp-badge${outcome==='loser'?' dim':''}">${vpStr}</span>
+  </div>`;
+}
+
+// ── SVG CONNECTORS ────────────────────────────────────────────────────────────
+function drawConnectors() {
+  const root = document.getElementById('bracket-root');
+  const svg  = document.getElementById('bracket-svg');
+  if (!root || !svg) return;
+
+  requestAnimationFrame(() => {
+    const bRect = root.getBoundingClientRect();
+    const semis = state.matches.filter(m=>m.round==='semifinal');
+    const final = state.matches.find(m=>m.round==='final');
+    if (!final) return;
+
+    const fCard = root.querySelector(`[data-match-id="${final.id}"]`);
+    if (!fCard) return;
+    const fRect = fCard.getBoundingClientRect();
+
+    semis.forEach((match, i) => {
+      const card = root.querySelector(`[data-match-id="${match.id}"]`);
+      if (!card) return;
+      const cRect = card.getBoundingClientRect();
+      const isLeft = i % 2 === 0;
+
+      const x1 = (isLeft ? cRect.right  : cRect.left)  - bRect.left;
+      const y1 = cRect.top + cRect.height/2 - bRect.top;
+      const x2 = (isLeft ? fRect.left   : fRect.right) - bRect.left;
+      const y2 = fRect.top + (i%2===0 ? fRect.height*0.25 : fRect.height*0.75) - bRect.top;
+      const mx = (x1+x2)/2;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d', `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`);
+      path.setAttribute('class', `connector-line${match.winner_id?' active':''}`);
+      svg.appendChild(path);
+    });
+  });
+}
+
+// ── PANELS ────────────────────────────────────────────────────────────────────
+function bindClicks() {
+  document.querySelectorAll('[data-match-id]').forEach(el => {
+    el.addEventListener('click', ()=>openMatch(el.dataset.matchId));
+    el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' ') openMatch(el.dataset.matchId); });
+  });
+  document.querySelectorAll('[data-team-id]').forEach(el => {
+    el.addEventListener('click', ()=>openTeam(el.dataset.teamId));
+  });
+}
+
+function openMatch(id) {
+  const m = state.matches.find(x=>x.id===id); if(!m) return;
+  const a = state.teams.find(t=>t.id===m.team_a_id);
+  const b = state.teams.find(t=>t.id===m.team_b_id);
+  const runs = state.runs.filter(r=>r.match_id===id);
+  const target = vpTarget(m.round);
+  const oA = m.winner_id ? (m.winner_id===m.team_a_id?'winner':'loser') : null;
+  const oB = m.winner_id ? (m.winner_id===m.team_b_id?'winner':'loser') : null;
+
+  document.getElementById('panel-title').textContent =
+    m.round==='final' ? 'Grand Final' : `Semifinal · Match ${m.match_number}`;
+
+  const rA = sortRoster(state.rosters.filter(r=>r.team_id===m.team_a_id));
+  const rB = sortRoster(state.rosters.filter(r=>r.team_id===m.team_b_id));
+
+  // Group runs by dungeon
+  const groups = {};
+  runs.forEach(r=>{ if(!groups[r.dungeon_slug]) groups[r.dungeon_slug]=[]; groups[r.dungeon_slug].push(r); });
+
+  let html = `<div class="panel-teams">
+    <div class="panel-team">
+      ${oA==='winner'?'<div class="panel-winner-badge">WINNER</div>':''}
+      <div class="panel-team-name" style="border-bottom:2px solid ${a?.color||'transparent'};padding-bottom:4px">${a?.name||'TBD'}</div>
+      <div class="panel-vp${oA==='loser'?' dim':''}">${m.vp_a??'—'}</div>
+      <div class="panel-vp-label">VP · First to ${target}</div>
+    </div>
+    <div class="panel-team">
+      ${oB==='winner'?'<div class="panel-winner-badge">WINNER</div>':''}
+      <div class="panel-team-name" style="border-bottom:2px solid ${b?.color||'transparent'};padding-bottom:4px">${b?.name||'TBD'}</div>
+      <div class="panel-vp${oB==='loser'?' dim':''}">${m.vp_b??'—'}</div>
+      <div class="panel-vp-label">VP · First to ${target}</div>
+    </div>
+  </div>`;
+
+  if (rA.length || rB.length) {
+    html += `<div class="panel-section">Rosters</div>
+    <div class="roster-grid">
+      <div class="roster-col">
+        <div class="roster-col-label">${a?.name||'TBD'}</div>
+        ${rA.map(r=>heroSlot(r)).join('')}
+      </div>
+      <div class="roster-col">
+        <div class="roster-col-label">${b?.name||'TBD'}</div>
+        ${rB.map(r=>heroSlot(r)).join('')}
+      </div>
+    </div>`;
+  }
+
+  html += `<div class="panel-section">Dungeons played</div>`;
+  if (Object.keys(groups).length) {
+    html += `<div class="runs-list">`;
+    Object.entries(groups).forEach(([slug, gr]) => {
+      const vpLabel = gr[0]?.run_type==='capstone' ? 'Capstone · 2 VP' : 'Adventure · 1 VP';
+      html += `<div class="dungeon-block-label">${dungeonName(slug)} <span style="opacity:.5;font-style:italic;text-transform:none;font-family:'Crimson Pro',serif;font-size:11px">${vpLabel}</span></div>`;
+      gr.forEach(r => {
+        const team = state.teams.find(t=>t.id===r.team_id);
+        const bgUrl = dungeonImg(slug);
+        const bgOpacity = r.score === 1 ? '0.7' : '0.3';
+        html += `<div class="run-row" style="${bgUrl ? `--run-bg:url('${bgUrl}');--run-bg-opacity:${bgOpacity}` : ''}">
+          <div class="run-team-bar" style="background:${team?.color||'var(--border)'}"></div>
+          <div>
+            <div class="run-team-name">${team?.name||'?'}</div>
+            <div class="run-time">${r.run_time ? fmtTime(r.run_time) : 'Time not submitted'}</div>
+          </div>
+          ${r.replay_url ? `<a href="${r.replay_url}" target="_blank" rel="noopener" class="replay-link" onclick="event.stopPropagation()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+            Replay
+          </a>` : '<div></div>'}
+          <div class="run-score ${r.score===1?'win':r.score===0?'loss':'pending'}">
+            ${r.score===1?'✓':r.score===0?'✗':'—'}
+          </div>
+        </div>`;
+      });
+    });
+    html += `</div>`;
+  } else {
+    html += `<div style="padding:12px 20px 16px;color:var(--text-muted);font-style:italic;font-size:14px">No dungeons played yet.</div>`;
+  }
+
+  openPanel('Match details', html);
+}
+
+function openTeam(id) {
+  const team = state.teams.find(t=>t.id===id); if(!team) return;
+  const roster = sortRoster(state.rosters.filter(r=>r.team_id===id));
+
+  const st = qualifierStatus(team);
+  let html = `<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <div style="width:8px;height:8px;border-radius:50%;background:${team.color};flex-shrink:0"></div>
+    <span style="font-family:'Cinzel',serif;font-size:18px;letter-spacing:0.05em;color:var(--text)">${team.name}</span>
+    ${team.qualifier_rank ? `<span style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.15em;padding:3px 10px;border:1px solid rgba(215,68,177,0.4);border-radius:999px;background:linear-gradient(90deg,rgba(215,68,177,0.1),rgba(232,137,91,0.1));color:var(--goober-b)">RANK #${team.qualifier_rank}</span>` : ''}
+    ${st.cls === 'rejected' ? `<span style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.15em;padding:3px 10px;border:1px solid rgba(180,60,60,0.4);border-radius:999px;color:#c06060">NOT ACCEPTED</span>` : ''}
+  </div>`;
+
+  if (team.qualifier_dungeon || team.qualifier_time) {
+    html += `<div class="panel-section">Qualifier run</div>
+    <div style="display:flex;gap:24px;align-items:flex-end;padding:12px 20px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap">
+      ${team.qualifier_dungeon ? `<div><div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;letter-spacing:0.1em">DUNGEON</div><div style="font-family:'Cinzel',serif;font-size:13px">${team.qualifier_dungeon}</div></div>` : ''}
+      ${team.qualifier_time ? `<div><div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;letter-spacing:0.1em">BEST TIME</div><div style="font-family:'Cinzel',serif;font-size:22px;color:var(--teal-light);text-shadow:0 0 16px rgba(64,212,212,0.5)">${fmtTime(team.qualifier_time)}</div></div>` : ''}
+      ${team.qualifier_vod_url ? `<a href="${team.qualifier_vod_url}" target="_blank" rel="noopener" class="vod-link" style="font-size:14px;padding:6px 14px">▶ Watch VOD</a>` : ''}
+    </div>`;
+  }
+
+  html += `<div class="panel-section">Roster</div>`;
+  if (roster.length) {
+    html += `<div style="display:flex;flex-direction:column;gap:12px;padding:14px 20px 20px">
+      ${roster.map(r=>heroSlot(r,true)).join('')}
+    </div>`;
+  } else {
+    html += `<div style="padding:12px 20px 16px;color:var(--text-muted);font-style:italic;font-size:14px">No roster registered yet.</div>`;
+  }
+
+  openPanel(team.name, html);
+}
+
+function heroSlot(r, large=false) {
+  const sz = large ? '42px' : '36px';
+  return `<div class="hero-slot">
+    <img class="hero-avatar${r.is_captain?' captain':''}" style="width:${sz};height:${sz}"
+         src="${r.hero ? heroImg(r.hero.slug) : ''}" alt="${r.hero?.name||'?'}"
+         onerror="this.style.opacity=0.25">
+    <div>
+      <div class="hero-player">${r.player_name}${r.is_captain?`<span class="captain-crown" title="Captain">👑</span>`:''}</div>
+      <div class="hero-name">${r.hero?.name||'Unknown hero'}</div>
+    </div>
+  </div>`;
+}
+
+function openPanel(title, html) {
+  document.getElementById('panel-title').textContent = title;
+  document.getElementById('panel-body').innerHTML = html;
+  document.getElementById('panel-backdrop').classList.add('open');
+  document.getElementById('detail-panel').scrollTop = 0;
+}
+
+document.getElementById('panel-close').addEventListener('click', closePanel);
+document.getElementById('panel-backdrop').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePanel(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePanel(); });
+function closePanel() { document.getElementById('panel-backdrop').classList.remove('open'); }
+
+boot();
+</script>
+</body>
+</html>
