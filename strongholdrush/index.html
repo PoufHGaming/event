@@ -147,6 +147,24 @@
     box-shadow: 0 0 10px rgba(215,68,177,0.15);
   }
 
+  /* ── REGISTRATION BUTTON ── */
+  .register-btn {
+    font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 9px 20px; border-radius: var(--r);
+    background: var(--goober-grad); color: #fff; border: none;
+    cursor: pointer; text-decoration: none; display: inline-flex;
+    align-items: center; gap: 8px; margin-right: 16px;
+    box-shadow: 0 0 16px rgba(215,68,177,0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
+  }
+  .register-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 22px rgba(215,68,177,0.5);
+  }
+  .register-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
   /* ── MAIN ── */
   main { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
 
@@ -670,12 +688,20 @@ function renderControls() {
   const btns = state.seasons.map(s =>
     `<button class="season-btn${s.id===state.current.id?' active':''}" data-id="${s.id}">${s.name}</button>`
   ).join('');
-  el.innerHTML = `<span class="controls-label">Season</span>${btns}<span id="season-status-pill" class="season-status"></span>`;
+
+  const regBtn = (state.current.registration_visible && state.current.registration_url)
+    ? `<a href="${state.current.registration_url}" target="_blank" rel="noopener" class="register-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+        Register for the Qualification
+      </a>`
+    : '';
+
+  el.innerHTML = `${regBtn}<span class="controls-label">Season</span>${btns}<span id="season-status-pill" class="season-status"></span>`;
   el.querySelectorAll('.season-btn').forEach(btn => btn.addEventListener('click', async () => {
     const s = state.seasons.find(x=>x.id===btn.dataset.id);
     if (!s || s.id===state.current.id) return;
     state.current = s;
-    el.querySelectorAll('.season-btn').forEach(b=>b.classList.toggle('active',b.dataset.id===s.id));
+    renderControls();
     await loadSeason(s);
   }));
 }
