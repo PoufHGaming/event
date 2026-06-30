@@ -221,6 +221,35 @@
     .tier-card.t1.unlocked .tier-status::before { box-shadow:0 0 8px var(--tier1); } .tier-card.t2.unlocked .tier-status::before { box-shadow:0 0 8px var(--tier2); } .tier-card.t3.unlocked .tier-status::before { box-shadow:0 0 8px var(--tier3); }
     @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
+    /* ── BADGES MAYHEM INDIVIDUELS ── */
+    .mayhem-section { margin-top: 32px; }
+    .mayhem-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+    .mayhem-title { font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.22em; text-transform:uppercase; color:var(--text-dim); }
+    .mayhem-title::after { content:''; }
+    .mayhem-intro { font-size:15px; color:var(--text-dim); line-height:1.6; font-style:italic; margin-bottom:20px; }
+    .mayhem-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .mayhem-card {
+      border-radius:8px; padding:16px 14px; text-align:center;
+      background:var(--bg2); border:1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .mayhem-card img { width:48px; height:48px; border-radius:8px; object-fit:cover; margin-bottom:10px; border:1px solid rgba(255,255,255,0.08); }
+    .mayhem-card-name { font-family:'Cinzel',serif; font-size:13px; color:var(--text); margin-bottom:6px; letter-spacing:0.02em; }
+    .mayhem-card-threshold { font-family:'Cinzel',serif; font-size:20px; font-weight:700; margin-bottom:4px; }
+    .mayhem-card-label { font-size:12px; color:var(--text-muted); letter-spacing:0.06em; }
+    .mayhem-card.base   { border-top:2px solid #9a9a9a; }
+    .mayhem-card.base   .mayhem-card-threshold { color:#c4c4c4; }
+    .mayhem-card.bronze { border-top:2px solid #b08d57; }
+    .mayhem-card.bronze .mayhem-card-threshold { color:#d4ab78; text-shadow:0 0 14px rgba(176,141,87,0.4); }
+    .mayhem-card.silver { border-top:2px solid #c0c0c0; }
+    .mayhem-card.silver .mayhem-card-threshold { color:#e4e4e4; text-shadow:0 0 14px rgba(192,192,192,0.4); }
+    .mayhem-card.gold   { border-top:2px solid #d4af37; }
+    .mayhem-card.gold   .mayhem-card-threshold { color:var(--gold-light, #f0d080); text-shadow:0 0 16px rgba(212,175,55,0.5); }
+    @media (max-width:600px) {
+      .mayhem-grid { grid-template-columns:repeat(2,1fr); }
+    }
+
+
     /* ── LEADERBOARD ── */
     .lb-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:12px; }
     .sync-info { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--text-muted); font-style:italic; }
@@ -751,6 +780,41 @@
             <div class="tier-status" data-fr="Verrouillé" data-en="Locked">Verrouillé</div>
           </div>
         </div>
+
+        <div class="mayhem-section">
+          <div class="mayhem-header">
+            <span class="mayhem-title" data-fr="Badges Mayhem individuels" data-en="Individual Mayhem badges">Badges Mayhem individuels</span>
+          </div>
+          <div class="mayhem-intro" data-fr="En plus des paliers communautaires, débloque ton propre badge Mayhem selon ton total personnel de boss tués. Seul ton palier le plus élevé est conservé." data-en="On top of the community tiers, unlock your own Mayhem badge based on your personal boss kill total. Only your highest tier is kept.">
+            En plus des paliers communautaires, débloque ton propre badge Mayhem selon ton total personnel de boss tués. Seul ton palier le plus élevé est conservé.
+          </div>
+          <div class="mayhem-grid">
+            <div class="mayhem-card base">
+              <img src="../images/DM1.png" alt="Dungeon Mayhem" onerror="this.style.opacity='0.2'">
+              <div class="mayhem-card-name">Dungeon Mayhem</div>
+              <div class="mayhem-card-threshold">30</div>
+              <div class="mayhem-card-label" data-fr="boss tués" data-en="bosses killed">boss tués</div>
+            </div>
+            <div class="mayhem-card bronze">
+              <img src="../images/DM1B.png" alt="Dungeon Mayhem Bronze" onerror="this.style.opacity='0.2'">
+              <div class="mayhem-card-name">Dungeon Mayhem Bronze</div>
+              <div class="mayhem-card-threshold">75</div>
+              <div class="mayhem-card-label" data-fr="boss tués" data-en="bosses killed">boss tués</div>
+            </div>
+            <div class="mayhem-card silver">
+              <img src="../images/DM1S.png" alt="Dungeon Mayhem Silver" onerror="this.style.opacity='0.2'">
+              <div class="mayhem-card-name">Dungeon Mayhem Silver</div>
+              <div class="mayhem-card-threshold">150</div>
+              <div class="mayhem-card-label" data-fr="boss tués" data-en="bosses killed">boss tués</div>
+            </div>
+            <div class="mayhem-card gold">
+              <img src="../images/DM1G.png" alt="Dungeon Mayhem Gold" onerror="this.style.opacity='0.2'">
+              <div class="mayhem-card-name">Dungeon Mayhem Gold</div>
+              <div class="mayhem-card-threshold">250</div>
+              <div class="mayhem-card-label" data-fr="boss tués" data-en="bosses killed">boss tués</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="lb-toolbar">
@@ -854,7 +918,7 @@
     const PLAYERS_CACHE_MS = 10 * 60 * 1000;  // cache players : 10min (change très rarement)
     const SEASON   = 'S1';
     const N_PLAYERS_AT_LAUNCH = 50;
-    const TIERS_BASE = [2000, 5250, 10500]; // paliers calibrés pour N_REF joueurs [2000, 5000, 10000]
+    const TIERS_BASE = [2000, 5250, 10500]; // paliers calibrés pour N_REF joueurs
     const N_REF      = 40;                 // référence de calibration
     // Formule : palier(N) = base × √(N / N_REF)  — racine carrée
     function computeTiers(n) {
@@ -1468,58 +1532,13 @@
           ? (fr ? 'Boss tués par donjon'  : 'Bosses killed per dungeon')
           : (fr ? 'Morts par donjon'      : 'Deaths per dungeon');
 
-        const allDungeons = DUNGEONS.map(d => ({ name: d, kills: byDungeon[d].kills, deaths: byDungeon[d].deaths }));
-
-        // Xul, the Blood Monolith est isolé : ses chiffres sont disproportionnés
-        // (capstone à 3 boss) et écrasent visuellement les autres donjons.
-        const XUL_NAME = "Xul, the Blood Monolith";
-        const xulEntry   = allDungeons.find(d => d.name === XUL_NAME);
-        const otherDungeons = allDungeons.filter(d => d.name !== XUL_NAME);
-
-        const sorted = [...otherDungeons].sort((a,b) => b[mode] - a[mode]);
-        const maxVal = sorted[0]?.[mode] || 1; // recalculé SANS Xul
+        const sorted = [...DUNGEONS]
+          .map(d => ({ name: d, kills: byDungeon[d].kills, deaths: byDungeon[d].deaths }))
+          .sort((a,b) => b[mode] - a[mode]);
+        const maxVal = sorted[0]?.[mode] || 1;
 
         html += `<div class="stats-section-title">${sectionLabel}</div><div class="shbar-list">`;
 
-        // ── Ligne Xul, séparée, toujours pleine, % calculé sur le total global ──
-        if (xulEntry) {
-          const xulVal     = xulEntry[mode];
-          const xulPct     = totalVal > 0 ? (xulVal/totalVal*100) : 0;
-          const xulImg     = DUNGEON_IMAGES[xulEntry.name] || '';
-          const xulIsExp   = _statsExpanded === xulEntry.name;
-          const xulBosses  = DUNGEON_BOSSES[xulEntry.name] || [];
-          const xulClickable = xulBosses.length > 0 && xulVal > 0;
-
-          html += `<div class="shbar-wrap${xulIsExp?' expanded':''}" style="margin-bottom:14px;">
-            <div class="shbar-row top${xulVal===0?' empty':''}" ${xulClickable?`onclick="toggleStatsDungeon('${xulEntry.name.replace(/'/g,"\\'")}')"`:''} style="${xulClickable?'cursor:pointer':''}">
-              <div class="shbar-name">${tDungeon(xulEntry.name).toUpperCase()}</div>
-              <div class="shbar-count">${xulVal > 0 ? xulVal.toLocaleString('fr-FR') : '—'}</div>
-              <div class="shbar-track">
-                ${xulImg ? `<div class="shbar-img" style="width:100%;background-image:url('${xulImg}')"></div><div class="shbar-marker" style="left:100%"></div>` : ''}
-              </div>
-              <div class="shbar-pct">${xulVal > 0 ? '('+xulPct.toFixed(1)+'%)' : ''}</div>
-              ${xulClickable ? `<div class="shbar-chevron">${xulIsExp?'▲':'▼'}</div>` : '<div class="shbar-chevron"></div>'}
-            </div>`;
-
-          if (xulIsExp && xulClickable) {
-            const maxBoss = Math.max(...xulBosses.map(b => byBoss[b]?.[mode]||0), 1);
-            html += `<div class="shbar-detail">`;
-            xulBosses.forEach(boss => {
-              const bk   = byBoss[boss] || { kills: 0, deaths: 0 };
-              const bval = bk[mode] || 0;
-              html += `<div class="shbar-boss-row">
-                <div class="shbar-boss-name">${boss}</div>
-                <div class="shbar-boss-count">${bval > 0 ? bval.toLocaleString('fr-FR') : '—'}</div>
-                <div class="shbar-boss-track"><div class="shbar-boss-fill" style="width:${bval/maxBoss*100}%"></div></div>
-              </div>`;
-            });
-            html += `</div>`;
-          }
-          html += `</div>
-          <div style="height:1px;background:var(--border);margin:4px 0 14px;"></div>`;
-        }
-
-        // ── Les autres donjons, classés entre eux uniquement ──
         sorted.forEach((d, i) => {
           const val    = d[mode];
           const pct    = totalVal > 0 ? (val/totalVal*100) : 0;
@@ -1573,48 +1592,13 @@
             allBosses.push({ boss, dungeon: d, kills: bk.kills, deaths: bk.deaths });
           });
         });
+        allBosses.sort((a,b) => b[mode] - a[mode]);
 
-        // Les boss de Xul, the Blood Monolith sont isolés : leurs chiffres
-        // sont disproportionnés (capstone) et écrasent les autres boss.
-        const XUL_DUNGEON_NAME = "Xul, the Blood Monolith";
-        const xulBosses   = allBosses.filter(b => b.dungeon === XUL_DUNGEON_NAME).sort((a,b) => b[mode] - a[mode]);
-        const otherBosses = allBosses.filter(b => b.dungeon !== XUL_DUNGEON_NAME);
-        otherBosses.sort((a,b) => b[mode] - a[mode]);
-
-        const maxVal = otherBosses[0]?.[mode] || 1; // recalculé SANS les boss de Xul
+        const maxVal = allBosses[0]?.[mode] || 1;
 
         html += `<div class="stats-section-title">${sectionLabel}</div><div class="bossbar-list">`;
 
-        // ── Boss de Xul, séparés, comparés entre eux, % calculé sur le total global ──
-        const maxValXul = Math.max(...xulBosses.map(b => b[mode] || 0), 1);
-        xulBosses.forEach((b, i) => {
-          const val      = b[mode];
-          const pct      = totalVal  > 0 ? (val/totalVal*100)  : 0;
-          const barPct   = maxValXul > 0 ? (val/maxValXul*100) : 0;
-          const dngImg   = DUNGEON_IMAGES[b.dungeon] || '';
-          const avatarSrc = `../images/bosses/${bossImgName(b.boss)}.jpg`;
-          const isTopXul = i === 0 && val > 0;
-
-          html += `<div class="bossbar-wrap${isTopXul?' top':''}${val===0?' empty':''}" style="margin-bottom:8px;">
-            <div class="bossbar-left">
-              <div class="bossbar-name">${b.boss}</div>
-              <div class="bossbar-count">${val > 0 ? val.toLocaleString('fr-FR') : '—'}</div>
-            </div>
-            <div class="bossbar-sep"></div>
-            <div class="bossbar-right">
-              ${dngImg ? `<div class="bossbar-dng-img" style="width:${barPct}%;background-image:url('${dngImg}')"></div>` : ''}
-              <div class="bossbar-avatar" style="left:calc(clamp(20px, ${barPct}%, 100% - 20px));background-image:url('${avatarSrc}')"></div>
-            </div>
-            <div class="bossbar-sep"></div>
-            <div class="bossbar-pct-col">${val > 0 ? '('+pct.toFixed(1)+'%)' : ''}</div>
-          </div>`;
-        });
-        if (xulBosses.length) {
-          html += `<div style="height:1px;background:var(--border);margin:4px 0 14px;"></div>`;
-        }
-
-        // ── Les autres boss, classés entre eux uniquement ──
-        otherBosses.forEach((b, i) => {
+        allBosses.forEach((b, i) => {
           const val    = b[mode];
           const pct    = totalVal > 0 ? (val/totalVal*100) : 0;
           const barPct = maxVal   > 0 ? (val/maxVal*100)   : 0;

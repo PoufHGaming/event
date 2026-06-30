@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gloire à la Compagnie I</title>
+  <title>Gloire à la Compagnie</title>
   <link rel="icon" type="image/png" href="../images/pouf.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
@@ -125,6 +125,14 @@
     }
 
     /* NAV */
+    #sticky-nav-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.5);
+    }
+
     nav {
       display: flex;
       justify-content: center;
@@ -159,6 +167,99 @@
       opacity: 1;
     }
 
+    /* SEASON TOGGLE — style isolé de .tab pour ne pas être affecté par showPage()/setLang() */
+    .season-tab {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 7px 18px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .season-tab:hover {
+      border-color: var(--border-bright);
+      color: var(--text);
+    }
+
+    .season-tab.active {
+      color: var(--gold);
+      border-color: var(--gold-dim);
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    .season-tab-label {
+      font-size: 13px;
+      letter-spacing: 0.1em;
+    }
+
+    .season-tab-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+    }
+
+    .season-tab-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .season-tab-status.status-ongoing {
+      color: #7ddf7d;
+    }
+
+    .season-tab-status.status-ongoing::before {
+      background: #7ddf7d;
+      box-shadow: 0 0 6px #7ddf7d;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .season-tab-status.status-past {
+      color: var(--text-muted);
+    }
+
+    .season-tab-status.status-past::before {
+      background: var(--text-muted);
+    }
+
+    .season-tab-status.status-coming {
+      color: #5cc4c4;
+    }
+
+    .season-tab-status.status-coming::before {
+      background: #5cc4c4;
+    }
+
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    #season-nav {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px !important;
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 640px) {
+      .season-tab { font-size: 11px; padding: 6px 12px; }
+      .season-tab-label { font-size: 11px; }
+      .season-tab-status { font-size: 9px; }
+    }
+
     /* MAIN */
     main {
       max-width: 960px;
@@ -172,6 +273,127 @@
 
     .page.active {
       display: block;
+    }
+
+    /* LEADERBOARD SEARCH */
+    .lb-search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .lb-search-bar:focus-within {
+      border-color: var(--border-bright);
+    }
+
+    .lb-search-icon {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .lb-search-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      font-weight: 300;
+    }
+
+    .lb-search-input::placeholder {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .lb-search-clear {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 4px;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .lb-search-clear:hover {
+      color: var(--text);
+    }
+
+    .lb-no-results {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* LEADERBOARD PAGINATION */
+    .lb-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .lb-page-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 3px;
+      transition: all 0.15s;
+      min-width: 34px;
+    }
+
+    .lb-page-btn:hover:not(:disabled) {
+      border-color: var(--border-bright);
+      color: var(--text);
+    }
+
+    .lb-page-btn.active {
+      color: var(--gold);
+      border-color: var(--gold-dim);
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    .lb-page-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .lb-page-ellipsis {
+      color: var(--text-muted);
+      padding: 0 4px;
+      font-size: 12px;
+    }
+
+    .lb-pagination-info {
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .lb-page-btn { font-size: 11px; padding: 5px 9px; min-width: 28px; }
     }
 
     /* LEADERBOARD */
@@ -200,6 +422,12 @@
       margin-bottom: 4px;
       transition: all 0.2s;
       cursor: default;
+    }
+
+    /* Mode TOTAL : pas de colonne bonus, on retombe sur 5 colonnes */
+    .lb-header.no-bonus-col,
+    .lb-row.no-bonus-col {
+      grid-template-columns: 40px 1fr 80px 80px 80px;
     }
 
     .lb-row:hover {
@@ -300,9 +528,34 @@
       justify-content: space-between;
       align-items: center;
       font-size: 11px;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
+      margin-bottom: 0;
+      padding: 6px 4px;
       border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+      border-radius: 3px;
+    }
+
+    .dp-header:hover {
+      background: rgba(201, 168, 76, 0.04);
+    }
+
+    .dp-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dp-chevron {
+      color: var(--text-muted);
+      font-size: 9px;
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+
+    .dungeon-section.open .dp-chevron {
+      transform: rotate(90deg);
     }
 
     .dp-name {
@@ -321,9 +574,61 @@
     }
 
     .hf-list {
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 3px;
+      margin-top: 8px;
+    }
+
+    .dungeon-section.open .hf-list {
+      display: flex;
+    }
+
+    .season-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .season-badge.s2 {
+      color: var(--text-muted);
+      border-color: var(--border);
+    }
+
+    .season-badge.s3 {
+      color: #7ddf7d;
+      border-color: rgba(125, 223, 125, 0.35);
+    }
+
+    .lb-detail-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .lb-detail-toolbar button {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .lb-detail-toolbar button:hover {
+      color: var(--text);
+      border-color: var(--border-bright);
     }
 
     .hf-item {
@@ -929,11 +1234,170 @@
       font-family: 'Cinzel', serif;
     }
 
+    /* EASTER EGG — rune discrète dans le header, déguisée en simple ornement */
+    .header-ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+      color: var(--text-muted);
+      opacity: 0.5;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      transition: opacity 0.4s;
+    }
+
+    .header-ornament-line {
+      width: 28px;
+      height: 1px;
+      background: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .secret-rune {
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      color: var(--text-muted);
+      transition: color 0.5s, text-shadow 0.5s, transform 0.3s;
+      padding: 4px;
+    }
+
+    .secret-rune:hover {
+      color: #b8a0f0;
+      text-shadow: 0 0 10px rgba(155, 127, 234, 0.6);
+      transform: scale(1.3) rotate(8deg);
+    }
+
+    /* Modale de la rune secrète : même esprit que .secret-card, en overlay */
+    .rune-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(4px);
+    }
+
+    .rune-modal-overlay.open {
+      display: flex;
+    }
+
+    .rune-modal {
+      background: #120d1c;
+      border: 1px solid rgba(155, 127, 234, 0.4);
+      border-radius: 8px;
+      max-width: 420px;
+      width: 100%;
+      padding: 28px 26px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 40px rgba(155, 127, 234, 0.08);
+    }
+
+    .rune-modal::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg,
+          transparent,
+          transparent 8px,
+          rgba(155, 127, 234, 0.025) 8px,
+          rgba(155, 127, 234, 0.025) 16px);
+      pointer-events: none;
+    }
+
+    .rune-modal-symbol {
+      font-size: 28px;
+      color: #b8a0f0;
+      margin-bottom: 14px;
+      text-shadow: 0 0 16px rgba(155, 127, 234, 0.5);
+    }
+
+    .rune-modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #b8a0f0;
+      margin-bottom: 14px;
+      font-style: italic;
+    }
+
+    .rune-modal-desc {
+      color: #a090d8;
+      font-size: 14px;
+      line-height: 1.7;
+      font-style: italic;
+      letter-spacing: 0.03em;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rune-modal-close {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: none;
+      border: 1px solid rgba(155, 127, 234, 0.3);
+      border-radius: 4px;
+      padding: 7px 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .rune-modal-close:hover {
+      color: #b8a0f0;
+      border-color: rgba(155, 127, 234, 0.5);
+    }
+
     /* LOADING */
     .loading {
       text-align: center;
       padding: 48px;
       color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* SEASON TEASER (Saison 3 pas encore lancée) */
+    .season-teaser {
+      text-align: center;
+      padding: 64px 24px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .season-teaser-icon {
+      font-size: 28px;
+      color: #5cc4c4;
+      margin-bottom: 18px;
+      text-shadow: 0 0 20px rgba(92, 196, 196, 0.4);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    .season-teaser-title {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+
+    .season-teaser-desc {
+      color: var(--text-dim);
+      font-size: 15px;
+      line-height: 1.7;
       font-style: italic;
     }
 
@@ -1241,9 +1705,14 @@
 <body>
 
   <header>
-    <div class="event-title" id="event-title">Gloire à la Compagnie I</div>
+    <div class="event-title" id="event-title">Gloire à la Compagnie</div>
     <div class="event-subtitle" id="header-subtitle">Du 21/04 au 17/05 &nbsp;·&nbsp; Classement en direct</div>
     <div class="event-subtitle" id="header-organiser">Organisé par Pouf</div>
+    <div class="header-ornament">
+      <span class="header-ornament-line"></span>
+      <span class="secret-rune" id="secret-rune" onclick="openRuneModal()" title="">✦</span>
+      <span class="header-ornament-line"></span>
+    </div>
     <div class="social-links">
       <a href="https://www.twitch.tv/pouf_hgaming" target="_blank" rel="noopener" class="social-link twitch">
         <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -1262,54 +1731,77 @@
     </div>
   </header>
 
-  <nav>
-    <a href="../index.html" class="tab home-btn" title="Accueil"
-      style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:8px 14px;opacity:0.7;transition:opacity 0.2s;"
-      onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-      </svg>
-    </a>
-    <div style="width:1px;height:20px;background:var(--border);margin:0 2px;align-self:center;"></div>
-    <button class="tab active" id="tab-leaderboard" onclick="showPage('leaderboard', this)">Classement</button>
-    <button class="tab" id="tab-achievements" onclick="showPage('achievements', this)">Hauts-faits</button>
-    <button class="tab" id="tab-rules" onclick="showPage('rules', this)">Règles</button>
-    <div style="margin-left:auto; display:flex; align-items:center; gap:10px; position:relative;">
+  <div id="sticky-nav-wrapper">
+    <nav>
+      <a href="../index.html" class="tab home-btn" title="Accueil"
+        style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:8px 14px;opacity:0.7;transition:opacity 0.2s;"
+        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+        </svg>
+      </a>
+      <div style="width:1px;height:20px;background:var(--border);margin:0 2px;align-self:center;"></div>
+      <button class="tab active" id="tab-leaderboard" onclick="showPage('leaderboard', this)">Classement</button>
+      <button class="tab" id="tab-achievements" onclick="showPage('achievements', this)">Hauts-faits</button>
+      <button class="tab" id="tab-rules" onclick="showPage('rules', this)">Règles</button>
+      <div style="position:relative;">
+        <button class="tab" id="join-btn" onclick="toggleJoinMenu()">Join</button>
 
-      <div style="display:flex;gap:2px;">
-        <button class="tab lang-btn-fr" id="lang-btn-fr" onclick="setLang('fr')"
-          style="padding:6px 10px;font-size:12px;border-radius:3px 0 0 3px;">FR</button>
-        <button class="tab lang-btn-en" id="lang-btn-en" onclick="setLang('en')"
-          style="padding:6px 10px;font-size:12px;border-radius:0 3px 3px 0;">EN</button>
+        <div id="join-menu" style="
+      display:none;
+      position:absolute;
+      top:40px;
+      left:0;
+      background:var(--bg2);
+      border:1px solid var(--border);
+      border-radius:6px;
+      padding:10px;
+      min-width:200px;
+      z-index:60;
+    ">
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSc1t3Eol7FKP1efLmgBTiJSQ43mjIdSqltBys6Egv-3W-Hfzw/viewform?usp=sharing&ouid=118146898505717091637"
+            target="_blank" id="joiningform" class="help-link">Join the event</a>
+        </div>
       </div>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:10px; position:relative;">
 
-      <button class="tab" id="help-btn" onclick="toggleHelpMenu()" style=""></button>
+        <div style="display:flex;gap:2px;">
+          <button class="tab lang-btn-fr" id="lang-btn-fr" onclick="setLang('fr')"
+            style="padding:6px 10px;font-size:12px;border-radius:3px 0 0 3px;">FR</button>
+          <button class="tab lang-btn-en" id="lang-btn-en" onclick="setLang('en')"
+            style="padding:6px 10px;font-size:12px;border-radius:0 3px 3px 0;">EN</button>
+        </div>
 
-      <div id="help-menu" style="
-    display:none;
-    position:absolute;
-    top:40px;
-    right:0;
-    background:var(--bg2);
-    border:1px solid var(--border);
-    border-radius:6px;
-    padding:10px;
-    min-width:200px;
-    z-index:10;
-  ">
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSc1t3Eol7FKP1efLmgBTiJSQ43mjIdSqltBys6Egv-3W-Hfzw/viewform?usp=sharing&ouid=118146898505717091637"
-          target="_blank" id="joiningform" class="help-link">Join the event</a>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfKiGWA_6jCTaeZVyJ_9nsNibcy2WK0u9KLaPEh1nxNZSgNtA/viewform?usp=sharing&ouid=118146898505717091637"
-          target="_blank" id="feedbackform" class="help-link">Submit feedback</a>
       </div>
+    </nav>
 
+    <div id="season-nav" style="display:flex;justify-content:center;align-items:stretch;gap:8px;padding:14px 24px 0;flex-wrap:wrap;">
+      <button class="season-tab" id="season-tab-S2" onclick="setSeason('S2', this)">
+        <span class="season-tab-label">Pre-Saison 2</span>
+        <span class="season-tab-status status-past" id="season-status-S2">Passé</span>
+      </button>
+      <button class="season-tab" id="season-tab-S3" onclick="setSeason('S3', this)">
+        <span class="season-tab-label">Pre-Saison 3</span>
+        <span class="season-tab-status status-coming" id="season-status-S3">Coming Soon</span>
+      </button>
+      <button class="season-tab" id="season-tab-TOTAL" onclick="setSeason('TOTAL', this)">
+        <span class="season-tab-label">Total</span>
+      </button>
     </div>
-  </nav>
+  </div>
 
   <main>
 
     <!-- LEADERBOARD -->
     <div id="page-leaderboard" class="page active">
+      <div class="lb-search-bar" id="lb-search-bar">
+        <svg class="lb-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="lb-search-input" class="lb-search-input" oninput="onLbSearchInput(this.value)" autocomplete="off">
+        <button id="lb-search-clear" class="lb-search-clear" onclick="clearLbSearch()" style="display:none;">✕</button>
+      </div>
       <div id="lb-content" class="loading">Chargement...</div>
     </div>
 
@@ -1333,11 +1825,20 @@
     // ============================================================
     const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    // Passe à `true` le jour du lancement officiel de la Saison 3 (quand les HF sont prêts) :
+    // - réactive le statut "En cours" (vert) à la place de "Coming Soon" (bleu)
+    // - affiche le vrai leaderboard / liste de HF de la Saison 3 au lieu du message de teasing
+    // - réintègre la Saison 3 dans le calcul et l'affichage du mode Total
+    const SEASON_3_LIVE = false;
     // ============================================================
 
-    // CONDITIONS disponibles : 'portal','dice','res','dispell','shadow','drum','poulet'
+    // CONDITIONS disponibles : 'portal','dice','res','dispell','shadow','drum','poulet','dash'
     // Pour ajouter une condition : conditions:['portal'] ou conditions:['portal','dispell']
-    const ACHIEVEMENTS = [
+    //
+    // ============================================================
+    // SAISON 2 (anciennement "Gloire à la Compagnie I")
+    // ============================================================
+    const ACHIEVEMENTS_S2 = [
       { id: 1, dungeon: "Abime des marins", title: "Surfeur dans l'âme", title_en: "Surfer at Heart", desc: "Tous les joueurs du groupe doivent se prendre 1 vague (subir les dégâts et se faire propulser) sans utiliser de sorts pendant la vague contre Sinthara.", desc_en: "All players in the group must get hit by 1 wave (take damage and be propelled) without using movement spells while being bump during the fight against Sinthara.", points: 10, hard: false, personal: false, conditions: [] },
       { id: 2, dungeon: "Abime des marins", title: "BIG PULL", title_en: "BIG PULL", desc: "Le groupe doit tuer 40 forgotten soul en 1 pull.", desc_en: "The group must kill 40 Forgotten Soul in 1 pull.", points: 10, hard: false, personal: false, conditions: [] },
       { id: 3, dungeon: "Abime des marins", title: "Pourquoi choisir", title_en: "Why Choose", desc: "Le groupe doit se séparer en 2 et se rejoindre au feu de camp (Reliques Skip & Portail interdit). Chaque groupe doit réaliser au moins 40% du score de donjon", desc_en: "The group must split in 2, kill the mobs and reunite at the campfire. Each group must achieve at least 40% of Dungeon score", points: 20, hard: true, personal: false, conditions: ['portal', 'shadow'] },
@@ -1388,12 +1889,193 @@
       { id: 48, dungeon: "Saccage de Drakheim", title: "Jamais 203", title_en: "Third Time's the Charm", desc: "Le groupe doit commencer le combat contre Fodir Kaldur avec Isilagour & Eldsupptok à au moins 95% de santé. Se valide quand le combat est terminée et que les créatures ont été vaincues", desc_en: "The group must start the fight against Fodir Kaldur with Isilagour & Eldsupptok at least 95% health. This is validated once the fight is over and the creatures have been defeated.", points: 20, hard: true, personal: false, conditions: [] },
     ];
 
-    const DUNGEONS_ORDER = [
+    const DUNGEONS_ORDER_S2 = [
       "Abime des marins", "Bois de L'aube", "Carrière tombe-dieu",
       "Coeur de guivre", "Creux Soyeux", "Guet Tempete",
       "Marché d'Urrak", "Sables Empyréens", "Caveau de Lamespectre",
       "Coeur de Tuzari", "La chute Cithrel", "Saccage de Drakheim"
     ];
+
+    // ============================================================
+    // SAISON 3 — données brouillon (cf. achievements_s3_draft.js)
+    // Certains champs (hard, personal, points, traductions EN) sont
+    // des valeurs provisoires en attendant l'arbitrage final.
+    // ============================================================
+    const DUNGEONS_ORDER_S3 = [
+      "Abime des marins", "Bois de L'aube", "Carrière tombe-dieu",
+      "Coeur de guivre", "Creux Soyeux", "Guet Tempete",
+      "Marché d'Urrak", "Sables Empyréens", "Caveau de Lamespectre",
+      "Coeur de Tuzari", "La chute Cithrel", "Saccage de Drakheim",
+      "Ruins of Regath", "Scryer's Peak", "Xul, the Blood Monolith"
+    ];
+
+    const ACHIEVEMENTS_S3 = [
+      { id: 49, dungeon: "Marché d'Urrak", title: "Prisno break", title_en: "Prisno break", desc: "Compléter le donjon sans tuer de créatures associées à un totem (marquées par un curseur vert).", desc_en: "Complete the dungeon without killing creatures associated with a totem (marked with a green cursor).", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 50, dungeon: "Guet Tempete", title: "Sniper", title_en: "Sniper", desc: "Réussir à atteindre le boss sur le pont grâce au sort \"Ball Lightning\" des \"Stormscreamer\" sans l'aggro.", desc_en: "Manage to reach the boss on the bridge using the \"Ball Lightning\" spell from the \"Stormscreamer\" without aggroing it.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 51, dungeon: "Sables Empyréens", title: "Like a Pro I", title_en: "Like a Pro I", desc: "Vaincre Sin-Magir sans se prendre de dégâts de \"Penumbra\", \"Celestial Burst\" et \"Sinnari's Judgement\".", desc_en: "Defeat Sin-Magir without taking damage from \"Penumbra\", \"Celestial Burst\" and \"Sinnari's Judgement\".", points: 10, hard: false, personal: false, conditions: [], logRequired: true },
+      { id: 52, dungeon: "Creux Soyeux", title: "Calin mortel", title_en: "Calin mortel", desc: "Compléter le donjon sans interrompre le sort \"Kidnap\" des \"Gravesnare Kidnapper\".", desc_en: "Complete the dungeon without interrupting the \"Kidnap\" spell from the \"Gravesnare Kidnapper\".", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow'] },
+      { id: 53, dungeon: "Carrière tombe-dieu", title: "Sous les radard", title_en: "Sous les radard", desc: "Ne détruire aucun Wardstone (sauf celle du boss).", desc_en: "Do not destroy any Wardstone (except the boss's one).", points: 10, hard: false, personal: false, conditions: ['shadow', 'poulet'] },
+      { id: 54, dungeon: "Coeur de guivre", title: "Sneaky II", title_en: "Sneaky II", desc: "N'aggro aucune patrouille.", desc_en: "Do not aggro any patrol.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 55, dungeon: "Abime des marins", title: "Equipage déchu", title_en: "Equipage déchu", desc: "Pendant le même combat contre Sinthara, vaincre 1 élémentaire d'eau en Phase 1 et 1 autre en Phase 2 (après \"Siren's Song\").", desc_en: "During the same fight against Sinthara, defeat 1 water elemental in Phase 1 and another one in Phase 2 (after \"Siren's Song\").", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 56, dungeon: "Bois de L'aube", title: "Rain bow", title_en: "Rain bow", desc: "Engager le combat contre \"Malgut the Fetid\" avec 2 \"Desecrator\" à au moins 95% hp, et vaincre \"Malgut the Fetid\" alors que les 2 \"Desecrator\" sont encore en vie.", desc_en: "Engage the fight against \"Malgut the Fetid\" with 2 \"Desecrator\" at least 95% hp, and defeat \"Malgut the Fetid\" while both \"Desecrator\" are still alive.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 57, dungeon: "Caveau de Lamespectre", title: "Contre-courant", title_en: "Contre-courant", desc: "Survivre à au moins 1 phase de \"High Tide\" pendant le combat contre \"First Mate Marrow\" sans utiliser \"Anchor\".", desc_en: "Survive at least 1 \"High Tide\" phase during the fight against \"First Mate Marrow\" without using \"Anchor\".", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 58, dungeon: "Caveau de Lamespectre", title: "Mutinerie", title_en: "Mutinerie", desc: "Vaincre \"Deathless Katrine\" sans tuer la patrouille sur le pont du bateau.", desc_en: "Defeat \"Deathless Katrine\" without killing the patrol on the ship's deck.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 59, dungeon: "Caveau de Lamespectre", title: "Les dents de la mer", title_en: "Les dents de la mer", desc: "Tous les boss doivent être vaincus alors qu'au moins 1 requin est encore en vie à la fin du combat contre chaque boss.", desc_en: "Every boss must be defeated while at least 1 shark is still alive at the end of the fight against each boss.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 60, dungeon: "Saccage de Drakheim", title: "Roi de la glisse", title_en: "Roi de la glisse", desc: "Obtenir au moins 50% du score d'accomplissement en tuant des créatures sur l'île du feu de camp près de \"Chilgar the Drowned\", sans qu'aucun membre du groupe ne touche l'eau.", desc_en: "Get at least 50% of the dungeon completion score by killing creatures on the campfire island near \"Chilgar the Drowned\", without any group member touching the water.", points: 10, hard: false, personal: false, conditions: ['portal', 'dash'] },
+      { id: 61, dungeon: "Saccage de Drakheim", title: "Hot water", title_en: "Hot water", desc: "Vaincre \"Eldsupptok\" pendant le combat contre \"Chilgar the Drowned\". Les 2 créatures doivent avoir eu au moins 95% de hp en même temps.", desc_en: "Defeat \"Eldsupptok\" during the fight against \"Chilgar the Drowned\". Both creatures must have had at least 95% hp at the same time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 62, dungeon: "Saccage de Drakheim", title: "Laissez les pillers", title_en: "Laissez les pillers", desc: "Compléter le donjon sans vaincre de créature associée à un groupe de Pillager.", desc_en: "Complete the dungeon without defeating any creature associated with a group of Pillagers.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 63, dungeon: "La chute Cithrel", title: "Préserver la mémoire", title_en: "Préserver la mémoire", desc: "Compléter le donjon sans aggro de \"Sentinnel\" (sauf le pack devant Cithrel). En cas d'aggro, le groupe doit mourir entièrement (aucun feu de camp ne peut être activé pendant ce temps).", desc_en: "Complete the dungeon without aggroing any \"Sentinnel\" (except the pack in front of Cithrel). If aggroed, the whole group must die (no campfire can be activated during this time).", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 64, dungeon: "La chute Cithrel", title: "Le traitre doit mourir", title_en: "Le traitre doit mourir", desc: "Vaincre \"Noor, The Betrayer\" sans tuer de créature pendant le combat.", desc_en: "Defeat \"Noor, The Betrayer\" without killing any creature during the fight.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 65, dungeon: "La chute Cithrel", title: "Fracture", title_en: "Fracture", desc: "Vaincre \"Ancient Koros\" alors que chaque joueur ne peut soak qu'une seule fois le sort \"Calamitous Fracture\".", desc_en: "Defeat \"Ancient Koros\" while each player can only soak the \"Calamitous Fracture\" spell once.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 66, dungeon: "Coeur de Tuzari", title: "Discrétion assurée", title_en: "Discrétion assurée", desc: "Compléter le donjon sans aggro de patrouille.", desc_en: "Complete the dungeon without aggroing any patrol.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 67, dungeon: "Coeur de Tuzari", title: "Open the doors", title_en: "Open the doors", desc: "Désactiver manuellement tous les piliers. Ceux désactivés automatiquement font échouer le défi.", desc_en: "Manually disable all pillars. Any pillar disabled automatically fails the challenge.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 68, dungeon: "Coeur de Tuzari", title: "Big Pull II", title_en: "Big Pull II", desc: "Vaincre au moins 40 \"Slaughtervine\" au cours du même pull. Les 40 \"Slaughtervine\" doivent avoir au moins 95% de hp au même moment.", desc_en: "Defeat at least 40 \"Slaughtervine\" in the same pull. All 40 \"Slaughtervine\" must have at least 95% hp at the same time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 69, dungeon: "Ruins of Regath", title: "Gunde Hunger", title_en: "Gunde Hunger", desc: "Une fois le sang collecté, vous ne pouvez pas perdre le buff (vous devez en garder un) / vous ne pouvez pas mourir avant d'engager le combat contre le boss.", desc_en: "Once you've collected blood, you cannot lose the buff (you must keep one) / you cannot die until you engage the fight with the boss.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 70, dungeon: "Ruins of Regath", title: "Transfusion", title_en: "Transfusion", desc: "Tous les piliers doivent passer de 0 à 20 en moins de 30 secondes, au même moment.", desc_en: "All pillars must go from 0 to 20 in less than 30 seconds, at the same time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 71, dungeon: "Ruins of Regath", title: "Deadfull Touch", title_en: "Deadfull Touch", desc: "Chaque joueur doit toucher un totem différent avant la fin du cast (nom du sort à préciser).", desc_en: "Each player must touch a different totem before the end of the cast (spell name to be confirmed).", points: 10, hard: false, personal: false, conditions: ['portal', 'dash', 'drum'] },
+      { id: 72, dungeon: "Scryer's Peak", title: "Honey Percent", title_en: "Honey Percent", desc: "Vaincre 5 Polar Bears à 10 secondes d'intervalle.", desc_en: "Defeat 5 Polar Bears within a 10-second interval.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 73, dungeon: "Scryer's Peak", title: "Bumpi", title_en: "Bumpi", desc: "Traverser le pont (en dessous) seulement via le bump des mobs.", desc_en: "Cross the bridge (underneath) only by being bumped by mobs.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 74, dungeon: "Scryer's Peak", title: "Blood for Blood", title_en: "Blood for Blood", desc: "Le boss doit stack avant le joueur ; il ne peut pas perdre son buff une fois qu'il l'a.", desc_en: "The boss must stack before the player; he cannot lose his buff once he has it.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 75, dungeon: "Coeur de Tuzari", title: "Stacks are always good", title_en: "Stacks are always good", desc: "Obtenir un total de 70 stacks réparti entre les membres du groupe à un instant T.", desc_en: "Reach a total of 70 stacks spread across group members at a single point in time.", points: 10, hard: false, personal: false, conditions: [] },
+    ];
+
+    // Affixes : catégorie séparée, PAS liée à un donjon, PAS de bonus "+5 donjon complet"
+    const AFFIXES_S3 = [
+      { id: 76, affix: "Enforcer", title: "Les cinq doigts de la main", title_en: "Les cinq doigts de la main", desc: "Vaincre au moins 5 créatures renforcées lors d'un même pull.", desc_en: "Defeat at least 5 enforced creatures in the same pull.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 77, affix: "Foudre", title: "Static", title_en: "Static", desc: "Dès lors que la foudre apparaît, vous ne devez plus bouger.", desc_en: "Once the lightning appears, you must not move anymore.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 78, affix: "Shadow", title: "ULTIME ? Prêt !", title_en: "ULTIME ? Prêt !", desc: "Vous devez vaincre les 2 émissaires à 10 secondes d'intervalle.", desc_en: "You must defeat both emissaries within a 10-second interval.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 79, affix: "Orbs", title: "Simon", title_en: "Simon", desc: "Vaincre les orbes dans cet ordre : Rouge > Violet > Jaune > Vert > Bleu > Blanc.", desc_en: "Defeat the orbs in this order: Red > Purple > Yellow > Green > Blue > White.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 80, affix: "Gelée", title: "Gèle-les", title_en: "Froz-Them", desc: "Tous les joueurs doivent être gelés à chaque fois.", desc_en: "All players must be frozen every time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 81, affix: "Boss Boost", title: "Tyranique", title_en: "Tyranique", desc: "Compléter le donjon avec X ilvl en moins.", desc_en: "Complete the dungeon with X less ilvl.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 82, affix: "Sang", title: "Vampire", title_en: "Vampire", desc: "Dès lors que le 1er buff apparaît, vous devez avoir obtenu un score de 100% du donjon sans perdre le buff.", desc_en: "Once the 1st buff appears, you must reach a 100% dungeon score without losing the buff.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 83, affix: "Pierre", title: "Explosion en chaîne", title_en: "Explosion en chaîne", desc: "Les explosions causées par la mort d'une créature doivent toujours infliger des dégâts à d'autres créatures (sauf si la créature possède déjà ce dot).", desc_en: "Explosions caused by a creature's death must always deal damage to other creatures (unless that creature already has this dot).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 84, affix: "Enforcer", title: "Who's the boss ?", title_en: "Who's the boss ?", desc: "Vaincre 2 créatures renforcées et le boss du donjon dans un même pull.", desc_en: "Defeat 2 enforced creatures and the dungeon boss in the same pull.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 85, affix: "Foudre", title: "Voltage limité", title_en: "Voltage limité", desc: "Vous ne pouvez être lié qu'à 1 autre personne à chaque fois que la foudre frappe.", desc_en: "You can only be linked to 1 other person each time the lightning strikes.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 86, affix: "Shadow", title: "Où sont les pourcent ?!", title_en: "Où sont les pourcent ?!", desc: "Vaincre le boss sans avoir pris plus de 5 orbes. Une fois le boss vaincu, vous devez compléter le donjon sans tuer de créature (hors émissaire).", desc_en: "Defeat the boss without taking more than 5 orbs. Once the boss is defeated, complete the dungeon without killing any creature (except emissaries).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 87, affix: "Orbs", title: "Toi tu vies, toi tu vies, toi tu crèves !", title_en: "Toi tu vies, toi tu vies, toi tu crèves !", desc: "Vous ne pouvez pas avoir plus de 2 buffs associés aux orbes.", desc_en: "You cannot have more than 2 orb-related buffs at once.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 88, affix: "Gelée", title: "Les 2 font la paire", title_en: "Les 2 font la paire", desc: "Seulement 2 joueurs doivent être gelés à chaque fois.", desc_en: "Only 2 players must be frozen each time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 89, affix: "Boss Boost", title: "Diablowlic", title_en: "Diablowlic", desc: "Compléter le donjon avec X ilvl en moins.", desc_en: "Complete the dungeon with X less ilvl.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 90, affix: "Sang", title: "Hématophobie", title_en: "Hématophobie", desc: "Compléter le donjon sans avoir plus de 6 stacks (vous pouvez avoir 6 stacks).", desc_en: "Complete the dungeon without exceeding 6 stacks (having exactly 6 is allowed).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 91, affix: "Pierre", title: "D'une pierre 2 coup", title_en: "D'une pierre 2 coup", desc: "Vaincre le boss du donjon avec une explosion causée par la mort d'un mob.", desc_en: "Defeat the dungeon boss with an explosion caused by a mob's death.", points: 10, hard: false, personal: false, conditions: [], logRequired: true },
+      { id: 92, affix: "Eira", title: "Boule de neige", title_en: "Boule de neige", desc: "Vaincre Eira sans interrompre \"Winter Bolt\".", desc_en: "Defeat Eira without interrupting \"Winter Bolt\".", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 93, affix: "Ghorn", title: "Sans mort-teau", title_en: "No Harm-mer", desc: "Compléter le donjon en ayant vaincu Ghorn et fait en sorte qu'il n'inflige pas de dégâts au boss.", desc_en: "Complete the dungeon having defeated Ghorn while making sure he never deals damage to the boss.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 94, affix: "Meteor", title: "Like a Pro II", title_en: "Like a Pro II", desc: "Compléter le donjon sans qu'aucun membre du groupe ne se prenne de dégâts des météorites.", desc_en: "Complete the dungeon without any group member taking meteor damage.", points: 10, hard: false, personal: false, conditions: [], logRequired: true },
+      { id: 95, affix: "Meteor", title: "As a Team", title_en: "As a Team", desc: "Tous les joueurs doivent se prendre les dégâts d'une même météorite pendant le combat contre le boss (la zone d'impact ne compte pas).", desc_en: "All players must take damage from the same meteor during the boss fight (the impact zone doesn't count).", points: 10, hard: false, personal: false, conditions: [] },
+    ];
+
+    const AFFIXES_ORDER_S3 = ["Enforcer", "Foudre", "Shadow", "Orbs", "Gelée", "Boss Boost", "Sang", "Pierre", "Eira", "Ghorn", "Meteor"];
+
+    // ============================================================
+    // SÉLECTEUR DE SAISON ACTIVE
+    // ============================================================
+    // 'S2' | 'S3' | 'TOTAL'
+    function getSeasonFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const s = params.get('saison');
+      if (s === '2') return 'S2';
+      if (s === '3') return 'S3';
+      if (s === 'total') return 'TOTAL';
+      return 'S3'; // saison active par défaut
+    }
+
+    let currentSeason = getSeasonFromUrl();
+
+    // Renvoie les structures de données actives pour la saison sélectionnée
+    // - achievements/dungeonsOrder : pour le rendu groupé par donjon (bonus +5 inclus)
+    // - affixes/affixesOrder       : pour le rendu de la catégorie "Affixes" à part (pas de bonus +5)
+    // - allScorable                : achievements + affixes confondus, pour le calcul des points (base score)
+    // Marque chaque HF d'un tableau avec sa saison d'origine (utilisé en mode TOTAL
+    // pour afficher un badge "S2"/"S3" sur chaque ligne). Ne mute pas les tableaux sources.
+    function tagSeason(list, season) {
+      return list.map(a => ({ ...a, _season: season }));
+    }
+
+    function getSeasonData(season) {
+      if (season === 'S2') {
+        return { achievements: ACHIEVEMENTS_S2, dungeonsOrder: DUNGEONS_ORDER_S2, affixes: [], affixesOrder: [], allScorable: ACHIEVEMENTS_S2 };
+      }
+      if (season === 'S3') {
+        // Tant que la Saison 3 n'est pas officiellement lancée (SEASON_3_LIVE = false),
+        // aucun HF n'est exposé : la page affichera le message de teasing à la place du
+        // tableau/leaderboard (voir renderLeaderboard / renderAchievements).
+        if (!SEASON_3_LIVE) {
+          return { achievements: [], dungeonsOrder: [], affixes: [], affixesOrder: [], allScorable: [] };
+        }
+        return { achievements: ACHIEVEMENTS_S3, dungeonsOrder: DUNGEONS_ORDER_S3, affixes: AFFIXES_S3, affixesOrder: AFFIXES_ORDER_S3, allScorable: [...ACHIEVEMENTS_S3, ...AFFIXES_S3] };
+      }
+      // TOTAL : tant que la Saison 3 n'est pas lancée, le total équivaut exactement à la Saison 2
+      // (aucune trace de S3 dans le calcul ni dans l'affichage).
+      if (!SEASON_3_LIVE) {
+        return { achievements: ACHIEVEMENTS_S2, dungeonsOrder: DUNGEONS_ORDER_S2, affixes: [], affixesOrder: [], allScorable: ACHIEVEMENTS_S2 };
+      }
+      // Union complète, donjons dédupliqués en conservant l'ordre S2 puis les nouveaux de S3
+      const mergedDungeons = [...DUNGEONS_ORDER_S2];
+      DUNGEONS_ORDER_S3.forEach(d => { if (!mergedDungeons.includes(d)) mergedDungeons.push(d); });
+      const taggedS2 = tagSeason(ACHIEVEMENTS_S2, 'S2');
+      const taggedS3 = tagSeason(ACHIEVEMENTS_S3, 'S3');
+      const taggedAffixes = tagSeason(AFFIXES_S3, 'S3');
+      return {
+        achievements: [...taggedS2, ...taggedS3],
+        dungeonsOrder: mergedDungeons,
+        affixes: taggedAffixes,
+        affixesOrder: AFFIXES_ORDER_S3,
+        allScorable: [...ACHIEVEMENTS_S2, ...ACHIEVEMENTS_S3, ...AFFIXES_S3]
+      };
+    }
+
+    // Variante de getSeasonData qui IGNORE le flag SEASON_3_LIVE : toujours les vraies
+    // données complètes, même si la Saison 3 n'est pas encore publiée aux joueurs.
+    // Réservée au panel admin, pour pouvoir préparer/cocher des HF S3 en coulisses
+    // avant le lancement officiel, sans que ça apparaisse côté joueurs.
+    function getSeasonDataRaw(season) {
+      if (season === 'S2') {
+        return { achievements: ACHIEVEMENTS_S2, dungeonsOrder: DUNGEONS_ORDER_S2, affixes: [], affixesOrder: [], allScorable: ACHIEVEMENTS_S2 };
+      }
+      if (season === 'S3') {
+        return { achievements: ACHIEVEMENTS_S3, dungeonsOrder: DUNGEONS_ORDER_S3, affixes: AFFIXES_S3, affixesOrder: AFFIXES_ORDER_S3, allScorable: [...ACHIEVEMENTS_S3, ...AFFIXES_S3] };
+      }
+      const mergedDungeons = [...DUNGEONS_ORDER_S2];
+      DUNGEONS_ORDER_S3.forEach(d => { if (!mergedDungeons.includes(d)) mergedDungeons.push(d); });
+      return {
+        achievements: [...ACHIEVEMENTS_S2, ...ACHIEVEMENTS_S3],
+        dungeonsOrder: mergedDungeons,
+        affixes: AFFIXES_S3,
+        affixesOrder: AFFIXES_ORDER_S3,
+        allScorable: [...ACHIEVEMENTS_S2, ...ACHIEVEMENTS_S3, ...AFFIXES_S3]
+      };
+    }
+
+    // Change la saison active : met à jour l'URL (sans reload), la nav, et re-render
+    // la page actuellement visible. Aucun nouveau fetch Supabase n'est déclenché ici —
+    // players/player_achievements sont déjà chargés une fois et restent en mémoire (lbData);
+    // seul le recalcul des scores et le re-render changent.
+    function setSeason(season, btn) {
+      currentSeason = season;
+      const url = new URL(window.location.href);
+      url.searchParams.set('saison', season === 'S2' ? '2' : season === 'S3' ? '3' : 'total');
+      history.replaceState(null, '', url);
+
+      document.querySelectorAll('.season-tab').forEach(b => b.classList.remove('active'));
+      (btn || document.getElementById('season-tab-' + season)).classList.add('active');
+      applyLangToStaticElements();
+
+      // Recalcule le leaderboard avec les nouvelles données scorables, puis re-render la page visible
+      if (rawPlayers && rawCompletions) {
+        lbData = computeScores(rawPlayers, rawCompletions);
+      }
+      if (document.getElementById('page-leaderboard').classList.contains('active') && lbData) {
+        renderLeaderboard(lbData);
+      }
+      if (document.getElementById('page-achievements').classList.contains('active')) {
+        renderAchievements();
+      }
+    }
+
+    function initSeasonNav() {
+      document.querySelectorAll('.season-tab').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('season-tab-' + currentSeason);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
 
     // ---- UTILS ----
     function toast(msg, isError = false) {
@@ -1402,15 +2084,6 @@
       el.className = 'toast show' + (isError ? ' error' : '');
       clearTimeout(el._timer);
       el._timer = setTimeout(() => el.className = 'toast', 3000);
-    }
-
-    function showPage(id, btn) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.getElementById('page-' + id).classList.add('active');
-      btn.classList.add('active');
-      if (id === 'leaderboard') loadLeaderboard();
-      if (id === 'achievements') renderAchievements();
     }
 
     // ---- SUPABASE FETCH ----
@@ -1439,6 +2112,8 @@
     // ---- SCORE CALCULATION (côté client) ----
     function computeScores(players, completions) {
       // completions: [{player_id, achievement_id}]
+      const { allScorable, dungeonsOrder } = getSeasonData(currentSeason);
+      const scorableIds = new Set(allScorable.map(a => a.id));
       const byPlayer = {};
       players.forEach(p => byPlayer[p.id] = new Set());
       completions.forEach(c => {
@@ -1449,22 +2124,27 @@
         const done = byPlayer[p.id];
         let base = 0;
         done.forEach(aid => {
-          const a = ACHIEVEMENTS.find(x => x.id === aid);
+          const a = allScorable.find(x => x.id === aid);
           if (a) base += a.points;
         });
-        // Bonus par donjon
+        // Bonus par donjon (les affixes n'ont jamais de bonus +5, ils ne sont pas dans dungeonsOrder)
         let bonus = 0;
-        DUNGEONS_ORDER.forEach(d => {
-          const dungeonHFs = ACHIEVEMENTS.filter(a => a.dungeon === d);
-          if (dungeonHFs.every(a => done.has(a.id))) bonus += 5;
+        dungeonsOrder.forEach(d => {
+          const dungeonHFs = allScorable.filter(a => a.dungeon === d);
+          if (dungeonHFs.length && dungeonHFs.every(a => done.has(a.id))) bonus += 5;
         });
+        // hf_count : uniquement les HF complétés qui appartiennent à la saison/vue active
+        // (done peut contenir des achievement_id d'autres saisons, car player_achievements est global)
+        let hfCount = 0;
+        done.forEach(aid => { if (scorableIds.has(aid)) hfCount++; });
         return {
           id: p.id,
           name: p.name,
           base,
           bonus,
           total: base + bonus,
-          hf_count: done.size,
+          hf_count: hfCount,
+          hf_total: allScorable.length,
           done
         };
       }).sort((a, b) => b.total - a.total);
@@ -1472,10 +2152,19 @@
 
     // ---- LEADERBOARD ----
     let lbData = null;
+    let rawPlayers = null;
+    let rawCompletions = null;
 
     async function loadLeaderboard() {
       if (SUPABASE_URL === 'REMPLACE_PAR_TON_URL') {
         document.getElementById('lb-content').innerHTML = '<div class="loading">Configure ton URL Supabase dans le fichier HTML pour voir les données en direct.</div>';
+        return;
+      }
+      // players/player_achievements sont globaux (cross-saison) — on ne les re-fetch
+      // qu'une seule fois par chargement de page, peu importe le nombre de bascules de saison.
+      if (rawPlayers && rawCompletions) {
+        lbData = computeScores(rawPlayers, rawCompletions);
+        renderLeaderboard(lbData);
         return;
       }
       document.getElementById('lb-content').innerHTML = '<div class="loading">Chargement...</div>';
@@ -1484,6 +2173,8 @@
           sbFetch('/rest/v1/players?select=id,name&order=name'),
           sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id')
         ]);
+        rawPlayers = players;
+        rawCompletions = completions;
         lbData = computeScores(players, completions);
         await loadBadges();
         renderLeaderboard(lbData);
@@ -1492,18 +2183,77 @@
       }
     }
 
+    // Déplie/replie toutes les sections donjon/affixe d'un détail joueur en une fois
+    function toggleAllDungeonSections(detailId, open) {
+      const root = document.getElementById(detailId);
+      if (!root) return;
+      root.querySelectorAll('.dungeon-section').forEach(sec => {
+        sec.classList.toggle('open', open);
+      });
+    }
+
+    // ---- LEADERBOARD SEARCH & PAGINATION ----
+    let lbSearchQuery = '';
+    let lbCurrentPage = 1;
+    const LB_PAGE_SIZE = 20;
+
+    function onLbSearchInput(value) {
+      lbSearchQuery = value;
+      lbCurrentPage = 1; // toute nouvelle recherche repart à la page 1 des résultats filtrés
+      document.getElementById('lb-search-clear').style.display = value ? 'block' : 'none';
+      if (lbData) renderLeaderboard(lbData);
+    }
+
+    function clearLbSearch() {
+      lbSearchQuery = '';
+      lbCurrentPage = 1;
+      document.getElementById('lb-search-input').value = '';
+      document.getElementById('lb-search-clear').style.display = 'none';
+      if (lbData) renderLeaderboard(lbData);
+    }
+
+    function goToLbPage(page) {
+      lbCurrentPage = page;
+      if (lbData) renderLeaderboard(lbData);
+      document.getElementById('lb-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Message affiché à la place du leaderboard / de la liste de HF tant que la
+    // Saison 3 n'a pas été officiellement lancée (SEASON_3_LIVE = false).
+    function renderSeasonTeaser() {
+      return `<div class="season-teaser">
+    <div class="season-teaser-icon">✦</div>
+    <div class="season-teaser-title">${t('teaser.title')}</div>
+    <div class="season-teaser-desc">${t('teaser.desc')}</div>
+  </div>`;
+    }
+
     function renderLeaderboard(scores) {
+      // Saison 3 pas encore lancée : on affiche un message de teasing à la place
+      // du tableau, et on masque la barre de recherche (qui n'a pas de sens ici).
+      if (currentSeason === 'S3' && !SEASON_3_LIVE) {
+        document.getElementById('lb-search-bar').style.display = 'none';
+        document.getElementById('lb-content').innerHTML = renderSeasonTeaser();
+        return;
+      }
+      document.getElementById('lb-search-bar').style.display = 'flex';
+
       const rankIcons = ['I', 'II', 'III'];
-      let html = `<div class="lb-header">
+      const hideBonus = currentSeason === 'TOTAL';
+      const noBonusClass = hideBonus ? ' no-bonus-col' : '';
+      let html = `<div class="lb-header${noBonusClass}">
     <div></div>
     <div>${t('lb.col.player')}</div>
     <div class="col-base" style="text-align:right">${t('lb.col.base')}</div>
-    <div class="col-bonus" style="text-align:right">${t('lb.col.bonus')}</div>
+    ${hideBonus ? '' : `<div class="col-bonus" style="text-align:right">${t('lb.col.bonus')}</div>`}
     <div class="col-hf" style="text-align:right">${t('lb.col.hf')}</div>
     <div style="text-align:right">${t('lb.col.total')}</div>
   </div>`;
 
       // Rang dense : 1,1,1,2,3,4,4,4... (saute les 0 pts)
+      // IMPORTANT : calculé sur la liste COMPLÈTE et déjà triée, avant tout filtrage/pagination,
+      // pour que le rang affiché reste le vrai rang dans le classement global (ex: 21, 22 page 2),
+      // peu importe la recherche ou la page actuelle.
       let nextRank = 1;
       scores.forEach((s, i) => {
         if (s.total === 0) {
@@ -1516,7 +2266,25 @@
         }
       });
 
-      scores.forEach((s, i) => {
+      // Filtrage par nom (insensible à la casse/accents), sur la liste déjà rangée
+      const normalize = (str) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const query = normalize(lbSearchQuery.trim());
+      const filtered = query ? scores.filter(s => normalize(s.name).includes(query)) : scores;
+
+      // Pagination du résultat filtré
+      const totalPages = Math.max(1, Math.ceil(filtered.length / LB_PAGE_SIZE));
+      if (lbCurrentPage > totalPages) lbCurrentPage = totalPages;
+      if (lbCurrentPage < 1) lbCurrentPage = 1;
+      const pageStart = (lbCurrentPage - 1) * LB_PAGE_SIZE;
+      const pageItems = filtered.slice(pageStart, pageStart + LB_PAGE_SIZE);
+
+      if (!filtered.length) {
+        html += `<div class="lb-no-results">${t('lb.search.no_results')}</div>`;
+        document.getElementById('lb-content').innerHTML = html;
+        return;
+      }
+
+      pageItems.forEach((s, i) => {
         const rank = s._rank;
         // Style visuel : on colore les 3 premières positions distinctes
         const topRanks = [...new Set(scores.filter(x => x.total > 0).map(x => x._rank))].slice(0, 3);
@@ -1532,14 +2300,26 @@
           rankLabel = `<span style="font-size:12px">${rank}</span>`;
         }
 
-        let detailHtml = '<div class="lb-detail"><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">';
-        DUNGEONS_ORDER.forEach(d => {
-          const dHFs = ACHIEVEMENTS.filter(a => a.dungeon === d);
+        const { achievements: seasonAchievements, dungeonsOrder: seasonDungeonsOrder, affixes: seasonAffixes, affixesOrder: seasonAffixesOrder } = getSeasonData(currentSeason);
+        const showSeasonBadge = currentSeason === 'TOTAL';
+        const seasonBadgeHtml = (a) => showSeasonBadge && a._season
+          ? `<span class="season-badge ${a._season.toLowerCase()}">${a._season}</span>` : '';
+
+        const detailId = `lb-detail-${s.id}`;
+        let detailHtml = `<div class="lb-detail" id="${detailId}">
+      <div class="lb-detail-toolbar">
+        <button onclick="event.stopPropagation(); toggleAllDungeonSections('${detailId}', true)">${t('lb.detail.expand_all')}</button>
+        <button onclick="event.stopPropagation(); toggleAllDungeonSections('${detailId}', false)">${t('lb.detail.collapse_all')}</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">`;
+        seasonDungeonsOrder.forEach(d => {
+          const dHFs = seasonAchievements.filter(a => a.dungeon === d);
+          if (!dHFs.length) return; // donjon sans HF dans cette saison (ex: nouveaux donjons S3 absents de S2)
           const dDone = dHFs.filter(a => s.done.has(a.id)).length;
           const complete = dDone === dHFs.length;
           detailHtml += `<div class="dungeon-section">
-        <div class="dp-header">
-          <span class="dp-name">${t(d)}</span>
+        <div class="dp-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+          <span class="dp-header-left"><span class="dp-chevron">▸</span><span class="dp-name">${t(d)}</span></span>
           <span class="dp-count ${complete ? 'complete' : ''}">${dDone}/${dHFs.length}${complete ? ' · +5pts' : ''}</span>
         </div>
         <div class="hf-list">`;
@@ -1548,6 +2328,7 @@
             const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
             detailHtml += `<div class="hf-item ${done ? 'done' : ''}">
           <div class="hf-check-icon">${done ? '✓' : ''}</div>
+          ${seasonBadgeHtml(a)}
           <span class="hf-item-name">${title}</span>
           <div class="hf-item-badges">${renderBadges(a)}</div>
           <span class="hf-item-pts">${done ? '+' + a.points : a.points} pts</span>
@@ -1555,20 +2336,85 @@
           });
           detailHtml += '</div></div>';
         });
-        detailHtml += '</div></div>';
+        detailHtml += '</div>';
 
-        html += `<div class="lb-row ${rankClass}" onclick="this.classList.toggle('open')">
+        // Section Affixes (catégorie à part, pas de bonus +5)
+        if (seasonAffixes.length) {
+          detailHtml += `<div class="dungeon-section" style="margin-top:14px">
+        <div class="dp-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+          <span class="dp-header-left"><span class="dp-chevron">▸</span><span class="dp-name">${t('affixes.section')}</span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">`;
+          seasonAffixesOrder.forEach(aff => {
+            const affHFs = seasonAffixes.filter(a => a.affix === aff);
+            if (!affHFs.length) return;
+            detailHtml += `<div class="hf-list" style="margin-bottom:10px">
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;font-style:italic">${aff}</div>`;
+            affHFs.forEach(a => {
+              const done = s.done.has(a.id);
+              const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
+              detailHtml += `<div class="hf-item ${done ? 'done' : ''}">
+          <div class="hf-check-icon">${done ? '✓' : ''}</div>
+          ${seasonBadgeHtml(a)}
+          <span class="hf-item-name">${title}</span>
+          <div class="hf-item-badges">${renderBadges(a)}</div>
+          <span class="hf-item-pts">${done ? '+' + a.points : a.points} pts</span>
+        </div>`;
+            });
+            detailHtml += '</div>';
+          });
+          detailHtml += '</div></div>';
+        }
+        detailHtml += '</div>';
+
+        html += `<div class="lb-row ${rankClass}${noBonusClass}" onclick="this.classList.toggle('open')">
       <div class="rank-num">${rankLabel}</div>
       <div class="player-name" onclick="event.stopPropagation(); openProfile(${s.id}, '${s.name.replace(/'/g, "\\'")})" style="cursor:pointer">${s.name}${renderBadgesInline(s.id)}</div>
       <div class="score-base col-base">${s.base}</div>
-      <div class="score-bonus col-bonus">${s.bonus > 0 ? '+' + s.bonus : '—'}</div>
-      <div class="hf-count col-hf">${s.hf_count}</div>
+      ${hideBonus ? '' : `<div class="score-bonus col-bonus">${s.bonus > 0 ? '+' + s.bonus : '—'}</div>`}
+      <div class="hf-count col-hf">${s.hf_count}/${s.hf_total}</div>
       <div class="score-total">${s.total}</div>
       ${detailHtml}
     </div>`;
       });
 
+      html += renderLbPagination(filtered.length, totalPages, lbCurrentPage);
+
       document.getElementById('lb-content').innerHTML = html;
+    }
+
+    // Génère les contrôles de pagination avec ellipses (1 … 4 5 [6] 7 8 … 12)
+    function renderLbPagination(totalItems, totalPages, currentPage) {
+      if (totalPages <= 1) {
+        return `<div class="lb-pagination-info">${t('lb.pagination.total').replace('{count}', totalItems)}</div>`;
+      }
+
+      const pages = [];
+      const windowSize = 1; // pages voisines affichées autour de la page courante
+      for (let p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= windowSize) {
+          pages.push(p);
+        } else if (pages[pages.length - 1] !== '…') {
+          pages.push('…');
+        }
+      }
+
+      let html = '<div class="lb-pagination">';
+      html += `<button class="lb-page-btn" onclick="goToLbPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} aria-label="${t('lb.pagination.prev')}">‹</button>`;
+      pages.forEach(p => {
+        if (p === '…') {
+          html += '<span class="lb-page-ellipsis">…</span>';
+        } else {
+          html += `<button class="lb-page-btn ${p === currentPage ? 'active' : ''}" onclick="goToLbPage(${p})">${p}</button>`;
+        }
+      });
+      html += `<button class="lb-page-btn" onclick="goToLbPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} aria-label="${t('lb.pagination.next')}">›</button>`;
+      html += '</div>';
+      html += `<div class="lb-pagination-info">${t('lb.pagination.range')
+        .replace('{from}', String((currentPage - 1) * LB_PAGE_SIZE + 1))
+        .replace('{to}', String(Math.min(currentPage * LB_PAGE_SIZE, totalItems)))
+        .replace('{total}', String(totalItems))}</div>`;
+      return html;
     }
 
     // ---- ACHIEVEMENTS LIST ----
@@ -1585,12 +2431,26 @@
       "Marché d'Urrak": "images/marche-durrak.jpg",
       "Sables Empyréens": "images/sables-empyreens.jpg",
       "Saccage de Drakheim": "images/saccage-de-drakheim.jpg",
+      // Nouveaux donjons Saison 3 — images à fournir (chemins en attente, le bloc s'affiche
+      // sans fond si le fichier n'existe pas encore, pas d'erreur bloquante)
+      "Ruins of Regath": "images/ruins-of-regath.jpg",
+      "Scryer's Peak": "images/scryers-peak.jpg",
+      "Xul, the Blood Monolith": "images/xul-blood-monolith.jpg",
+      // Bannière dédiée à la catégorie Affixes (optionnelle)
+      "__affixes__": "images/affixes.jpg",
     };
 
     function renderAchievements() {
+      // Saison 3 pas encore lancée : message de teasing à la place de la liste de HF.
+      if (currentSeason === 'S3' && !SEASON_3_LIVE) {
+        document.getElementById('ach-content').innerHTML = renderSeasonTeaser();
+        return;
+      }
+      const { achievements: seasonAchievements, dungeonsOrder: seasonDungeonsOrder, affixes: seasonAffixes, affixesOrder: seasonAffixesOrder } = getSeasonData(currentSeason);
       let html = '';
-      DUNGEONS_ORDER.forEach(d => {
-        const hfs = ACHIEVEMENTS.filter(a => a.dungeon === d);
+      seasonDungeonsOrder.forEach(d => {
+        const hfs = seasonAchievements.filter(a => a.dungeon === d);
+        if (!hfs.length) return; // donjon sans HF dans cette saison
         const maxPts = hfs.reduce((s, a) => s + a.points, 0) + 5;
         const imgPath = DUNGEON_IMAGES[d] || '';
         const bgStyle = imgPath ? `background-image: url('${imgPath}');` : '';
@@ -1600,7 +2460,7 @@
         <div class="dungeon-title">${t(d)} <span class="bonus-tag">${t('hf.bonus_tag')}</span> <span style="margin-left:auto;font-size:14px;color:var(--text-dim)">${maxPts} ${t('hf.pts_max')}</span></div>
         <div class="hf-grid">`;
         hfs.forEach(a => {
-          const title = (currentLang === 'en' && TRANSLATIONS[a.title]?.en) ? TRANSLATIONS[a.title].en : a.title;
+          const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
           html += `<div class="hf-card" onclick="this.classList.toggle('open')">
         <div class="hf-card-header">
           <span class="hf-card-title">${title}</span>
@@ -1611,6 +2471,35 @@
         });
         html += `</div></div></div>`;
       });
+
+      // CATÉGORIE AFFIXES (pas liée à un donjon, pas de bonus +5)
+      if (seasonAffixes.length) {
+        const affixImgPath = DUNGEON_IMAGES['__affixes__'] || '';
+        const affixBgStyle = affixImgPath ? `background-image: url('${affixImgPath}');` : '';
+        html += `<div class="dungeon-block">
+      <div class="dungeon-bg" style="${affixBgStyle}"></div>
+      <div class="dungeon-inner">
+        <div class="dungeon-title">${t('affixes.section')}</div>`;
+        seasonAffixesOrder.forEach(aff => {
+          const affHFs = seasonAffixes.filter(a => a.affix === aff);
+          if (!affHFs.length) return;
+          html += `<div style="margin:10px 0 6px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);font-family:'Cinzel',serif">${aff}</div>
+        <div class="hf-grid">`;
+          affHFs.forEach(a => {
+            const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
+            html += `<div class="hf-card" onclick="this.classList.toggle('open')">
+        <div class="hf-card-header">
+          <span class="hf-card-title">${title}</span>
+          <div class="hf-badges">${renderBadges(a)}</div>
+        </div>
+        <div class="hf-card-desc">${currentLang === 'en' && a.desc_en ? a.desc_en : a.desc}</div>
+      </div>`;
+          });
+          html += `</div>`;
+        });
+        html += `</div></div>`;
+      }
+
       // HF SECRET
       html += `<div class="secret-section">
     <div class="secret-title">${t('secret.section')}</div>
@@ -1675,9 +2564,11 @@
     }
 
     function renderAdminHFs() {
+      const { achievements: seasonAchievements, dungeonsOrder: seasonDungeonsOrder, affixes: seasonAffixes, affixesOrder: seasonAffixesOrder } = getSeasonDataRaw(currentSeason);
       let html = '';
-      DUNGEONS_ORDER.forEach(d => {
-        const hfs = ACHIEVEMENTS.filter(a => a.dungeon === d);
+      seasonDungeonsOrder.forEach(d => {
+        const hfs = seasonAchievements.filter(a => a.dungeon === d);
+        if (!hfs.length) return;
         html += `<div class="admin-dungeon">
       <div class="admin-dungeon-title">${d}</div>`;
         hfs.forEach(a => {
@@ -1692,6 +2583,25 @@
         });
         html += '</div>';
       });
+      if (seasonAffixes.length) {
+        seasonAffixesOrder.forEach(aff => {
+          const affHFs = seasonAffixes.filter(a => a.affix === aff);
+          if (!affHFs.length) return;
+          html += `<div class="admin-dungeon">
+      <div class="admin-dungeon-title">Affixe — ${aff}</div>`;
+          affHFs.forEach(a => {
+            const checked = adminCurrentDone.has(a.id);
+            html += `<div class="admin-hf-row">
+        <div class="admin-hf-check ${checked ? 'checked' : ''}" onclick="toggleHF(${a.id}, this)"></div>
+        <div class="admin-hf-info">
+          <div class="admin-hf-name">${a.title} ${a.hard ? '⭐' : ''} ${a.personal ? '👤' : ''}</div>
+          <div class="admin-hf-meta">${a.points} pts</div>
+        </div>
+      </div>`;
+          });
+          html += '</div>';
+        });
+      }
       document.getElementById('admin-hf-list').innerHTML = html;
     }
 
@@ -1730,14 +2640,16 @@
     }
 
     // ---- BADGES ----
-    // Images dans images/badges/hard.png, solo.png, group.png
-    // Images conditions dans images/conditions/portal.png, dispell.png, dice.png, res.png, shadow.png, drum.png, poulet.png
+    // Images dans images/badges/hard.png, solo.png, group.png, log.png
+    // Images conditions dans images/conditions/portal.png, dispell.png, dice.png, res.png, shadow.png, drum.png, poulet.png, dash.png
     function renderBadges(a) {
       let html = '';
       if (a.hard)
         html += `<span class="badge" title="${t('badge.hard')}"><img src="images/badges/hard.png" alt="${t('badge.hard')}"></span>`;
       if (a.personal)
         html += `<span class="badge" title="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
+      if (a.logRequired)
+        html += `<span class="badge" title="${t('badge.log')}"><img src="images/badges/log.png" alt="${t('badge.log')}"></span>`;
       (a.conditions || []).forEach(c =>
         html += `<span class="badge" title="${t('cond.' + c)}"><img src="images/conditions/${c}.png" alt="${c}"></span>`
       );
@@ -1748,10 +2660,9 @@
     // ---- TRADUCTIONS ----
     // Remplis les valeurs EN ci-dessous. Les FR sont les textes par défaut.
     const TRANSLATIONS = {
-      'nav.help': { fr: 'Aide ?', en: 'Help ?' },
-      'header.event-title': { fr: 'Gloire à la Compagnie I', en: 'Glory to the Fellowship I' },
+      'nav.join': { fr: 'Rejoindre', en: 'Join' },
+      'header.event-title': { fr: 'Gloire à la Compagnie', en: 'Glory to the Fellowship' },
       'nav.joiningform': { fr: 'Rejoindre l\'événement', en: 'Join the event' },
-      'nav.feedbackform': { fr: 'Donner votre avis', en: 'Provide feedback' },
       'nav.leaderboard': { fr: 'Classement', en: 'Leaderboard' },
       'nav.achievements': { fr: 'Hauts-faits', en: 'Achievements' },
       'nav.rules': { fr: 'Règles', en: 'Rules' },
@@ -1768,21 +2679,29 @@
       'rules.valid.1': { fr: "Pas de logs obligatoires pendant la complétion. Jouez le jeu honnêtement, c'est tout ce qu'on demande.", en: "No logs required during completion. Play honestly. That's all we ask." },
       'rules.valid.2': { fr: "Les hauts-faits sont liés au compte. Pour les valider, envoyez un MP à Pouf ou postez un message sur le Discord avec le nom des challenges accomplis. Le score sera mis à jour en conséquence.", en: 'Achievement are bind to account. To validate them, send a DM to Pouf or post a message on Discord with the completed challenge names. The score will be updated accordingly.' },
       'rules.dungeon.1': { fr: 'Les donjons sont à faire uniquement entre Eternal 5 & Eternal 9.', en: 'Dungeons must be completed between Eternal 5 & Eternal 9 only.' },
-      'header.subtitle': { fr: 'Event Pre-saison 2 · Classement en direct', en: 'Pre Season 2 Event · Live rankings' },
+      'header.subtitle': { fr: 'Complétez un maximum de hauts-faits de donjons', en: 'Complete as many dungeon achievements as possible' },
       'header.organiser': { fr: 'Organisé par Pouf', en: 'Hosted by Pouf' },
       'lb.col.player': { fr: 'Joueur', en: 'Player' },
       'lb.col.base': { fr: 'Base', en: 'Base' },
-      'lb.col.bonus': { fr: 'Bonus', en: 'Bonus' },
+      'lb.col.bonus': { fr: 'Bonus Saison', en: 'Season Bonus' },
       'lb.col.hf': { fr: 'HF', en: 'Ach.' },
       'lb.col.total': { fr: 'Total', en: 'Total' },
+      'lb.search.placeholder': { fr: 'Rechercher un joueur…', en: 'Search a player…' },
+      'lb.search.no_results': { fr: 'Aucun joueur trouvé.', en: 'No player found.' },
+      'lb.pagination.prev': { fr: 'Page précédente', en: 'Previous page' },
+      'lb.pagination.next': { fr: 'Page suivante', en: 'Next page' },
+      'lb.pagination.range': { fr: '{from}–{to} sur {total} joueurs', en: '{from}–{to} of {total} players' },
+      'lb.pagination.total': { fr: '{count} joueurs', en: '{count} players' },
       'hf.bonus_tag': { fr: '+5 pts si complet', en: '+5 pts if complete' },
       'hf.pts_max': { fr: 'pts max', en: 'pts max' },
       'secret.section': { fr: '✦ Haut-fait secret ✦', en: '✦ Secret Achievement ✦' },
       'secret.title': { fr: '— ? —', en: '— ? —' },
       'secret.desc': { fr: "Sous des coques immobiles, ils prennent jusqu'à sombrer sous son poids.", en: 'Beneath motionless hulls, they take until they sink under its weight.' },
       'secret.coming': { fr: "Sous des coques immobiles, ils prennent jusqu'à sombrer sous son poids.", en: 'Beneath motionless hulls, they take until they sink under its weight.' },
+      'secret.close': { fr: 'Fermer', en: 'Close' },
       'badge.hard': { fr: 'Difficile', en: 'Hard' },
       'badge.solo': { fr: 'Solo', en: 'Solo' },
+      'badge.log': { fr: 'Preuve (log/replay) requise', en: 'Proof (log/replay) required' },
       'badge.group': { fr: 'Groupe', en: 'Group' },
       'cond.portal': { fr: 'Portail interdit', en: 'Portal forbidden' },
       'cond.dispell': { fr: 'Dispell interdit', en: 'Dispell forbidden' },
@@ -1791,6 +2710,18 @@
       'cond.shadow': { fr: 'Ombre interdite', en: 'Shadow forbidden' },
       'cond.drum': { fr: 'Tambour interdit', en: 'Drum forbidden' },
       'cond.poulet': { fr: 'Poulet interdit', en: 'Chicken forbidden' },
+      'cond.dash': { fr: 'Dash interdit', en: 'Dash forbidden' },
+      'affixes.section': { fr: 'Affixes', en: 'Affixes' },
+      'lb.detail.expand_all': { fr: 'Tout déplier', en: 'Expand all' },
+      'lb.detail.collapse_all': { fr: 'Tout replier', en: 'Collapse all' },
+      'season.s2': { fr: 'Pre-Saison 2', en: 'Pre-Season 2' },
+      'season.s3': { fr: 'Pre-Saison 3', en: 'Pre-Season 3' },
+      'season.total': { fr: 'Total', en: 'Total' },
+      'season.status.past': { fr: 'Passé', en: 'Past' },
+      'season.status.ongoing': { fr: 'En cours', en: 'Ongoing' },
+      'season.status.coming': { fr: 'Coming Soon', en: 'Coming Soon' },
+      'teaser.title': { fr: 'La Pre-Saison 3 arrive bientôt', en: 'Pre-Season 3 is coming soon' },
+      'teaser.desc': { fr: "Les hauts-faits de cette nouvelle saison sont en cours de préparation. Annonce officielle très prochainement — restez à l'écoute sur Twitch et Discord !", en: 'This new season\'s achievements are currently being prepared. Official announcement coming very soon — stay tuned on Twitch and Discord!' },
       // Noms de donjons
       "Abime des marins": { fr: "Abime des marins", en: "Sailor's Abyss" },
       "Bois de L'aube": { fr: "Bois de L'aube", en: "Everdawn Grove" },
@@ -1804,6 +2735,10 @@
       "Marché d'Urrak": { fr: "Marché d'Urrak", en: "Urrak Market" },
       "Sables Empyréens": { fr: "Sables Empyréens", en: "Empyrean Sands" },
       "Saccage de Drakheim": { fr: "Saccage de Drakheim", en: "Ransack of Drakheim" },
+      // Nouveaux donjons Saison 3
+      "Ruins of Regath": { fr: "Ruins of Regath", en: "Ruins of Regath" },
+      "Scryer's Peak": { fr: "Scryer's Peak", en: "Scryer's Peak" },
+      "Xul, the Blood Monolith": { fr: "Xul, the Blood Monolith", en: "Xul, the Blood Monolith" },
       // Titres des HF — ajoute ici tes traductions EN au fur et à mesure
       // Exemple : "Surfeur dans l'âme": { fr: "Surfeur dans l'âme", en: "Soul Surfer" },
       "Surfeur dans l'âme": { fr: "Surfeur dans l'âme", en: "Surfer at Heart" },
@@ -1870,12 +2805,18 @@
       document.getElementById('tab-leaderboard').textContent = t('nav.leaderboard');
       document.getElementById('tab-achievements').textContent = t('nav.achievements');
       document.getElementById('tab-rules').textContent = t('nav.rules');
-      document.getElementById('help-btn').textContent = t('nav.help');
+      document.getElementById('join-btn').textContent = t('nav.join');
       document.getElementById('event-title').textContent = t('header.event-title');
       document.getElementById('joiningform').textContent = t('nav.joiningform');
-      document.getElementById('feedbackform').textContent = t('nav.feedbackform');
       document.getElementById('lang-btn-fr').classList.toggle('active', currentLang === 'fr');
       document.getElementById('lang-btn-en').classList.toggle('active', currentLang === 'en');
+      document.querySelector('#season-tab-S2 .season-tab-label').textContent = t('season.s2');
+      document.querySelector('#season-tab-S3 .season-tab-label').textContent = t('season.s3');
+      document.querySelector('#season-tab-TOTAL .season-tab-label').textContent = t('season.total');
+      document.getElementById('season-status-S2').textContent = t('season.status.past');
+      document.getElementById('season-status-S3').textContent = SEASON_3_LIVE ? t('season.status.ongoing') : t('season.status.coming');
+      document.getElementById('season-status-S3').className = 'season-tab-status ' + (SEASON_3_LIVE ? 'status-ongoing' : 'status-coming');
+      document.getElementById('lb-search-input').placeholder = t('lb.search.placeholder');
       document.documentElement.lang = currentLang;
     }
 
@@ -1888,15 +2829,15 @@
       if (document.getElementById('page-rules').classList.contains('active')) renderRules();
     }
 
-    function toggleHelpMenu() {
-      const menu = document.getElementById('help-menu');
+    function toggleJoinMenu() {
+      const menu = document.getElementById('join-menu');
       menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
 
     // Fermer si clic ailleurs
     document.addEventListener('click', function (e) {
-      const menu = document.getElementById('help-menu');
-      const btn = document.getElementById('help-btn');
+      const menu = document.getElementById('join-menu');
+      const btn = document.getElementById('join-btn');
       if (!menu.contains(e.target) && e.target !== btn) {
         menu.style.display = 'none';
       }
@@ -1965,6 +2906,7 @@
 
     // ---- INIT ----
     applyLangToStaticElements();
+    initSeasonNav();
     loadLeaderboard();
     renderAchievements();
   </script>
@@ -1979,6 +2921,16 @@
         <div class="modal-section-title">Badges</div>
         <div class="badges-grid" id="modal-badges-grid"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── RUNE SECRÈTE (easter egg) ── -->
+  <div class="rune-modal-overlay" id="rune-modal-overlay" onclick="if(event.target===this)closeRuneModal()">
+    <div class="rune-modal">
+      <div class="rune-modal-symbol">✦</div>
+      <div class="rune-modal-title" id="rune-modal-title">— ? —</div>
+      <div class="rune-modal-desc" id="rune-modal-desc"></div>
+      <button class="rune-modal-close" onclick="closeRuneModal()" id="rune-modal-close-btn">Fermer</button>
     </div>
   </div>
 
@@ -2036,7 +2988,27 @@
       document.getElementById('profile-modal').classList.remove('open');
       document.body.style.overflow = '';
     }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // ── RUNE SECRÈTE (easter egg) ──
+    function openRuneModal() {
+      document.getElementById('rune-modal-title').textContent = t('secret.title');
+      document.getElementById('rune-modal-desc').textContent = t('secret.coming');
+      document.getElementById('rune-modal-close-btn').textContent = t('secret.close');
+      document.getElementById('rune-modal-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeRuneModal() {
+      document.getElementById('rune-modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeRuneModal();
+      }
+    });
   </script>
 
 </body>
