@@ -918,7 +918,7 @@
     const PLAYERS_CACHE_MS = 10 * 60 * 1000;  // cache players : 10min (change très rarement)
     const SEASON   = 'S1';
     const N_PLAYERS_AT_LAUNCH = 50;
-    const TIERS_BASE = [2000, 5250, 10750]; // paliers calibrés pour N_REF joueurs
+    const TIERS_BASE = [2000, 5250, 11000]; // paliers calibrés pour N_REF joueurs
     const N_REF      = 40;                 // référence de calibration
     // Formule : palier(N) = base × √(N / N_REF)  — racine carrée
     function computeTiers(n) {
