@@ -64,12 +64,27 @@
     .event-card.inactive { cursor: default; pointer-events: none; }
     .event-card.inactive:hover { transform: none; box-shadow: none; }
     .event-banner { height: 120px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .event-banner-gloire { background: linear-gradient(135deg, #0e0c06 0%, #1a1508 40%, #0e0c06 100%); }
-    .event-banner-gloire::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.12) 0%, transparent 70%); }
+    .event-banner-gloire { background-image: url('images/event/GF.png'); background-size: cover; background-position: center top; background-color: #0c080e; }
+    .event-banner-gloire::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,8,14,0.15) 0%, rgba(12,8,14,0.65) 100%); }
+    .event-card:hover .event-banner-gloire { filter: brightness(1.1); }
     .event-banner-pagaille { background: linear-gradient(135deg, #080d12 0%, #0d1520 40%, #080d12 100%); background-image: url('images/event/dungeonmayhem.jpg'); background-size: cover; background-position: center; }
     .event-banner-pagaille::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,13,18,0.35) 0%, rgba(8,13,18,0.75) 100%), radial-gradient(ellipse at 50% 50%, rgba(76,168,168,0.1) 0%, transparent 70%); }
     .event-banner-strongholdrush { background: linear-gradient(135deg, #080d12 0%, #0d1520 40%, #080d12 100%); background-image: url('images/event/strongholdrush.jpg'); background-size: cover; background-position: center; }
     .event-banner-strongholdrush::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,13,18,0.35) 0%, rgba(8,13,18,0.75) 100%), radial-gradient(ellipse at 50% 50%, rgba(76,168,168,0.1) 0%, transparent 70%); }
+    /* ── HARDCORE BANNER ── */
+    .event-banner-hardcore {
+      background-image: url('images/event/FH.png');
+      background-size: cover;
+      background-position: center top;
+      background-color: #0a0508;
+    }
+    .event-banner-hardcore::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(10,5,8,0.15) 0%, rgba(10,5,8,0.65) 100%);
+    }
+    .event-banner-hardcore:hover { filter: brightness(1.08); }
+    .event-card:hover .event-banner-hardcore { filter: brightness(1.1); }
     .event-banner-empty { background: var(--bg3); }
     .event-banner-title { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; text-align: center; line-height: 1.3; padding: 0 16px; position: relative; z-index: 1; }
     .event-banner-title.gold { color: var(--gold); text-shadow: 0 0 20px rgba(201,168,76,0.4); }
@@ -181,19 +196,19 @@
 
       <div class="social-links animate delay-2">
         <a href="https://twitch.tv/pouf_hgaming" target="_blank" class="social-link twitch">
-          <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+          <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
           </svg>
           Twitch
         </a>
         <a href="https://discord.gg/3WH65QCARa" target="_blank" class="social-link discord">
-          <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+          <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.079.11 18.1.132 18.114a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.04.001-.088-.041-.104a13.2 13.2 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
           </svg>
           Discord
         </a>
         <a href="https://www.youtube.com/@PoufHGaming" target="_blank" class="social-link youtube">
-          <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+          <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
           </svg>
           YouTube
@@ -215,8 +230,7 @@
         <div class="category-label" data-fr="En cours" data-en="Active">En cours</div>
         <div class="events-grid">
           <a href="pagaille/index.html" class="event-card">
-            <div class="event-banner event-banner-pagaille">
-            </div>
+            <div class="event-banner event-banner-pagaille"></div>
             <div class="event-body">
               <div class="event-status active" data-fr="En cours" data-en="Active">En cours</div>
               <div class="event-name" data-fr="Donjon en Pagaille" data-en="Dungeon Mayhem">Donjon en Pagaille</div>
@@ -226,7 +240,7 @@
                 Tuez le plus de boss possible dans tous les donjons Fellowship. Classement en direct, paliers communautaires et récompenses à débloquer.
               </div>
               <div class="event-meta">
-                <span class="event-dates" data-fr="22 Juin → 13 Juillet" data-en="June 22 → 13 July">22 juin → 13 juillet</span>
+                <span class="event-dates" data-fr="22 Juin → 13 Juillet" data-en="June 22 → July 13">22 juin → 13 juillet</span>
                 <span class="event-cta">
                   <span data-fr="Voir" data-en="View">Voir</span>
                   <span class="event-cta-arrow">→</span>
@@ -241,13 +255,10 @@
         <div class="category-label" data-fr="À venir" data-en="Upcoming">À venir</div>
         <div class="events-grid">
           <a href="gloire/index.html?saison=3" class="event-card">
-            <div class="event-banner event-banner-gloire">
-              <div class="event-banner-title gold">Gloire à la<br>Compagnie II</div>
-            </div>
+            <div class="event-banner event-banner-gloire"></div>
             <div class="event-body">
               <div class="event-status upcoming" data-fr="Coming Soon" data-en="Coming Soon">Coming Soon</div>
-              <div class="event-name" data-fr="Gloire à la Compagnie 2" data-en="Glory to the Fellowship II">Gloire à la
-                Compagnie II</div>
+              <div class="event-name" data-fr="Gloire à la Compagnie 2" data-en="Glory to the Fellowship II">Gloire à la Compagnie II</div>
               <div class="event-desc"
                 data-fr="La suite de l'event hauts-faits de donjons revient pour une nouvelle saison. Annonce officielle très prochainement."
                 data-en="The dungeon achievement event returns for a new season. Official announcement coming very soon.">
@@ -262,9 +273,9 @@
               </div>
             </div>
           </a>
+
           <a href="strongholdrush/index.html" class="event-card">
-            <div class="event-banner event-banner-strongholdrush">
-            </div>
+            <div class="event-banner event-banner-strongholdrush"></div>
             <div class="event-body">
               <div class="event-status upcoming" data-fr="Coming Soon" data-en="Coming Soon">Coming Soon</div>
               <div class="event-name" data-fr="Stronghold Rush" data-en="Stronghold Rush">Stronghold Rush</div>
@@ -274,7 +285,28 @@
                 Tournoi de speedrun en équipe. Soyez l'équipe la plus rapide à compléter une série de donjons.
               </div>
               <div class="event-meta">
-                <span class="event-dates" data-fr="Décalé à Aout" data-en="Postponned to August">Postponned to August</span>
+                <span class="event-dates" data-fr="Décalé à Août" data-en="Postponed to August">Décalé à Août</span>
+                <span class="event-cta">
+                  <span data-fr="Voir" data-en="View">Voir</span>
+                  <span class="event-cta-arrow">→</span>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- ── FELLOWSHIP HARDCORE ── -->
+          <a href="hardcore/index.html" class="event-card">
+            <div class="event-banner event-banner-hardcore"></div>
+            <div class="event-body">
+              <div class="event-status upcoming" data-fr="Coming Soon" data-en="Coming Soon">Coming Soon</div>
+              <div class="event-name" data-fr="Fellowship Hardcore" data-en="Fellowship Hardcore">Fellowship Hardcore</div>
+              <div class="event-desc"
+                data-fr="Roguelike communautaire : progressez dans les donjons en mode Hardcore. La mort est permanente."
+                data-en="Community roguelike: push through dungeons in Hardcore mode. Death is permanent.">
+                Roguelike communautaire : progressez dans les donjons en mode Hardcore. La mort est permanente.
+              </div>
+              <div class="event-meta">
+                <span class="event-dates" data-fr="Automne 2026" data-en="Autumn 2026">Automne 2026</span>
                 <span class="event-cta">
                   <span data-fr="Voir" data-en="View">Voir</span>
                   <span class="event-cta-arrow">→</span>
@@ -289,22 +321,17 @@
         <div class="category-label" data-fr="Passé" data-en="Past">Passé</div>
         <div class="events-grid">
           <a href="gloire/index.html" class="event-card">
-            <div class="event-banner event-banner-gloire">
-              <div class="event-banner-title gold">Gloire à la<br>Compagnie I</div>
-            </div>
+            <div class="event-banner event-banner-gloire"></div>
             <div class="event-body">
               <div class="event-status past" data-fr="Passé" data-en="Past">Passé</div>
-              <div class="event-name" data-fr="Gloire à la Compagnie 1" data-en="Glory to the Fellowship I">Gloire à la
-                Compagnie</div>
+              <div class="event-name" data-fr="Gloire à la Compagnie 1" data-en="Glory to the Fellowship I">Gloire à la Compagnie</div>
               <div class="event-desc"
                 data-fr="Complétez un maximum de hauts-faits de donjons en équipe ou en solo. 48 hauts-faits, 12 donjons, points, badges et classement en direct."
                 data-en="Complete as many dungeon achievements as possible solo or in a group. 48 achievements, 12 dungeons, live leaderboard.">
-                Complétez un maximum de hauts-faits de donjons en équipe ou en solo. 48 hauts-faits, 12 donjons, points,
-                badges et classement en direct.
+                Complétez un maximum de hauts-faits de donjons en équipe ou en solo. 48 hauts-faits, 12 donjons, points, badges et classement en direct.
               </div>
               <div class="event-meta">
-                <span class="event-dates" data-fr="21 Avril → 22 Juin" data-en="Apr 21 → 22 June">21 avr.
-                  → 22 juin 2026</span>
+                <span class="event-dates" data-fr="21 Avril → 22 Juin" data-en="Apr 21 → June 22">21 avr. → 22 juin 2026</span>
                 <span class="event-cta">
                   <span data-fr="Voir" data-en="View">Voir</span>
                   <span class="event-cta-arrow">→</span>
@@ -324,44 +351,33 @@
       </div>
 
       <div class="videos-grid">
-
         <div class="video-card">
           <div class="video-thumb-wrap" id="thumb-0" onclick="playVideo(0, 'sZtp0PkAhX0')">
-            <img src="https://img.youtube.com/vi/sZtp0PkAhX0/mqdefault.jpg" alt="Highlight Gloire à la Compagnie"
-              loading="lazy">
+            <img src="https://img.youtube.com/vi/sZtp0PkAhX0/mqdefault.jpg" alt="Highlight Gloire à la Compagnie" loading="lazy">
             <div class="video-play-btn">
               <div class="video-play-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
               </div>
             </div>
           </div>
           <div class="video-info">
-            <div class="video-title" data-fr="Highlight Gloire à la Compagnie 1"
-              data-en="Highlight Glory to the Fellowship 1">Highlight — Gloire à la Compagnie</div>
-            <div class="video-meta" data-fr="Événement communautaire Fellowship" data-en="Fellowship community event">
-              Événement communautaire Fellowship</div>
+            <div class="video-title" data-fr="Highlight Gloire à la Compagnie 1" data-en="Highlight Glory to the Fellowship 1">Highlight — Gloire à la Compagnie</div>
+            <div class="video-meta" data-fr="Événement communautaire Fellowship" data-en="Fellowship community event">Événement communautaire Fellowship</div>
           </div>
         </div>
 
         <div class="video-card">
           <div class="video-thumb-wrap" id="thumb-1" onclick="playVideo(1, 'KqUmfBsh5nk')">
-            <img src="https://img.youtube.com/vi/KqUmfBsh5nk/mqdefault.jpg" alt="Highlight Gloire à la Compagnie"
-              loading="lazy">
+            <img src="https://img.youtube.com/vi/KqUmfBsh5nk/mqdefault.jpg" alt="Highlight Gloire à la Compagnie" loading="lazy">
             <div class="video-play-btn">
               <div class="video-play-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
               </div>
             </div>
           </div>
           <div class="video-info">
-            <div class="video-title" data-fr="Highlight Gloire à la Compagnie 2"
-              data-en="Highlight Glory to the Fellowship 2">Highlight — Gloire à la Compagnie</div>
-            <div class="video-meta" data-fr="Événement communautaire Fellowship" data-en="Fellowship community event">
-              Événement communautaire Fellowship</div>
+            <div class="video-title" data-fr="Highlight Gloire à la Compagnie 2" data-en="Highlight Glory to the Fellowship 2">Highlight — Gloire à la Compagnie</div>
+            <div class="video-meta" data-fr="Événement communautaire Fellowship" data-en="Fellowship community event">Événement communautaire Fellowship</div>
           </div>
         </div>
 
@@ -373,12 +389,10 @@
             </div>
           </div>
           <div class="video-info">
-            <div class="video-title" style="color:var(--text-muted);" data-fr="Prochaine vidéo à venir…"
-              data-en="Next video coming soon…">Prochaine vidéo à venir…</div>
+            <div class="video-title" style="color:var(--text-muted);" data-fr="Prochaine vidéo à venir…" data-en="Next video coming soon…">Prochaine vidéo à venir…</div>
             <div class="video-meta" data-fr="Stay tuned" data-en="Stay tuned">Stay tuned</div>
           </div>
         </div>
-
       </div>
     </section>
 
@@ -386,15 +400,13 @@
 
   <footer>
     <span class="footer-ornament">⸻ ✦ ⸻</span>
-    <div class="footer-text" data-fr="Fait avec passion pour la communauté · pouf_hgaming"
-      data-en="Made with passion for the community · pouf_hgaming">
+    <div class="footer-text" data-fr="Fait avec passion pour la communauté · pouf_hgaming" data-en="Made with passion for the community · pouf_hgaming">
       Fait avec passion pour la communauté · pouf_hgaming
     </div>
   </footer>
 
   <script>
     let currentLang = localStorage.getItem('pouf_lang') || 'fr';
-
     function setLang(lang) {
       currentLang = lang;
       localStorage.setItem('pouf_lang', lang);
@@ -404,7 +416,6 @@
         el.textContent = el.dataset[lang] || el.dataset.fr;
       });
     }
-
     setLang(currentLang);
 
     function playVideo(index, videoId) {
@@ -473,11 +484,11 @@
         grid.innerHTML = !badges.length
           ? `<div class="modal-no-badges">${lang === 'en' ? 'No badges yet.' : 'Aucun badge pour le moment.'}</div>`
           : badges.map(b => `
-          <div class="badge-card">
-            <img src="/images/${b.icon}" alt="${b.name}" onerror="this.style.opacity='0.2'">
-            <div class="badge-card-name">${b.name}</div>
-            <div class="badge-card-event">${b.event_slug}</div>
-          </div>`).join('');
+            <div class="badge-card">
+              <img src="/images/${b.icon}" alt="${b.name}" onerror="this.style.opacity='0.2'">
+              <div class="badge-card-name">${b.name}</div>
+              <div class="badge-card-event">${b.event_slug}</div>
+            </div>`).join('');
         document.getElementById('profile-modal').classList.add('open');
         document.body.style.overflow = 'hidden';
       });
@@ -491,5 +502,4 @@
   </script>
 
 </body>
-
 </html>
