@@ -663,6 +663,88 @@
       .stats-summary { grid-template-columns:1fr; }
       .shbar-row { grid-template-columns:140px 60px 1fr 50px 20px; gap:8px; }
       .bossbar-left { width:200px; }    }
+
+    /* ── ÉPILOGUE ── */
+    .epilogue-page { max-width: 860px; margin: 0 auto; }
+    .epilogue-hero {
+      text-align: center; padding: 36px 24px 32px;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: linear-gradient(145deg, rgba(64,212,212,0.06) 0%, var(--bg2) 60%);
+      margin-bottom: 40px; position: relative; overflow: hidden;
+    }
+    .epilogue-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 0%, rgba(64,212,212,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .epilogue-hero-title {
+      font-family: 'Cinzel', serif; font-size: clamp(22px,4vw,36px); font-weight: 700;
+      color: var(--teal-light); letter-spacing: 0.1em; text-transform: uppercase;
+      text-shadow: 0 0 40px rgba(64,212,212,0.5); margin-bottom: 10px;
+    }
+    .epilogue-hero-sub { font-size: 15px; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; font-family: 'Cinzel', serif; }
+    .epilogue-hero-quote { margin-top: 18px; font-size: 16px; color: var(--text-dim); font-style: italic; line-height: 1.7; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+    .epilogue-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 40px; }
+    .epilogue-kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 20px 18px; text-align: center; position: relative; overflow: hidden; }
+    .epilogue-kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--teal-dim), transparent); }
+    .epilogue-kpi-value { font-family: 'Cinzel', serif; font-size: 34px; font-weight: 700; color: var(--teal-light); text-shadow: 0 0 24px rgba(64,212,212,0.6); line-height: 1.1; margin-bottom: 6px; }
+    .epilogue-kpi-label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); }
+    .epilogue-kpi-sub { font-size: 13px; color: var(--text-dim); font-style: italic; margin-top: 5px; }
+
+    .epilogue-section { margin-bottom: 40px; }
+    .epilogue-section-title { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--teal-dim); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+    .epilogue-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    .epi-bar-list { display: flex; flex-direction: column; gap: 10px; }
+    .epi-bar-row { display: grid; grid-template-columns: 220px 60px 1fr; gap: 12px; align-items: center; }
+    .epi-bar-name { font-size: 15px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .epi-bar-val { font-family: 'Cinzel', serif; font-size: 14px; color: var(--teal-light); text-align: right; }
+    .epi-bar-track { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+    .epi-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--teal-dim), var(--teal-light)); transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+    .epi-bar-fill.red { background: linear-gradient(90deg, #b03030, #f07070); }
+    .epi-bar-row.highlight .epi-bar-name { color: var(--text); }
+    .epi-bar-row.highlight .epi-bar-fill { box-shadow: 0 0 8px rgba(64,212,212,0.4); }
+
+    .epi-ratio-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .epi-ratio-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 18px 16px; text-align: center; }
+    .epi-ratio-card.best  { border-top: 2px solid var(--tier1); }
+    .epi-ratio-card.avg   { border-top: 2px solid var(--teal-dim); }
+    .epi-ratio-card.worst { border-top: 2px solid #f07070; }
+    .epi-ratio-label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+    .epi-ratio-val { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+    .epi-ratio-card.best  .epi-ratio-val { color: var(--tier1); text-shadow: 0 0 16px rgba(68,238,68,0.5); }
+    .epi-ratio-card.avg   .epi-ratio-val { color: var(--teal-light); text-shadow: 0 0 16px rgba(64,212,212,0.5); }
+    .epi-ratio-card.worst .epi-ratio-val { color: #f07070; text-shadow: 0 0 16px rgba(240,112,112,0.4); }
+    .epi-ratio-sub { font-size: 13px; color: var(--text-dim); font-style: italic; line-height: 1.5; }
+
+    .epi-vel-block { background: linear-gradient(145deg, rgba(196,160,255,0.06) 0%, var(--bg2) 60%); border: 1px solid rgba(196,160,255,0.3); border-top: 2px solid var(--tier3); border-radius: 8px; padding: 24px 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
+    .epi-vel-stats { display: flex; flex-direction: column; gap: 12px; }
+    .epi-vel-stat { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid rgba(196,160,255,0.15); }
+    .epi-vel-stat:last-child { border-bottom: none; padding-bottom: 0; }
+    .epi-vel-stat-label { font-size: 14px; color: var(--text-dim); }
+    .epi-vel-stat-val { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700; color: var(--tier3); text-shadow: 0 0 14px rgba(196,160,255,0.5); }
+    .epi-vel-quote { font-size: 15px; color: var(--text-dim); font-style: italic; line-height: 1.8; border-left: 3px solid rgba(196,160,255,0.4); padding-left: 18px; }
+
+    .epi-badges-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .epi-badge-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 20px 16px; text-align: center; }
+    .epi-badge-card.gold   { border-top: 2px solid #d4af37; }
+    .epi-badge-card.silver { border-top: 2px solid #c0c0c0; }
+    .epi-badge-card.bronze { border-top: 2px solid #b08d57; }
+    .epi-badge-img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    .epi-badge-name { font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.08em; color: var(--text); margin-bottom: 4px; }
+    .epi-badge-threshold { font-size: 12px; color: var(--text-muted); font-style: italic; margin-bottom: 10px; }
+    .epi-badge-count { font-family: 'Cinzel', serif; font-size: 32px; font-weight: 700; }
+    .epi-badge-card.gold   .epi-badge-count { color: #d4af37; text-shadow: 0 0 18px rgba(212,175,55,0.5); }
+    .epi-badge-card.silver .epi-badge-count { color: #e0e0e0; text-shadow: 0 0 14px rgba(192,192,192,0.4); }
+    .epi-badge-card.bronze .epi-badge-count { color: #d4ab78; text-shadow: 0 0 14px rgba(176,141,87,0.4); }
+    .epi-badge-players { font-size: 12px; color: var(--text-muted); }
+
+    @media (max-width: 600px) {
+      .epilogue-kpi-grid { grid-template-columns: 1fr 1fr; }
+      .epi-ratio-grid, .epi-vel-block, .epi-badges-grid { grid-template-columns: 1fr; }
+      .epi-bar-row { grid-template-columns: 130px 50px 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -698,6 +780,7 @@
     <button class="tab" id="tab-stats" onclick="showPage('stats',this)" data-fr="Carnage" data-en="Slaughtered">Carnage</button>
     <button class="tab" id="tab-rules" onclick="showPage('rules',this)" data-fr="Logs & Règles" data-en="Logs & Rules">Logs & Règles</button>
     <button class="tab" id="tab-join" onclick="showPage('join',this)" data-fr="Rejoindre" data-en="Join">Rejoindre</button>
+    <button class="tab" id="tab-epilogue" onclick="showPage('epilogue',this)" data-fr="Épilogue" data-en="Epilogue">Épilogue</button>
     <div class="nav-right">
       <div class="lang-toggle">
         <button class="lang-btn active" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
@@ -867,6 +950,134 @@
           </div>
           <div class="admin-players-grid" id="admin-players-grid"></div>
         </div>
+      </div>
+    </div>
+
+
+    <!-- ── ÉPILOGUE ── -->
+    <div id="page-epilogue" class="page">
+      <div class="epilogue-page">
+
+        <div class="epilogue-hero">
+          <div class="epilogue-hero-title" data-fr="Donjon en Pagaille — Épilogue" data-en="Dungeon Mayhem — Epilogue">Donjon en Pagaille — Épilogue</div>
+          <div class="epilogue-hero-sub" data-fr="Saison 1 · 23 Juin – 13 Juillet 2026" data-en="Season 1 · June 23 – July 13, 2026">Saison 1 · 23 Juin – 13 Juillet 2026</div>
+          <div class="epilogue-hero-quote" data-fr="Trois semaines de carnage, 14 427 boss mis au tapis, et un dernier boss qui a fait saigner la communauté entière. Merci à tous les participants !" data-en="Three weeks of carnage, 14,427 bosses slain, and one final boss that made the whole community bleed. Thank you to all participants!">
+            Trois semaines de carnage, 14 427 boss mis au tapis, et un dernier boss qui a fait saigner la communauté entière. Merci à tous les participants !
+          </div>
+        </div>
+
+        <!-- KPI globaux -->
+        <div class="epilogue-kpi-grid">
+          <div class="epilogue-kpi">
+            <div class="epilogue-kpi-value">63</div>
+            <div class="epilogue-kpi-label" data-fr="Participants" data-en="Participants">Participants</div>
+            <div class="epilogue-kpi-sub" data-fr="51 avec 50+ kills" data-en="51 with 50+ kills">51 avec 50+ kills</div>
+          </div>
+          <div class="epilogue-kpi">
+            <div class="epilogue-kpi-value">14 427</div>
+            <div class="epilogue-kpi-label" data-fr="Boss tués" data-en="Bosses killed">Boss tués</div>
+            <div class="epilogue-kpi-sub" data-fr="Communauté entière" data-en="Total community">Communauté entière</div>
+          </div>
+          <div class="epilogue-kpi">
+            <div class="epilogue-kpi-value">244.5</div>
+            <div class="epilogue-kpi-label" data-fr="Moyenne par joueur" data-en="Average per player">Moyenne par joueur</div>
+            <div class="epilogue-kpi-sub" data-fr="Personne n'a tué de demi-boss 😅" data-en="Nobody killed half a boss 😅">Personne n'a tué de demi-boss 😅</div>
+          </div>
+        </div>
+
+        <!-- Boss les plus farmés -->
+        <div class="epilogue-section">
+          <div class="epilogue-section-title" data-fr="Boss les plus farmés" data-en="Most farmed bosses">Boss les plus farmés</div>
+          <div class="epi-bar-list" id="epi-farmed-bars"></div>
+        </div>
+
+        <!-- Boss les plus meurtriers -->
+        <div class="epilogue-section">
+          <div class="epilogue-section-title" data-fr="Boss les plus meurtriers (hors Pinnacle Xul)" data-en="Deadliest bosses (excluding Pinnacle Xul)">Boss les plus meurtriers (hors Pinnacle Xul)</div>
+          <div class="epi-bar-list" id="epi-deadly-bars"></div>
+          <div style="margin-top:14px; font-size:14px; color:var(--text-muted); font-style:italic; padding:12px 16px; background:var(--bg2); border:1px solid var(--border); border-radius:4px; border-left:3px solid var(--teal-dim);">
+            <span data-fr="Une pensée émue pour Malgut the Fetid, qui s'est fait littéralement laminer tout au long de l'event..." data-en="A moment of silence for Malgut the Fetid, who got absolutely steamrolled throughout the entire event...">Une pensée émue pour Malgut the Fetid, qui s'est fait littéralement laminer tout au long de l'event...</span>
+          </div>
+        </div>
+
+        <!-- Ratio mort/kill -->
+        <div class="epilogue-section">
+          <div class="epilogue-section-title" data-fr="Ratio morts / kills (50+ kills, hors Xul)" data-en="Death-to-kill ratio (50+ kills, excl. Xul)">Ratio morts / kills (50+ kills, hors Xul)</div>
+          <div class="epi-ratio-grid">
+            <div class="epi-ratio-card best">
+              <div class="epi-ratio-label" data-fr="Meilleur — [OLK] Boibilio" data-en="Best — [OLK] Boibilio">Meilleur — [OLK] Boibilio</div>
+              <div class="epi-ratio-val">0.050</div>
+              <div class="epi-ratio-sub" data-fr="1 mort toutes les 20 tentatives" data-en="1 death every 20 attempts">1 mort toutes les 20 tentatives</div>
+            </div>
+            <div class="epi-ratio-card avg">
+              <div class="epi-ratio-label" data-fr="Moyenne communauté" data-en="Community average">Moyenne communauté</div>
+              <div class="epi-ratio-val">0.168</div>
+              <div class="epi-ratio-sub" data-fr="1 mort toutes les ~6 tentatives" data-en="1 death every ~6 attempts">1 mort toutes les ~6 tentatives</div>
+            </div>
+            <div class="epi-ratio-card worst">
+              <div class="epi-ratio-label" data-fr="Moins bon — Trap" data-en="Worst — Trap">Moins bon — Trap</div>
+              <div class="epi-ratio-val">0.627</div>
+              <div class="epi-ratio-sub" data-fr="Presque 1 mort par boss tué" data-en="Almost 1 death per boss killed">Presque 1 mort par boss tué</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vel'korath -->
+        <div class="epilogue-section">
+          <div class="epilogue-section-title" data-fr="Vel'korath — Le Boss Final du Pinnacle" data-en="Vel'korath — The Final Pinnacle Boss">Vel'korath — Le Boss Final du Pinnacle</div>
+          <div class="epi-vel-block">
+            <div class="epi-vel-stats">
+              <div class="epi-vel-stat">
+                <span class="epi-vel-stat-label" data-fr="Kills" data-en="Kills">Kills</span>
+                <span class="epi-vel-stat-val">193</span>
+              </div>
+              <div class="epi-vel-stat">
+                <span class="epi-vel-stat-label" data-fr="Morts" data-en="Deaths">Morts</span>
+                <span class="epi-vel-stat-val">1 629</span>
+              </div>
+              <div class="epi-vel-stat">
+                <span class="epi-vel-stat-label" data-fr="Morts / Kill" data-en="Deaths / Kill">Morts / Kill</span>
+                <span class="epi-vel-stat-val">8.44</span>
+              </div>
+              <div class="epi-vel-stat">
+                <span class="epi-vel-stat-label" data-fr="Joueurs ayant tenté" data-en="Players who challenged">Joueurs ayant tenté</span>
+                <span class="epi-vel-stat-val">34</span>
+              </div>
+            </div>
+            <div class="epi-vel-quote" data-fr="En moyenne, plus de 8 morts par kill — Vel'korath a bien défendu sa réputation de boss final jusqu'au bout." data-en="On average, over 8 deaths per kill — Vel'korath lived up to his reputation as a final boss until the very end.">
+              En moyenne, plus de 8 morts par kill — Vel'korath a bien défendu sa réputation de boss final jusqu'au bout.
+            </div>
+          </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="epilogue-section">
+          <div class="epilogue-section-title" data-fr="Badges gagnés" data-en="Badges earned">Badges gagnés</div>
+          <div class="epi-badges-grid">
+            <div class="epi-badge-card gold">
+              <img src="../images/DM1G.png" alt="Gold" class="epi-badge-img" onerror="this.style.opacity='0.2'">
+              <div class="epi-badge-name">Dungeon Mayhem Gold</div>
+              <div class="epi-badge-threshold" data-fr="250+ boss tués" data-en="250+ bosses killed">250+ boss tués</div>
+              <div class="epi-badge-count">26</div>
+              <div class="epi-badge-players" data-fr="joueurs" data-en="players">joueurs</div>
+            </div>
+            <div class="epi-badge-card silver">
+              <img src="../images/DM1S.png" alt="Silver" class="epi-badge-img" onerror="this.style.opacity='0.2'">
+              <div class="epi-badge-name">Dungeon Mayhem Silver</div>
+              <div class="epi-badge-threshold" data-fr="150+ boss tués" data-en="150+ bosses killed">150+ boss tués</div>
+              <div class="epi-badge-count">9</div>
+              <div class="epi-badge-players" data-fr="joueurs" data-en="players">joueurs</div>
+            </div>
+            <div class="epi-badge-card bronze">
+              <img src="../images/DM1B.png" alt="Bronze" class="epi-badge-img" onerror="this.style.opacity='0.2'">
+              <div class="epi-badge-name">Dungeon Mayhem Bronze</div>
+              <div class="epi-badge-threshold" data-fr="75+ boss tués" data-en="75+ bosses killed">75+ boss tués</div>
+              <div class="epi-badge-count">11</div>
+              <div class="epi-badge-players" data-fr="joueurs" data-en="players">joueurs</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1081,6 +1292,7 @@
       if (id === 'leaderboard') loadLeaderboard();
       if (id === 'rules') renderRules();
       if (id === 'stats') await renderStats();
+      if (id === 'epilogue') renderEpilogue();
     }
 
     async function sbFetch(path, key, opts = {}) {
@@ -1875,11 +2087,53 @@
       });
     }
 
+    // ── ÉPILOGUE — données en dur ──
+    const EPI_FARMED = [
+      { name: 'Malgut the Fetid',   val: 1313 },
+      { name: 'Sin-Magir',          val: 1115 },
+      { name: 'Sinthara',           val: 1001 },
+      { name: 'Warlord Brogg',      val: 897  },
+      { name: 'Vexira, Mother of Nightmares', val: 812 },
+      { name: 'Apostate Veras',     val: 764  },
+      { name: 'Godfall Titan',      val: 701  },
+    ];
+    const EPI_DEADLY = [
+      { name: 'Sin-Magir',          val: 285 },
+      { name: 'Warlord Brogg',      val: 174 },
+      { name: 'Overlord Varux',     val: 163 },
+      { name: "Vexira, Mother of Nightmares", val: 142 },
+      { name: 'Apostate Veras',     val: 118 },
+      { name: 'Godfall Titan',      val: 97  },
+      { name: 'Ancient Koros',      val: 84  },
+    ];
+
+    function renderEpiBars(containerId, data, isDeaths) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      const max = data[0].val;
+      el.innerHTML = data.map((d, i) => `
+        <div class="epi-bar-row ${i===0?'highlight':''}">
+          <div class="epi-bar-name">${d.name}</div>
+          <div class="epi-bar-val">${d.val.toLocaleString('fr-FR')}</div>
+          <div class="epi-bar-track"><div class="epi-bar-fill ${isDeaths?'red':''}" style="width:${(d.val/max*100).toFixed(1)}%"></div></div>
+        </div>`).join('');
+    }
+
+    function renderEpilogue() {
+      renderEpiBars('epi-farmed-bars', EPI_FARMED, false);
+      renderEpiBars('epi-deadly-bars', EPI_DEADLY, true);
+      // Met à jour les data-fr/en pour la nouvelle page
+      document.querySelectorAll('[data-fr]').forEach(el => {
+        el.textContent = el.dataset[currentLang] || el.dataset.fr;
+      });
+    }
+
     // ── INIT ──
     setLang(currentLang);
     renderRules();
     renderJoin();
     updateWeekendBanner();
+    renderEpilogue();
     loadLeaderboard();
   </script>
 
