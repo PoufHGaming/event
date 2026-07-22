@@ -274,7 +274,7 @@
       grid.innerHTML = cards.map(c => {
         const missing = isMissing(c);
         const imgUrl = missing ? MISSING_IMAGE_URL : pick(c.image_url, MISSING_IMAGE_URL);
-        const name = missing ? '???' : pick(c.name, c.code);
+        const name = pick(c.name, c.code); // toujours affiché, même manquante : les joueurs doivent savoir quoi chasser
 
         // La rareté ne s'affiche jamais ici (ni en texte, ni en couleur) — page publique, on
         // garde la puissance des cartes surprise jusqu'à la sortie officielle.
