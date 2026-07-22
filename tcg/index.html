@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fellowship TCG — Cartes à venir</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --bg: #0a0a0e;
+      --bg2: #12121a;
+      --bg3: #1c1c28;
+      --border: rgba(201, 168, 76, 0.2);
+      --border-bright: rgba(201, 168, 76, 0.5);
+      --text: #e8e0d0;
+      --text-muted: #706860;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 300;
+      min-height: 100vh;
+      font-size: 17px;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 24px 28px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .page-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(22px, 4vw, 36px);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--text);
+      margin-top: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    .toolbar {
+      max-width: 1200px;
+      margin: 28px auto 0;
+      padding: 0 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .toolbar select {
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 14px;
+    }
+    .lang-toggle {
+      display: flex; gap: 2px;
+    }
+    .lang-toggle button {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      padding: 7px 14px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      opacity: 0.6;
+    }
+    .lang-toggle button.active {
+      color: var(--gold);
+      border-color: var(--border-bright);
+      opacity: 1;
+    }
+
+    .progress-line {
+      text-align: center;
+      margin: 20px auto 0;
+      font-size: 14px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    .progress-line strong { color: var(--gold-light); }
+
+    .grid {
+      max-width: 1200px;
+      margin: 32px auto 60px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 18px;
+    }
+
+    .tile {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .tile.missing { opacity: 0.55; }
+
+    /* Fenêtre de recadrage : ne montre QUE l'illustration, sans le cadre / la rareté / les stats.
+       Calculé une fois pour toutes à partir du gabarit de carte (zone d'illustration fixe). */
+    .art-crop {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: var(--bg3);
+    }
+    .art-crop img {
+      position: absolute;
+      width: 129.963%;
+      height: 183.824%;
+      left: -14.614%;
+      top: -14.798%;
+      max-width: none;
+      object-fit: cover;
+    }
+
+    .tile-body { padding: 8px 10px; }
+    .tile-name { font-size: 14px; color: var(--text); }
+    .tile-status { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 60px 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="page-title" id="t-title">Cartes à venir</div>
+    <div class="page-subtitle" id="t-subtitle">Fellowship TCG</div>
+  </header>
+
+  <div class="toolbar">
+    <select id="filter-set"><option value="">Toutes les sources</option></select>
+    <div class="lang-toggle">
+      <button class="active" id="lang-fr" onclick="setLang('fr')">FR</button>
+      <button id="lang-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <div class="progress-line" id="progress-line"></div>
+
+  <div class="grid" id="grid">
+    <div class="empty-state">Chargement…</div>
+  </div>
+
+  <script>
+    // ── Config Supabase (clé publique, lecture seule — même projet que le reste du site) ──
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+
+    // URL de l'image "?" à utiliser pour les cartes sans illustration retenue pour l'instant.
+    // Doit être aux mêmes proportions (1414×2000) que le gabarit de carte pour que le recadrage
+    // CSS tombe juste — sinon le "?" ne sera pas bien centré une fois zoomé.
+    const MISSING_IMAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/card-art/missing.png`;
+
+    async function sbFetch(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    const I18N = {
+      fr: {
+        title: 'Cartes à venir', subtitle: 'Fellowship TCG',
+        allSets: 'Toutes les sources', missing: 'Illustration à venir',
+        progress: (n, total) => `<strong>${n}</strong>/${total} illustrations révélées`,
+        empty: 'Aucune carte à afficher.',
+      },
+      en: {
+        title: 'Upcoming Cards', subtitle: 'Fellowship TCG',
+        allSets: 'All sources', missing: 'Art coming soon',
+        progress: (n, total) => `<strong>${n}</strong>/${total} artworks revealed`,
+        empty: 'No cards to display.',
+      },
+    };
+
+    let currentLang = 'fr';
+    let allCards = [];
+    let raritiesByCode = {};
+    let setsByCode = {};
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('lang-fr').classList.toggle('active', lang === 'fr');
+      document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+      document.getElementById('t-title').textContent = I18N[lang].title;
+      document.getElementById('t-subtitle').textContent = I18N[lang].subtitle;
+      render();
+    }
+
+    function pick(jsonField, fallback) {
+      if (!jsonField) return fallback || '';
+      return jsonField[currentLang] || jsonField.fr || Object.values(jsonField)[0] || fallback || '';
+    }
+
+    async function load() {
+      try {
+        const [cards, rarities, sets] = await Promise.all([
+          sbFetch('/rest/v1/tcg_cards?select=code,name,image_url,rarity,set_code&order=set_code,rarity'),
+          sbFetch('/rest/v1/tcg_rarities?select=code,display_name,color_hex,sort_order&order=sort_order'),
+          sbFetch('/rest/v1/tcg_sets?select=code,display_name&order=release_order'),
+        ]);
+        allCards = cards;
+        raritiesByCode = Object.fromEntries(rarities.map(r => [r.code, r]));
+        setsByCode = Object.fromEntries(sets.map(s => [s.code, s]));
+
+        const setSelect = document.getElementById('filter-set');
+        setSelect.innerHTML = `<option value="">${I18N[currentLang].allSets}</option>` +
+          sets.map(s => `<option value="${s.code}">${pick(s.display_name, s.code)}</option>`).join('');
+        setSelect.addEventListener('change', render);
+
+        render();
+      } catch (e) {
+        document.getElementById('grid').innerHTML = `<div class="empty-state">Erreur de chargement : ${e.message}</div>`;
+      }
+    }
+
+    function render() {
+      const setFilter = document.getElementById('filter-set').value;
+      const cards = setFilter ? allCards.filter(c => c.set_code === setFilter) : allCards;
+
+      const revealedCount = cards.filter(c => !isMissing(c)).length;
+      document.getElementById('progress-line').innerHTML = I18N[currentLang].progress(revealedCount, cards.length);
+
+      const grid = document.getElementById('grid');
+      if (!cards.length) {
+        grid.innerHTML = `<div class="empty-state">${I18N[currentLang].empty}</div>`;
+        return;
+      }
+
+      grid.innerHTML = cards.map(c => {
+        const rarity = raritiesByCode[c.rarity];
+        const color = rarity ? rarity.color_hex : '#706860';
+        const missing = isMissing(c);
+        const imgUrl = missing ? MISSING_IMAGE_URL : pick(c.image_url, MISSING_IMAGE_URL);
+        const name = missing ? '???' : pick(c.name, c.code);
+        const statusText = missing
+          ? I18N[currentLang].missing
+          : (rarity ? pick(rarity.display_name, c.rarity) : c.rarity);
+
+        return `<div class="tile ${missing ? 'missing' : ''}" style="border-left-color:${color}">
+          <div class="art-crop"><img src="${imgUrl}" alt="${name}" loading="lazy"></div>
+          <div class="tile-body">
+            <div class="tile-name">${name}</div>
+            <div class="tile-status" style="color:${missing ? '' : color}">${statusText}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function isMissing(card) {
+      const fr = card.image_url?.fr || '';
+      const en = card.image_url?.en || '';
+      return fr === MISSING_IMAGE_URL || en === MISSING_IMAGE_URL || (!fr && !en);
+    }
+
+    load();
+  </script>
+</body>
+
+</html>
