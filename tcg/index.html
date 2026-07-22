@@ -123,27 +123,26 @@
     .tile {
       background: var(--bg2);
       border: 1px solid var(--border);
-      border-left: 3px solid var(--gold);
       border-radius: 6px;
       overflow: hidden;
     }
     .tile.missing { opacity: 0.55; }
 
     /* Fenêtre de recadrage : ne montre QUE l'illustration, sans le cadre / la rareté / les stats.
-       Calculé une fois pour toutes à partir du gabarit de carte (zone d'illustration fixe). */
+       Le ratio n'est plus 1:1 : on rogne davantage le haut (médaillon de rareté) que les côtés/bas. */
     .art-crop {
       position: relative;
       width: 100%;
-      aspect-ratio: 1 / 1;
+      aspect-ratio: 1088 / 1029;
       overflow: hidden;
       background: var(--bg3);
     }
     .art-crop img {
       position: absolute;
       width: 129.963%;
-      height: 183.824%;
+      height: 194.363%;
       left: -14.614%;
-      top: -14.798%;
+      top: -21.380%;
       max-width: none;
       object-fit: cover;
     }
@@ -167,7 +166,11 @@
   </header>
 
   <div class="toolbar">
-    <select id="filter-set"><option value="">Toutes les sources</option></select>
+    <select id="filter-status">
+      <option value="">Toutes</option>
+      <option value="missing">Manquantes</option>
+      <option value="revealed">Révélées</option>
+    </select>
     <div class="lang-toggle">
       <button class="active" id="lang-fr" onclick="setLang('fr')">FR</button>
       <button id="lang-en" onclick="setLang('en')">EN</button>
@@ -201,13 +204,15 @@
     const I18N = {
       fr: {
         title: 'Cartes à venir', subtitle: 'Fellowship TCG',
-        allSets: 'Toutes les sources', missing: 'Illustration à venir',
+        filterAll: 'Toutes', filterMissing: 'Manquantes', filterRevealed: 'Révélées',
+        missing: 'Illustration à venir',
         progress: (n, total) => `<strong>${n}</strong>/${total} illustrations révélées`,
         empty: 'Aucune carte à afficher.',
       },
       en: {
         title: 'Upcoming Cards', subtitle: 'Fellowship TCG',
-        allSets: 'All sources', missing: 'Art coming soon',
+        filterAll: 'All', filterMissing: 'Missing', filterRevealed: 'Revealed',
+        missing: 'Art coming soon',
         progress: (n, total) => `<strong>${n}</strong>/${total} artworks revealed`,
         empty: 'No cards to display.',
       },
@@ -216,7 +221,6 @@
     let currentLang = 'fr';
     let allCards = [];
     let raritiesByCode = {};
-    let setsByCode = {};
 
     function setLang(lang) {
       currentLang = lang;
@@ -224,6 +228,10 @@
       document.getElementById('lang-en').classList.toggle('active', lang === 'en');
       document.getElementById('t-title').textContent = I18N[lang].title;
       document.getElementById('t-subtitle').textContent = I18N[lang].subtitle;
+      const statusSelect = document.getElementById('filter-status');
+      statusSelect.options[0].textContent = I18N[lang].filterAll;
+      statusSelect.options[1].textContent = I18N[lang].filterMissing;
+      statusSelect.options[2].textContent = I18N[lang].filterRevealed;
       render();
     }
 
@@ -234,20 +242,14 @@
 
     async function load() {
       try {
-        const [cards, rarities, sets] = await Promise.all([
+        const [cards, rarities] = await Promise.all([
           sbFetch('/rest/v1/tcg_cards?select=code,name,image_url,rarity,set_code&order=set_code,rarity'),
           sbFetch('/rest/v1/tcg_rarities?select=code,display_name,color_hex,sort_order&order=sort_order'),
-          sbFetch('/rest/v1/tcg_sets?select=code,display_name&order=release_order'),
         ]);
         allCards = cards;
         raritiesByCode = Object.fromEntries(rarities.map(r => [r.code, r]));
-        setsByCode = Object.fromEntries(sets.map(s => [s.code, s]));
 
-        const setSelect = document.getElementById('filter-set');
-        setSelect.innerHTML = `<option value="">${I18N[currentLang].allSets}</option>` +
-          sets.map(s => `<option value="${s.code}">${pick(s.display_name, s.code)}</option>`).join('');
-        setSelect.addEventListener('change', render);
-
+        document.getElementById('filter-status').addEventListener('change', render);
         render();
       } catch (e) {
         document.getElementById('grid').innerHTML = `<div class="empty-state">Erreur de chargement : ${e.message}</div>`;
@@ -255,11 +257,13 @@
     }
 
     function render() {
-      const setFilter = document.getElementById('filter-set').value;
-      const cards = setFilter ? allCards.filter(c => c.set_code === setFilter) : allCards;
+      const statusFilter = document.getElementById('filter-status').value;
+      let cards = allCards;
+      if (statusFilter === 'missing') cards = cards.filter(c => isMissing(c));
+      if (statusFilter === 'revealed') cards = cards.filter(c => !isMissing(c));
 
-      const revealedCount = cards.filter(c => !isMissing(c)).length;
-      document.getElementById('progress-line').innerHTML = I18N[currentLang].progress(revealedCount, cards.length);
+      const revealedCount = allCards.filter(c => !isMissing(c)).length;
+      document.getElementById('progress-line').innerHTML = I18N[currentLang].progress(revealedCount, allCards.length);
 
       const grid = document.getElementById('grid');
       if (!cards.length) {
@@ -268,20 +272,17 @@
       }
 
       grid.innerHTML = cards.map(c => {
-        const rarity = raritiesByCode[c.rarity];
-        const color = rarity ? rarity.color_hex : '#706860';
         const missing = isMissing(c);
         const imgUrl = missing ? MISSING_IMAGE_URL : pick(c.image_url, MISSING_IMAGE_URL);
         const name = missing ? '???' : pick(c.name, c.code);
-        const statusText = missing
-          ? I18N[currentLang].missing
-          : (rarity ? pick(rarity.display_name, c.rarity) : c.rarity);
 
-        return `<div class="tile ${missing ? 'missing' : ''}" style="border-left-color:${color}">
+        // La rareté ne s'affiche jamais ici (ni en texte, ni en couleur) — page publique, on
+        // garde la puissance des cartes surprise jusqu'à la sortie officielle.
+        return `<div class="tile ${missing ? 'missing' : ''}">
           <div class="art-crop"><img src="${imgUrl}" alt="${name}" loading="lazy"></div>
           <div class="tile-body">
             <div class="tile-name">${name}</div>
-            <div class="tile-status" style="color:${missing ? '' : color}">${statusText}</div>
+            ${missing ? `<div class="tile-status">${I18N[currentLang].missing}</div>` : ''}
           </div>
         </div>`;
       }).join('');
