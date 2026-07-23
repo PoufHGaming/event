@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Compteur cartes révélées — Overlay OBS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background: transparent; /* important pour OBS : jamais de fond opaque ici */
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Cinzel', serif;
+      color: #e8c96a;
+      text-shadow: 0 0 12px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.9); /* lisible sur n'importe quel fond de jeu */
+    }
+
+    .count {
+      font-size: 64px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+    .count .sep { color: #ffffff; opacity: 0.6; margin: 0 6px; }
+
+    .label {
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-top: 6px;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="count" id="count">--<span class="sep">/</span>--</div>
+    <div class="label">PataDex Capturés</div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    const MISSING_IMAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/card-art/missing.png`;
+    const REFRESH_MS = 300000; // re-vérifie toutes les 10min pendant le live
+
+    async function sbFetch(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function isMissing(card) {
+      const fr = card.image_url?.fr || '';
+      const en = card.image_url?.en || '';
+      return fr === MISSING_IMAGE_URL || en === MISSING_IMAGE_URL || (!fr && !en);
+    }
+
+    async function refresh() {
+      try {
+        const cards = await sbFetch('/rest/v1/tcg_cards?select=image_url');
+        const revealed = cards.filter(c => !isMissing(c)).length;
+        document.getElementById('count').innerHTML =
+          `${revealed}<span class="sep">/</span>${cards.length}`;
+      } catch (e) {
+        console.error('Erreur de rafraîchissement du compteur :', e);
+        // en cas d'erreur ponctuelle (coupure réseau...), on garde le dernier chiffre affiché
+      }
+    }
+
+    refresh();
+    setInterval(refresh, REFRESH_MS);
+  </script>
+</body>
+
+</html>
