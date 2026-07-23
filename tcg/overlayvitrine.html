@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Vitrine aléatoire — Overlay OBS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400&display=swap"
+    rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background: transparent;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Crimson Pro', Georgia, serif;
+    }
+
+    .frame {
+      position: relative;
+      width: 380px;
+      aspect-ratio: 1088 / 1029;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 0 24px rgba(0,0,0,0.7);
+      border: 2px solid rgba(201, 168, 76, 0.6);
+    }
+
+    .frame img {
+      position: absolute;
+      width: 129.963%;
+      height: 194.363%;
+      left: -14.614%;
+      top: -21.380%;
+      max-width: none;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+    }
+    .frame img.visible { opacity: 1; }
+
+    .name {
+      margin-top: 12px;
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      color: #e8c96a;
+      text-shadow: 0 0 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.9);
+      letter-spacing: 0.04em;
+      text-align: center;
+      min-height: 28px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="frame">
+      <img id="img-a" class="visible">
+      <img id="img-b">
+    </div>
+    <div class="name" id="name"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    const MISSING_IMAGE_URL = `${SUPABASE_URL}/storage/v1/object/public/card-art/missing.png`;
+    const ROTATE_MS = 60000; // change d'image toutes les 60s
+    const LANG = 'fr'; // langue de l'image/nom affiché sur ce stream
+
+    async function sbFetch(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function isMissing(card) {
+      const fr = card.image_url?.fr || '';
+      const en = card.image_url?.en || '';
+      return fr === MISSING_IMAGE_URL || en === MISSING_IMAGE_URL || (!fr && !en);
+    }
+
+    function pick(jsonField, fallback) {
+      if (!jsonField) return fallback || '';
+      return jsonField[LANG] || jsonField.fr || Object.values(jsonField)[0] || fallback || '';
+    }
+
+    let revealedCards = [];
+    let lastCode = null;
+    let showingA = true; // alterne entre les deux balises <img> pour le fondu croisé
+
+    async function refreshCardList() {
+      try {
+        const cards = await sbFetch('/rest/v1/tcg_cards?select=code,name,image_url');
+        revealedCards = cards.filter(c => !isMissing(c));
+      } catch (e) {
+        console.error('Erreur de chargement des cartes :', e);
+      }
+    }
+
+    function pickNextCard() {
+      if (!revealedCards.length) return null;
+      if (revealedCards.length === 1) return revealedCards[0];
+      let card;
+      do {
+        card = revealedCards[Math.floor(Math.random() * revealedCards.length)];
+      } while (card.code === lastCode);
+      return card;
+    }
+
+    async function rotate() {
+      await refreshCardList(); // reprend la liste à jour à chaque rotation (capture ajoutée en direct incluse)
+      const card = pickNextCard();
+      if (!card) return; // aucune carte révélée pour l'instant, on ne change rien à l'affichage
+
+      lastCode = card.code;
+      const imgUrl = pick(card.image_url, MISSING_IMAGE_URL);
+      const name = pick(card.name, card.code);
+
+      const current = showingA ? document.getElementById('img-a') : document.getElementById('img-b');
+      const next = showingA ? document.getElementById('img-b') : document.getElementById('img-a');
+
+      // précharge avant de faire quoi que ce soit, pour ne jamais montrer une image à moitié chargée
+      const preload = new Image();
+      preload.onload = () => {
+        next.src = imgUrl;
+        next.classList.add('visible');
+        current.classList.remove('visible');
+        document.getElementById('name').textContent = name;
+        showingA = !showingA;
+      };
+      preload.src = imgUrl;
+    }
+
+    rotate();
+    setInterval(rotate, ROTATE_MS);
+  </script>
+</body>
+
+</html>
