@@ -133,14 +133,18 @@
     .art-crop {
       position: relative;
       width: 100%;
-      aspect-ratio: 1088 / 979;
+      aspect-ratio: 1088 / 1029;
       overflow: hidden;
       background: var(--bg3);
     }
-    .art-crop canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
+    .art-crop img {
+      position: absolute;
+      width: 129.963%;
+      height: 194.363%;
+      left: -14.614%;
+      top: -21.380%;
+      max-width: none;
+      object-fit: cover;
     }
 
     .tile-body { padding: 8px 10px; }
@@ -267,54 +271,21 @@
         return;
       }
 
-      grid.innerHTML = cards.map((c, i) => {
+      grid.innerHTML = cards.map(c => {
         const missing = isMissing(c);
+        const imgUrl = missing ? MISSING_IMAGE_URL : pick(c.image_url, MISSING_IMAGE_URL);
         const name = pick(c.name, c.code); // toujours affiché, même manquante : les joueurs doivent savoir quoi chasser
 
         // La rareté ne s'affiche jamais ici (ni en texte, ni en couleur) — page publique, on
         // garde la puissance des cartes surprise jusqu'à la sortie officielle.
         return `<div class="tile ${missing ? 'missing' : ''}">
-          <div class="art-crop"><canvas data-idx="${i}" aria-label="${name}"></canvas></div>
+          <div class="art-crop"><img src="${imgUrl}" alt="${name}" loading="lazy"></div>
           <div class="tile-body">
             <div class="tile-name">${name}</div>
             ${missing ? `<div class="tile-status">${I18N[currentLang].missing}</div>` : ''}
           </div>
         </div>`;
       }).join('');
-
-      // Dessine chaque illustration recadrée sur son <canvas> : ce que "copier l'image" récupère
-      // ensuite ne contient QUE ces pixels-là, jamais le fichier complet (rareté/stats compris).
-      cards.forEach((c, i) => {
-        const canvas = grid.querySelector(`canvas[data-idx="${i}"]`);
-        if (!canvas) return;
-        const missing = isMissing(c);
-        const imgUrl = missing ? MISSING_IMAGE_URL : pick(c.image_url, MISSING_IMAGE_URL);
-        drawCroppedArt(canvas, imgUrl);
-      });
-    }
-
-    // Fenêtre d'illustration sur le gabarit de carte source (1414x2000) — mêmes coordonnées que
-    // le recadrage CSS précédent (x=159, y=220, largeur/hauteur 1088x1029).
-    const ART_CROP = { x: 159, y: 270, w: 1088, h: 979 };
-    const CANVAS_WIDTH = 300; // résolution interne du canvas — largement suffisante pour une vignette de grille
-
-    function drawCroppedArt(canvas, imgUrl) {
-      const scale = CANVAS_WIDTH / ART_CROP.w;
-      canvas.width = CANVAS_WIDTH;
-      canvas.height = Math.round(ART_CROP.h * scale);
-
-      const img = new Image();
-      img.crossOrigin = 'anonymous'; // nécessaire pour dessiner sur le canvas sans le rendre "tainted"
-      img.onload = () => {
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(
-          img,
-          ART_CROP.x, ART_CROP.y, ART_CROP.w, ART_CROP.h, // zone à extraire de l'image source
-          0, 0, canvas.width, canvas.height // dessinée pour remplir tout le canvas
-        );
-      };
-      img.onerror = () => console.error('Erreur de chargement image :', imgUrl);
-      img.src = imgUrl;
     }
 
     function isMissing(card) {
