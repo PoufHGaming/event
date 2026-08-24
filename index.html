@@ -69,6 +69,8 @@
     .event-card:hover .event-banner-gloire { filter: brightness(1.1); }
     .event-banner-pagaille { background: linear-gradient(135deg, #080d12 0%, #0d1520 40%, #080d12 100%); background-image: url('images/event/dungeonmayhem.jpg'); background-size: cover; background-position: center; }
     .event-banner-pagaille::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,13,18,0.35) 0%, rgba(8,13,18,0.75) 100%), radial-gradient(ellipse at 50% 50%, rgba(76,168,168,0.1) 0%, transparent 70%); }
+    .event-banner-stronghold { background: linear-gradient(135deg, #080d12 0%, #0d1520 40%, #080d12 100%); background-image: url('images/event/stronghold.png'); background-size: cover; background-position: center; }
+    .event-banner-stronghold::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,13,18,0.35) 0%, rgba(8,13,18,0.75) 100%), radial-gradient(ellipse at 50% 50%, rgba(76,168,168,0.1) 0%, transparent 70%); }
     .event-banner-strongholdrush { background: linear-gradient(135deg, #080d12 0%, #0d1520 40%, #080d12 100%); background-image: url('images/event/strongholdrush.jpg'); background-size: cover; background-position: center; }
     .event-banner-strongholdrush::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,13,18,0.35) 0%, rgba(8,13,18,0.75) 100%), radial-gradient(ellipse at 50% 50%, rgba(76,168,168,0.1) 0%, transparent 70%); }
     /* ── HARDCORE BANNER ── */
@@ -236,6 +238,27 @@
         <div class="category-label" data-fr="À venir" data-en="Upcoming">À venir</div>
         <div class="events-grid">
 
+          <!-- ── Stronghold ── -->
+          <a href="stronghold/index.html" class="event-card">
+            <div class="event-banner event-banner-stronghold"></div>
+            <div class="event-body">
+              <div class="event-status upcoming" data-fr="Coming soon" data-en="Coming soon">Coming Soon</div>
+              <div class="event-name" data-fr="The Stronghold" data-en="The Stronghold">The Stronghold</div>
+              <div class="event-desc"
+                data-fr="Un jeu de carte à collectionner. Obtiens des points via les events ou le live Twitch et ouvre tes booster sur Discord."
+                data-en="A collectible card game. Earn points through events or Twitch live streams, and open your booster packs on Discord.">
+                A collectible card game. Earn points through events or Twitch live streams, and open your booster packs on Discord.
+              </div>
+              <div class="event-meta">
+                <span class="event-dates" data-fr="27 Aout" data-en="August 27th">27 Aout</span>
+                <span class="event-cta">
+                  <span data-fr="Voir" data-en="View">Voir</span>
+                  <span class="event-cta-arrow">→</span>
+                </span>
+              </div>
+            </div>
+          </a>
+
           <!-- ── Glory PS3 ── -->
           <a href="gloire/index.html?saison=3" class="event-card">
             <div class="event-banner event-banner-gloire"></div>
@@ -248,7 +271,7 @@
                 La suite de l'event hauts-faits de donjons revient pour une nouvelle saison. Annonce officielle très prochainement.
               </div>
               <div class="event-meta">
-                <span class="event-dates" data-fr="8 Septembre" data-en="September 8">Dates à venir</span>
+                <span class="event-dates" data-fr="8 Septembre" data-en="September 8th">Dates à venir</span>
                 <span class="event-cta">
                   <span data-fr="Voir" data-en="View">Voir</span>
                   <span class="event-cta-arrow">→</span>
@@ -283,7 +306,7 @@
             <div class="event-banner event-banner-strongholdrush"></div>
             <div class="event-body">
               <div class="event-status upcoming" data-fr="Coming Soon" data-en="Coming Soon">Coming Soon</div>
-              <div class="event-name" data-fr="Stronghold Rush" data-en="Stronghold Rush">Stronghold Rush</div>
+              <div class="event-name" data-fr="Stronghold Rush · Tournoi" data-en="Stronghold Rush · Tournament">Stronghold Rush · Tournoi</div>
               <div class="event-desc"
                 data-fr="Tournoi de speedrun en équipe. Soyez l'équipe la plus rapide à compléter une série de donjons."
                 data-en="Team speedrun tournament. Be the fastest team to complete a series of dungeons.">
