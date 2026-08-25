@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Stronghold — Soirée d'ouverture</title>
+  <title>The STRONGHOLD — Soirée d'ouverture</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
@@ -68,19 +68,23 @@
       max-width: 1300px;
       margin: 32px auto 60px;
       padding: 0 24px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 22px;
     }
 
     .tile {
+      width: 160px;
+      flex: 0 0 auto;
       background: var(--bg2);
       border: 1px solid var(--border);
       border-radius: 6px;
       overflow: hidden;
       transition: transform 0.4s ease, opacity 0.4s ease;
+      box-shadow: 0 0 var(--glow-blur, 0px) var(--glow-spread, 0px) var(--glow-color, transparent);
     }
-    .tile.hidden-card { opacity: 0.5; }
+    .tile.hidden-card { opacity: 0.75; } /* un peu plus visible qu'avant : le glow doit se voir */
     .tile.just-revealed { animation: pop 0.6s ease; }
     @keyframes pop {
       0% { transform: scale(0.85); opacity: 0; }
@@ -135,18 +139,39 @@
       return jsonField.fr || Object.values(jsonField)[0] || fallback || '';
     }
 
+    /** Convertit un hex (#rrggbb) en rgba avec l'opacité donnée, pour un glow doux plutôt qu'un aplat. */
+    function hexToRgba(hex, alpha) {
+      const h = hex.replace('#', '');
+      const r = parseInt(h.substring(0, 2), 16);
+      const g = parseInt(h.substring(2, 4), 16);
+      const b = parseInt(h.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
     let previouslyRevealedIds = new Set(); // pour savoir quelles cartes sont NOUVELLEMENT révélées à ce rafraîchissement
+    let raritiesByCode = {};
 
     async function refresh() {
-      let cards;
+      let cards, rarities;
       try {
-        cards = await sbFetch('/rest/v1/tcg_cards?select=id,code,name,image_url,is_revealed&is_active=eq.true');
+        [cards, rarities] = await Promise.all([
+          sbFetch('/rest/v1/tcg_cards?select=id,code,name,image_url,rarity,is_revealed&is_active=eq.true'),
+          sbFetch('/rest/v1/tcg_rarities?select=code,color_hex,sort_order'),
+        ]);
       } catch (e) {
         document.getElementById('grid').innerHTML = `<div class="empty-state">Erreur de chargement : ${e.message}</div>`;
         return;
       }
 
-      cards.sort((a, b) => pick(a.name, a.code).localeCompare(pick(b.name, b.code)));
+      raritiesByCode = Object.fromEntries(rarities.map(r => [r.code, r]));
+
+      // Plus rare en haut : sort_order décroissant, puis alphabétique à égalité de rareté
+      cards.sort((a, b) => {
+        const orderA = raritiesByCode[a.rarity]?.sort_order ?? 0;
+        const orderB = raritiesByCode[b.rarity]?.sort_order ?? 0;
+        if (orderB !== orderA) return orderB - orderA;
+        return pick(a.name, a.code).localeCompare(pick(b.name, b.code));
+      });
 
       const revealedCount = cards.filter(c => c.is_revealed).length;
       document.getElementById('progress-line').innerHTML =
@@ -159,16 +184,23 @@
       }
 
       grid.innerHTML = cards.map(c => {
+        const rarity = raritiesByCode[c.rarity];
+        // Le glow monte en intensité avec la rareté : plus visible pour une Legendary qu'une Uncommon.
+        const order = rarity?.sort_order ?? 1;
+        const glowStyle = rarity
+          ? `--glow-color:${hexToRgba(rarity.color_hex, 0.55)}; --glow-blur:${8 + order * 6}px; --glow-spread:${order}px;`
+          : '';
+
         const isNew = c.is_revealed && !previouslyRevealedIds.has(c.id);
         if (!c.is_revealed) {
-          return `<div class="tile hidden-card">
+          return `<div class="tile hidden-card" style="${glowStyle}">
             <div class="art"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:48px;color:var(--border);">?</div></div>
             <div class="name">???</div>
           </div>`;
         }
         const imgUrl = pick(c.image_url, '');
         const name = pick(c.name, c.code);
-        return `<div class="tile ${isNew ? 'just-revealed' : ''}">
+        return `<div class="tile ${isNew ? 'just-revealed' : ''}" style="${glowStyle}">
           <div class="art"><img src="${imgUrl}" alt="${name}" loading="lazy"></div>
           <div class="name">${name}</div>
         </div>`;
