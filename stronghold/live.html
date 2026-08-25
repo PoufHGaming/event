@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Stronghold — Soirée d'ouverture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --bg: #0a0a0e;
+      --bg2: #12121a;
+      --bg3: #1c1c28;
+      --border: rgba(201, 168, 76, 0.2);
+      --text: #e8e0d0;
+      --text-muted: #706860;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 300;
+      min-height: 100vh;
+      font-size: 17px;
+    }
+
+    header {
+      text-align: center;
+      padding: 36px 24px 24px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .page-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .progress-line {
+      text-align: center;
+      margin: 22px auto 0;
+      font-family: 'Cinzel', serif;
+      font-size: clamp(20px, 3vw, 30px);
+      color: var(--gold-light);
+      letter-spacing: 0.04em;
+    }
+    .progress-line span { color: var(--text); opacity: 0.5; font-size: 0.7em; }
+
+    .grid {
+      max-width: 1300px;
+      margin: 32px auto 60px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .tile {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+    .tile.hidden-card { opacity: 0.5; }
+    .tile.just-revealed { animation: pop 0.6s ease; }
+    @keyframes pop {
+      0% { transform: scale(0.85); opacity: 0; }
+      60% { transform: scale(1.04); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    .art {
+      width: 100%;
+      aspect-ratio: 707 / 1000; /* ratio plein format de carte, pas de recadrage ici */
+      overflow: hidden;
+      background: var(--bg3);
+    }
+    .art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .name {
+      padding: 8px 10px;
+      font-size: 14px;
+      color: var(--text);
+      text-align: center;
+    }
+    .hidden-card .name { color: var(--text-muted); font-style: italic; }
+
+    .empty-state { text-align: center; color: var(--text-muted); padding: 60px 24px; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="page-title">Soirée d'ouverture — Fellowship TCG</div>
+  </header>
+
+  <div class="progress-line" id="progress-line">Chargement…</div>
+
+  <div class="grid" id="grid"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    const REFRESH_MS = 8000; // vérifie les nouvelles révélations toutes les 8s pendant le live
+
+    async function sbFetch(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function pick(jsonField, fallback) {
+      if (!jsonField) return fallback || '';
+      return jsonField.fr || Object.values(jsonField)[0] || fallback || '';
+    }
+
+    let previouslyRevealedIds = new Set(); // pour savoir quelles cartes sont NOUVELLEMENT révélées à ce rafraîchissement
+
+    async function refresh() {
+      let cards;
+      try {
+        cards = await sbFetch('/rest/v1/tcg_cards?select=id,code,name,image_url,is_revealed&is_active=eq.true');
+      } catch (e) {
+        document.getElementById('grid').innerHTML = `<div class="empty-state">Erreur de chargement : ${e.message}</div>`;
+        return;
+      }
+
+      cards.sort((a, b) => pick(a.name, a.code).localeCompare(pick(b.name, b.code)));
+
+      const revealedCount = cards.filter(c => c.is_revealed).length;
+      document.getElementById('progress-line').innerHTML =
+        `${revealedCount}<span> / ${cards.length} cartes révélées ce soir</span>`;
+
+      const grid = document.getElementById('grid');
+      if (!cards.length) {
+        grid.innerHTML = '<div class="empty-state">Aucune carte à afficher.</div>';
+        return;
+      }
+
+      grid.innerHTML = cards.map(c => {
+        const isNew = c.is_revealed && !previouslyRevealedIds.has(c.id);
+        if (!c.is_revealed) {
+          return `<div class="tile hidden-card">
+            <div class="art"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:48px;color:var(--border);">?</div></div>
+            <div class="name">???</div>
+          </div>`;
+        }
+        const imgUrl = pick(c.image_url, '');
+        const name = pick(c.name, c.code);
+        return `<div class="tile ${isNew ? 'just-revealed' : ''}">
+          <div class="art"><img src="${imgUrl}" alt="${name}" loading="lazy"></div>
+          <div class="name">${name}</div>
+        </div>`;
+      }).join('');
+
+      previouslyRevealedIds = new Set(cards.filter(c => c.is_revealed).map(c => c.id));
+    }
+
+    refresh();
+    setInterval(refresh, REFRESH_MS);
+  </script>
+</body>
+
+</html>
