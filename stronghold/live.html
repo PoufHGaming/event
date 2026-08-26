@@ -176,6 +176,15 @@
     }
     .hidden-card .name { color: var(--text-muted); font-style: italic; }
 
+    .quantity {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      color: var(--gold-light);
+      text-align: center;
+      padding: 0 10px 8px;
+      opacity: 0.85;
+    }
+
     .empty-state { text-align: center; color: var(--text-muted); padding: 60px 24px; }
 
     /* Fenêtre "qui possède cette carte" */
@@ -300,20 +309,26 @@
 
     let currentLang = 'fr';
 
+    /** Ne plante jamais si l'élément n'existe pas (encore) — se contente de ne rien faire. */
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
     function setLang(lang) {
       currentLang = lang;
       document.documentElement.lang = lang;
-      document.getElementById('lang-btn-fr').classList.toggle('active', lang === 'fr');
-      document.getElementById('lang-btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('lang-btn-fr')?.classList.toggle('active', lang === 'fr');
+      document.getElementById('lang-btn-en')?.classList.toggle('active', lang === 'en');
 
       const t = I18N[lang];
-      document.getElementById('tagline').textContent = t.tagline;
-      document.getElementById('label-view').textContent = t.viewLabel;
-      document.getElementById('option-all-users').textContent = t.allUsers;
-      document.getElementById('option-status-all').textContent = t.statusAll;
-      document.getElementById('option-status-obtained').textContent = t.statusObtained;
-      document.getElementById('option-status-missing').textContent = t.statusMissing;
-      document.getElementById('modal-close-btn').textContent = t.close;
+      setText('tagline', t.tagline);
+      setText('label-view', t.viewLabel);
+      setText('option-all-users', t.allUsers);
+      setText('option-status-all', t.statusAll);
+      setText('option-status-obtained', t.statusObtained);
+      setText('option-status-missing', t.statusMissing);
+      setText('modal-close-btn', t.close);
 
       render(); // les noms de cartes et les libellés du compteur suivent aussi la langue
     }
@@ -357,6 +372,17 @@
       return cardIdsByUsername.get(filter)?.has(card.id) || false;
     }
 
+    /** En mode "Tous" : total cumulé de tous les possesseurs. En mode utilisateur précis :
+     * uniquement le nombre d'exemplaires que CETTE personne possède. */
+    function getDisplayQuantity(card) {
+      const filter = currentFilter();
+      if (!filter) {
+        const owners = ownersByCardId.get(card.id) || [];
+        return owners.reduce((sum, o) => sum + o.quantity, 0);
+      }
+      return cardIdsByUsername.get(filter)?.get(card.id) || 0;
+    }
+
     async function load() {
       let cards, rarities, collections, users;
       try {
@@ -377,8 +403,8 @@
       const unknownLabel = I18N[currentLang].unknownUser;
       const usernameById = new Map(users.map(u => [u.id, u.username || unknownLabel]));
 
-      ownersByCardId = new Map();
-      cardIdsByUsername = new Map();
+      ownersByCardId = new Map();   // card_id -> [{username, quantity}, ...]
+      cardIdsByUsername = new Map(); // username -> Map(card_id -> quantity)
       const usernamesSet = new Set();
 
       for (const row of collections) {
@@ -386,10 +412,10 @@
         usernamesSet.add(username);
 
         if (!ownersByCardId.has(row.card_id)) ownersByCardId.set(row.card_id, []);
-        ownersByCardId.get(row.card_id).push(username);
+        ownersByCardId.get(row.card_id).push({ username, quantity: row.quantity });
 
-        if (!cardIdsByUsername.has(username)) cardIdsByUsername.set(username, new Set());
-        cardIdsByUsername.get(username).add(row.card_id);
+        if (!cardIdsByUsername.has(username)) cardIdsByUsername.set(username, new Map());
+        cardIdsByUsername.get(username).set(row.card_id, row.quantity);
       }
 
       allCards = cards.sort((a, b) => {
@@ -460,9 +486,11 @@
         }
         const imgUrl = pick(c.image_url, '');
         const name = pick(c.name, c.code);
+        const qty = getDisplayQuantity(c);
         return `<div class="tile ${isNew ? 'just-revealed' : ''} ${clickable ? 'clickable' : ''}" style="${glowStyle}" ${clickable ? `onclick="showOwners('${c.id}')"` : ''}>
           <div class="art"><img src="${imgUrl}" alt="${name}" loading="lazy"></div>
           <div class="name">${name}</div>
+          <div class="quantity">×${qty}</div>
         </div>`;
       }).join('');
 
@@ -472,10 +500,10 @@
     function showOwners(cardId) {
       const t = I18N[currentLang];
       const card = cardsById.get(cardId);
-      const owners = ownersByCardId.get(cardId) || [];
+      const owners = [...(ownersByCardId.get(cardId) || [])].sort((a, b) => b.quantity - a.quantity);
       document.getElementById('modal-card-name').textContent = pick(card?.name, card?.code || '');
       document.getElementById('modal-owners-list').innerHTML = owners.length
-        ? owners.map(o => `<div>🎴 ${esc(o)}</div>`).join('')
+        ? owners.map(o => `<div>🎴 ${esc(o.username)} ×${o.quantity}</div>`).join('')
         : `<div style="color:var(--text-muted); font-style:italic;">${t.noOwnersYet}</div>`;
       document.getElementById('owners-modal').classList.add('open');
     }
