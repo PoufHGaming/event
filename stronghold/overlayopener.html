@@ -76,7 +76,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
     const REFRESH_MS = 2000; // plus rapide que les autres overlays : on veut détecter un nouveau tirage vite
     const NOT_FOUND_TEXT = 'Not found yet';
-    const SPIN_TOTAL_MS = 2800; // durée totale de l'animation de défilement
+    const SPIN_TOTAL_MS = 8400; // durée totale de l'animation de défilement (x3 par rapport à avant)
 
     async function sbFetch(path) {
       const res = await fetch(SUPABASE_URL + path, {
@@ -88,16 +88,16 @@
 
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    /** Séquence de délais entre chaque nom affiché : rapide au début, ralentit progressivement
-     * jusqu'à SPIN_TOTAL_MS — l'effet classique "machine à sous" qui se pose en douceur. */
+    /** Séquence de délais entre chaque nom affiché : quasi illisible au début (35ms), ralentit
+     * progressivement jusqu'à SPIN_TOTAL_MS — l'effet classique "machine à sous" qui se pose en douceur. */
     function buildSpinDelays() {
       const delays = [];
-      let delay = 70;
+      let delay = 35;
       let total = 0;
       while (total < SPIN_TOTAL_MS) {
         delays.push(delay);
         total += delay;
-        delay = Math.min(delay * 1.18, 480);
+        delay = Math.min(delay * 1.12, 550);
       }
       return delays;
     }
