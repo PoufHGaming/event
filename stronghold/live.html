@@ -203,7 +203,7 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 28px;
-      max-width: 340px;
+      max-width: 300px;
       width: 100%;
       text-align: center;
     }
@@ -211,9 +211,16 @@
       font-family: 'Cinzel', serif;
       color: var(--gold-light);
       font-size: 20px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
-    .modal-owners { margin-bottom: 20px; max-height: 240px; overflow-y: auto; }
+    .modal-card-image {
+      margin: 0 0 18px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .modal-card-image img { width: 100%; height: auto; display: block; }
+    .modal-owners { margin-bottom: 20px; max-height: 200px; overflow-y: auto; }
     .modal-owners div { padding: 5px 0; font-size: 16px; }
     .modal-close-btn {
       background: var(--bg3); color: var(--text); border: 1px solid var(--border);
@@ -260,6 +267,7 @@
   <div class="modal-overlay" id="owners-modal">
     <div class="modal-box">
       <div class="modal-title" id="modal-card-name"></div>
+      <div class="modal-card-image"><img id="modal-card-img" src="" alt=""></div>
       <div class="modal-owners" id="modal-owners-list"></div>
       <button class="modal-close-btn" id="modal-close-btn" onclick="closeOwnersModal()">Fermer</button>
     </div>
@@ -476,7 +484,7 @@
 
         const revealed = isRevealed(c);
         const isNew = revealed && !previouslyRevealedIds.has(c.id);
-        const clickable = revealed && !currentFilter();
+        const clickable = revealed; // cliquable dans les deux modes désormais (image agrandie dans tous les cas)
 
         if (!revealed) {
           return `<div class="tile hidden-card" style="${glowStyle}">
@@ -500,11 +508,27 @@
     function showOwners(cardId) {
       const t = I18N[currentLang];
       const card = cardsById.get(cardId);
-      const owners = [...(ownersByCardId.get(cardId) || [])].sort((a, b) => b.quantity - a.quantity);
+      const filter = currentFilter();
+
       document.getElementById('modal-card-name').textContent = pick(card?.name, card?.code || '');
-      document.getElementById('modal-owners-list').innerHTML = owners.length
-        ? owners.map(o => `<div>🎴 ${esc(o.username)} ×${o.quantity}</div>`).join('')
-        : `<div style="color:var(--text-muted); font-style:italic;">${t.noOwnersYet}</div>`;
+      const img = document.getElementById('modal-card-img');
+      img.src = pick(card?.image_url, '');
+      img.alt = pick(card?.name, card?.code || '');
+
+      const ownersListEl = document.getElementById('modal-owners-list');
+      if (!filter) {
+        // Mode "Tous" : la carte peut appartenir à plusieurs personnes, on les liste.
+        const owners = [...(ownersByCardId.get(cardId) || [])].sort((a, b) => b.quantity - a.quantity);
+        ownersListEl.style.display = '';
+        ownersListEl.innerHTML = owners.length
+          ? owners.map(o => `<div>🎴 ${esc(o.username)} ×${o.quantity}</div>`).join('')
+          : `<div style="color:var(--text-muted); font-style:italic;">${t.noOwnersYet}</div>`;
+      } else {
+        // Mode utilisateur précis : inutile de re-lister, on sait déjà qui regarde sa collection.
+        ownersListEl.style.display = 'none';
+        ownersListEl.innerHTML = '';
+      }
+
       document.getElementById('owners-modal').classList.add('open');
     }
 
