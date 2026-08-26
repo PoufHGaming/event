@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stream Reveal — Stronghold</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --bg: #0a0a0e;
+      --bg2: #12121a;
+      --bg3: #1c1c28;
+      --border: rgba(201, 168, 76, 0.2);
+      --border-bright: rgba(201, 168, 76, 0.5);
+      --text: #e8e0d0;
+      --text-muted: #706860;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 300;
+      min-height: 100vh;
+      font-size: 16px;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Colonne gauche : liste des ouvertures récentes ── */
+    .sidebar {
+      width: 320px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding: 20px 14px;
+      max-height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      padding: 0 6px;
+    }
+    .opening-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .opening-entry:hover { background: var(--bg2); }
+    .opening-entry.selected { background: var(--bg2); border-color: var(--border-bright); }
+    .opening-entry .who { font-size: 15px; }
+    .opening-entry .when { font-size: 12px; color: var(--text-muted); }
+    .opening-dots { display: flex; gap: 3px; margin-top: 4px; }
+    .opening-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .sidebar-empty { color: var(--text-muted); font-style: italic; font-size: 14px; padding: 10px; }
+
+    /* ── Zone principale : révélation ── */
+    .main {
+      flex: 1;
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .main-title {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      color: var(--gold-light);
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .main-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; text-align: center; }
+
+    .empty-state { color: var(--text-muted); font-style: italic; margin-top: 80px; text-align: center; }
+
+    .cards-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 26px;
+    }
+
+    .card-slot {
+      width: 200px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .card-slot:hover { transform: translateY(-4px); }
+    .card-slot.locked { cursor: default; }
+    .card-slot.locked:hover { transform: none; }
+
+    .card-frame {
+      width: 100%;
+      aspect-ratio: 707 / 1000;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      box-shadow: 0 0 var(--glow-blur, 0px) var(--glow-spread, 0px) var(--glow-color, transparent);
+      transition: box-shadow 0.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card-frame .placeholder { font-family: 'Cinzel', serif; font-size: 15px; color: var(--text-muted); text-align: center; padding: 10px; }
+
+    .card-label {
+      text-align: center;
+      margin-top: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    @keyframes cardPop {
+      0% { transform: scale(0.9); opacity: 0.4; }
+      60% { transform: scale(1.03); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .card-frame.just-revealed { animation: cardPop 0.5s ease; }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <div class="sidebar">
+      <h2>Ouvertures récentes</h2>
+      <div id="openings-list"><div class="sidebar-empty">Chargement…</div></div>
+    </div>
+
+    <div class="main">
+      <div class="main-title" id="main-title">Sélectionne une ouverture</div>
+      <div class="main-sub" id="main-sub"></div>
+      <div id="reveal-area"><div class="empty-state">Clique sur une ouverture à gauche pour commencer.</div></div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    const LIST_REFRESH_MS = 6000;
+
+    // Renseigne ces URLs une fois les 2 sons prêts — tant que c'est vide, la page fonctionne
+    // normalement, juste sans le son (dégradation silencieuse, jamais bloquant).
+    const SOUND_MID_URL = '';       // Epic / Heroic / Regal
+    const SOUND_LEGENDARY_URL = ''; // Legendary
+
+    // Délai (ms) avant de révéler la carte, selon sa rareté — le son a le temps de se jouer avant.
+    const REVEAL_DELAY_MS = {
+      UNCOMMON: 0, RARE: 0,
+      EPIC: 1000, HEROIC: 1000, REGAL: 1000,
+      LEGENDARY: 3000,
+    };
+
+    async function sbFetch(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    function pick(jsonField, fallback) {
+      if (!jsonField) return fallback || '';
+      return jsonField.fr || Object.values(jsonField)[0] || fallback || '';
+    }
+
+    function hexToRgba(hex, alpha) {
+      const h = (hex || '999999').replace('#', '');
+      const r = parseInt(h.substring(0, 2), 16);
+      const g = parseInt(h.substring(2, 4), 16);
+      const b = parseInt(h.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    let raritiesByCode = {};
+    let cardsById = new Map();
+    let usernameById = new Map();
+    let selectedOpeningId = null;
+    let openings = [];
+
+    async function loadReferenceData() {
+      const [rarities, cards] = await Promise.all([
+        sbFetch('/rest/v1/tcg_rarities?select=code,color_hex,sort_order'),
+        sbFetch('/rest/v1/tcg_cards?select=id,name,image_url,rarity'),
+      ]);
+      raritiesByCode = Object.fromEntries(rarities.map(r => [r.code, r]));
+      cardsById = new Map(cards.map(c => [c.id, c]));
+    }
+
+    async function loadOpenings() {
+      try {
+        const [rows, users] = await Promise.all([
+          sbFetch('/rest/v1/tcg_booster_openings?select=id,user_id,cards_obtained,opened_at&order=opened_at.desc&limit=30'),
+          sbFetch('/rest/v1/tcg_users?select=id,username'),
+        ]);
+        usernameById = new Map(users.map(u => [u.id, u.username || '???']));
+        openings = rows;
+        renderOpeningsList();
+      } catch (e) {
+        document.getElementById('openings-list').innerHTML = `<div class="sidebar-empty">Erreur : ${esc(e.message)}</div>`;
+      }
+    }
+
+    function renderOpeningsList() {
+      const el = document.getElementById('openings-list');
+      if (!openings.length) {
+        el.innerHTML = '<div class="sidebar-empty">Aucune ouverture récente.</div>';
+        return;
+      }
+      el.innerHTML = openings.map(o => {
+        const username = usernameById.get(o.user_id) || '???';
+        const time = new Date(o.opened_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        const dots = (o.cards_obtained || []).map(c => {
+          const color = raritiesByCode[c.rarity]?.color_hex || '#706860';
+          return `<span class="opening-dot" style="background:${color}"></span>`;
+        }).join('');
+        return `<div class="opening-entry ${o.id === selectedOpeningId ? 'selected' : ''}" onclick="selectOpening('${o.id}')">
+          <div>
+            <div class="who">${esc(username)}</div>
+            <div class="opening-dots">${dots}</div>
+          </div>
+          <div class="when">${time}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function selectOpening(openingId) {
+      selectedOpeningId = openingId;
+      const opening = openings.find(o => o.id === openingId);
+      renderOpeningsList();
+      if (!opening) return;
+
+      const username = usernameById.get(opening.user_id) || '???';
+      document.getElementById('main-title').textContent = `Ouverture de ${username}`;
+      document.getElementById('main-sub').textContent = new Date(opening.opened_at).toLocaleTimeString('fr-FR');
+
+      const cards = opening.cards_obtained || [];
+      const area = document.getElementById('reveal-area');
+      area.innerHTML = `<div class="cards-row">` + cards.map((c, i) => `
+        <div class="card-slot locked" id="slot-${i}" onclick="revealCard(${i})">
+          <div class="card-frame" id="frame-${i}"><div class="placeholder">?</div></div>
+          <div class="card-label">Carte ${i + 1}</div>
+        </div>
+      `).join('') + `</div>`;
+
+      // Stocke les données de CETTE ouverture pour que revealCard() puisse les lire par index.
+      window.__currentOpeningCards = cards;
+    }
+
+    async function revealCard(index) {
+      const cards = window.__currentOpeningCards || [];
+      const entry = cards[index];
+      if (!entry) return;
+
+      const slot = document.getElementById(`slot-${index}`);
+      const frame = document.getElementById(`frame-${index}`);
+      if (!slot || !frame || slot.classList.contains('done')) return; // déjà révélée, ignore un re-clic
+      slot.classList.add('done');
+      slot.classList.remove('locked'); // reste cliquable visuellement neutre, mais done bloque un second déclenchement
+
+      const rarity = entry.rarity;
+      const rarityInfo = raritiesByCode[rarity];
+      const delay = REVEAL_DELAY_MS[rarity] ?? 0;
+      const isMidTier = ['EPIC', 'HEROIC', 'REGAL'].includes(rarity);
+      const isLegendary = rarity === 'LEGENDARY';
+
+      // Glow pendant l'attente, teinté selon la rareté
+      if (rarityInfo) {
+        const order = rarityInfo.sort_order || 1;
+        frame.style.setProperty('--glow-color', hexToRgba(rarityInfo.color_hex, 0.6));
+        frame.style.setProperty('--glow-blur', `${10 + order * 6}px`);
+        frame.style.setProperty('--glow-spread', `${order}px`);
+      }
+
+      const soundUrl = isLegendary ? SOUND_LEGENDARY_URL : (isMidTier ? SOUND_MID_URL : '');
+      if (soundUrl) {
+        try { new Audio(soundUrl).play().catch(() => {}); } catch (e) { /* silencieux si ça échoue */ }
+      }
+
+      if (delay > 0) await sleep(delay);
+
+      const card = cardsById.get(entry.card_id);
+      const imgUrl = pick(card?.image_url, '');
+      const name = pick(card?.name, '');
+      frame.innerHTML = `<img src="${imgUrl}" alt="${esc(name)}">`;
+      frame.classList.add('just-revealed');
+      document.querySelector(`#slot-${index} .card-label`).textContent = name || `Carte ${index + 1}`;
+    }
+
+    (async () => {
+      try {
+        await loadReferenceData();
+      } catch (e) {
+        document.getElementById('openings-list').innerHTML = `<div class="sidebar-empty">Erreur : ${esc(e.message)}</div>`;
+        return;
+      }
+      loadOpenings();
+      setInterval(loadOpenings, LIST_REFRESH_MS);
+    })();
+  </script>
+</body>
+
+</html>
