@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The STRONGHOLD — Soirée d'ouverture</title>
+  <title>The Stronghold — Fellowship TCG</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
@@ -17,6 +17,7 @@
       --bg2: #12121a;
       --bg3: #1c1c28;
       --border: rgba(201, 168, 76, 0.2);
+      --border-bright: rgba(201, 168, 76, 0.5);
       --text: #e8e0d0;
       --text-muted: #706860;
     }
@@ -32,17 +33,52 @@
       font-size: 17px;
     }
 
+    /* ── Nav : Accueil + langue ── */
+    nav {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 7px 10px;
+      border-radius: 4px;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+    .home-btn:hover { color: var(--gold-light); background: var(--bg2); }
+    .nav-right { margin-left: auto; }
+    .lang-toggle { display: flex; gap: 2px; }
+    .lang-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      padding: 7px 14px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .lang-btn:first-child { border-radius: 3px 0 0 3px; }
+    .lang-btn:last-child { border-radius: 0 3px 3px 0; }
+    .lang-btn.active { color: var(--gold-light); border-color: var(--border-bright); background: rgba(201,168,76,0.1); font-weight: 600; }
+
+    /* ── En-tête : logo, titre, phrase d'accroche ── */
     header {
       text-align: center;
-      padding: 36px 24px 24px;
-      border-bottom: 1px solid var(--border);
-      position: relative;
+      padding: 28px 24px 20px;
     }
-    header::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+
+    .site-logo {
+      display: block;
+      max-width: 300px;
+      width: 55%;
+      height: auto;
+      margin: 0 auto 4px;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.65));
     }
 
     .page-title {
@@ -54,12 +90,20 @@
       text-transform: uppercase;
     }
 
+    .tagline {
+      margin-top: 8px;
+      font-size: 15px;
+      font-style: italic;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+    }
+
     .toolbar {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin: 20px auto 0;
+      margin: 22px auto 0;
       font-family: 'Cinzel', serif;
       font-size: 14px;
       letter-spacing: 0.05em;
@@ -175,14 +219,35 @@
 </head>
 
 <body>
+  <nav>
+    <!-- Chemin relatif : suppose que live.html est hébergé dans le même dossier que index.html.
+         Ajuste en "../index.html" ou le chemin qui convient si ta structure de dossiers diffère. -->
+    <a href="index.html" class="home-btn" title="Accueil">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </a>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" id="lang-btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </nav>
+
   <header>
-    <div class="page-title">Soirée d'ouverture — Fellowship TCG</div>
+    <img src="logo-stronghold.png" alt="The Stronghold" class="site-logo">
+    <div class="page-title">The Stronghold</div>
+    <div class="tagline" id="tagline"></div>
   </header>
 
   <div class="toolbar">
-    <label for="user-filter">Voir :</label>
+    <label for="user-filter" id="label-view">Voir :</label>
     <select id="user-filter">
-      <option value="">Tous (ALL)</option>
+      <option value="" id="option-all-users">Tous (ALL)</option>
+    </select>
+    <select id="status-filter">
+      <option value="" id="option-status-all">Toutes</option>
+      <option value="obtained" id="option-status-obtained">Obtenues</option>
+      <option value="missing" id="option-status-missing">Manquantes</option>
     </select>
   </div>
 
@@ -194,7 +259,7 @@
     <div class="modal-box">
       <div class="modal-title" id="modal-card-name"></div>
       <div class="modal-owners" id="modal-owners-list"></div>
-      <button class="modal-close-btn" onclick="closeOwnersModal()">Fermer</button>
+      <button class="modal-close-btn" id="modal-close-btn" onclick="closeOwnersModal()">Fermer</button>
     </div>
   </div>
 
@@ -202,6 +267,63 @@
     const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
     const REFRESH_MS = 8000;
+
+    const I18N = {
+      fr: {
+        tagline: 'Un TCG Fellowship créé par Pouf_HGaming',
+        viewLabel: 'Voir :',
+        allUsers: 'Tous (ALL)',
+        statusAll: 'Toutes',
+        statusObtained: 'Obtenues',
+        statusMissing: 'Manquantes',
+        loading: 'Chargement…',
+        progressCommunity: (n, total) => `${n} / ${total} cartes obtenues par la communauté`,
+        progressUser: (n, total, name) => `${n} / ${total} cartes obtenues par ${name}`,
+        emptyNoCards: 'Aucune carte à afficher.',
+        emptyNoMatch: 'Aucune carte ne correspond à ce filtre.',
+        errorLoading: (msg) => `Erreur de chargement : ${msg}`,
+        noOwnersYet: 'Personne pour l\'instant',
+        unknownUser: 'Inconnu',
+        close: 'Fermer',
+      },
+      en: {
+        tagline: 'A Fellowship TCG created by Pouf_HGaming',
+        viewLabel: 'View:',
+        allUsers: 'All',
+        statusAll: 'All',
+        statusObtained: 'Obtained',
+        statusMissing: 'Missing',
+        loading: 'Loading…',
+        progressCommunity: (n, total) => `${n} / ${total} cards obtained by the community`,
+        progressUser: (n, total, name) => `${n} / ${total} cards obtained by ${name}`,
+        emptyNoCards: 'No cards to display.',
+        emptyNoMatch: 'No cards match this filter.',
+        errorLoading: (msg) => `Error loading: ${msg}`,
+        noOwnersYet: 'No one yet',
+        unknownUser: 'Unknown',
+        close: 'Close',
+      },
+    };
+
+    let currentLang = 'fr';
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.getElementById('lang-btn-fr').classList.toggle('active', lang === 'fr');
+      document.getElementById('lang-btn-en').classList.toggle('active', lang === 'en');
+
+      const t = I18N[lang];
+      document.getElementById('tagline').textContent = t.tagline;
+      document.getElementById('label-view').textContent = t.viewLabel;
+      document.getElementById('option-all-users').textContent = t.allUsers;
+      document.getElementById('option-status-all').textContent = t.statusAll;
+      document.getElementById('option-status-obtained').textContent = t.statusObtained;
+      document.getElementById('option-status-missing').textContent = t.statusMissing;
+      document.getElementById('modal-close-btn').textContent = t.close;
+
+      render(); // les noms de cartes et les libellés du compteur suivent aussi la langue
+    }
 
     async function sbFetch(path) {
       const res = await fetch(SUPABASE_URL + path, {
@@ -213,7 +335,7 @@
 
     function pick(jsonField, fallback) {
       if (!jsonField) return fallback || '';
-      return jsonField.fr || Object.values(jsonField)[0] || fallback || '';
+      return jsonField[currentLang] || jsonField.fr || Object.values(jsonField)[0] || fallback || '';
     }
 
     function hexToRgba(hex, alpha) {
@@ -227,13 +349,13 @@
     let previouslyRevealedIds = new Set();
     let raritiesByCode = {};
     let allCards = [];
-    let ownersByCardId = new Map();   // card_id -> [usernames...]  (mode "Tous")
-    let cardIdsByUsername = new Map(); // username -> Set(card_id)  (mode utilisateur précis)
+    let ownersByCardId = new Map();
+    let cardIdsByUsername = new Map();
     let cardsById = new Map();
     let knownUsernames = [];
 
     function currentFilter() {
-      return document.getElementById('user-filter').value; // '' = Tous
+      return document.getElementById('user-filter').value;
     }
 
     function isRevealed(card) {
@@ -252,21 +374,22 @@
           sbFetch('/rest/v1/tcg_users?select=id,username'),
         ]);
       } catch (e) {
-        document.getElementById('grid').innerHTML = `<div class="empty-state">Erreur de chargement : ${e.message}</div>`;
+        document.getElementById('grid').innerHTML = `<div class="empty-state">${I18N[currentLang].errorLoading(e.message)}</div>`;
         return;
       }
 
       raritiesByCode = Object.fromEntries(rarities.map(r => [r.code, r]));
       cardsById = new Map(cards.map(c => [c.id, c]));
 
-      const usernameById = new Map(users.map(u => [u.id, u.username || 'Inconnu']));
+      const unknownLabel = I18N[currentLang].unknownUser;
+      const usernameById = new Map(users.map(u => [u.id, u.username || unknownLabel]));
 
       ownersByCardId = new Map();
       cardIdsByUsername = new Map();
       const usernamesSet = new Set();
 
       for (const row of collections) {
-        const username = usernameById.get(row.user_id) || 'Inconnu';
+        const username = usernameById.get(row.user_id) || unknownLabel;
         usernamesSet.add(username);
 
         if (!ownersByCardId.has(row.card_id)) ownersByCardId.set(row.card_id, []);
@@ -283,14 +406,12 @@
         return pick(a.name, a.code).localeCompare(pick(b.name, b.code));
       });
 
-      // Repeuple le sélecteur uniquement si la liste de noms a changé, pour ne pas perdre la
-      // sélection en cours du joueur à chaque rafraîchissement automatique.
       const sortedUsernames = [...usernamesSet].sort();
       if (JSON.stringify(sortedUsernames) !== JSON.stringify(knownUsernames)) {
         knownUsernames = sortedUsernames;
         const select = document.getElementById('user-filter');
         const currentValue = select.value;
-        select.innerHTML = '<option value="">Tous (ALL)</option>' +
+        select.innerHTML = `<option value="">${I18N[currentLang].allUsers}</option>` +
           knownUsernames.map(u => `<option value="${escAttr(u)}">${esc(u)}</option>`).join('');
         select.value = knownUsernames.includes(currentValue) ? currentValue : '';
       }
@@ -298,20 +419,36 @@
       render();
     }
 
+    function currentStatusFilter() {
+      return document.getElementById('status-filter').value;
+    }
+
     function render() {
+      const t = I18N[currentLang];
       const filter = currentFilter();
+      const statusFilter = currentStatusFilter();
+
       const revealedCount = allCards.filter(isRevealed).length;
-      const label = filter ? `cartes obtenues par ${filter}` : 'cartes obtenues par la communauté';
-      document.getElementById('progress-line').innerHTML =
-        `${revealedCount}<span> / ${allCards.length} ${label}</span>`;
+      document.getElementById('progress-line').textContent = filter
+        ? t.progressUser(revealedCount, allCards.length, filter)
+        : t.progressCommunity(revealedCount, allCards.length);
 
       const grid = document.getElementById('grid');
       if (!allCards.length) {
-        grid.innerHTML = '<div class="empty-state">Aucune carte à afficher.</div>';
+        grid.innerHTML = `<div class="empty-state">${t.emptyNoCards}</div>`;
         return;
       }
 
-      grid.innerHTML = allCards.map(c => {
+      let cardsToShow = allCards;
+      if (statusFilter === 'obtained') cardsToShow = allCards.filter(isRevealed);
+      if (statusFilter === 'missing') cardsToShow = allCards.filter((c) => !isRevealed(c));
+
+      if (!cardsToShow.length) {
+        grid.innerHTML = `<div class="empty-state">${t.emptyNoMatch}</div>`;
+        return;
+      }
+
+      grid.innerHTML = cardsToShow.map(c => {
         const rarity = raritiesByCode[c.rarity];
         const order = rarity?.sort_order ?? 1;
         const glowStyle = rarity
@@ -320,8 +457,6 @@
 
         const revealed = isRevealed(c);
         const isNew = revealed && !previouslyRevealedIds.has(c.id);
-        // Le clic pour voir les possesseurs n'a de sens qu'en mode "Tous" (en mode utilisateur
-        // précis, on sait déjà qui l'a : c'est la personne sélectionnée).
         const clickable = revealed && !currentFilter();
 
         if (!revealed) {
@@ -342,12 +477,13 @@
     }
 
     function showOwners(cardId) {
+      const t = I18N[currentLang];
       const card = cardsById.get(cardId);
       const owners = ownersByCardId.get(cardId) || [];
       document.getElementById('modal-card-name').textContent = pick(card?.name, card?.code || '');
       document.getElementById('modal-owners-list').innerHTML = owners.length
         ? owners.map(o => `<div>🎴 ${esc(o)}</div>`).join('')
-        : '<div style="color:var(--text-muted); font-style:italic;">Personne pour l\'instant</div>';
+        : `<div style="color:var(--text-muted); font-style:italic;">${t.noOwnersYet}</div>`;
       document.getElementById('owners-modal').classList.add('open');
     }
 
@@ -363,10 +499,15 @@
     }
 
     document.getElementById('user-filter').addEventListener('change', () => {
-      previouslyRevealedIds = new Set(); // évite un flash d'animation "just-revealed" en changeant de vue
+      previouslyRevealedIds = new Set();
+      render();
+    });
+    document.getElementById('status-filter').addEventListener('change', () => {
+      previouslyRevealedIds = new Set();
       render();
     });
 
+    setLang('fr');
     load();
     setInterval(load, REFRESH_MS);
   </script>
