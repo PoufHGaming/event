@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Premiers — Overlay OBS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400&display=swap"
+    rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background: transparent;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100vh;
+      padding: 0 20px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      gap: 14px;
+    }
+
+    .row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.9);
+    }
+
+    .label {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .name {
+      font-size: 26px;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .name.empty {
+      color: #9a9a9a;
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    /* Clin d'oeil léger : juste la couleur du libellé, rien de plus appuyé */
+    .row.heroic .label { color: #ffe36c; }
+    .row.regal .label { color: #ac504e; }
+    .row.legendary .label { color: #ff8001; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="row heroic">
+      <span class="label">First Heroic:</span>
+      <span class="name" id="name-heroic">…</span>
+    </div>
+    <div class="row regal">
+      <span class="label">First Regal:</span>
+      <span class="name" id="name-regal">…</span>
+    </div>
+    <div class="row legendary">
+      <span class="label">First Legendary:</span>
+      <span class="name" id="name-legendary">…</span>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    const REFRESH_MS = 5000;
+    const NOT_FOUND_TEXT = 'Not found yet';
+
+    async function sbFetch(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function setName(elId, value) {
+      const el = document.getElementById(elId);
+      if (value && value.trim()) {
+        el.textContent = value;
+        el.classList.remove('empty');
+      } else {
+        el.textContent = NOT_FOUND_TEXT;
+        el.classList.add('empty');
+      }
+    }
+
+    async function refresh() {
+      try {
+        const rows = await sbFetch('/rest/v1/tcg_live_spotlight?select=*&id=eq.1');
+        const row = rows[0] || {};
+        setName('name-heroic', row.first_heroic_name);
+        setName('name-regal', row.first_regal_name);
+        setName('name-legendary', row.first_legendary_name);
+      } catch (e) {
+        console.error('Erreur de rafraîchissement :', e);
+      }
+    }
+
+    refresh();
+    setInterval(refresh, REFRESH_MS);
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Current Opener — Overlay OBS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      background: transparent;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Cinzel', serif;
+      text-align: center;
+    }
+
+    .label {
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #e8c96a;
+      opacity: 0.85;
+      text-shadow: 0 0 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.9);
+    }
+
+    .name {
+      margin-top: 8px;
+      font-size: 56px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.03em;
+      text-shadow:
+        0 0 16px rgba(201, 168, 76, 0.8),
+        0 0 6px rgba(0,0,0,0.9);
+      padding: 6px 28px;
+      border-top: 2px solid rgba(201, 168, 76, 0.6);
+      border-bottom: 2px solid rgba(201, 168, 76, 0.6);
+    }
+    .name.empty {
+      font-size: 34px;
+      color: #9a9a9a;
+      font-style: italic;
+      font-weight: 400;
+      text-shadow: 0 0 10px rgba(0,0,0,0.9);
+      border-color: rgba(201, 168, 76, 0.25);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="label">Current Opener</div>
+    <div class="name" id="opener-name">…</div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    const REFRESH_MS = 5000;
+    const NOT_FOUND_TEXT = 'Not found yet';
+
+    async function sbFetch(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    async function refresh() {
+      try {
+        const rows = await sbFetch('/rest/v1/tcg_live_spotlight?select=*&id=eq.1');
+        const row = rows[0] || {};
+        const el = document.getElementById('opener-name');
+        if (row.current_opener_name && row.current_opener_name.trim()) {
+          el.textContent = row.current_opener_name;
+          el.classList.remove('empty');
+        } else {
+          el.textContent = NOT_FOUND_TEXT;
+          el.classList.add('empty');
+        }
+      } catch (e) {
+        console.error('Erreur de rafraîchissement :', e);
+      }
+    }
+
+    refresh();
+    setInterval(refresh, REFRESH_MS);
+  </script>
+</body>
+
+</html>
