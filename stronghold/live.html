@@ -54,9 +54,34 @@
       text-transform: uppercase;
     }
 
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px auto 0;
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .toolbar select {
+      background: var(--bg2);
+      color: var(--gold-light);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 7px 12px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      text-transform: none;
+      letter-spacing: normal;
+      cursor: pointer;
+    }
+
     .progress-line {
       text-align: center;
-      margin: 22px auto 0;
+      margin: 18px auto 0;
       font-family: 'Cinzel', serif;
       font-size: clamp(20px, 3vw, 30px);
       color: var(--gold-light);
@@ -84,8 +109,10 @@
       transition: transform 0.4s ease, opacity 0.4s ease;
       box-shadow: 0 0 var(--glow-blur, 0px) var(--glow-spread, 0px) var(--glow-color, transparent);
     }
-    .tile.hidden-card { opacity: 0.75; } /* un peu plus visible qu'avant : le glow doit se voir */
+    .tile.hidden-card { opacity: 0.75; }
     .tile.just-revealed { animation: pop 0.6s ease; }
+    .tile.clickable { cursor: pointer; }
+    .tile.clickable:hover { transform: translateY(-3px); border-color: var(--gold); }
     @keyframes pop {
       0% { transform: scale(0.85); opacity: 0; }
       60% { transform: scale(1.04); opacity: 1; }
@@ -94,7 +121,7 @@
 
     .art {
       width: 100%;
-      aspect-ratio: 707 / 1000; /* ratio plein format de carte, pas de recadrage ici */
+      aspect-ratio: 707 / 1000;
       overflow: hidden;
       background: var(--bg3);
     }
@@ -109,6 +136,41 @@
     .hidden-card .name { color: var(--text-muted); font-style: italic; }
 
     .empty-state { text-align: center; color: var(--text-muted); padding: 60px 24px; }
+
+    /* Fenêtre "qui possède cette carte" */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+    }
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      color: var(--gold-light);
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+    .modal-owners { margin-bottom: 20px; max-height: 240px; overflow-y: auto; }
+    .modal-owners div { padding: 5px 0; font-size: 16px; }
+    .modal-close-btn {
+      background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+      padding: 8px 22px; border-radius: 4px; cursor: pointer;
+      font-family: 'Crimson Pro', serif; font-size: 15px;
+    }
+    .modal-close-btn:hover { border-color: var(--gold); }
   </style>
 </head>
 
@@ -117,14 +179,29 @@
     <div class="page-title">Soirée d'ouverture — Fellowship TCG</div>
   </header>
 
+  <div class="toolbar">
+    <label for="user-filter">Voir :</label>
+    <select id="user-filter">
+      <option value="">Tous (ALL)</option>
+    </select>
+  </div>
+
   <div class="progress-line" id="progress-line">Chargement…</div>
 
   <div class="grid" id="grid"></div>
 
+  <div class="modal-overlay" id="owners-modal">
+    <div class="modal-box">
+      <div class="modal-title" id="modal-card-name"></div>
+      <div class="modal-owners" id="modal-owners-list"></div>
+      <button class="modal-close-btn" onclick="closeOwnersModal()">Fermer</button>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
-    const REFRESH_MS = 8000; // vérifie les nouvelles révélations toutes les 8s pendant le live
+    const REFRESH_MS = 8000;
 
     async function sbFetch(path) {
       const res = await fetch(SUPABASE_URL + path, {
@@ -139,7 +216,6 @@
       return jsonField.fr || Object.values(jsonField)[0] || fallback || '';
     }
 
-    /** Convertit un hex (#rrggbb) en rgba avec l'opacité donnée, pour un glow doux plutôt qu'un aplat. */
     function hexToRgba(hex, alpha) {
       const h = hex.replace('#', '');
       const r = parseInt(h.substring(0, 2), 16);
@@ -148,15 +224,32 @@
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
-    let previouslyRevealedIds = new Set(); // pour savoir quelles cartes sont NOUVELLEMENT révélées à ce rafraîchissement
+    let previouslyRevealedIds = new Set();
     let raritiesByCode = {};
+    let allCards = [];
+    let ownersByCardId = new Map();   // card_id -> [usernames...]  (mode "Tous")
+    let cardIdsByUsername = new Map(); // username -> Set(card_id)  (mode utilisateur précis)
+    let cardsById = new Map();
+    let knownUsernames = [];
 
-    async function refresh() {
-      let cards, rarities;
+    function currentFilter() {
+      return document.getElementById('user-filter').value; // '' = Tous
+    }
+
+    function isRevealed(card) {
+      const filter = currentFilter();
+      if (!filter) return ownersByCardId.has(card.id);
+      return cardIdsByUsername.get(filter)?.has(card.id) || false;
+    }
+
+    async function load() {
+      let cards, rarities, collections, users;
       try {
-        [cards, rarities] = await Promise.all([
-          sbFetch('/rest/v1/tcg_cards?select=id,code,name,image_url,rarity,is_revealed&is_active=eq.true'),
+        [cards, rarities, collections, users] = await Promise.all([
+          sbFetch('/rest/v1/tcg_cards?select=id,code,name,image_url,rarity&is_active=eq.true'),
           sbFetch('/rest/v1/tcg_rarities?select=code,color_hex,sort_order'),
+          sbFetch('/rest/v1/tcg_user_collections?select=user_id,card_id,quantity&quantity=gt.0'),
+          sbFetch('/rest/v1/tcg_users?select=id,username'),
         ]);
       } catch (e) {
         document.getElementById('grid').innerHTML = `<div class="empty-state">Erreur de chargement : ${e.message}</div>`;
@@ -164,35 +257,74 @@
       }
 
       raritiesByCode = Object.fromEntries(rarities.map(r => [r.code, r]));
+      cardsById = new Map(cards.map(c => [c.id, c]));
 
-      // Plus rare en haut : sort_order décroissant, puis alphabétique à égalité de rareté
-      cards.sort((a, b) => {
+      const usernameById = new Map(users.map(u => [u.id, u.username || 'Inconnu']));
+
+      ownersByCardId = new Map();
+      cardIdsByUsername = new Map();
+      const usernamesSet = new Set();
+
+      for (const row of collections) {
+        const username = usernameById.get(row.user_id) || 'Inconnu';
+        usernamesSet.add(username);
+
+        if (!ownersByCardId.has(row.card_id)) ownersByCardId.set(row.card_id, []);
+        ownersByCardId.get(row.card_id).push(username);
+
+        if (!cardIdsByUsername.has(username)) cardIdsByUsername.set(username, new Set());
+        cardIdsByUsername.get(username).add(row.card_id);
+      }
+
+      allCards = cards.sort((a, b) => {
         const orderA = raritiesByCode[a.rarity]?.sort_order ?? 0;
         const orderB = raritiesByCode[b.rarity]?.sort_order ?? 0;
         if (orderB !== orderA) return orderB - orderA;
         return pick(a.name, a.code).localeCompare(pick(b.name, b.code));
       });
 
-      const revealedCount = cards.filter(c => c.is_revealed).length;
+      // Repeuple le sélecteur uniquement si la liste de noms a changé, pour ne pas perdre la
+      // sélection en cours du joueur à chaque rafraîchissement automatique.
+      const sortedUsernames = [...usernamesSet].sort();
+      if (JSON.stringify(sortedUsernames) !== JSON.stringify(knownUsernames)) {
+        knownUsernames = sortedUsernames;
+        const select = document.getElementById('user-filter');
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">Tous (ALL)</option>' +
+          knownUsernames.map(u => `<option value="${escAttr(u)}">${esc(u)}</option>`).join('');
+        select.value = knownUsernames.includes(currentValue) ? currentValue : '';
+      }
+
+      render();
+    }
+
+    function render() {
+      const filter = currentFilter();
+      const revealedCount = allCards.filter(isRevealed).length;
+      const label = filter ? `cartes obtenues par ${filter}` : 'cartes obtenues par la communauté';
       document.getElementById('progress-line').innerHTML =
-        `${revealedCount}<span> / ${cards.length} cartes révélées ce soir</span>`;
+        `${revealedCount}<span> / ${allCards.length} ${label}</span>`;
 
       const grid = document.getElementById('grid');
-      if (!cards.length) {
+      if (!allCards.length) {
         grid.innerHTML = '<div class="empty-state">Aucune carte à afficher.</div>';
         return;
       }
 
-      grid.innerHTML = cards.map(c => {
+      grid.innerHTML = allCards.map(c => {
         const rarity = raritiesByCode[c.rarity];
-        // Le glow monte en intensité avec la rareté : plus visible pour une Legendary qu'une Uncommon.
         const order = rarity?.sort_order ?? 1;
         const glowStyle = rarity
           ? `--glow-color:${hexToRgba(rarity.color_hex, 0.55)}; --glow-blur:${8 + order * 6}px; --glow-spread:${order}px;`
           : '';
 
-        const isNew = c.is_revealed && !previouslyRevealedIds.has(c.id);
-        if (!c.is_revealed) {
+        const revealed = isRevealed(c);
+        const isNew = revealed && !previouslyRevealedIds.has(c.id);
+        // Le clic pour voir les possesseurs n'a de sens qu'en mode "Tous" (en mode utilisateur
+        // précis, on sait déjà qui l'a : c'est la personne sélectionnée).
+        const clickable = revealed && !currentFilter();
+
+        if (!revealed) {
           return `<div class="tile hidden-card" style="${glowStyle}">
             <div class="art"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:48px;color:var(--border);">?</div></div>
             <div class="name">???</div>
@@ -200,17 +332,43 @@
         }
         const imgUrl = pick(c.image_url, '');
         const name = pick(c.name, c.code);
-        return `<div class="tile ${isNew ? 'just-revealed' : ''}" style="${glowStyle}">
+        return `<div class="tile ${isNew ? 'just-revealed' : ''} ${clickable ? 'clickable' : ''}" style="${glowStyle}" ${clickable ? `onclick="showOwners('${c.id}')"` : ''}>
           <div class="art"><img src="${imgUrl}" alt="${name}" loading="lazy"></div>
           <div class="name">${name}</div>
         </div>`;
       }).join('');
 
-      previouslyRevealedIds = new Set(cards.filter(c => c.is_revealed).map(c => c.id));
+      previouslyRevealedIds = new Set(allCards.filter(isRevealed).map(c => c.id));
     }
 
-    refresh();
-    setInterval(refresh, REFRESH_MS);
+    function showOwners(cardId) {
+      const card = cardsById.get(cardId);
+      const owners = ownersByCardId.get(cardId) || [];
+      document.getElementById('modal-card-name').textContent = pick(card?.name, card?.code || '');
+      document.getElementById('modal-owners-list').innerHTML = owners.length
+        ? owners.map(o => `<div>🎴 ${esc(o)}</div>`).join('')
+        : '<div style="color:var(--text-muted); font-style:italic;">Personne pour l\'instant</div>';
+      document.getElementById('owners-modal').classList.add('open');
+    }
+
+    function closeOwnersModal() {
+      document.getElementById('owners-modal').classList.remove('open');
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function escAttr(s) {
+      return esc(s).replace(/"/g, '&quot;');
+    }
+
+    document.getElementById('user-filter').addEventListener('change', () => {
+      previouslyRevealedIds = new Set(); // évite un flash d'animation "just-revealed" en changeant de vue
+      render();
+    });
+
+    load();
+    setInterval(load, REFRESH_MS);
   </script>
 </body>
 
