@@ -45,6 +45,7 @@
       padding: 6px 28px;
       border-top: 2px solid rgba(201, 168, 76, 0.6);
       border-bottom: 2px solid rgba(201, 168, 76, 0.6);
+      transition: color 0.15s ease;
     }
     .name.empty {
       font-size: 34px;
@@ -53,6 +54,13 @@
       font-weight: 400;
       text-shadow: 0 0 10px rgba(0,0,0,0.9);
       border-color: rgba(201, 168, 76, 0.25);
+    }
+    /* Pendant le défilement : teinte dorée + léger flou, pour appuyer l'effet "roulette" sans
+       devenir illisible sur les noms qui défilent vite au début. */
+    .name.spinning {
+      color: #e8c96a;
+      border-color: rgba(201, 168, 76, 1);
+      filter: blur(0.4px);
     }
   </style>
 </head>
@@ -66,8 +74,9 @@
   <script>
     const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
-    const REFRESH_MS = 5000;
+    const REFRESH_MS = 2000; // plus rapide que les autres overlays : on veut détecter un nouveau tirage vite
     const NOT_FOUND_TEXT = 'Not found yet';
+    const SPIN_TOTAL_MS = 2800; // durée totale de l'animation de défilement
 
     async function sbFetch(path) {
       const res = await fetch(SUPABASE_URL + path, {
@@ -77,21 +86,86 @@
       return res.json();
     }
 
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    /** Séquence de délais entre chaque nom affiché : rapide au début, ralentit progressivement
+     * jusqu'à SPIN_TOTAL_MS — l'effet classique "machine à sous" qui se pose en douceur. */
+    function buildSpinDelays() {
+      const delays = [];
+      let delay = 70;
+      let total = 0;
+      while (total < SPIN_TOTAL_MS) {
+        delays.push(delay);
+        total += delay;
+        delay = Math.min(delay * 1.18, 480);
+      }
+      return delays;
+    }
+
+    async function runRouletteAnimation(finalName, pool) {
+      const el = document.getElementById('opener-name');
+      el.classList.remove('empty');
+      el.classList.add('spinning');
+
+      const names = pool.length ? pool : [finalName];
+      for (const delay of buildSpinDelays()) {
+        el.textContent = names[Math.floor(Math.random() * names.length)];
+        await sleep(delay);
+      }
+
+      el.textContent = finalName;
+      el.classList.remove('spinning');
+    }
+
+    function setOpenerDisplay(value) {
+      const el = document.getElementById('opener-name');
+      if (value && value.trim()) {
+        el.textContent = value;
+        el.classList.remove('empty');
+      } else {
+        el.textContent = NOT_FOUND_TEXT;
+        el.classList.add('empty');
+      }
+    }
+
+    let knownOpener; // undefined tant qu'on n'a pas fait le tout premier chargement
+    let isAnimating = false;
+
     async function refresh() {
+      let row, participants;
       try {
-        const rows = await sbFetch('/rest/v1/tcg_live_spotlight?select=*&id=eq.1');
-        const row = rows[0] || {};
-        const el = document.getElementById('opener-name');
-        if (row.current_opener_name && row.current_opener_name.trim()) {
-          el.textContent = row.current_opener_name;
-          el.classList.remove('empty');
-        } else {
-          el.textContent = NOT_FOUND_TEXT;
-          el.classList.add('empty');
-        }
+        const [rows, parts] = await Promise.all([
+          sbFetch('/rest/v1/tcg_live_spotlight?select=*&id=eq.1'),
+          sbFetch('/rest/v1/tcg_live_participants?select=name'),
+        ]);
+        row = rows[0] || {};
+        participants = parts;
       } catch (e) {
         console.error('Erreur de rafraîchissement :', e);
+        return;
       }
+
+      const newOpener = (row.current_opener_name || '').trim() || null;
+
+      if (knownOpener === undefined) {
+        // Tout premier chargement (ex: OBS qui démarre) : affiche direct, jamais d'animation ici.
+        knownOpener = newOpener;
+        setOpenerDisplay(newOpener);
+        return;
+      }
+
+      if (isAnimating || newOpener === knownOpener) return; // rien de nouveau, ou déjà en train d'animer
+
+      knownOpener = newOpener;
+      if (!newOpener) {
+        setOpenerDisplay(null);
+        return;
+      }
+
+      isAnimating = true;
+      const pool = participants.map((p) => p.name).filter(Boolean);
+      await runRouletteAnimation(newOpener, pool);
+      isAnimating = false;
     }
 
     refresh();
