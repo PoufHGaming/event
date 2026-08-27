@@ -153,9 +153,13 @@
 
   <script>
     const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    // Hébergé sur GitHub plutôt que Supabase Storage : image identique appelée en boucle par
+    // tout le monde, autant ne pas taper dans le quota Supabase pour ça.
+    const CARD_BACK_IMAGE_URL = 'https://raw.githubusercontent.com/PoufHGaming/event/main/stronghold/Dos_Missing.webp';
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
     const LIST_REFRESH_MS = 6000;   // liste des ouvertures (mode admin uniquement)
     const REVEAL_POLL_MS = 1000;    // détection de nouvelles cartes révélées à distance
+    const MAX_POLL_DURATION_MS = 10 * 60 * 1000; // arrêt automatique après 10 min si tout n'a pas été révélé
 
     // Hébergés dans le bucket card-art — upload ces 3 fichiers avec exactement ces noms.
     const SOUND_EPIC_URL = `${SUPABASE_URL}/storage/v1/object/public/card-art/Sound_Epic.mp3`;
@@ -171,6 +175,7 @@
     async function sbFetch(path) {
       const res = await fetch(SUPABASE_URL + path, {
         headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+        cache: 'no-store', // évite qu'une ancienne réponse (ex: vide) reste servie depuis le cache du navigateur
       });
       if (!res.ok) throw new Error(await res.text());
       return res.json();
@@ -221,6 +226,7 @@
     let alreadyShownIndices = new Set();
     let isInteractive = true;
     let pollTimer = null;
+    let pollStartTime = null;
 
     async function loadReferenceData() {
       const [rarities, cards] = await Promise.all([
@@ -345,7 +351,7 @@
       const area = document.getElementById('reveal-area');
       area.innerHTML = `<div class="cards-row">` + cards.map((c, i) => `
         <div class="card-slot ${interactive ? '' : 'locked'}" id="slot-${i}" ${interactive ? `onclick="revealCard(${i}, true)"` : ''}>
-          <div class="card-frame" id="frame-${i}"><div class="placeholder">?</div></div>
+          <div class="card-frame" id="frame-${i}"><img src="${CARD_BACK_IMAGE_URL}" alt="Dos de carte"></div>
           <div class="card-label">Carte ${i + 1}</div>
         </div>
       `).join('') + `</div>`;
@@ -357,11 +363,24 @@
         renderCardStatic(idx);
       }
 
+      // Si tout était déjà révélé avant même ce chargement, inutile de sonder quoi que ce soit.
+      if (alreadyShownIndices.size >= cards.length) return;
+
+      pollStartTime = Date.now();
       pollTimer = setInterval(pollForNewReveals, REVEAL_POLL_MS);
     }
 
     async function pollForNewReveals() {
       if (!currentOpeningId) return;
+
+      // Filet de sécurité : un onglet oublié, resté ouvert sans que tout ait été révélé, arrête
+      // de consommer des requêtes après 10 min — au-delà, plus aucun intérêt à continuer à sonder.
+      if (Date.now() - pollStartTime > MAX_POLL_DURATION_MS) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+        return;
+      }
+
       try {
         const rows = await sbFetch(`/rest/v1/tcg_booster_openings?select=revealed_indices&id=eq.${currentOpeningId}`);
         const remote = rows[0]?.revealed_indices || [];
@@ -369,6 +388,11 @@
           if (!alreadyShownIndices.has(idx)) {
             revealCard(idx, false); // détecté à distance : on rejoue l'animation, mais on ne réécrit pas
           }
+        }
+        // Tout est désormais connu : plus rien ne peut changer, inutile de continuer à sonder.
+        if (alreadyShownIndices.size >= currentOpeningCards.length) {
+          clearInterval(pollTimer);
+          pollTimer = null;
         }
       } catch (e) {
         console.error('Erreur de sondage :', e);
