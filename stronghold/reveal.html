@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stream Reveal — Stronghold</title>
+  <title>Stream Reveal — Fellowship TCG</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
@@ -31,12 +31,9 @@
       font-size: 16px;
     }
 
-    .layout {
-      display: flex;
-      min-height: 100vh;
-    }
+    .layout { display: flex; min-height: 100vh; }
 
-    /* ── Colonne gauche : liste des ouvertures récentes ── */
+    /* ── Colonne gauche : liste des ouvertures récentes (masquée en mode lien à token) ── */
     .sidebar {
       width: 320px;
       flex-shrink: 0;
@@ -68,11 +65,12 @@
     }
     .opening-entry:hover { background: var(--bg2); }
     .opening-entry.selected { background: var(--bg2); border-color: var(--border-bright); }
-    .opening-entry .who { font-size: 15px; }
+    .opening-entry .who { font-size: 15px; display: flex; align-items: center; gap: 5px; }
     .opening-entry .when { font-size: 12px; color: var(--text-muted); }
     .opening-dots { display: flex; gap: 3px; margin-top: 4px; }
     .opening-dot { width: 7px; height: 7px; border-radius: 50%; }
     .sidebar-empty { color: var(--text-muted); font-style: italic; font-size: 14px; padding: 10px; }
+    .live-badge { font-size: 11px; color: var(--gold-light); }
 
     /* ── Zone principale : révélation ── */
     .main {
@@ -100,11 +98,7 @@
       gap: 26px;
     }
 
-    .card-slot {
-      width: 200px;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
+    .card-slot { width: 200px; cursor: pointer; transition: transform 0.3s ease; }
     .card-slot:hover { transform: translateY(-4px); }
     .card-slot.locked { cursor: default; }
     .card-slot.locked:hover { transform: none; }
@@ -145,7 +139,7 @@
 
 <body>
   <div class="layout">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <h2>Ouvertures récentes</h2>
       <div id="openings-list"><div class="sidebar-empty">Chargement…</div></div>
     </div>
@@ -160,14 +154,14 @@
   <script>
     const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
-    const LIST_REFRESH_MS = 6000;
+    const LIST_REFRESH_MS = 6000;   // liste des ouvertures (mode admin uniquement)
+    const REVEAL_POLL_MS = 1000;    // détection de nouvelles cartes révélées à distance
 
-    // Renseigne ces URLs une fois les 2 sons prêts — tant que c'est vide, la page fonctionne
-    // normalement, juste sans le son (dégradation silencieuse, jamais bloquant).
-    const SOUND_MID_URL = '';       // Epic / Heroic / Regal
-    const SOUND_LEGENDARY_URL = ''; // Legendary
+    // Hébergés dans le bucket card-art — upload ces 3 fichiers avec exactement ces noms.
+    const SOUND_EPIC_URL = `${SUPABASE_URL}/storage/v1/object/public/card-art/Sound_Epic.mp3`;
+    const SOUND_HEROIC_REGAL_URL = `${SUPABASE_URL}/storage/v1/object/public/card-art/Sound_Heroic_Regal.mp3`;
+    const SOUND_LEGENDARY_URL = `${SUPABASE_URL}/storage/v1/object/public/card-art/Sound_Legendary.mp3`;
 
-    // Délai (ms) avant de révéler la carte, selon sa rareté — le son a le temps de se jouer avant.
     const REVEAL_DELAY_MS = {
       UNCOMMON: 0, RARE: 0,
       EPIC: 1000, HEROIC: 1000, REGAL: 1000,
@@ -180,6 +174,20 @@
       });
       if (!res.ok) throw new Error(await res.text());
       return res.json();
+    }
+
+    async function sbPatch(path, body) {
+      const res = await fetch(SUPABASE_URL + path, {
+        method: 'PATCH',
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(await res.text());
     }
 
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -207,6 +215,13 @@
     let selectedOpeningId = null;
     let openings = [];
 
+    // ── État de l'ouverture actuellement chargée (partagé entre les deux modes) ──
+    let currentOpeningId = null;
+    let currentOpeningCards = [];
+    let alreadyShownIndices = new Set();
+    let isInteractive = true;
+    let pollTimer = null;
+
     async function loadReferenceData() {
       const [rarities, cards] = await Promise.all([
         sbFetch('/rest/v1/tcg_rarities?select=code,color_hex,sort_order'),
@@ -216,10 +231,14 @@
       cardsById = new Map(cards.map(c => [c.id, c]));
     }
 
+    // ============================================================
+    // MODE ADMIN : liste des ouvertures récentes, sélection manuelle
+    // ============================================================
+
     async function loadOpenings() {
       try {
         const [rows, users] = await Promise.all([
-          sbFetch('/rest/v1/tcg_booster_openings?select=id,user_id,cards_obtained,opened_at&order=opened_at.desc&limit=30'),
+          sbFetch('/rest/v1/tcg_booster_openings?select=id,user_id,cards_obtained,opened_at,reveal_token,revealed_indices&order=opened_at.desc&limit=30'),
           sbFetch('/rest/v1/tcg_users?select=id,username'),
         ]);
         usernameById = new Map(users.map(u => [u.id, u.username || '???']));
@@ -243,9 +262,10 @@
           const color = raritiesByCode[c.rarity]?.color_hex || '#706860';
           return `<span class="opening-dot" style="background:${color}"></span>`;
         }).join('');
+        const liveBadge = o.reveal_token ? '<span class="live-badge" title="Lien de reveal en direct actif">🔴</span>' : '';
         return `<div class="opening-entry ${o.id === selectedOpeningId ? 'selected' : ''}" onclick="selectOpening('${o.id}')">
           <div>
-            <div class="who">${esc(username)}</div>
+            <div class="who">${liveBadge}${esc(username)}</div>
             <div class="opening-dots">${dots}</div>
           </div>
           <div class="when">${time}</div>
@@ -260,40 +280,138 @@
       if (!opening) return;
 
       const username = usernameById.get(opening.user_id) || '???';
-      document.getElementById('main-title').textContent = `Ouverture de ${username}`;
-      document.getElementById('main-sub').textContent = new Date(opening.opened_at).toLocaleTimeString('fr-FR');
+      const hasToken = !!opening.reveal_token;
 
-      const cards = opening.cards_obtained || [];
+      loadOpeningCommon({
+        id: opening.id,
+        cards: opening.cards_obtained || [],
+        alreadyRevealed: opening.revealed_indices || [],
+        title: `Ouverture de ${username}`,
+        subtitle: new Date(opening.opened_at).toLocaleTimeString('fr-FR')
+          + (hasToken ? ' — 🔴 en direct, lien détenu par le joueur (lecture seule ici)' : ''),
+        interactive: !hasToken, // une ouverture "live" (avec token) ne se clique que depuis le lien du joueur
+      });
+    }
+
+    // ============================================================
+    // MODE JOUEUR : chargement direct via ?token=... dans l'URL
+    // ============================================================
+
+    function getUrlToken() {
+      return new URLSearchParams(window.location.search).get('token');
+    }
+
+    async function loadOpeningByToken(token) {
+      document.getElementById('sidebar').style.display = 'none'; // pas de liste, pas de spoil
+      try {
+        const rows = await sbFetch(
+          `/rest/v1/tcg_booster_openings?select=id,cards_obtained,revealed_indices&reveal_token=eq.${encodeURIComponent(token)}`
+        );
+        const opening = rows[0];
+        if (!opening) {
+          document.getElementById('main-title').textContent = 'Lien introuvable';
+          document.getElementById('reveal-area').innerHTML = '<div class="empty-state">Ce lien est invalide ou a expiré.</div>';
+          return;
+        }
+        loadOpeningCommon({
+          id: opening.id,
+          cards: opening.cards_obtained || [],
+          alreadyRevealed: opening.revealed_indices || [],
+          title: 'Ton booster est prêt !',
+          subtitle: 'Clique sur une carte pour la révéler',
+          interactive: true,
+        });
+      } catch (e) {
+        document.getElementById('reveal-area').innerHTML = `<div class="empty-state">Erreur : ${esc(e.message)}</div>`;
+      }
+    }
+
+    // ============================================================
+    // Logique commune : affichage, révélation, sondage
+    // ============================================================
+
+    function loadOpeningCommon({ id, cards, alreadyRevealed, title, subtitle, interactive }) {
+      if (pollTimer) clearInterval(pollTimer);
+
+      currentOpeningId = id;
+      currentOpeningCards = cards;
+      alreadyShownIndices = new Set();
+      isInteractive = interactive;
+
+      document.getElementById('main-title').textContent = title;
+      document.getElementById('main-sub').textContent = subtitle || '';
+
       const area = document.getElementById('reveal-area');
       area.innerHTML = `<div class="cards-row">` + cards.map((c, i) => `
-        <div class="card-slot locked" id="slot-${i}" onclick="revealCard(${i})">
+        <div class="card-slot ${interactive ? '' : 'locked'}" id="slot-${i}" ${interactive ? `onclick="revealCard(${i}, true)"` : ''}>
           <div class="card-frame" id="frame-${i}"><div class="placeholder">?</div></div>
           <div class="card-label">Carte ${i + 1}</div>
         </div>
       `).join('') + `</div>`;
 
-      // Stocke les données de CETTE ouverture pour que revealCard() puisse les lire par index.
-      window.__currentOpeningCards = cards;
+      // Affiche instantanément (sans animation) ce qui était déjà révélé avant ce chargement —
+      // ex: le joueur a rechargé sa page, ou l'admin ouvre le lien en cours de route.
+      for (const idx of (alreadyRevealed || [])) {
+        alreadyShownIndices.add(idx);
+        renderCardStatic(idx);
+      }
+
+      pollTimer = setInterval(pollForNewReveals, REVEAL_POLL_MS);
     }
 
-    async function revealCard(index) {
-      const cards = window.__currentOpeningCards || [];
-      const entry = cards[index];
+    async function pollForNewReveals() {
+      if (!currentOpeningId) return;
+      try {
+        const rows = await sbFetch(`/rest/v1/tcg_booster_openings?select=revealed_indices&id=eq.${currentOpeningId}`);
+        const remote = rows[0]?.revealed_indices || [];
+        for (const idx of remote) {
+          if (!alreadyShownIndices.has(idx)) {
+            revealCard(idx, false); // détecté à distance : on rejoue l'animation, mais on ne réécrit pas
+          }
+        }
+      } catch (e) {
+        console.error('Erreur de sondage :', e);
+      }
+    }
+
+    function renderCardStatic(index) {
+      const entry = currentOpeningCards[index];
+      const frame = document.getElementById(`frame-${index}`);
+      const slot = document.getElementById(`slot-${index}`);
+      if (!entry || !frame || !slot) return;
+      slot.classList.add('done');
+      const card = cardsById.get(entry.card_id);
+      const imgUrl = pick(card?.image_url, '');
+      const name = pick(card?.name, '');
+      frame.innerHTML = `<img src="${imgUrl}" alt="${esc(name)}">`;
+      const label = slot.querySelector('.card-label');
+      if (label) label.textContent = name || `Carte ${index + 1}`;
+    }
+
+    /**
+     * @param {number} index
+     * @param {boolean} persist - true si ce clic vient de CET onglet (écrit en base pour que les
+     *   autres onglets le détectent) ; false si on rejoue juste une révélation détectée à distance.
+     */
+    async function revealCard(index, persist) {
+      const entry = currentOpeningCards[index];
       if (!entry) return;
+      if (alreadyShownIndices.has(index)) return; // déjà montrée ici, ignore (re-clic ou écho du sondage)
+      alreadyShownIndices.add(index); // marqué tout de suite, avant même l'animation
+
+      if (persist) {
+        persistRevealedIndex(currentOpeningId, index); // dès le clic, pour que les autres onglets démarrent au plus tôt
+      }
 
       const slot = document.getElementById(`slot-${index}`);
       const frame = document.getElementById(`frame-${index}`);
-      if (!slot || !frame || slot.classList.contains('done')) return; // déjà révélée, ignore un re-clic
+      if (!slot || !frame) return;
       slot.classList.add('done');
-      slot.classList.remove('locked'); // reste cliquable visuellement neutre, mais done bloque un second déclenchement
 
       const rarity = entry.rarity;
       const rarityInfo = raritiesByCode[rarity];
       const delay = REVEAL_DELAY_MS[rarity] ?? 0;
-      const isMidTier = ['EPIC', 'HEROIC', 'REGAL'].includes(rarity);
-      const isLegendary = rarity === 'LEGENDARY';
 
-      // Glow pendant l'attente, teinté selon la rareté
       if (rarityInfo) {
         const order = rarityInfo.sort_order || 1;
         frame.style.setProperty('--glow-color', hexToRgba(rarityInfo.color_hex, 0.6));
@@ -301,7 +419,13 @@
         frame.style.setProperty('--glow-spread', `${order}px`);
       }
 
-      const soundUrl = isLegendary ? SOUND_LEGENDARY_URL : (isMidTier ? SOUND_MID_URL : '');
+      const soundByRarity = {
+        EPIC: SOUND_EPIC_URL,
+        HEROIC: SOUND_HEROIC_REGAL_URL,
+        REGAL: SOUND_HEROIC_REGAL_URL,
+        LEGENDARY: SOUND_LEGENDARY_URL,
+      };
+      const soundUrl = soundByRarity[rarity] || '';
       if (soundUrl) {
         try { new Audio(soundUrl).play().catch(() => {}); } catch (e) { /* silencieux si ça échoue */ }
       }
@@ -313,18 +437,42 @@
       const name = pick(card?.name, '');
       frame.innerHTML = `<img src="${imgUrl}" alt="${esc(name)}">`;
       frame.classList.add('just-revealed');
-      document.querySelector(`#slot-${index} .card-label`).textContent = name || `Carte ${index + 1}`;
+      const label = slot.querySelector('.card-label');
+      if (label) label.textContent = name || `Carte ${index + 1}`;
     }
+
+    async function persistRevealedIndex(openingId, index) {
+      try {
+        const rows = await sbFetch(`/rest/v1/tcg_booster_openings?select=revealed_indices&id=eq.${openingId}`);
+        const current = rows[0]?.revealed_indices || [];
+        if (current.includes(index)) return;
+        await sbPatch(`/rest/v1/tcg_booster_openings?id=eq.${openingId}`, {
+          revealed_indices: [...current, index],
+        });
+      } catch (e) {
+        console.error('Erreur de sauvegarde du reveal :', e);
+      }
+    }
+
+    // ============================================================
+    // Démarrage
+    // ============================================================
 
     (async () => {
       try {
         await loadReferenceData();
       } catch (e) {
-        document.getElementById('openings-list').innerHTML = `<div class="sidebar-empty">Erreur : ${esc(e.message)}</div>`;
+        document.getElementById('reveal-area').innerHTML = `<div class="empty-state">Erreur : ${esc(e.message)}</div>`;
         return;
       }
-      loadOpenings();
-      setInterval(loadOpenings, LIST_REFRESH_MS);
+
+      const token = getUrlToken();
+      if (token) {
+        await loadOpeningByToken(token);
+      } else {
+        loadOpenings();
+        setInterval(loadOpenings, LIST_REFRESH_MS);
+      }
     })();
   </script>
 </body>
