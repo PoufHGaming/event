@@ -229,6 +229,7 @@
       ]);
       raritiesByCode = Object.fromEntries(rarities.map(r => [r.code, r]));
       cardsById = new Map(cards.map(c => [c.id, c]));
+      console.log(`[diagnostic] ${cards.length} carte(s) chargée(s) dans cardsById`);
     }
 
     // ============================================================
@@ -381,7 +382,9 @@
       if (!entry || !frame || !slot) return;
       slot.classList.add('done');
       const card = cardsById.get(entry.card_id);
+      if (!card) console.warn(`[diagnostic] Carte introuvable pour card_id="${entry.card_id}" (index ${index})`);
       const imgUrl = pick(card?.image_url, '');
+      if (card && !imgUrl) console.warn(`[diagnostic] Carte trouvée mais image_url vide/invalide :`, card);
       const name = pick(card?.name, '');
       frame.innerHTML = `<img src="${imgUrl}" alt="${esc(name)}">`;
       const label = slot.querySelector('.card-label');
@@ -433,7 +436,9 @@
       if (delay > 0) await sleep(delay);
 
       const card = cardsById.get(entry.card_id);
+      if (!card) console.warn(`[diagnostic] Carte introuvable pour card_id="${entry.card_id}" (index ${index})`);
       const imgUrl = pick(card?.image_url, '');
+      if (card && !imgUrl) console.warn(`[diagnostic] Carte trouvée mais image_url vide/invalide :`, card);
       const name = pick(card?.name, '');
       frame.innerHTML = `<img src="${imgUrl}" alt="${esc(name)}">`;
       frame.classList.add('just-revealed');
