@@ -70,6 +70,11 @@
     .opening-dots { display: flex; gap: 3px; margin-top: 4px; }
     .opening-dot { width: 7px; height: 7px; border-radius: 50%; }
     .sidebar-empty { color: var(--text-muted); font-style: italic; font-size: 14px; padding: 10px; }
+    .spoiler-toggle {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-muted);
+      margin-bottom: 14px; padding: 0 6px; cursor: pointer;
+    }
     .live-badge { font-size: 11px; color: var(--gold-light); }
 
     /* ── Zone principale : révélation ── */
@@ -143,6 +148,10 @@
   <div class="layout">
     <div class="sidebar" id="sidebar">
       <h2>Ouvertures récentes</h2>
+      <label class="spoiler-toggle">
+        <input type="checkbox" id="hide-spoilers-toggle" checked onchange="renderOpeningsList()">
+        Masquer les raretés (anti-spoil)
+      </label>
       <div id="openings-list"><div class="sidebar-empty">Chargement…</div></div>
     </div>
 
@@ -264,11 +273,14 @@
         el.innerHTML = '<div class="sidebar-empty">Aucune ouverture récente.</div>';
         return;
       }
+      const hideSpoilers = document.getElementById('hide-spoilers-toggle')?.checked;
       el.innerHTML = openings.map(o => {
         const username = usernameById.get(o.user_id) || '???';
         const time = new Date(o.opened_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        // En mode anti-spoil, un point neutre indique juste "il y a des cartes" sans révéler la
+        // rareté — sinon la couleur elle-même serait déjà un spoil avant même le clic.
         const dots = (o.cards_obtained || []).map(c => {
-          const color = raritiesByCode[c.rarity]?.color_hex || '#706860';
+          const color = hideSpoilers ? 'var(--border-bright)' : (raritiesByCode[c.rarity]?.color_hex || '#706860');
           return `<span class="opening-dot" style="background:${color}"></span>`;
         }).join('');
         const liveBadge = o.reveal_token ? '<span class="live-badge" title="Lien de reveal en direct actif">🔴</span>' : '';
