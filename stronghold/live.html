@@ -275,6 +275,7 @@
 
   <script>
     const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const CARD_BACK_IMAGE_URL = 'https://raw.githubusercontent.com/PoufHGaming/event/main/stronghold/Dos_Missing.webp';
     const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
     const REFRESH_MS = 8000;
 
@@ -364,6 +365,7 @@
 
     let previouslyRevealedIds = new Set();
     let raritiesByCode = {};
+    let setsByCode = {};
     let allCards = [];
     let ownersByCardId = new Map();
     let cardIdsByUsername = new Map();
@@ -392,13 +394,14 @@
     }
 
     async function load() {
-      let cards, rarities, collections, users;
+      let cards, rarities, collections, users, sets;
       try {
-        [cards, rarities, collections, users] = await Promise.all([
-          sbFetch('/rest/v1/tcg_cards?select=id,code,name,image_url,rarity&is_active=eq.true'),
+        [cards, rarities, collections, users, sets] = await Promise.all([
+          sbFetch('/rest/v1/tcg_cards?select=id,code,name,image_url,rarity,set_code&is_active=eq.true'),
           sbFetch('/rest/v1/tcg_rarities?select=code,color_hex,sort_order'),
           sbFetch('/rest/v1/tcg_user_collections?select=user_id,card_id,quantity&quantity=gt.0'),
           sbFetch('/rest/v1/tcg_users?select=id,username'),
+          sbFetch('/rest/v1/tcg_sets?select=code,display_name'),
         ]);
       } catch (e) {
         document.getElementById('grid').innerHTML = `<div class="empty-state">${I18N[currentLang].errorLoading(e.message)}</div>`;
@@ -406,6 +409,7 @@
       }
 
       raritiesByCode = Object.fromEntries(rarities.map(r => [r.code, r]));
+      setsByCode = Object.fromEntries(sets.map(s => [s.code, s]));
       cardsById = new Map(cards.map(c => [c.id, c]));
 
       const unknownLabel = I18N[currentLang].unknownUser;
@@ -487,9 +491,11 @@
         const clickable = revealed; // cliquable dans les deux modes désormais (image agrandie dans tous les cas)
 
         if (!revealed) {
+          const setName = pick(setsByCode[c.set_code]?.display_name, c.set_code || '');
           return `<div class="tile hidden-card" style="${glowStyle}">
-            <div class="art"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:48px;color:var(--border);">?</div></div>
+            <div class="art"><img src="${CARD_BACK_IMAGE_URL}" alt="Dos de carte"></div>
             <div class="name">???</div>
+            <div class="quantity">${esc(setName)}</div>
           </div>`;
         }
         const imgUrl = pick(c.image_url, '');
