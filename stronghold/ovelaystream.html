@@ -114,9 +114,38 @@
       return res.json();
     }
 
+    /** Compte les lignes SANS rapatrier leur contenu — évite de télécharger tout le jsonb de
+     * chaque ouverture juste pour un nombre. */
+    async function sbCount(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        method: 'HEAD',
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+          Prefer: 'count=exact',
+        },
+      });
+      if (!res.ok) throw new Error(`Erreur de comptage (${res.status})`);
+      const range = res.headers.get('content-range'); // format "*/123"
+      return range ? parseInt(range.split('/')[1], 10) || 0 : 0;
+    }
+
     function pick(jsonField, fallback) {
       if (!jsonField) return fallback || '';
       return jsonField.fr || Object.values(jsonField)[0] || fallback || '';
+    }
+
+    /** Trouve, parmi les lignes de collection, la plus récente pour une rareté donnée. */
+    function findLatestByRarity(collections, cardsById, rarity) {
+      let latest = null;
+      for (const row of collections) {
+        const card = cardsById.get(row.card_id);
+        if (!card || card.rarity !== rarity) continue;
+        if (!latest || new Date(row.first_obtained_at) > new Date(latest.first_obtained_at)) {
+          latest = row;
+        }
+      }
+      return latest;
     }
 
     let rotationMessages = ['Chargement…'];
@@ -137,18 +166,37 @@
       messages.push(`💬 Rejoins le Discord pour ouvrir tes boosters`);
       messages.push(`🎴 ${d.totalCount} cartes · ${d.rarityCount} raretés · rien à acheter`);
 
+      if (d.totalBoostersOpened > 0) {
+        messages.push(`📦 ${d.totalBoostersOpened} boosters ouverts au total`);
+      }
+      if (d.lastBoosterOpenedBy) {
+        messages.push(`📦 Dernier booster ouvert par ${d.lastBoosterOpenedBy}`);
+      }
+      if (d.lastRegalCardName) {
+        messages.push(`💎 Dernière Regal trouvée : ${d.lastRegalCardName} par ${d.lastRegalUsername}`);
+      }
+      if (d.lastLegendaryCardName) {
+        messages.push(`🌟 Dernière Legendary trouvée : ${d.lastLegendaryCardName} par ${d.lastLegendaryUsername}`);
+      }
+      if (d.completionCount > 0) {
+        messages.push(`💯 ${d.completionCount} joueur${d.completionCount > 1 ? 's' : ''} à 100% de la collection`);
+      }
+      messages.push(`🎴 ${d.totalCopiesFound} cartes trouvées au total depuis le début`);
+
       return messages.length ? messages : ['🎴 The Stronghold'];
     }
 
     async function refreshData() {
-      let cards, rarities, collections, users, spotlight;
+      let cards, rarities, collections, users, spotlight, totalBoostersOpened, lastOpenings;
       try {
-        [cards, rarities, collections, users, spotlight] = await Promise.all([
+        [cards, rarities, collections, users, spotlight, totalBoostersOpened, lastOpenings] = await Promise.all([
           sbFetch('/rest/v1/tcg_cards?select=id,name,rarity&is_active=eq.true'),
           sbFetch('/rest/v1/tcg_rarities?select=code'),
           sbFetch('/rest/v1/tcg_user_collections?select=user_id,card_id,quantity,first_obtained_at&quantity=gt.0'),
           sbFetch('/rest/v1/tcg_users?select=id,username'),
           sbFetch('/rest/v1/tcg_live_spotlight?select=first_regal_name&id=eq.1'),
+          sbCount('/rest/v1/tcg_booster_openings?select=id'),
+          sbFetch('/rest/v1/tcg_booster_openings?select=user_id,opened_at&order=opened_at.desc&limit=1'),
         ]);
       } catch (e) {
         console.error('Erreur de rafraîchissement du bandeau :', e);
@@ -176,6 +224,28 @@
       const lastFoundCardName = lastFound ? pick(cardsById.get(lastFound.card_id)?.name, '') : null;
       const lastFoundUsername = lastFound ? usernameById.get(lastFound.user_id) || '???' : null;
 
+      const lastRegal = findLatestByRarity(collections, cardsById, 'REGAL');
+      const lastLegendary = findLatestByRarity(collections, cardsById, 'LEGENDARY');
+
+      const distinctCardsByUser = new Map();
+      for (const row of collections) {
+        if (!cardsById.has(row.card_id)) continue;
+        if (!distinctCardsByUser.has(row.user_id)) distinctCardsByUser.set(row.user_id, new Set());
+        distinctCardsByUser.get(row.user_id).add(row.card_id);
+      }
+      let completionCount = 0;
+      for (const cardSet of distinctCardsByUser.values()) {
+        if (cardSet.size >= totalCount && totalCount > 0) completionCount++;
+      }
+
+      const totalCopiesFound = collections.reduce(
+        (sum, row) => (cardsById.has(row.card_id) ? sum + row.quantity : sum),
+        0
+      );
+
+      const lastOpening = lastOpenings[0];
+      const lastBoosterOpenedBy = lastOpening ? usernameById.get(lastOpening.user_id) || '???' : null;
+
       document.getElementById('progress-number').textContent = `${foundCount} / ${totalCount}`;
 
       rotationMessages = buildRotationMessages({
@@ -186,6 +256,14 @@
         lastFoundUsername,
         totalCount,
         rarityCount: rarities.length,
+        totalBoostersOpened,
+        lastBoosterOpenedBy,
+        lastRegalCardName: lastRegal ? pick(cardsById.get(lastRegal.card_id)?.name, '') : null,
+        lastRegalUsername: lastRegal ? usernameById.get(lastRegal.user_id) || '???' : null,
+        lastLegendaryCardName: lastLegendary ? pick(cardsById.get(lastLegendary.card_id)?.name, '') : null,
+        lastLegendaryUsername: lastLegendary ? usernameById.get(lastLegendary.user_id) || '???' : null,
+        completionCount,
+        totalCopiesFound,
       });
       if (rotationIndex >= rotationMessages.length) rotationIndex = 0;
     }
@@ -197,7 +275,7 @@
         rotationIndex = (rotationIndex + 1) % rotationMessages.length;
         el.textContent = rotationMessages[rotationIndex];
         el.classList.remove('fading');
-      }, 500); // laisse le temps au fondu de sortie avant de changer le texte
+      }, 500);
     }
 
     (async () => {
