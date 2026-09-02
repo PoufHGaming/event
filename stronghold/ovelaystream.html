@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Bandeau Stronghold — Overlay OBS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --bg: #0a0a0e;
+      --border: rgba(201, 168, 76, 0.35);
+      --text: #e8e0d0;
+      --text-muted: #a89c88;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    .bar {
+      width: 100%;
+      height: 72px;
+      background: linear-gradient(180deg, rgba(10,10,14,0.97), rgba(10,10,14,0.94));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: stretch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      color: var(--text);
+    }
+
+    .block {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 20px;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+      overflow: hidden;
+      flex: 1 1 0;
+    }
+    .block:last-child { border-right: none; }
+
+    .identity { flex: 1.3 1 0; }
+    .identity img { height: 38px; width: auto; flex-shrink: 0; }
+    .identity .text { display: flex; flex-direction: column; line-height: 1.25; }
+    .identity .brand { font-family: 'Cinzel', serif; font-weight: 700; color: var(--gold-light); font-size: 16px; letter-spacing: 0.03em; }
+    .identity .tagline { font-size: 12px; color: var(--text-muted); }
+
+    .progress-block .number { font-family: 'Cinzel', serif; font-weight: 700; color: var(--gold-light); font-size: 22px; }
+    .progress-block .label { font-size: 13px; color: var(--text-muted); }
+
+    .access-block { font-size: 15px; font-weight: 600; color: var(--text); text-align: center; }
+
+    .site-block { font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold); letter-spacing: 0.04em; }
+
+    .rotating-block {
+      flex: 1.3 1 0;
+      font-size: 15px;
+      color: var(--gold-light);
+      position: relative;
+    }
+    .rotating-text {
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    .rotating-text.fading { opacity: 0; }
+  </style>
+</head>
+
+<body>
+  <div class="bar">
+    <div class="block identity">
+      <img src="../images/event/strongholdlogo.png" alt="The Stronghold">
+      <div class="text">
+        <div class="brand">The Stronghold</div>
+        <div class="tagline">TCG communautaire Fellowship</div>
+      </div>
+    </div>
+
+    <div class="block progress-block">
+      <div>
+        <div class="number" id="progress-number">…</div>
+        <div class="label">cartes trouvées par la communauté</div>
+      </div>
+    </div>
+
+    <div class="block access-block">Tes points de chaîne = des boosters</div>
+
+    <div class="block site-block">poufhgaming.com/stronghold</div>
+
+    <div class="block rotating-block">
+      <span class="rotating-text" id="rotating-text">…</span>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+    const DATA_REFRESH_MS = 10 * 60 * 1000; // les chiffres eux-mêmes ne changent pas seconde par seconde
+    const ROTATION_MS = 25000;     // entre 20 et 30s, comme demandé
+
+    async function sbFetch(path) {
+      const res = await fetch(SUPABASE_URL + path, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function pick(jsonField, fallback) {
+      if (!jsonField) return fallback || '';
+      return jsonField.fr || Object.values(jsonField)[0] || fallback || '';
+    }
+
+    let rotationMessages = ['Chargement…'];
+    let rotationIndex = 0;
+
+    function buildRotationMessages(d) {
+      const messages = [];
+
+      if (d.legendaryTotal > 0) {
+        messages.push(`🟠 ${d.legendaryTotal} légendaire${d.legendaryTotal > 1 ? 's' : ''} · ${d.legendaryFound} trouvée${d.legendaryFound > 1 ? 's' : ''}`);
+      }
+      if (d.firstRegal) {
+        messages.push(`🏆 Première Regal : ${d.firstRegal}`);
+      }
+      if (d.lastFoundCardName) {
+        messages.push(`✨ Dernière carte trouvée : ${d.lastFoundCardName} par ${d.lastFoundUsername}`);
+      }
+      messages.push(`💬 Rejoins le Discord pour ouvrir tes boosters`);
+      messages.push(`🎴 ${d.totalCount} cartes · ${d.rarityCount} raretés · rien à acheter`);
+
+      return messages.length ? messages : ['🎴 The Stronghold'];
+    }
+
+    async function refreshData() {
+      let cards, rarities, collections, users, spotlight;
+      try {
+        [cards, rarities, collections, users, spotlight] = await Promise.all([
+          sbFetch('/rest/v1/tcg_cards?select=id,name,rarity&is_active=eq.true'),
+          sbFetch('/rest/v1/tcg_rarities?select=code'),
+          sbFetch('/rest/v1/tcg_user_collections?select=user_id,card_id,quantity,first_obtained_at&quantity=gt.0'),
+          sbFetch('/rest/v1/tcg_users?select=id,username'),
+          sbFetch('/rest/v1/tcg_live_spotlight?select=first_regal_name&id=eq.1'),
+        ]);
+      } catch (e) {
+        console.error('Erreur de rafraîchissement du bandeau :', e);
+        return;
+      }
+
+      const cardsById = new Map(cards.map((c) => [c.id, c]));
+      const usernameById = new Map(users.map((u) => [u.id, u.username || '???']));
+
+      const foundCardIds = new Set(collections.map((row) => row.card_id).filter((id) => cardsById.has(id)));
+      const totalCount = cards.length;
+      const foundCount = foundCardIds.size;
+
+      const legendaryCards = cards.filter((c) => c.rarity === 'LEGENDARY');
+      const legendaryTotal = legendaryCards.length;
+      const legendaryFound = legendaryCards.filter((c) => foundCardIds.has(c.id)).length;
+
+      let lastFound = null;
+      for (const row of collections) {
+        if (!cardsById.has(row.card_id)) continue;
+        if (!lastFound || new Date(row.first_obtained_at) > new Date(lastFound.first_obtained_at)) {
+          lastFound = row;
+        }
+      }
+      const lastFoundCardName = lastFound ? pick(cardsById.get(lastFound.card_id)?.name, '') : null;
+      const lastFoundUsername = lastFound ? usernameById.get(lastFound.user_id) || '???' : null;
+
+      document.getElementById('progress-number').textContent = `${foundCount} / ${totalCount}`;
+
+      rotationMessages = buildRotationMessages({
+        legendaryTotal,
+        legendaryFound,
+        firstRegal: spotlight[0]?.first_regal_name || null,
+        lastFoundCardName,
+        lastFoundUsername,
+        totalCount,
+        rarityCount: rarities.length,
+      });
+      if (rotationIndex >= rotationMessages.length) rotationIndex = 0;
+    }
+
+    function tickRotation() {
+      const el = document.getElementById('rotating-text');
+      el.classList.add('fading');
+      setTimeout(() => {
+        rotationIndex = (rotationIndex + 1) % rotationMessages.length;
+        el.textContent = rotationMessages[rotationIndex];
+        el.classList.remove('fading');
+      }, 500); // laisse le temps au fondu de sortie avant de changer le texte
+    }
+
+    (async () => {
+      await refreshData();
+      document.getElementById('rotating-text').textContent = rotationMessages[0];
+
+      setInterval(refreshData, DATA_REFRESH_MS);
+      setInterval(tickRotation, ROTATION_MS);
+    })();
+  </script>
+</body>
+
+</html>
