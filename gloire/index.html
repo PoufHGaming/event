@@ -3071,6 +3071,13 @@
       if (id === 'leaderboard') loadLeaderboard();
       if (id === 'achievements') renderAchievements();
       if (id === 'rules') renderRules();
+      if (id === 'join') renderJoin();
+      // Hide/show le panel saisons selon la page
+      const seasonNav = document.getElementById('season-nav');
+      if (seasonNav) {
+        const showSeasonNav = id === 'leaderboard' || id === 'achievements';
+        seasonNav.style.display = showSeasonNav ? 'flex' : 'none';
+      }
     }
 
     // ---- INIT ----
