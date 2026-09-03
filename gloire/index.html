@@ -1065,7 +1065,7 @@
       color: var(--text);
     }
 
-    /* RULES PAGE */
+     /* RULES PAGE */
     .rules-page {
       max-width: 680px;
       margin: 0 auto;
@@ -1073,6 +1073,54 @@
 
     .rules-section {
       margin-bottom: 32px;
+    }
+
+    .rules-desc {
+      font-size: 15px; color: var(--text-dim);
+      font-style: italic; line-height: 1.65;
+      margin-bottom: 14px;
+    }
+
+    /* Tableau gear score */
+    .gs-table {
+      border: 1px solid var(--border);
+      border-radius: 6px; overflow: hidden;
+      max-width: 400px;
+    }
+    .gs-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      padding: 10px 16px; font-size: 15px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .gs-row.gs-header {
+      font-family: 'Cinzel', serif; font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-muted); background: var(--bg2);
+    }
+    .gs-row.gs-last { border-bottom: none; }
+    .gs-row:not(.gs-header):nth-child(even) { background: var(--bg2); }
+
+    /* Bloc YouTube */
+    .rules-section-youtube {
+      display: flex; align-items: center; gap: 18px;
+      background: rgba(255,0,0,0.05);
+      border: 1px solid rgba(255,0,0,0.2);
+      border-radius: 8px; padding: 20px 24px;
+      margin-bottom: 0;
+    }
+    .rules-youtube-icon {
+      font-size: 28px; color: #ff4444;
+      flex-shrink: 0; line-height: 1;
+    }
+    .rules-youtube-title {
+      font-family: 'Cinzel', serif; font-size: 14px;
+      letter-spacing: 0.06em; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .rules-youtube-sub {
+      font-size: 14px; color: var(--text-muted);
+      font-style: italic;
     }
 
     .rules-section-title {
@@ -2845,55 +2893,65 @@
 
     // ---- RULES ----
     function renderRules() {
+      const fr = currentLang === 'fr';
       document.getElementById('rules-content').innerHTML = `
-    <div class="rules-section">
-      <div class="rules-section-title">${t('rules.section.gear')}</div>
-      <div class="rules-list">
-        <div class="rules-item highlight">⚔️&nbsp; ${t('rules.gear.1')}</div>
-        <div class="rules-item highlight">🗡️&nbsp; ${t('rules.gear.2')}</div>
-      </div>
-      <div style="margin-top:14px">
-        <div class="rules-section-title" style="margin-bottom:12px">${t('rules.section.gear_example')}</div>
-        <img
-          src="images/stuff-example.png"
-          alt="Exemple de stuff autorisé"
-          style="max-width:320px;width:100%;border-radius:6px;border:1px solid var(--border);display:block;margin:0 auto;"
-        >
-      </div>
-    </div>
 
-    <div class="rules-section">
-      <div class="rules-section-title">${t('rules.section.hf')}</div>
-      <div class="rules-list">
-              <div class="rules-item" style="border-left-color:#89070e;background:rgba(137,7,14,0.08);">
-          🏰&nbsp; ${t('rules.dungeon.1')}
-        </div>
-        <div class="rules-item info">
-          <div class="rules-icon"><img src="images/badges/solo.png" alt="solo"></div>
-          <span>${t('rules.hf.1')}</span>
-        </div>
-        <div class="rules-item">
-          <div class="rules-conditions">
-            <img src="images/conditions/portal.png" alt="portal">
-            <img src="images/conditions/shadow.png" alt="shadow">
-            <img src="images/conditions/dispell.png" alt="dispell">
-            <img src="images/conditions/poulet.png" alt="poulet">
+      <div class="rules-section">
+        <div class="rules-section-title">${fr ? 'Participation' : 'Participation'}</div>
+        <div class="rules-list">
+          <div class="rules-item highlight">
+            ${fr
+              ? 'Aucune restriction de gear score. Jouez à votre rythme, à partir d\'Eternal 1.'
+              : 'No gear score restriction. Play at your own pace, starting from Eternal 1.'}
           </div>
-          <span>${t('rules.hf.2')}</span>
         </div>
       </div>
-    </div>
 
-    <div class="rules-section">
-      <div class="rules-section-title">${t('rules.section.valid')}</div>
-      <div class="rules-list">
-        <div class="rules-item">📋&nbsp; ${t('rules.valid.1')}</div>
-        <div class="rules-item">💬&nbsp; ${t('rules.valid.2')}</div>
+      <div class="rules-section">
+        <div class="rules-section-title">${fr ? 'Challenge optionnel : tranches de GS recommandées' : 'Optional challenge: recommended GS brackets'}</div>
+        <p class="rules-desc">${fr
+          ? 'Envie d\'un peu de challenge ? Respectez la tranche de gear score correspondant à votre niveau Eternal. Aucune obligation, c\'est juste pour le fun.'
+          : 'Looking for a bit of a challenge? Try to respect the gear score bracket matching your Eternal level. No obligation, just for fun.'
+        }</p>
+        <div class="gs-table">
+          <div class="gs-row gs-header">
+            <span>${fr ? 'Niveau Eternal' : 'Eternal Level'}</span>
+            <span>${fr ? 'Gear Score' : 'Gear Score'}</span>
+          </div>
+          <div class="gs-row"><span>Eternal 1-5</span><span>0 – 11 000</span></div>
+          <div class="gs-row"><span>Eternal 6-10</span><span>11 000 – 12 000</span></div>
+          <div class="gs-row"><span>Eternal 11-15</span><span>12 000 – 13 000</span></div>
+          <div class="gs-row"><span>Eternal 16-20</span><span>13 000 – 14 000</span></div>
+          <div class="gs-row"><span>Eternal 21-25</span><span>14 000 – 15 000</span></div>
+          <div class="gs-row gs-last"><span>Eternal 26+</span><span>15 000+</span></div>
+        </div>
       </div>
-    </div>
-  `;
-    }
 
+      <div class="rules-section">
+        <div class="rules-section-title">${fr ? 'Validation des hauts-faits' : 'Achievement validation'}</div>
+        <div class="rules-list">
+          <div class="rules-item">
+            🔍&nbsp; ${fr
+              ? `Certains hauts-faits sont vérifiables automatiquement via vos logs Fellowship. Utilisez l'onglet Vérifier pour les soumettre.`
+              : `Some achievements can be verified automatically via your Fellowship logs. Use the Verify tab to submit them.`}
+          </div>
+          <div class="rules-item">
+            🎬&nbsp; ${fr
+              ? 'Les autres hauts-faits nécessitent une vidéo. Envoyez votre preuve à Pouf sur Discord.'
+              : 'Other achievements require a video. Send your proof to Pouf on Discord.'}
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-section rules-section-youtube">
+        <div class="rules-youtube-icon">▶</div>
+        <div class="rules-youtube-text">
+          <div class="rules-youtube-title">${fr ? 'Les meilleurs moments de cet event seront publiés sur YouTube.' : 'The best moments of this event will be published on YouTube.'}</div>
+          <div class="rules-youtube-sub">${fr ? 'Soyez au rendez-vous !' : 'Stay tuned!'}</div>
+        </div>
+      </div>`;
+    }
+    
     function showPage(id, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
