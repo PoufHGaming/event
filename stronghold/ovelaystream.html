@@ -32,6 +32,7 @@
       align-items: stretch;
       font-family: 'Crimson Pro', Georgia, serif;
       color: var(--text);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); /* garde le texte net une fois compressé par le stream */
     }
 
     .block {
@@ -51,10 +52,10 @@
     .identity img { height: 38px; width: auto; flex-shrink: 0; }
     .identity .text { display: flex; flex-direction: column; line-height: 1.25; }
     .identity .brand { font-family: 'Cinzel', serif; font-weight: 700; color: var(--gold-light); font-size: 16px; letter-spacing: 0.03em; }
-    .identity .tagline { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+    .identity .tagline { font-size: 13px; font-weight: 600; color: var(--text-muted); }
 
     .progress-block .number { font-family: 'Cinzel', serif; font-weight: 700; color: var(--gold-light); font-size: 22px; }
-    .progress-block .label { font-size: 13px; color: var(--text-muted); }
+    .progress-block .label { font-size: 14px; font-weight: 600; color: var(--text-muted); }
 
     .access-block { font-size: 15px; font-weight: 600; color: var(--text); text-align: center; }
 
