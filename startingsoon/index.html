@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Écran d'attente — Pouf_HGaming</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:        #1A1815;
+  --bg-deep:   #0F0D0B;
+  --text:      #E8E3D8;
+  --gold:      #E8C45A;
+  --gold-deep: #C9A84C;
+  --border:    #8A7340;
+  --ember:     #C9662A;
+  --muted:     rgba(232,227,216,.52);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
+
+/* Le stage fait toujours exactement 1920×1080.
+   En source navigateur OBS l'échelle vaut 1 ; ailleurs il est réduit pour tenir. */
+#stage{
+  position:absolute;top:0;left:0;width:1920px;height:1080px;
+  transform-origin:top left;
+  background:radial-gradient(ellipse 1500px 950px at 50% 34%, #232019 0%, var(--bg) 52%, var(--bg-deep) 100%);
+  color:var(--text);
+  font-family:'Crimson Pro',Georgia,serif;
+  overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 0 176px;
+}
+/* grain de pierre */
+#stage::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  opacity:.045;mix-blend-mode:overlay;
+}
+#stage::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:6;
+  box-shadow:inset 0 0 320px 90px rgba(0,0,0,.72);
+}
+.layer{position:relative;z-index:4;display:flex;flex-direction:column;align-items:center;width:100%}
+
+/* ── logo ─────────────────────────────────────────────────────────── */
+.crest{height:158px;margin-bottom:18px}
+.crest img{height:100%;width:auto;display:block;filter:drop-shadow(0 0 42px rgba(232,196,90,.20))}
+.crest .fallback{display:none;font-family:'Cinzel',serif;font-weight:700;font-size:64px;color:var(--gold);letter-spacing:.06em}
+.crest.broken img{display:none}
+.crest.broken .fallback{display:block}
+
+/* ── compte à rebours (l'élément héros) ───────────────────────────── */
+.countdown{display:flex;flex-direction:column;align-items:center;min-height:212px;justify-content:center}
+.countdown-label{
+  font-family:'Cinzel',serif;font-weight:400;
+  font-size:26px;letter-spacing:.40em;text-indent:.40em;
+  color:var(--border);margin-bottom:6px;
+  transition:opacity .4s ease;
+}
+.clock{
+  font-family:'Bebas Neue',Impact,sans-serif;
+  font-size:176px;line-height:.92;letter-spacing:.02em;
+  font-variant-numeric:tabular-nums;
+  color:var(--gold);
+  text-shadow:0 0 58px rgba(232,196,90,.20), 0 5px 0 rgba(0,0,0,.5);
+  animation:breathe 4.8s ease-in-out infinite;
+  text-align:center;
+}
+/* message à zéro : plus petit, une seule ligne, jamais coupé */
+.clock.zero{
+  font-size:70px;letter-spacing:.05em;line-height:1.1;
+  max-width:1500px;
+  animation:breathe-zero 5.2s ease-in-out infinite;
+  transition:opacity .55s ease;
+}
+.clock.zero.fading{opacity:0}
+@keyframes breathe{
+  0%,100%{transform:scale(1);     text-shadow:0 0 50px rgba(232,196,90,.15), 0 5px 0 rgba(0,0,0,.5)}
+  50%    {transform:scale(1.013); text-shadow:0 0 84px rgba(232,196,90,.32), 0 5px 0 rgba(0,0,0,.5)}
+}
+@keyframes breathe-zero{
+  0%,100%{text-shadow:0 0 46px rgba(232,196,90,.18)}
+  50%    {text-shadow:0 0 82px rgba(232,196,90,.38)}
+}
+
+/* ── filet séparateur ─────────────────────────────────────────────── */
+.rule{
+  width:900px;height:1px;margin-top:26px;position:relative;
+  background:linear-gradient(90deg,transparent,var(--border) 20%,var(--border) 80%,transparent);
+}
+.rule::after{
+  content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5.5px 0 0 -5.5px;
+  background:var(--gold);transform:rotate(45deg);box-shadow:0 0 15px rgba(232,196,90,.55);
+}
+
+/* ── colonnes ─────────────────────────────────────────────────────── */
+.columns{
+  display:grid;grid-template-columns:560px 760px;gap:88px;
+  margin-top:36px;align-items:start;
+}
+.columns.solo{grid-template-columns:900px;justify-content:center}
+.columns.solo .col-programme{display:none}
+
+.col-title{
+  font-family:'Cinzel',serif;font-weight:700;
+  font-size:21px;letter-spacing:.28em;text-indent:.28em;
+  color:var(--border);
+  padding-bottom:12px;margin-bottom:20px;
+  border-bottom:1px solid rgba(138,115,64,.35);
+}
+
+/* programme */
+.programme{list-style:none;display:flex;flex-direction:column;gap:15px}
+.programme li{
+  font-size:30px;line-height:1.3;display:flex;gap:18px;align-items:baseline;opacity:.95;
+}
+.programme li::before{
+  content:'';flex:none;width:8px;height:8px;position:relative;top:-5px;
+  background:var(--gold);transform:rotate(45deg);box-shadow:0 0 11px rgba(232,196,90,.45);
+}
+
+/* encart event en rotation */
+.event{
+  border:1px solid rgba(138,115,64,.42);
+  background:linear-gradient(160deg, rgba(232,196,90,.055), rgba(0,0,0,.22));
+  padding:28px 34px 26px;
+  min-height:262px;
+  transition:opacity .6s ease;
+}
+.event.fading{opacity:0}
+.event-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.event-title{font-family:'Cinzel',serif;font-weight:700;font-size:36px;color:var(--gold);letter-spacing:.02em}
+.event-status{
+  font-family:'Cinzel',serif;font-size:14px;letter-spacing:.18em;text-indent:.18em;
+  color:var(--bg-deep);background:var(--gold-deep);
+  padding:5px 12px 4px;white-space:nowrap;
+}
+.event-subtitle{font-size:21px;color:var(--muted);font-style:italic;margin-bottom:16px}
+.event-body{font-size:24px;line-height:1.45;opacity:.93}
+.event-live{
+  margin-top:18px;padding-top:15px;
+  border-top:1px solid rgba(138,115,64,.35);
+  display:flex;flex-direction:column;gap:7px;
+  transition:opacity .5s ease;
+}
+.event-live.stale{opacity:.45}
+.event-live .line{font-size:22px;color:var(--text);opacity:.92}
+.event-live .line b{
+  font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;
+  font-size:30px;color:var(--gold);letter-spacing:.02em;padding:0 2px;vertical-align:-1px;
+}
+.event-live .line em{color:var(--gold);font-style:normal;font-weight:600}
+
+/* pastilles de rotation */
+.dots{display:flex;gap:9px;margin-top:16px;justify-content:flex-start}
+.dot{width:7px;height:7px;background:var(--border);opacity:.4;transform:rotate(45deg);transition:opacity .4s,background .4s}
+.dot.on{background:var(--gold);opacity:1}
+
+/* ── bandeau d'annonce ────────────────────────────────────────────── */
+.note{
+  position:absolute;left:0;right:0;bottom:112px;z-index:5;
+  text-align:center;padding:0 260px;
+  font-size:26px;font-style:italic;color:var(--muted);
+  transition:opacity .5s ease;
+}
+.note:empty{opacity:0}
+
+/* ── braises ──────────────────────────────────────────────────────── */
+.glow{
+  position:absolute;left:0;right:0;bottom:0;height:320px;z-index:2;pointer-events:none;
+  background:linear-gradient(to top, rgba(201,102,42,.20), rgba(201,102,42,.06) 46%, transparent);
+}
+.embers{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.ember{
+  position:absolute;bottom:-12px;width:var(--s);height:var(--s);border-radius:50%;
+  background:var(--ember);box-shadow:0 0 8px 1px rgba(201,102,42,.6);
+  opacity:0;animation:rise var(--dur) linear infinite;animation-delay:var(--delay);
+}
+.ember.pale{background:var(--gold);box-shadow:0 0 9px 1px rgba(232,196,90,.45)}
+@keyframes rise{
+  0%  {transform:translate(0,0) scale(1);opacity:0}
+  9%  {opacity:var(--peak)}
+  70% {opacity:var(--peak)}
+  100%{transform:translate(var(--dx),var(--dy)) scale(.32);opacity:0}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .clock{animation:none}
+  .ember{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="layer">
+
+    <div class="crest" id="crest">
+      <img id="logo" src="../images/event/strongholdlogo.png" alt="The Stronghold">
+      <div class="fallback">Pouf_HGaming</div>
+    </div>
+
+    <div class="countdown">
+      <div class="countdown-label" id="clock-label">Le live commence dans</div>
+      <div class="clock" id="clock">05:00</div>
+    </div>
+
+    <div class="rule"></div>
+
+    <div class="columns" id="columns">
+      <div class="col-programme">
+        <div class="col-title">Au programme</div>
+        <ul class="programme" id="programme"></ul>
+      </div>
+      <div class="col-event">
+        <div class="col-title">Les events du moment</div>
+        <div class="event" id="event"></div>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note" id="note"></div>
+  <div class="glow"></div>
+  <div class="embers" id="embers"></div>
+</div>
+
+<script>
+/* ============================================================================
+   ÉCRAN D'ATTENTE — Pouf_HGaming
+   Un seul fichier. Source navigateur OBS, 1920×1080.
+
+   Tout se pilote depuis admin.html → « Écran d'attente » (table stream_screen
+   et stream_events). Les paramètres d'URL ci-dessous restent disponibles pour
+   un réglage ponctuel : ils écrasent la base sans rien y modifier.
+
+     ?mode=brb                              force le mode pause
+     ?duree=8                               minutes de compte à rebours
+     ?debut=20:30                           heure de début absolue
+     ?prog=Boosters|Scryers+Peak|Debrief    programme, séparé par des |
+     ?nodb=1                                ignore Supabase (aperçu hors ligne)
+   ========================================================================== */
+
+const SB_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+const SB_ANON = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+
+const SCREEN_REFRESH_MS = 10000;   // réglages : réactif quand tu changes de mode
+const LIVE_REFRESH_MS   = 60000;   // chiffres du TCG
+const ROTATE_MS         = 20000;   // rotation des encarts d'events
+const ZERO_ROTATE_MS    = 9000;    // rotation des messages une fois à zéro
+
+const FALLBACK = {
+  mode: 'starting',
+  timer_minutes: 5,
+  start_time: null,
+  programme: 'Ouverture de boosters Stronghold\nRun avec le chat\nDébrief et distribution de cartes',
+  note: '',
+  zero_messages: 'Le heal finit son café, deux secondes\nOn attend que le tank arrête de pull\nFormation du groupe en cours',
+  brb_note: '',
+  brb_zero_messages: 'Je remonte du donjon\nOn repart dans une seconde',
+  events: [{
+    title: 'The Stronghold',
+    subtitle: 'TCG communautaire Fellowship',
+    status: 'En cours',
+    body: 'Cent vingt-cinq cartes, six raretés, rien à acheter. Tes points de chaîne deviennent des boosters.',
+    live_source: 'stronghold'
+  }]
+};
+
+const params = new URLSearchParams(location.search);
+const useDb  = !params.has('nodb');
+
+/* ── utilitaires ─────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* Les noms de cartes sont stockés en jsonb multilingue — même helper que le bandeau. */
+function pick(field, fallback){
+  if (!field) return fallback || '';
+  if (typeof field === 'string') return field;
+  return field.fr || Object.values(field)[0] || fallback || '';
+}
+
+function lines(txt){
+  return String(txt || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+}
+
+async function sbFetch(path){
+  const res = await fetch(SB_URL + path, {
+    headers: { apikey: SB_ANON, Authorization: 'Bearer ' + SB_ANON },
+    cache: 'no-store'
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+/* ── mise à l'échelle ────────────────────────────────────────────── */
+const stage = $('stage');
+function fit(){
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  stage.style.transform = 'scale(' + s + ')';
+  stage.style.left = ((innerWidth  - 1920 * s) / 2) + 'px';
+  stage.style.top  = ((innerHeight - 1080 * s) / 2) + 'px';
+}
+fit();
+addEventListener('resize', fit);
+
+(function logoFallback(){
+  const img = $('logo');
+  const broken = () => $('crest').classList.add('broken');
+  img.addEventListener('error', broken);
+  // le chargement a pu échouer avant que ce script tourne
+  if (img.complete && img.naturalWidth === 0) broken();
+})();
+
+/* ── braises ─────────────────────────────────────────────────────── */
+(function seedEmbers(){
+  const box = $('embers');
+  for (let i = 0; i < 48; i++){
+    const e = document.createElement('span');
+    e.className = 'ember' + (Math.random() < .22 ? ' pale' : '');
+    const dur = 9 + Math.random() * 9;
+    e.style.setProperty('--s',     (2 + Math.random() * 3.4).toFixed(1) + 'px');
+    e.style.setProperty('--dur',   dur.toFixed(1) + 's');
+    e.style.setProperty('--dx',    (Math.random() * 200 - 100).toFixed(0) + 'px');
+    e.style.setProperty('--dy',    '-' + (360 + Math.random() * 520).toFixed(0) + 'px');
+    e.style.setProperty('--peak',  (.26 + Math.random() * .44).toFixed(2));
+    // délai négatif : les braises sont déjà en vol au chargement, pas de départ groupé
+    e.style.setProperty('--delay', '-' + (Math.random() * dur).toFixed(1) + 's');
+    e.style.left = (Math.random() * 1920).toFixed(0) + 'px';
+    box.appendChild(e);
+  }
+})();
+
+/* ── état ────────────────────────────────────────────────────────── */
+const S = {
+  screen: null,        // ligne stream_screen résolue
+  events: [],          // encarts actifs
+  eventIdx: 0,
+  target: null,        // Date de fin du compte à rebours
+  relativeAnchor: 0,   // minutes utilisées pour le calcul relatif en cours
+  atZero: false,
+  zeroIdx: 0,
+  live: { stronghold: null, gloire: null },
+  liveStale: true
+};
+
+/* ── résolution de la configuration ──────────────────────────────── */
+function overrides(){
+  const o = {};
+  if (params.has('mode'))  o.mode = params.get('mode');
+  if (params.has('debut')) o.start_time = params.get('debut');
+  if (params.has('duree')) o.timer_minutes = parseFloat(params.get('duree'));
+  if (params.has('prog'))  o.programme = params.get('prog').split('|').join('\n');
+  return o;
+}
+
+/* 'HH:MM' -> Date d'aujourd'hui. Si l'heure est passée de plus de deux heures,
+   c'est qu'on vise le lendemain (live qui démarre après minuit). */
+function parseHHMM(str){
+  const m = /^(\d{1,2})\s*[:hH]\s*(\d{2})$/.exec(String(str).trim());
+  if (!m) return null;
+  const h = +m[1], mi = +m[2];
+  if (h > 23 || mi > 59) return null;
+  const d = new Date();
+  d.setHours(h, mi, 0, 0);
+  if (d.getTime() < Date.now() - 2 * 3600e3) d.setDate(d.getDate() + 1);
+  return d;
+}
+
+/* resetTimer = true au chargement et à chaque activation de la scène OBS. */
+function applyScreen(row, resetTimer){
+  S.screen = row;
+
+  const isBrb = row.mode === 'brb';
+  document.title = (isBrb ? 'Pause' : 'Starting Soon') + ' — Pouf_HGaming';
+  $('clock-label').textContent = isBrb ? 'De retour dans' : 'Le live commence dans';
+  $('columns').classList.toggle('solo', isBrb);
+  $('note').textContent = isBrb ? (row.brb_note || '') : (row.note || '');
+
+  renderProgramme(lines(row.programme));
+
+  const absolute = row.start_time ? parseHHMM(row.start_time) : null;
+  const mins = Number(row.timer_minutes);
+  const safeMins = (isFinite(mins) && mins > 0) ? mins : FALLBACK.timer_minutes;
+
+  if (absolute){
+    S.target = absolute;
+    S.relativeAnchor = 0;
+  } else if (resetTimer || !S.target || S.relativeAnchor !== safeMins){
+    // Relance depuis zéro : chargement, retour sur la scène, ou durée changée en admin.
+    S.target = new Date(Date.now() + safeMins * 60000);
+    S.relativeAnchor = safeMins;
+  }
+  tick();
+}
+
+/* ── rendu ───────────────────────────────────────────────────────── */
+function renderProgramme(items){
+  const ul = $('programme');
+  ul.innerHTML = '';
+  (items.length ? items : lines(FALLBACK.programme)).slice(0, 4).forEach(t => {
+    const li = document.createElement('li');
+    li.textContent = t;
+    ul.appendChild(li);
+  });
+}
+
+const clockEl = $('clock'), labelEl = $('clock-label');
+
+function zeroMessages(){
+  const row = S.screen || FALLBACK;
+  const raw = row.mode === 'brb'
+    ? (row.brb_zero_messages || FALLBACK.brb_zero_messages)
+    : (row.zero_messages || FALLBACK.zero_messages);
+  const list = lines(raw);
+  return list.length ? list : ['On commence'];
+}
+
+function tick(){
+  if (!S.target) return;
+  const left = S.target - Date.now();
+
+  if (left <= 0){
+    if (!S.atZero){
+      S.atZero = true;
+      S.zeroIdx = 0;
+      clockEl.classList.add('zero');
+      labelEl.style.opacity = '0';
+      // Le premier passage garde l'annonce nette ; les blagues arrivent ensuite.
+      clockEl.textContent = S.screen && S.screen.mode === 'brb' ? 'On reprend' : 'On commence';
+      setTimeout(rotateZero, 6000);
+    }
+    return;
+  }
+
+  if (S.atZero){
+    S.atZero = false;
+    clockEl.classList.remove('zero', 'fading');
+    labelEl.style.opacity = '1';
+  }
+
+  const total = Math.floor(left / 1000);
+  const h = Math.floor(total / 3600), m = Math.floor(total % 3600 / 60), s = total % 60;
+  const pad = v => String(v).padStart(2, '0');
+  clockEl.textContent = h > 0 ? h + ':' + pad(m) + ':' + pad(s) : pad(m) + ':' + pad(s);
+}
+
+function rotateZero(){
+  if (!S.atZero) return;
+  const list = zeroMessages();
+  clockEl.classList.add('fading');
+  setTimeout(() => {
+    if (!S.atZero) return;
+    clockEl.textContent = list[S.zeroIdx % list.length];
+    S.zeroIdx++;
+    clockEl.classList.remove('fading');
+  }, 550);
+  setTimeout(rotateZero, ZERO_ROTATE_MS);
+}
+
+/* ── encarts d'events ────────────────────────────────────────────── */
+function liveBlock(source){
+  if (source === 'stronghold'){
+    const d = S.live.stronghold;
+    if (!d) return '<div class="line">Les compteurs de la collection arrivent.</div>';
+    const leg = d.legendaryName
+      ? 'Dernière Legendary : <em>' + esc(d.legendaryName) + '</em> par <em>' + esc(d.legendaryUser) + '</em>'
+      : 'Aucune Legendary trouvée pour l\u2019instant. Ce soir peut-être.';
+    return '<div class="line"><b>' + d.found + '</b> / <b>' + d.total + '</b> cartes trouvées par la communauté</div>' +
+           '<div class="line">' + leg + '</div>';
+  }
+  if (source === 'gloire'){
+    const d = S.live.gloire;
+    if (!d) return '<div class="line">Le classement arrive.</div>';
+    const lead = d.leaderName
+      ? 'En tête : <em>' + esc(d.leaderName) + '</em> avec <b>' + d.leaderScore + '</b> hauts-faits'
+      : 'Le classement est encore vierge.';
+    return '<div class="line"><b>' + d.players + '</b> joueurs engagés cette pré-saison</div>' +
+           '<div class="line">' + lead + '</div>';
+  }
+  return '';
+}
+
+function renderEvent(){
+  const box = $('event');
+  const list = S.events.length ? S.events : FALLBACK.events;
+  const ev = list[S.eventIdx % list.length];
+  const live = liveBlock(ev.live_source);
+
+  box.innerHTML =
+    '<div class="event-head">' +
+      '<div class="event-title">' + esc(ev.title) + '</div>' +
+      (ev.status ? '<div class="event-status">' + esc(ev.status) + '</div>' : '') +
+    '</div>' +
+    (ev.subtitle ? '<div class="event-subtitle">' + esc(ev.subtitle) + '</div>' : '') +
+    (ev.body ? '<div class="event-body">' + esc(ev.body) + '</div>' : '') +
+    (live ? '<div class="event-live' + (S.liveStale ? ' stale' : '') + '">' + live + '</div>' : '');
+
+  const dots = $('dots');
+  dots.innerHTML = '';
+  if (list.length > 1){
+    list.forEach((_, i) => {
+      const d = document.createElement('span');
+      d.className = 'dot' + (i === S.eventIdx % list.length ? ' on' : '');
+      dots.appendChild(d);
+    });
+  }
+}
+
+function rotateEvent(){
+  const list = S.events.length ? S.events : FALLBACK.events;
+  if (list.length < 2) return;
+  const box = $('event');
+  box.classList.add('fading');
+  setTimeout(() => {
+    S.eventIdx = (S.eventIdx + 1) % list.length;
+    renderEvent();
+    box.classList.remove('fading');
+  }, 600);
+}
+
+/* ── chargements Supabase ────────────────────────────────────────── */
+async function loadScreen(resetTimer){
+  let row = null;
+  if (useDb){
+    try {
+      const rows = await sbFetch('/rest/v1/stream_screen?id=eq.1&select=*');
+      row = rows && rows[0];
+    } catch (e){
+      console.warn('[écran] réglages indisponibles :', e.message);
+    }
+  }
+  applyScreen(Object.assign({}, FALLBACK, row || {}, overrides()), resetTimer);
+}
+
+async function loadEvents(){
+  if (!useDb) { S.events = FALLBACK.events; renderEvent(); return; }
+  try {
+    const rows = await sbFetch(
+      '/rest/v1/stream_events?active=eq.true&order=sort_order.asc&select=title,subtitle,status,body,live_source');
+    if (rows && rows.length){
+      S.events = rows;
+      if (S.eventIdx >= rows.length) S.eventIdx = 0;
+    }
+  } catch (e){
+    console.warn('[écran] events indisponibles :', e.message);
+    if (!S.events.length) S.events = FALLBACK.events;
+  }
+  renderEvent();
+}
+
+/* Données Stronghold — mêmes requêtes que le bandeau overlay, pour rester cohérent. */
+async function loadStronghold(){
+  const [cards, collections, users] = await Promise.all([
+    sbFetch('/rest/v1/tcg_cards?select=id,name,rarity&is_active=eq.true'),
+    sbFetch('/rest/v1/tcg_user_collections?select=user_id,card_id,first_obtained_at&quantity=gt.0'),
+    sbFetch('/rest/v1/tcg_users?select=id,username')
+  ]);
+
+  const cardsById = new Map(cards.map(c => [c.id, c]));
+  const nameById  = new Map(users.map(u => [u.id, u.username || '???']));
+
+  const foundIds = new Set();
+  let lastLeg = null;
+  for (const row of collections){
+    const card = cardsById.get(row.card_id);
+    if (!card) continue;
+    foundIds.add(row.card_id);
+    if (card.rarity !== 'LEGENDARY') continue;
+    if (!lastLeg || new Date(row.first_obtained_at) > new Date(lastLeg.first_obtained_at)) lastLeg = row;
+  }
+
+  return {
+    found: foundIds.size,
+    total: cards.length,
+    legendaryName: lastLeg ? pick(cardsById.get(lastLeg.card_id).name, '') : null,
+    legendaryUser: lastLeg ? (nameById.get(lastLeg.user_id) || '???') : null
+  };
+}
+
+/* Données Gloire à la Compagnie. */
+async function loadGloire(){
+  const [players, achievements] = await Promise.all([
+    sbFetch('/rest/v1/players?select=id,name'),
+    sbFetch('/rest/v1/player_achievements?select=player_id')
+  ]);
+
+  const counts = new Map();
+  for (const a of achievements) counts.set(a.player_id, (counts.get(a.player_id) || 0) + 1);
+
+  let leader = null, best = 0;
+  for (const [pid, n] of counts){ if (n > best){ best = n; leader = pid; } }
+  const nameById = new Map(players.map(p => [p.id, p.name]));
+
+  return {
+    players: players.length,
+    leaderName: leader ? (nameById.get(leader) || null) : null,
+    leaderScore: best
+  };
+}
+
+async function loadLive(){
+  if (!useDb){ S.liveStale = true; renderEvent(); return; }
+
+  const list = S.events.length ? S.events : FALLBACK.events;
+  const sources = new Set(list.map(e => e.live_source));
+  const jobs = [];
+
+  if (sources.has('stronghold'))
+    jobs.push(loadStronghold().then(d => S.live.stronghold = d).catch(e => console.warn('[écran] Stronghold :', e.message)));
+  if (sources.has('gloire'))
+    jobs.push(loadGloire().then(d => S.live.gloire = d).catch(e => console.warn('[écran] Gloire :', e.message)));
+
+  const before = JSON.stringify(S.live);
+  await Promise.all(jobs);
+  // Si rien n'a bougé alors qu'on attendait des données, on estompe au lieu d'effacer.
+  S.liveStale = jobs.length > 0 && JSON.stringify(S.live) === before && !S.live.stronghold && !S.live.gloire;
+  renderEvent();
+}
+
+/* ── démarrage ───────────────────────────────────────────────────── */
+let booting = false;
+async function boot(resetTimer){
+  if (booting) return;
+  booting = true;
+  try {
+    await loadScreen(resetTimer);
+    await loadEvents();
+    await loadLive();
+  } finally {
+    booting = false;
+  }
+}
+
+renderEvent();
+boot(true);
+
+setInterval(tick, 250);
+setInterval(() => loadScreen(false), SCREEN_REFRESH_MS);  // sans relancer le compteur en cours
+setInterval(loadEvents, 120000);
+setInterval(loadLive, LIVE_REFRESH_MS);
+setInterval(rotateEvent, ROTATE_MS);
+
+/* ── intégration OBS ─────────────────────────────────────────────────
+   Si « Actualiser le navigateur quand la scène devient active » est coché,
+   la page se recharge et boot(true) suffit. Sinon ces événements relancent
+   proprement le compte à rebours au retour sur la scène — il ne continue
+   jamais de courir depuis le lancement d'OBS. */
+addEventListener('obsSourceActiveChanged',  e => { if (e.detail && e.detail.active)  boot(true); });
+addEventListener('obsSourceVisibleChanged', e => { if (e.detail && e.detail.visible) boot(true); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) boot(true); });
+</script>
+</body>
+</html>
