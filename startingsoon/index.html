@@ -15,7 +15,10 @@
   --gold-deep: #C9A84C;
   --border:    #8A7340;
   --ember:     #C9662A;
-  --muted:     rgba(232,227,216,.52);
+  --label:     #C7AA63;
+  --pill-live: #7DDF7E;   /* couleur du site */
+  --pill-soon: #5FC2B8;   /* #5dc4c4 du site, réchauffé pour cohabiter avec l'or */
+  --muted:     rgba(232,227,216,.72);
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -30,6 +33,7 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
   color:var(--text);
   font-family:'Crimson Pro',Georgia,serif;
   overflow:hidden;
+  text-shadow:0 2px 4px rgba(0,0,0,.85);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:40px 0 176px;
 }
@@ -55,9 +59,9 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
 /* ── compte à rebours (l'élément héros) ───────────────────────────── */
 .countdown{display:flex;flex-direction:column;align-items:center;min-height:212px;justify-content:center}
 .countdown-label{
-  font-family:'Cinzel',serif;font-weight:400;
-  font-size:26px;letter-spacing:.40em;text-indent:.40em;
-  color:var(--border);margin-bottom:6px;
+  font-family:'Bebas Neue',Impact,sans-serif;
+  font-size:38px;letter-spacing:.20em;text-indent:.20em;
+  color:var(--label);margin-bottom:2px;
   transition:opacity .4s ease;
 }
 .clock{
@@ -105,9 +109,9 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
 .columns.solo .col-programme{display:none}
 
 .col-title{
-  font-family:'Cinzel',serif;font-weight:700;
-  font-size:21px;letter-spacing:.28em;text-indent:.28em;
-  color:var(--border);
+  font-family:'Bebas Neue',Impact,sans-serif;
+  font-size:32px;letter-spacing:.15em;text-indent:.15em;
+  color:var(--label);
   padding-bottom:12px;margin-bottom:20px;
   border-bottom:1px solid rgba(138,115,64,.35);
 }
@@ -115,7 +119,7 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
 /* programme */
 .programme{list-style:none;display:flex;flex-direction:column;gap:15px}
 .programme li{
-  font-size:30px;line-height:1.3;display:flex;gap:18px;align-items:baseline;opacity:.95;
+  font-size:32px;font-weight:600;line-height:1.32;display:flex;gap:18px;align-items:baseline;
 }
 .programme li::before{
   content:'';flex:none;width:8px;height:8px;position:relative;top:-5px;
@@ -132,14 +136,17 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
 }
 .event.fading{opacity:0}
 .event-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:4px}
-.event-title{font-family:'Cinzel',serif;font-weight:700;font-size:36px;color:var(--gold);letter-spacing:.02em}
+.event-title{font-family:'Cinzel',serif;font-weight:700;font-size:38px;color:var(--gold);letter-spacing:.01em}
 .event-status{
-  font-family:'Cinzel',serif;font-size:14px;letter-spacing:.18em;text-indent:.18em;
-  color:var(--bg-deep);background:var(--gold-deep);
-  padding:5px 12px 4px;white-space:nowrap;
+  font-family:'Bebas Neue',Impact,sans-serif;font-size:25px;letter-spacing:.09em;text-indent:.09em;
+  color:var(--bg-deep);background:var(--gold);text-shadow:none;
+  padding:4px 16px 2px;white-space:nowrap;
+  align-self:center;
 }
-.event-subtitle{font-size:21px;color:var(--muted);font-style:italic;margin-bottom:16px}
-.event-body{font-size:24px;line-height:1.45;opacity:.93}
+.event-status.live{background:var(--pill-live)}
+.event-status.soon{background:var(--pill-soon)}
+.event-subtitle{font-size:23px;font-weight:600;color:var(--muted);font-style:italic;margin-bottom:16px}
+.event-body{font-size:25px;font-weight:600;line-height:1.46}
 .event-live{
   margin-top:18px;padding-top:15px;
   border-top:1px solid rgba(138,115,64,.35);
@@ -147,10 +154,10 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
   transition:opacity .5s ease;
 }
 .event-live.stale{opacity:.45}
-.event-live .line{font-size:22px;color:var(--text);opacity:.92}
+.event-live .line{font-size:24px;font-weight:600;color:var(--text)}
 .event-live .line b{
   font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;
-  font-size:30px;color:var(--gold);letter-spacing:.02em;padding:0 2px;vertical-align:-1px;
+  font-size:34px;color:var(--gold);letter-spacing:.02em;padding:0 3px;vertical-align:-2px;
 }
 .event-live .line em{color:var(--gold);font-style:normal;font-weight:600}
 
@@ -163,7 +170,7 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
 .note{
   position:absolute;left:0;right:0;bottom:112px;z-index:5;
   text-align:center;padding:0 260px;
-  font-size:26px;font-style:italic;color:var(--muted);
+  font-size:28px;font-weight:600;font-style:italic;color:var(--muted);
   transition:opacity .5s ease;
 }
 .note:empty{opacity:0}
@@ -252,6 +259,17 @@ const SCREEN_REFRESH_MS = 10000;   // réglages : réactif quand tu changes de m
 const LIVE_REFRESH_MS   = 60000;   // chiffres du TCG
 const ROTATE_MS         = 20000;   // rotation des encarts d'events
 const ZERO_ROTATE_MS    = 9000;    // rotation des messages une fois à zéro
+
+/* Teinte de la pastille déduite du texte saisi en admin, pour ne rien avoir
+   à cocher au moment d'écrire un statut. Ajoute tes formulations ici au besoin. */
+const STATUS_TONES = [
+  { tone: 'live', match: /en cours|en ligne|ouvert|en direct|actif|live/i },
+  { tone: 'soon', match: /[àa] venir|pr[ée]vu|bient[ôo]t|prochainement|soon|ouverture/i }
+];
+function statusTone(txt){
+  for (const t of STATUS_TONES) if (t.match.test(txt || '')) return t.tone;
+  return '';   // doré par défaut
+}
 
 const FALLBACK = {
   mode: 'starting',
@@ -499,7 +517,7 @@ function renderEvent(){
   box.innerHTML =
     '<div class="event-head">' +
       '<div class="event-title">' + esc(ev.title) + '</div>' +
-      (ev.status ? '<div class="event-status">' + esc(ev.status) + '</div>' : '') +
+      (ev.status ? '<div class="event-status ' + statusTone(ev.status) + '">' + esc(ev.status) + '</div>' : '') +
     '</div>' +
     (ev.subtitle ? '<div class="event-subtitle">' + esc(ev.subtitle) + '</div>' : '') +
     (ev.body ? '<div class="event-body">' + esc(ev.body) + '</div>' : '') +
