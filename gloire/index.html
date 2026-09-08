@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -165,6 +165,294 @@
       border-color: var(--border-bright);
       background: rgba(201, 168, 76, 0.05);
       opacity: 1;
+    }
+
+    /* LANG TOGGLE (FR/EN) — style isolé de .tab pour ne pas être désélectionné par showPage() */
+    .lang-tab {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+      opacity: 0.6;
+    }
+
+    .lang-tab:hover {
+      opacity: 1;
+      border-color: var(--border);
+    }
+
+    .lang-tab.active {
+      color: var(--gold);
+      border-color: var(--border-bright);
+      background: rgba(201, 168, 76, 0.05);
+      opacity: 1;
+    }
+
+    /* TAB VERIFY VIA LOG — tab spéciale avec badge NEW */
+    .tab-verify {
+      position: relative;
+      color: var(--teal) !important;
+      opacity: 1 !important;
+    }
+    .tab-verify:hover {
+      border-color: rgba(76,168,168,0.4) !important;
+      box-shadow: 0 0 10px rgba(76,168,168,0.15);
+    }
+    .tab-verify.active {
+      color: var(--teal) !important;
+      border-color: rgba(76,168,168,0.6) !important;
+      background: rgba(76,168,168,0.08) !important;
+    }
+    .tab-verify .badge-new {
+      position: absolute;
+      top: -6px; right: -8px;
+      background: var(--teal);
+      color: var(--bg);
+      font-family: 'Cinzel', serif;
+      font-size: 8px; font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 2px 5px;
+      border-radius: 10px;
+      animation: new-pulse 2.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes new-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(76,168,168,0.5); }
+      50% { box-shadow: 0 0 0 5px rgba(76,168,168,0); }
+    }
+
+    /* PAGE JOIN ────────────────────────────────────────────── */
+    .join-page { max-width: 700px; margin: 0 auto; }
+    .join-step { display: flex; gap: 22px; margin-bottom: 32px; align-items: flex-start; }
+    .join-step-num {
+      flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(201,168,76,0.1); border: 1px solid var(--border-bright);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700;
+      color: var(--gold-light); margin-top: 2px;
+    }
+    .join-step-body { flex: 1; }
+    .join-step-title {
+      font-family: 'Cinzel', serif; font-size: 14px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold-light); margin-bottom: 10px;
+    }
+    .join-step-desc {
+      font-size: 16px; color: var(--text-dim);
+      line-height: 1.7; margin-bottom: 14px;
+    }
+    .join-step-desc a {
+      color: var(--gold-light); text-decoration: none;
+      border-bottom: 1px solid rgba(201,168,76,0.35);
+      transition: border-color 0.2s;
+    }
+    .join-step-desc a:hover { border-bottom-color: var(--gold-light); }
+    .join-step-desc strong { color: var(--text); font-weight: 400; }
+    .join-screenshot {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 6px; overflow: hidden; margin-top: 4px;
+    }
+    .join-screenshot-label {
+      font-family: 'Cinzel', serif; font-size: 11px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-muted); padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .join-url-demo { padding: 14px 18px; }
+    .join-url-bar {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 4px; padding: 9px 14px;
+      font-family: monospace; font-size: 13px;
+      color: var(--text-dim); word-break: break-all; line-height: 1.6;
+    }
+    .url-highlight {
+      color: var(--gold-light); font-weight: 700;
+      background: rgba(201,168,76,0.14);
+      padding: 1px 5px; border-radius: 3px;
+    }
+    .url-dim { color: var(--text-muted); }
+    .join-url-caption {
+      font-size: 14px; color: var(--text-muted);
+      font-style: italic; margin-top: 8px; padding: 0 2px 4px;
+    }
+    .join-divider { height: 1px; background: var(--border); margin: 4px 0 32px; }
+    .join-cta-block {
+      background: var(--bg2); border: 1px solid var(--border-bright);
+      border-radius: 8px; padding: 28px 32px; text-align: center;
+      box-shadow: 0 0 40px rgba(201,168,76,0.06);
+    }
+    .join-cta-title {
+      font-family: 'Cinzel', serif; font-size: 16px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold-light); margin-bottom: 10px;
+    }
+    .join-cta-desc {
+      font-size: 16px; color: var(--text-dim);
+      font-style: italic; margin-bottom: 22px; line-height: 1.6;
+    }
+    .join-cta-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: 'Cinzel', serif; font-size: 14px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 13px 32px;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid var(--border-bright);
+      border-radius: 4px; color: var(--gold-light);
+      text-decoration: none; transition: all 0.25s;
+      box-shadow: 0 0 20px rgba(201,168,76,0.1);
+    }
+    .join-cta-btn:hover {
+      background: rgba(201,168,76,0.22);
+      box-shadow: 0 0 32px rgba(201,168,76,0.2);
+      transform: translateY(-1px);
+    }
+
+    /* PAGE VERIFY ─────────────────────────────────────────── */
+    .verify-hero {
+      text-align: center;
+      padding: 16px 0 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .verify-hero-icon { font-size: 28px; margin-bottom: 6px; }
+    .verify-hero h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 22px; letter-spacing: 0.06em;
+      color: var(--teal); margin-bottom: 8px;
+    }
+    .verify-hero p {
+      font-size: 16px; color: var(--text-dim);
+      font-style: italic; max-width: 520px; margin: 0 auto;
+    }
+    .verify-input-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 24px 28px;
+      max-width: 560px; margin: 0 auto 32px;
+    }
+    .verify-input-label {
+      font-family: 'Cinzel', serif; font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-muted); display: block; margin-bottom: 8px;
+    }
+    .verify-input-row { display: flex; gap: 8px; }
+    .verify-input {
+      flex: 1; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 4px;
+      color: var(--text); font-family: 'Crimson Pro', serif;
+      font-size: 16px; padding: 9px 12px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .verify-input:focus { border-color: rgba(76,168,168,0.6); }
+    .verify-btn {
+      font-family: 'Cinzel', serif; font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      background: rgba(76,168,168,0.12);
+      border: 1px solid rgba(76,168,168,0.5);
+      border-radius: 4px; color: var(--teal);
+      padding: 9px 18px; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .verify-btn:hover:not(:disabled) {
+      background: rgba(76,168,168,0.22);
+      box-shadow: 0 0 12px rgba(76,168,168,0.2);
+    }
+    .verify-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .verify-cd {
+      font-size: 12px; color: var(--text-muted);
+      margin-top: 6px; min-height: 18px;
+    }
+
+    .verify-help {
+      max-width: 560px; margin: 0 auto 20px;
+      background: rgba(201,168,76,0.05);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 12px 16px;
+    }
+    .verify-help-title {
+      font-family: 'Cinzel', serif; font-size: 10px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold-dim); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+      cursor: pointer; user-select: none;
+    }
+    .verify-help-title .help-arrow {
+      font-size: 9px; transition: transform 0.2s;
+    }
+    .verify-help-title.open .help-arrow { transform: rotate(90deg); }
+    .verify-help-body {
+      display: none; font-size: 14px;
+      color: var(--text-dim); line-height: 1.7;
+    }
+    .verify-help-body.open { display: block; }
+    .verify-help-body ol {
+      padding-left: 18px; margin: 6px 0;
+    }
+    .verify-help-body li { margin-bottom: 4px; }
+    .verify-help-body code {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 3px; padding: 1px 5px;
+      font-size: 12px; color: var(--teal);
+      font-family: monospace;
+    }
+    .verify-results {
+      max-width: 560px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .verify-players-found {
+      font-size: 13px; color: var(--text-dim);
+      font-style: italic; text-align: center;
+      margin-bottom: 4px;
+    }
+    .verify-hf-result {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 12px 16px;
+    }
+    .verify-hf-result .status-icon {
+      font-size: 20px; flex-shrink: 0; width: 28px; text-align: center;
+    }
+    .verify-hf-result.ok  { border-color: rgba(125,223,125,0.3); }
+    .verify-hf-result.fail { border-color: rgba(201,76,76,0.3); }
+    .verify-hf-result.na  { border-color: var(--border); opacity: 0.6; }
+    .verify-hf-result .hf-name {
+      font-family: 'Cinzel', serif; font-size: 13px; color: var(--text);
+    }
+    .verify-hf-result .hf-dungeon {
+      font-size: 12px; color: var(--text-muted); font-style: italic;
+    }
+    .verify-error {
+      text-align: center; color: var(--text-muted);
+      font-style: italic; font-size: 14px; padding: 12px;
+    }
+
+    /* Liste des HF vérifiables */
+    .verify-hf-list {
+      max-width: 560px; margin: 0 auto 24px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .verify-hf-list-title {
+      font-family: 'Cinzel', serif; font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 4px;
+    }
+    .verify-hf-pill {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 10px 14px;
+    }
+    .verify-hf-pill .pill-name {
+      font-family: 'Cinzel', serif; font-size: 13px;
+      color: var(--text); flex: 1;
+    }
+    .verify-hf-pill .pill-dungeon {
+      font-size: 12px; color: var(--text-muted);
+      font-style: italic; white-space: nowrap;
     }
 
     /* SEASON TOGGLE — style isolé de .tab pour ne pas être affecté par showPage()/setLang() */
@@ -740,6 +1028,66 @@
       gap: 8px;
     }
 
+    /* Wrapper qui groupe la carte + le widget log check, pour que le widget
+       reste toujours visible sans être affecté par le toggle de la carte */
+    .hf-card-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .hf-card-wrap .log-check-wrap {
+      border-top: none;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      padding: 8px 14px 10px;
+      background: var(--bg2);
+      margin-top: -1px; /* colle visuellement sous la carte */
+    }
+
+    .hf-card-wrap .hf-card {
+      border-radius: 4px 4px 0 0;
+      border-bottom-color: transparent;
+    }
+
+    .affix-subheader {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0 8px;
+      padding: 8px 12px;
+      border: 1px solid;
+      border-radius: 6px;
+    }
+
+    .affix-icon-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .affix-icon-wrap img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+
+    .affix-name {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
     .hf-card {
       background: var(--bg2);
       border: 1px solid var(--border);
@@ -753,6 +1101,82 @@
 
     .hf-card:hover {
       border-color: var(--border-bright);
+    }
+
+    .hf-card.coming-soon {
+      opacity: 0.45;
+      cursor: default;
+      border-style: dashed;
+    }
+
+    .hf-card.coming-soon:hover {
+      border-color: var(--border);
+    }
+
+    /* ── LOG CHECK WIDGET ─────────────────────────────────── */
+    .log-check-wrap {
+      padding: 8px 0 2px;
+    }
+    .log-check-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(201,168,76,0.07);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--gold-dim);
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .log-check-btn:hover:not(:disabled) {
+      background: rgba(201,168,76,0.14);
+      border-color: var(--border-bright);
+      color: var(--gold-light);
+    }
+    .log-check-btn:disabled {
+      opacity: 0.4; cursor: not-allowed;
+    }
+    .log-check-input-row {
+      display: none; margin-top: 8px;
+      gap: 6px; align-items: center;
+    }
+    .log-check-input-row.open { display: flex; }
+    .log-check-input {
+      flex: 1; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text); font-family: 'Crimson Pro', serif;
+      font-size: 14px; padding: 5px 8px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .log-check-input:focus { border-color: var(--border-bright); }
+    .log-check-submit {
+      font-family: 'Cinzel', serif; font-size: 10px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid var(--border-bright);
+      border-radius: 3px; color: var(--gold-light);
+      padding: 5px 10px; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .log-check-submit:hover:not(:disabled) { background: rgba(201,168,76,0.2); }
+    .log-check-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .log-check-result {
+      margin-top: 8px; font-size: 13px;
+      display: none; align-items: center; gap: 6px;
+    }
+    .log-check-result.show { display: flex; }
+    .log-check-result.ok { color: #7ddf7d; }
+    .log-check-result.fail { color: var(--red); }
+    .log-check-result.error { color: var(--text-muted); font-style: italic; }
+    .log-check-cooldown {
+      font-size: 11px; color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    .hf-card.coming-soon .hf-card-title {
+      font-style: italic;
+      color: var(--text-muted);
     }
 
     .hf-card-header {
@@ -785,6 +1209,8 @@
       height: 22px;
       border-radius: 4px;
       flex-shrink: 0;
+      position: relative;
+      cursor: default;
     }
 
     .badge img {
@@ -792,6 +1218,45 @@
       height: 18px;
       object-fit: contain;
       display: block;
+    }
+
+    /* Tooltip custom flottant unique, partagé par toutes les icônes de badges/conditions.
+       Positionné dynamiquement en JS (position: fixed) pour ne jamais être tronqué par
+       un ancêtre en overflow:hidden (ex: .dungeon-block, nécessaire pour ses coins arrondis). */
+    #hf-tooltip {
+      display: none;
+      position: fixed;
+      background: #0e1210;
+      border: 1px solid rgba(201, 168, 76, 0.35);
+      border-radius: 4px;
+      padding: 5px 9px;
+      white-space: nowrap;
+      font-family: 'Cinzel', serif;
+      font-size: 10.5px;
+      letter-spacing: 0.05em;
+      font-style: normal;
+      color: #e8c96a;
+      z-index: 500;
+      pointer-events: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      transform: translateX(-50%);
+    }
+
+    #hf-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(201, 168, 76, 0.35);
+    }
+
+    #hf-tooltip.below::after {
+      top: auto;
+      bottom: 100%;
+      border-top-color: transparent;
+      border-bottom-color: rgba(201, 168, 76, 0.35);
     }
 
     .badge-pts {
@@ -1065,7 +1530,7 @@
       color: var(--text);
     }
 
-     /* RULES PAGE */
+    /* RULES PAGE */
     .rules-page {
       max-width: 680px;
       margin: 0 auto;
@@ -1449,92 +1914,6 @@
       font-style: italic;
     }
 
-     /* PAGE JOIN ────────────────────────────────────────────── */
-    .join-page { max-width: 700px; margin: 0 auto; }
-    .join-step { display: flex; gap: 22px; margin-bottom: 32px; align-items: flex-start; }
-    .join-step-num {
-      flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(201,168,76,0.1); border: 1px solid var(--border-bright);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700;
-      color: var(--gold-light); margin-top: 2px;
-    }
-    .join-step-body { flex: 1; }
-    .join-step-title {
-      font-family: 'Cinzel', serif; font-size: 14px;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--gold-light); margin-bottom: 10px;
-    }
-    .join-step-desc {
-      font-size: 16px; color: var(--text-dim);
-      line-height: 1.7; margin-bottom: 14px;
-    }
-    .join-step-desc a {
-      color: var(--gold-light); text-decoration: none;
-      border-bottom: 1px solid rgba(201,168,76,0.35);
-      transition: border-color 0.2s;
-    }
-    .join-step-desc a:hover { border-bottom-color: var(--gold-light); }
-    .join-step-desc strong { color: var(--text); font-weight: 400; }
-    .join-screenshot {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: 6px; overflow: hidden; margin-top: 4px;
-    }
-    .join-screenshot-label {
-      font-family: 'Cinzel', serif; font-size: 11px;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--text-muted); padding: 8px 14px;
-      border-bottom: 1px solid var(--border);
-    }
-    .join-url-demo { padding: 14px 18px; }
-    .join-url-bar {
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: 4px; padding: 9px 14px;
-      font-family: monospace; font-size: 13px;
-      color: var(--text-dim); word-break: break-all; line-height: 1.6;
-    }
-    .url-highlight {
-      color: var(--gold-light); font-weight: 700;
-      background: rgba(201,168,76,0.14);
-      padding: 1px 5px; border-radius: 3px;
-    }
-    .url-dim { color: var(--text-muted); }
-    .join-url-caption {
-      font-size: 14px; color: var(--text-muted);
-      font-style: italic; margin-top: 8px; padding: 0 2px 4px;
-    }
-    .join-divider { height: 1px; background: var(--border); margin: 4px 0 32px; }
-    .join-cta-block {
-      background: var(--bg2); border: 1px solid var(--border-bright);
-      border-radius: 8px; padding: 28px 32px; text-align: center;
-      box-shadow: 0 0 40px rgba(201,168,76,0.06);
-    }
-    .join-cta-title {
-      font-family: 'Cinzel', serif; font-size: 16px;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--gold-light); margin-bottom: 10px;
-    }
-    .join-cta-desc {
-      font-size: 16px; color: var(--text-dim);
-      font-style: italic; margin-bottom: 22px; line-height: 1.6;
-    }
-    .join-cta-btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      font-family: 'Cinzel', serif; font-size: 14px;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      padding: 13px 32px;
-      background: rgba(201,168,76,0.12);
-      border: 1px solid var(--border-bright);
-      border-radius: 4px; color: var(--gold-light);
-      text-decoration: none; transition: all 0.25s;
-      box-shadow: 0 0 20px rgba(201,168,76,0.1);
-    }
-    .join-cta-btn:hover {
-      background: rgba(201,168,76,0.22);
-      box-shadow: 0 0 32px rgba(201,168,76,0.2);
-      transform: translateY(-1px);
-    }
-
     /* RESPONSIVE MOBILE */
     @media (max-width: 640px) {
 
@@ -1878,13 +2257,17 @@
       <button class="tab active" id="tab-leaderboard" onclick="showPage('leaderboard', this)">Classement</button>
       <button class="tab" id="tab-achievements" onclick="showPage('achievements', this)">Hauts-faits</button>
       <button class="tab" id="tab-rules" onclick="showPage('rules', this)">Règles</button>
+      <button class="tab tab-verify" id="tab-verify" onclick="showPage('verify', this)">
+        <span id="tab-verify-label">Vérifier</span>
+        <span class="badge-new" id="badge-new">NEW</span>
+      </button>
       <button class="tab" id="join-btn" onclick="showPage('join', this)">Rejoindre</button>
       <div style="margin-left:auto; display:flex; align-items:center; gap:10px; position:relative;">
 
         <div style="display:flex;gap:2px;">
-          <button class="tab lang-btn-fr" id="lang-btn-fr" onclick="setLang('fr')"
+          <button class="lang-tab lang-btn-fr" id="lang-btn-fr" onclick="setLang('fr')"
             style="padding:6px 10px;font-size:12px;border-radius:3px 0 0 3px;">FR</button>
-          <button class="tab lang-btn-en" id="lang-btn-en" onclick="setLang('en')"
+          <button class="lang-tab lang-btn-en" id="lang-btn-en" onclick="setLang('en')"
             style="padding:6px 10px;font-size:12px;border-radius:0 3px 3px 0;">EN</button>
         </div>
 
@@ -1931,14 +2314,53 @@
       <div class="rules-page" id="rules-content"></div>
     </div>
 
-    <!-- JOIN -->
-       <div id="page-join" class="page">
+    <div id="page-verify" class="page">
+      <div class="verify-hero">
+        <div class="verify-hero-icon">🔍</div>
+        <h2 id="verify-title">Vérifier via log</h2>
+        <p id="verify-subtitle">Colle ton report code Fellowship Logs, on vérifie automatiquement tous tes hauts-faits éligibles en une seule passe.</p>
+      </div>
+      <div class="verify-hf-list" id="verify-hf-list"></div>
+      <div class="verify-help" id="verify-help">
+        <div class="verify-help-title" onclick="toggleVerifyHelp()" id="verify-help-title">
+          <span class="help-arrow">▶</span>
+          <span id="verify-help-label">Comment trouver mon report code ?</span>
+        </div>
+        <div class="verify-help-body" id="verify-help-body">
+          <ol>
+            <li id="verify-help-1">Va sur <a href="https://www.fellowshiplogs.com" target="_blank" style="color:var(--teal)">fellowshiplogs.com</a></li>
+            <li id="verify-help-2">Cherche ton personnage</li>
+            <li id="verify-help-3">Clique sur le donjon concerné</li>
+            <li id="verify-help-4">Choisis le report (difficulté / date)</li>
+            <li id="verify-help-5">Copie le code dans l'URL</li>
+          </ol>
+          <p id="verify-help-example" style="margin-top:8px;font-style:italic;">
+            <span id="verify-help-example-label">Exemple :</span> <code>https://www.fellowshiplogs.com/reports/<strong style="color:var(--gold-light)">LhW2zdPKxtH4cXrC</strong>?fight=15...</code><br>
+            <span id="verify-help-code-label">Le code est</span> <code style="color:var(--gold-light)">LhW2zdPKxtH4cXrC</code>
+          </p>
+        </div>
+      </div>
+      <div class="verify-input-card">
+        <label class="verify-input-label" id="verify-label">Code du report</label>
+        <div class="verify-input-row">
+          <input class="verify-input" id="verify-code-input"
+            placeholder="Ex : AbCd1234"
+            onkeydown="if(event.key==='Enter') runVerify()">
+          <button class="verify-btn" id="verify-run-btn" onclick="runVerify()">Analyser</button>
+        </div>
+        <div class="verify-cd" id="verify-cd"></div>
+      </div>
+      <div class="verify-results" id="verify-results"></div>
+    </div>
+
+    <div id="page-join" class="page">
       <div class="join-page" id="join-content"></div>
     </div>
 
   </main>
 
   <div class="toast" id="toast"></div>
+  <div id="hf-tooltip"></div>
 
   <script>
     // ============================================================
@@ -1950,10 +2372,10 @@
     // - réactive le statut "En cours" (vert) à la place de "Coming Soon" (bleu)
     // - affiche le vrai leaderboard / liste de HF de la Saison 3 au lieu du message de teasing
     // - réintègre la Saison 3 dans le calcul et l'affichage du mode Total
-    const SEASON_3_LIVE = false;
+    const SEASON_3_LIVE = true;
     // ============================================================
 
-    // CONDITIONS disponibles : 'portal','dice','res','dispell','shadow','drum','poulet','dash'
+    // CONDITIONS disponibles : 'portal','dice','res','dispell','shadow','drum','poulet','dash','mount','jump','campfire'
     // Pour ajouter une condition : conditions:['portal'] ou conditions:['portal','dispell']
     //
     // ============================================================
@@ -2031,60 +2453,103 @@
     ];
 
     const ACHIEVEMENTS_S3 = [
-      { id: 49, dungeon: "Marché d'Urrak", title: "Prisno break", title_en: "Prisno break", desc: "Compléter le donjon sans tuer de créatures associées à un totem (marquées par un curseur vert).", desc_en: "Complete the dungeon without killing creatures associated with a totem (marked with a green cursor).", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
-      { id: 50, dungeon: "Guet Tempete", title: "Sniper", title_en: "Sniper", desc: "Réussir à atteindre le boss sur le pont grâce au sort \"Ball Lightning\" des \"Stormscreamer\" sans l'aggro.", desc_en: "Manage to reach the boss on the bridge using the \"Ball Lightning\" spell from the \"Stormscreamer\" without aggroing it.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 51, dungeon: "Sables Empyréens", title: "Like a Pro I", title_en: "Like a Pro I", desc: "Vaincre Sin-Magir sans se prendre de dégâts de \"Penumbra\", \"Celestial Burst\" et \"Sinnari's Judgement\".", desc_en: "Defeat Sin-Magir without taking damage from \"Penumbra\", \"Celestial Burst\" and \"Sinnari's Judgement\".", points: 10, hard: false, personal: false, conditions: [], logRequired: true },
-      { id: 52, dungeon: "Creux Soyeux", title: "Calin mortel", title_en: "Calin mortel", desc: "Compléter le donjon sans interrompre le sort \"Kidnap\" des \"Gravesnare Kidnapper\".", desc_en: "Complete the dungeon without interrupting the \"Kidnap\" spell from the \"Gravesnare Kidnapper\".", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow'] },
-      { id: 53, dungeon: "Carrière tombe-dieu", title: "Sous les radard", title_en: "Sous les radard", desc: "Ne détruire aucun Wardstone (sauf celle du boss).", desc_en: "Do not destroy any Wardstone (except the boss's one).", points: 10, hard: false, personal: false, conditions: ['shadow', 'poulet'] },
-      { id: 54, dungeon: "Coeur de guivre", title: "Sneaky II", title_en: "Sneaky II", desc: "N'aggro aucune patrouille.", desc_en: "Do not aggro any patrol.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
-      { id: 55, dungeon: "Abime des marins", title: "Equipage déchu", title_en: "Equipage déchu", desc: "Pendant le même combat contre Sinthara, vaincre 1 élémentaire d'eau en Phase 1 et 1 autre en Phase 2 (après \"Siren's Song\").", desc_en: "During the same fight against Sinthara, defeat 1 water elemental in Phase 1 and another one in Phase 2 (after \"Siren's Song\").", points: 10, hard: false, personal: false, conditions: ['poulet'] },
-      { id: 56, dungeon: "Bois de L'aube", title: "Rain bow", title_en: "Rain bow", desc: "Engager le combat contre \"Malgut the Fetid\" avec 2 \"Desecrator\" à au moins 95% hp, et vaincre \"Malgut the Fetid\" alors que les 2 \"Desecrator\" sont encore en vie.", desc_en: "Engage the fight against \"Malgut the Fetid\" with 2 \"Desecrator\" at least 95% hp, and defeat \"Malgut the Fetid\" while both \"Desecrator\" are still alive.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
-      { id: 57, dungeon: "Caveau de Lamespectre", title: "Contre-courant", title_en: "Contre-courant", desc: "Survivre à au moins 1 phase de \"High Tide\" pendant le combat contre \"First Mate Marrow\" sans utiliser \"Anchor\".", desc_en: "Survive at least 1 \"High Tide\" phase during the fight against \"First Mate Marrow\" without using \"Anchor\".", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 58, dungeon: "Caveau de Lamespectre", title: "Mutinerie", title_en: "Mutinerie", desc: "Vaincre \"Deathless Katrine\" sans tuer la patrouille sur le pont du bateau.", desc_en: "Defeat \"Deathless Katrine\" without killing the patrol on the ship's deck.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 59, dungeon: "Caveau de Lamespectre", title: "Les dents de la mer", title_en: "Les dents de la mer", desc: "Tous les boss doivent être vaincus alors qu'au moins 1 requin est encore en vie à la fin du combat contre chaque boss.", desc_en: "Every boss must be defeated while at least 1 shark is still alive at the end of the fight against each boss.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 60, dungeon: "Saccage de Drakheim", title: "Roi de la glisse", title_en: "Roi de la glisse", desc: "Obtenir au moins 50% du score d'accomplissement en tuant des créatures sur l'île du feu de camp près de \"Chilgar the Drowned\", sans qu'aucun membre du groupe ne touche l'eau.", desc_en: "Get at least 50% of the dungeon completion score by killing creatures on the campfire island near \"Chilgar the Drowned\", without any group member touching the water.", points: 10, hard: false, personal: false, conditions: ['portal', 'dash'] },
-      { id: 61, dungeon: "Saccage de Drakheim", title: "Hot water", title_en: "Hot water", desc: "Vaincre \"Eldsupptok\" pendant le combat contre \"Chilgar the Drowned\". Les 2 créatures doivent avoir eu au moins 95% de hp en même temps.", desc_en: "Defeat \"Eldsupptok\" during the fight against \"Chilgar the Drowned\". Both creatures must have had at least 95% hp at the same time.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 62, dungeon: "Saccage de Drakheim", title: "Laissez les pillers", title_en: "Laissez les pillers", desc: "Compléter le donjon sans vaincre de créature associée à un groupe de Pillager.", desc_en: "Complete the dungeon without defeating any creature associated with a group of Pillagers.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
-      { id: 63, dungeon: "La chute Cithrel", title: "Préserver la mémoire", title_en: "Préserver la mémoire", desc: "Compléter le donjon sans aggro de \"Sentinnel\" (sauf le pack devant Cithrel). En cas d'aggro, le groupe doit mourir entièrement (aucun feu de camp ne peut être activé pendant ce temps).", desc_en: "Complete the dungeon without aggroing any \"Sentinnel\" (except the pack in front of Cithrel). If aggroed, the whole group must die (no campfire can be activated during this time).", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
-      { id: 64, dungeon: "La chute Cithrel", title: "Le traitre doit mourir", title_en: "Le traitre doit mourir", desc: "Vaincre \"Noor, The Betrayer\" sans tuer de créature pendant le combat.", desc_en: "Defeat \"Noor, The Betrayer\" without killing any creature during the fight.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 65, dungeon: "La chute Cithrel", title: "Fracture", title_en: "Fracture", desc: "Vaincre \"Ancient Koros\" alors que chaque joueur ne peut soak qu'une seule fois le sort \"Calamitous Fracture\".", desc_en: "Defeat \"Ancient Koros\" while each player can only soak the \"Calamitous Fracture\" spell once.", points: 10, hard: false, personal: true, conditions: [] },
-      { id: 66, dungeon: "Coeur de Tuzari", title: "Discrétion assurée", title_en: "Discrétion assurée", desc: "Compléter le donjon sans aggro de patrouille.", desc_en: "Complete the dungeon without aggroing any patrol.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
-      { id: 67, dungeon: "Coeur de Tuzari", title: "Open the doors", title_en: "Open the doors", desc: "Désactiver manuellement tous les piliers. Ceux désactivés automatiquement font échouer le défi.", desc_en: "Manually disable all pillars. Any pillar disabled automatically fails the challenge.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 68, dungeon: "Coeur de Tuzari", title: "Big Pull II", title_en: "Big Pull II", desc: "Vaincre au moins 40 \"Slaughtervine\" au cours du même pull. Les 40 \"Slaughtervine\" doivent avoir au moins 95% de hp au même moment.", desc_en: "Defeat at least 40 \"Slaughtervine\" in the same pull. All 40 \"Slaughtervine\" must have at least 95% hp at the same time.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 69, dungeon: "Ruins of Regath", title: "Gunde Hunger", title_en: "Gunde Hunger", desc: "Une fois le sang collecté, vous ne pouvez pas perdre le buff (vous devez en garder un) / vous ne pouvez pas mourir avant d'engager le combat contre le boss.", desc_en: "Once you've collected blood, you cannot lose the buff (you must keep one) / you cannot die until you engage the fight with the boss.", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 49, dungeon: "Marché d'Urrak", title: "PrisNo break", title_en: "PrisNo Break", desc: "Le groupe doit compléter le donjon sans tuer aucune créature associée à un totem (marquée par un curseur vert).", desc_en: "The group must complete the dungeon without killing any creature associated with a totem (marked with a green cursor).", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 50, dungeon: "Guet Tempete", title: "Coeur de Tempête", title_en: "Heart of the Storm", desc: "Le groupe doit faire passer les HP de Warlord Brogg de 80 % à 70% en moins de 30sec", desc_en: "The group must reduce Warlord Brogg's HP from 80% to 70% in less than 30 seconds.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 51, dungeon: "Sables Empyréens", title: " Comme un Pro I", title_en: "Like a Pro I", desc: "Le groupe doit vaincre Sin-Magir sans se prendre de dégâts de \"Celestial Burst\".", desc_en: "The group must defeat Sin-Magir without taking damage from \"Celestial Burst\".", points: 10, hard: false, personal: false, conditions: [], logRequired: true, logCheckable: { encounterID: 100006, abilityID: 457, type: 'DamageDone' } },
+      { id: 52, dungeon: "Creux Soyeux", title: "Calin mortel", title_en: "Deadly Cuddle", desc: "Le groupe doit compléter le donjon sans interrompre le sort \"Kidnap\" et en ayant vaincu toutes les \"Gravesnare Kidnapper\".", desc_en: "The group must complete the dungeon without interrupting the \"Kidnap\" spell and killing all the \"Gravesnare Kidnapper\".", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow'] },
+      { id: 53, dungeon: "Carrière tombe-dieu", title: "Sous les radard", title_en: "Under the Radar", desc: "Le groupe ne doit détruire aucune Wardstone (sauf celle du boss).", desc_en: "The group must not destroy any Wardstone (except the boss's one).", points: 10, hard: false, personal: false, conditions: ['shadow', 'poulet'] },
+      { id: 54, dungeon: "Coeur de guivre", title: "Sneaky II", title_en: "Sneaky II", desc: "Le groupe ne doit aggro aucune patrouille.", desc_en: "The group must not aggro any patrol.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 55, dungeon: "Abime des marins", title: "Equipage déchu", title_en: "Fallen Crew", desc: "Pendant le même combat contre Sinthara, le groupe doit vaincre 1 élémentaire d'eau en Phase 1 et 1 autre en Phase 2 (après \"Siren's Song\").", desc_en: "During the same fight against Sinthara, the group must defeat 1 water elemental in Phase 1 and another one in Phase 2 (after \"Siren's Song\").", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 56, dungeon: "Bois de L'aube", title: "Arc-en-Pluie", title_en: "Rain bow", desc: "Le groupe doit engager le combat contre \"Malgut the Fetid\" avec 2 \"Desecrator\" à au moins 95% hp, et vaincre \"Malgut the Fetid\" alors que les 2 \"Desecrator\" sont encore en vie.", desc_en: "The group must engage the fight against \"Malgut the Fetid\" with 2 \"Desecrator\" at least 95% hp, and defeat \"Malgut the Fetid\" while both \"Desecrator\" are still alive.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 57, dungeon: "Caveau de Lamespectre", title: "Contre-courant", title_en: "Against the Current", desc: "Le groupe doit survivre à au moins 1 phase de \"High Tide\" pendant le combat contre \"First Mate Marrow\" sans utiliser \"Anchor\".", desc_en: "The group must survive at least 1 \"High Tide\" phase during the fight against \"First Mate Marrow\" without using \"Anchor\".", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 58, dungeon: "Caveau de Lamespectre", title: "Mutinerie", title_en: "Mutiny", desc: "Le groupe doit vaincre \"Deathless Katrine\" sans tuer la patrouille sur le pont du bateau.", desc_en: "The group must defeat \"Deathless Katrine\" without killing the patrol on the ship's deck.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 59, dungeon: "Caveau de Lamespectre", title: "Les dents de la mer", title_en: "Jaws of the Sea", desc: "Tous les boss doivent être vaincus alors qu'au moins 1 requin est encore en vie à la fin du combat contre chacun d'eux (il peut s'agir d'un requin différent à chaque boss).", desc_en: "All bosses must be defeated while at least 1 shark is still alive at the end of the fight against each one (it can be a different shark for each boss).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 60, dungeon: "Saccage de Drakheim", title: "Roi de la glisse", title_en: "King of the Slide", desc: "Le groupe doit obtenir au moins 50% du score d'accomplissement en tuant des créatures sur l'île du feu de camp près de \"Chilgar the Drowned\", sans qu'aucun membre ne touche l'eau.", desc_en: "The group must obtain at least 50% of the dungeon completion score by killing creatures on the campfire island near \"Chilgar the Drowned\", without any member touching the water.", points: 10, hard: false, personal: false, conditions: ['portal', 'dash'] },
+      { id: 61, dungeon: "Saccage de Drakheim", title: "Eau Chaude", title_en: "Hot water", desc: "Le groupe doit vaincre \"Eldsupptok\" pendant le combat contre \"Chilgar the Drowned\". Les 2 créatures doivent avoir eu au moins 95% de hp en même temps.", desc_en: "The group must defeat \"Eldsupptok\" during the fight against \"Chilgar the Drowned\". Both creatures must have had at least 95% hp at the same time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 62, dungeon: "Saccage de Drakheim", title: "Laissez les pillers", title_en: "Leave the Pillagers", desc: "Le groupe doit compléter le donjon sans vaincre aucune créature appartenant à un groupe de mobs comptant au moins 1 Pillager.", desc_en: "The group must complete the dungeon without defeating any creature belonging to a group of mobs containing at least 1 Pillager.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 63, dungeon: "La chute Cithrel", title: "Sans-tinnel", title_en: "No-tinnel", desc: "Le groupe doit compléter le donjon sans aggro de \"Sentinnel\" (sauf le pack devant Cithrel). En cas d'aggro, le groupe doit mourir entièrement.", desc_en: "The group must complete the dungeon without aggroing any \"Sentinnel\" (except the pack in front of Cithrel). If aggroed, the whole group must die.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash', 'campfire'] },
+      { id: 64, dungeon: "La chute Cithrel", title: "Le traitre doit mourir", title_en: "The Traitor Must Die", desc: "Le groupe doit vaincre \"Noor, The Betrayer\" sans tuer aucune créature pendant le combat.", desc_en: "The group must defeat \"Noor, The Betrayer\" without killing any creature during the fight.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 65, dungeon: "La chute Cithrel", title: "Fracture", title_en: "Fracture", desc: "Le groupe doit vaincre \"Ancient Koros\" alors que chaque joueur ne peut soak qu'une seule fois le sort \"Calamitous Fracture\".", desc_en: "The group must defeat \"Ancient Koros\" while each player can only soak the \"Calamitous Fracture\" spell once.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 66, dungeon: "Coeur de Tuzari", title: "Discrétion assurée", title_en: "Guaranteed Stealth", desc: "Le groupe doit compléter le donjon sans aggro de patrouille.", desc_en: "The group must complete the dungeon without aggroing any patrol.", points: 10, hard: false, personal: false, conditions: ['portal', 'poulet', 'shadow', 'dash'] },
+      { id: 67, dungeon: "Coeur de Tuzari", title: "Une épine dans le pied", title_en: "A Thorn in the Foot", desc: "Le groupe doit tuer 3 Barbarous Lasher pendant le combat contre Vun'Kahr, le Mâchoire Épineuse. Chaque Lasher doit avoir au moins 95% hp avant le début du combat contre Vun'Kahr.", desc_en: "The group must kill 3 Barbarous Lashers during the fight against Vun'Kahr, the Thorned Maw. Each Lasher must have at least 95% hp before the start of the fight against Vun'Kahr.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 68, dungeon: "Coeur de Tuzari", title: "Big Pull II", title_en: "Big Pull II", desc: "Le groupe doit vaincre au moins 40 \"Slaughtervine\" au cours du même pull. Les 40 \"Slaughtervine\" doivent avoir au moins 95% de hp au même moment.", desc_en: "The group must defeat at least 40 \"Slaughtervine\" in the same pull. All 40 \"Slaughtervine\" must have at least 95% hp at the same time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 69, dungeon: "Ruins of Regath", title: "La Faim de Gunde", title_en: "Gunde Hunger", desc: "Le joueur doit participer à l'activation de chacun des piliers sans jamais perdre tous ses stacks de buff de sang (il doit toujours en conserver au moins 1).", desc_en: "The player must participate in the activation of each pillar without ever losing all their blood buff stacks (they must always keep at least 1).", points: 10, hard: false, personal: true, conditions: [] },
       { id: 70, dungeon: "Ruins of Regath", title: "Transfusion", title_en: "Transfusion", desc: "Tous les piliers doivent passer de 0 à 20 en moins de 30 secondes, au même moment.", desc_en: "All pillars must go from 0 to 20 in less than 30 seconds, at the same time.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 71, dungeon: "Ruins of Regath", title: "Deadfull Touch", title_en: "Deadfull Touch", desc: "Chaque joueur doit toucher un totem différent avant la fin du cast (nom du sort à préciser).", desc_en: "Each player must touch a different totem before the end of the cast (spell name to be confirmed).", points: 10, hard: false, personal: false, conditions: ['portal', 'dash', 'drum'] },
-      { id: 72, dungeon: "Scryer's Peak", title: "Honey Percent", title_en: "Honey Percent", desc: "Vaincre 5 Polar Bears à 10 secondes d'intervalle.", desc_en: "Defeat 5 Polar Bears within a 10-second interval.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 73, dungeon: "Scryer's Peak", title: "Bumpi", title_en: "Bumpi", desc: "Traverser le pont (en dessous) seulement via le bump des mobs.", desc_en: "Cross the bridge (underneath) only by being bumped by mobs.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 74, dungeon: "Scryer's Peak", title: "Blood for Blood", title_en: "Blood for Blood", desc: "Le boss doit stack avant le joueur ; il ne peut pas perdre son buff une fois qu'il l'a.", desc_en: "The boss must stack before the player; he cannot lose his buff once he has it.", points: 10, hard: false, personal: true, conditions: [] },
-      { id: 75, dungeon: "Coeur de Tuzari", title: "Stacks are always good", title_en: "Stacks are always good", desc: "Obtenir un total de 70 stacks réparti entre les membres du groupe à un instant T.", desc_en: "Reach a total of 70 stacks spread across group members at a single point in time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 71, dungeon: "Ruins of Regath", title: "Toucher Mortel", title_en: "Deadfull Touch", desc: "Chaque joueur doit toucher 2 totems différents avant la fin du cast de \"Unholy Hymn\".", desc_en: "Each player must touch 2 different totems before the end of the \"Unholy Hymn\" cast.", points: 10, hard: false, personal: false, conditions: ['portal', 'dash', 'drum'] },
+      { id: 72, dungeon: "Scryer's Peak", title: "Pourcentage Mielleux", title_en: "Honey Percent", desc: "Le groupe doit vaincre 5 Polar Bears à 10 secondes d'intervalle.", desc_en: "The group must defeat 5 Polar Bears within a 10-second interval.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 73, dungeon: "Scryer's Peak", title: "Bumpi", title_en: "Bumpi", desc: "Le groupe doit traverser sous le pont uniquement via le bump de \"Sanguine Crusher\", de haut en bas (dans l'ordre du passage).", desc_en: "The group must cross under the bridge only by being bumped by \"Sanguine Crusher\", from top to bottom (in the order of the passage).", points: 10, hard: false, personal: false, conditions: ['mount', 'jump'] },
+      { id: 74, dungeon: "Scryer's Peak", title: "Sang pour Sang", title_en: "Blood for Blood", desc: "Le boss doit stack avant n'importe quel membre du groupe ; il ne doit pas perdre son buff une fois qu'il l'a obtenu.", desc_en: "The boss must stack before any group member; he must not lose his buff once he has obtained it.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 75, dungeon: "Coeur de Tuzari", title: "Stacks are always good", title_en: "Stacks are always good", desc: "Le groupe doit obtenir un total de 70 stacks de \"Siphon Blood\" réparti entre ses membres pendant le combat contre \"Moar'Gore\".", desc_en: "The group must reach a total of 70 \"Siphon Blood\" stacks spread across its members during the fight against \"Moar'Gore\".", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 96, dungeon: "Marché d'Urrak", title: "Pour la famille II", title_en: "For the Family II", desc: "Le groupe doit libérer tous les villageois sans aggro de patrouille.", desc_en: "The group must free all villagers without aggroing any patrol.", points: 10, hard: false, personal: false, conditions: ['campfire', 'portal', 'shadow', 'dash', 'res', 'poulet'] },
+      { id: 97, dungeon: "Sables Empyréens", title: "Fifty Swifty", title_en: "Fifty Swifty", desc: "Le groupe doit vaincre Sin-Magir avec moins de 50% de complétion du donjon.", desc_en: "The group must defeat Sin-Magir with less than 50% dungeon completion.", points: 10, hard: false, personal: false, conditions: ['campfire', 'portal', 'shadow', 'dash', 'res', 'poulet'] },
+      { id: 98, dungeon: "Bois de L'aube", title: "Crystal Cleave", title_en: "Crystal Cleave", desc: "Chaque joueur doit avoir 20 stacks de \"Crystaline Corruption\" en même temps.", desc_en: "Each player must have 20 stacks of \"Crystaline Corruption\" at the same time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 99, dungeon: "Coeur de guivre", title: "All in", title_en: "All in", desc: "Le groupe doit tuer le dernier pack avec le boss. Le pack doit être complet et avoir au moins 95% hp avant l'engage du boss.", desc_en: "The group must kill the last pack with the boss. The pack must be full and have at least 95% hp before engaging the boss.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 100, dungeon: "Creux Soyeux", title: "Robin Hood", title_en: "Robin Hood", desc: "Le groupe doit tuer tous les Looters (27) sans qu'aucun joueur ne ramasse de pile d'or.", desc_en: "The group must kill every Looter (27) without any player grabbing a stack of gold.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 101, dungeon: "Guet Tempete", title: "No Rage", title_en: "No Rage", desc: "Le groupe doit compléter le donjon sans tuer plus d'un Pillager enragé.", desc_en: "The group must complete the dungeon without killing more than one Enraging Pillager.", points: 10, hard: false, personal: false, conditions: ['poulet', 'portal', 'shadow', 'dash', 'campfire'] },
+      { id: 102, dungeon: "Abime des marins", title: "Datura", title_en: "Datura", desc: "Chaque joueur doit avoir 10 stacks de \"Witchreef Toxin\" en même temps.", desc_en: "Each player must have 10 stacks of \"Witchreef Toxin\" at the same time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 103, dungeon: "Carrière tombe-dieu", title: "Incognito II", title_en: "Incognito II", desc: "Le groupe ne doit aggro aucun \"Dredge\" en étant sur la plateforme. En cas d'aggro, toutes les personnes qui n'ont pas atteint l'autre côté doivent recommencer.", desc_en: "The group must not aggro any \"Dredge\" while on the platform. If aggroed, everyone who hasn't reached the other side must start over.", points: 10, hard: false, personal: false, conditions: ['portal', 'shadow', 'dash'] },
+      { id: 104, dungeon: "Saccage de Drakheim", title: "Ténèbre Glacial", title_en: "Glacial Shadows", desc: "Le groupe doit vaincre Auga Handhafi avec un ours polaire présent dans le combat (l'ours polaire ne doit pas mourir).", desc_en: "The group must defeat Auga Handhafi with a Polar Bear present in the fight (the Polar Bear must not die).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 105, dungeon: "Caveau de Lamespectre", title: "Une perte de Rat", title_en: "Waste of a Rat", desc: "Le groupe doit amener le même \"Gunpowder Rat\" sur chaque boss de zone.", desc_en: "The group must bring the same \"Gunpowder Rat\" to every zone boss.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 106, dungeon: "La chute Cithrel", title: "Juste le minimum", title_en: "Just the minimum", desc: "Le groupe doit vaincre les 3 boss avec moins de 70% de complétion du donjon.", desc_en: "The group must defeat all 3 bosses with less than 70% dungeon completion.", points: 10, hard: false, personal: false, conditions: ['poulet', 'portal', 'shadow', 'dash', 'res', 'campfire'] },
+      { id: 115, dungeon: "Xul, the Blood Monolith", title: "Simon II", title_en: "Simon II", desc: "Le groupe doit détruire le conduit correspondant à son debuff : « Édit de Fragilité » : Conduit du Regard Saignant (rouge), « Édit de Fardeau » : Conduit du Cercle Ardent (jaune), « Édit d'Isolation » : Conduit des Ombres Frappantes (violet).", desc_en: "The group must destroy the conduit matching their debuff: \"Edict of Frailty\": Conduit of the Bleeding Gaze (red), \"Edict of Burden\": Conduit of the Burning Circle (yellow), \"Edict of Isolation\": Conduit of Striking Shadows (purple).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 116, dungeon: "Xul, the Blood Monolith", title: "So ok", title_en: "So ok", desc: "Le groupe doit faire exploser 10 invocations pendant le combat contre Han-Eth et le vaincre", desc_en: "The group must defeat 10 Creations during Han-Eth fights and kill him.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 117, dungeon: "Xul, the Blood Monolith", title: "Marche Arrière", title_en: "Backped", desc: "Le groupe doit réussir le labytrinth contre Vel'Korath en n'utilisant que la marche arrière", desc_en: "The group must complete the maze against Vel'Korath using only the backped", points: 10, hard: false, personal: false, conditions: ['dash', 'portal', 'drum'] },
+      { id: 118, dungeon: "Xul, the Blood Monolith", title: "Où es'skyr ?", title_en: "Wher'skyr ?", desc: "Le groupe doit atteindre Xul'vorith, Sentinelle de la Porte du Sang, sans agro aucun Fanatique Heskyr.", desc_en: "The group must reach Xul'vorith, Sentinel of the Bloodbound Gate, without aggroing any Heskyr Zealot.", points: 10, hard: false, personal: false, conditions: ["portal", "poulet", "dash", "shadow"] },
+      { id: 119, dungeon: "Xul, the Blood Monolith", title: "Secoue-toi", title_en: "Shake it off", desc: "Le groupe doit tuer 15 Échos Sanguins dans le même pull.", desc_en: "The group must kill 15 Sanguine Echoes in the same pull.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 120, dungeon: "Xul, the Blood Monolith", title: "Le calme avant la tempête", title_en: "The calm before the storm", desc: "Le groupe doit tuer 3 Mages Heskyr dans le même pull.", desc_en: "The group must kill 3 Heskyr Magi in the same pull.", points: 10, hard: false, personal: false, conditions: [] },
     ];
 
     // Affixes : catégorie séparée, PAS liée à un donjon, PAS de bonus "+5 donjon complet"
     const AFFIXES_S3 = [
-      { id: 76, affix: "Enforcer", title: "Les cinq doigts de la main", title_en: "Les cinq doigts de la main", desc: "Vaincre au moins 5 créatures renforcées lors d'un même pull.", desc_en: "Defeat at least 5 enforced creatures in the same pull.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
-      { id: 77, affix: "Foudre", title: "Static", title_en: "Static", desc: "Dès lors que la foudre apparaît, vous ne devez plus bouger.", desc_en: "Once the lightning appears, you must not move anymore.", points: 10, hard: false, personal: true, conditions: [] },
-      { id: 78, affix: "Shadow", title: "ULTIME ? Prêt !", title_en: "ULTIME ? Prêt !", desc: "Vous devez vaincre les 2 émissaires à 10 secondes d'intervalle.", desc_en: "You must defeat both emissaries within a 10-second interval.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 79, affix: "Orbs", title: "Simon", title_en: "Simon", desc: "Vaincre les orbes dans cet ordre : Rouge > Violet > Jaune > Vert > Bleu > Blanc.", desc_en: "Defeat the orbs in this order: Red > Purple > Yellow > Green > Blue > White.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 80, affix: "Gelée", title: "Gèle-les", title_en: "Froz-Them", desc: "Tous les joueurs doivent être gelés à chaque fois.", desc_en: "All players must be frozen every time.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 81, affix: "Boss Boost", title: "Tyranique", title_en: "Tyranique", desc: "Compléter le donjon avec X ilvl en moins.", desc_en: "Complete the dungeon with X less ilvl.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 82, affix: "Sang", title: "Vampire", title_en: "Vampire", desc: "Dès lors que le 1er buff apparaît, vous devez avoir obtenu un score de 100% du donjon sans perdre le buff.", desc_en: "Once the 1st buff appears, you must reach a 100% dungeon score without losing the buff.", points: 10, hard: false, personal: true, conditions: [] },
-      { id: 83, affix: "Pierre", title: "Explosion en chaîne", title_en: "Explosion en chaîne", desc: "Les explosions causées par la mort d'une créature doivent toujours infliger des dégâts à d'autres créatures (sauf si la créature possède déjà ce dot).", desc_en: "Explosions caused by a creature's death must always deal damage to other creatures (unless that creature already has this dot).", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 84, affix: "Enforcer", title: "Who's the boss ?", title_en: "Who's the boss ?", desc: "Vaincre 2 créatures renforcées et le boss du donjon dans un même pull.", desc_en: "Defeat 2 enforced creatures and the dungeon boss in the same pull.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
-      { id: 85, affix: "Foudre", title: "Voltage limité", title_en: "Voltage limité", desc: "Vous ne pouvez être lié qu'à 1 autre personne à chaque fois que la foudre frappe.", desc_en: "You can only be linked to 1 other person each time the lightning strikes.", points: 10, hard: false, personal: true, conditions: [] },
-      { id: 86, affix: "Shadow", title: "Où sont les pourcent ?!", title_en: "Où sont les pourcent ?!", desc: "Vaincre le boss sans avoir pris plus de 5 orbes. Une fois le boss vaincu, vous devez compléter le donjon sans tuer de créature (hors émissaire).", desc_en: "Defeat the boss without taking more than 5 orbs. Once the boss is defeated, complete the dungeon without killing any creature (except emissaries).", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 87, affix: "Orbs", title: "Toi tu vies, toi tu vies, toi tu crèves !", title_en: "Toi tu vies, toi tu vies, toi tu crèves !", desc: "Vous ne pouvez pas avoir plus de 2 buffs associés aux orbes.", desc_en: "You cannot have more than 2 orb-related buffs at once.", points: 10, hard: false, personal: true, conditions: [] },
-      { id: 88, affix: "Gelée", title: "Les 2 font la paire", title_en: "Les 2 font la paire", desc: "Seulement 2 joueurs doivent être gelés à chaque fois.", desc_en: "Only 2 players must be frozen each time.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 89, affix: "Boss Boost", title: "Diablowlic", title_en: "Diablowlic", desc: "Compléter le donjon avec X ilvl en moins.", desc_en: "Complete the dungeon with X less ilvl.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 90, affix: "Sang", title: "Hématophobie", title_en: "Hématophobie", desc: "Compléter le donjon sans avoir plus de 6 stacks (vous pouvez avoir 6 stacks).", desc_en: "Complete the dungeon without exceeding 6 stacks (having exactly 6 is allowed).", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 91, affix: "Pierre", title: "D'une pierre 2 coup", title_en: "D'une pierre 2 coup", desc: "Vaincre le boss du donjon avec une explosion causée par la mort d'un mob.", desc_en: "Defeat the dungeon boss with an explosion caused by a mob's death.", points: 10, hard: false, personal: false, conditions: [], logRequired: true },
-      { id: 92, affix: "Eira", title: "Boule de neige", title_en: "Boule de neige", desc: "Vaincre Eira sans interrompre \"Winter Bolt\".", desc_en: "Defeat Eira without interrupting \"Winter Bolt\".", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 93, affix: "Ghorn", title: "Sans mort-teau", title_en: "No Harm-mer", desc: "Compléter le donjon en ayant vaincu Ghorn et fait en sorte qu'il n'inflige pas de dégâts au boss.", desc_en: "Complete the dungeon having defeated Ghorn while making sure he never deals damage to the boss.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 94, affix: "Meteor", title: "Like a Pro II", title_en: "Like a Pro II", desc: "Compléter le donjon sans qu'aucun membre du groupe ne se prenne de dégâts des météorites.", desc_en: "Complete the dungeon without any group member taking meteor damage.", points: 10, hard: false, personal: false, conditions: [], logRequired: true },
-      { id: 95, affix: "Meteor", title: "As a Team", title_en: "As a Team", desc: "Tous les joueurs doivent se prendre les dégâts d'une même météorite pendant le combat contre le boss (la zone d'impact ne compte pas).", desc_en: "All players must take damage from the same meteor during the boss fight (the impact zone doesn't count).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 76, affix: "Enforcer", title: "Les cinq doigts de la main", title_en: "The Five Fingers", desc: "Le groupe doit vaincre au moins 5 créatures renforcées lors d'un même pull.", desc_en: "The group must defeat at least 5 enforced creatures in the same pull.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 77, affix: "Foudre", title: "Voltage Maximum", title_en: "High Voltage", desc: "Le joueur ne doit être lié avec aucun autre joueur à chaque fois que la foudre frappe pendant tout le donjon", desc_en: "The player must not be linked to any other person each time the lightning strikes during the entire dungeon", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 78, affix: "Shadow", title: "ULTIME ? Prêt !", title_en: "Ultimate? Ready!", desc: "Le groupe doit vaincre les 2 émissaires à 10 secondes d'intervalle.", desc_en: "The group must defeat both emissaries within a 10-second interval.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 79, affix: "Orbs", title: "Simon", title_en: "Simon", desc: "Completer le donjon - Le groupe doit vaincre les orbes dans cet ordre : Rouge > Violet > Jaune > Vert > Bleu > Blanc.", desc_en: "Complete the dungeon - The group must defeat the orbs in this order: Red > Purple > Yellow > Green > Blue > White.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 80, affix: "Gelée", title: "Gèle-les", title_en: "Froz-Them", desc: "Compléter le donjon en s'assurant que tous les joueurs sont gelés à chaque fois.", desc_en: "Complete the dungeon and make sure all players are always frozen every time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 81, affix: "Boss Boost", title: "Tyranique", title_en: "Tyrannical", desc: "Le groupe doit compléter un donjon dans les temps avec l'affixe « Ultimatum » actif, avec tous les membres ayant 9 000 GS ou moins.", desc_en: "The group must complete a dungeon within the timer with the \"Ultimatum\" affix active, with all members at 9,000 GS or less.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 82, affix: "Sang", title: "Vampire", title_en: "Vampire", desc: "Dès que le 1er buff apparaît, le groupe doit obtenir un score de 100% du donjon sans perdre le buff (pas besoin de tuer le boss).", desc_en: "As soon as the 1st buff appears, the group must reach a 100% dungeon score without losing the buff (no need to kill the boss).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 83, affix: "Pierre", title: "Explosion en chaîne", title_en: "Chain Reaction", desc: "Compléter le donjon alors que les explosions causées par la mort d'une créature infligent toujours des dégâts à d'autres créatures (sauf si la créature possède déjà ce dot).", desc_en: "Complete the dungeon with explosions caused by a creature's death always dealing damage to other creatures (unless that creature already has this dot).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 84, affix: "Enforcer", title: "C'est qui le patron ?", title_en: "Who's the boss ?", desc: "Le groupe doit vaincre 2 créatures renforcées et le boss du donjon dans un même pull.", desc_en: "The group must defeat 2 enforced creatures and the dungeon boss in the same pull.", points: 10, hard: false, personal: false, conditions: ['poulet'] },
+      { id: 85, affix: "Foudre", title: "Voltage limité", title_en: "Limited Voltage", desc: "Le joueur ne doit être lié qu'à 1 autre personne à chaque fois que la foudre frappe pendant tout le donjon", desc_en: "The player must only be linked to 1 other person each time the lightning strikes during the entire dungeon", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 86, affix: "Shadow", title: "Où sont les pourcent ?!", title_en: "Where Are the Percentages?!", desc: "Le groupe doit vaincre le boss sans avoir pris plus de 3 orbes, puis compléter le donjon sans tuer aucune créature (hors émissaire).", desc_en: "The group must defeat the boss without taking more than 3 orbs, then complete the dungeon without killing any creature (except emissaries).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 87, affix: "Orbs", title: "Toi tu vies, toi tu vies, toi tu crèves !", title_en: "You Live, You Live, You Die!", desc: "Le joueur ne doit pas avoir plus de 2 buffs associés aux orbes en même temps (2 stacks d'un même buff comptent comme 2 buffs).", desc_en: "The player must not have more than 2 orb-related buffs at the same time (2 stacks of the same buff count as 2 buffs).", points: 10, hard: false, personal: true, conditions: [] },
+      { id: 88, affix: "Gelée", title: "Les 2 font la paire", title_en: "The Two Make a Pair", desc: "Compléter le donjon en s'assurant que seulement 2 joueurs sont gelés à chaque fois.", desc_en: "Complete the dungeon and make sure only 2 players are frozen each time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 89, affix: "Boss Boost", title: "Diablowlic", title_en: "Diablowlic", desc: "Le groupe doit compléter un donjon dans les temps avec l'affixe « Ultimatum » actif, avec tous les membres ayant 7 000 GS ou moins.", desc_en: "The group must complete a dungeon within the timer with the \"Ultimatum\" affix active, with all members at 7,000 GS or less.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 90, affix: "Sang", title: "Hématophobie", title_en: "Hematophobia", desc: "Le groupe doit compléter le donjon sans dépasser 6 stacks (avoir exactement 6 stacks est autorisé).", desc_en: "The group must complete the dungeon without exceeding 6 stacks (having exactly 6 is allowed).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 91, affix: "Pierre", title: "D'une pierre 2 coup", title_en: "Two Birds, One Stone", desc: "Le groupe doit vaincre le boss du donjon avec une explosion causée par la mort d'un mob.", desc_en: "The group must defeat the dungeon boss with an explosion caused by a mob's death.", points: 10, hard: false, personal: false, conditions: [], logRequired: true, logCheckable: { abilityName: 'Stone Skin', dataType: 'Deaths' } },
+      { id: 92, affix: "Eira", title: "Boule de neige", title_en: "Snowball", desc: "Le groupe doit vaincre Eira sans interrompre \"Winter Bolt\".", desc_en: "The group must defeat Eira without interrupting \"Winter Bolt\".", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 93, affix: "Ghorn", title: "Sans mort-teau", title_en: "No Harm-mer", desc: "Le groupe doit compléter le donjon en ayant vaincu Ghorn et en s'assurant qu'il n'inflige jamais de dégâts au boss.", desc_en: "The group must complete the dungeon having defeated Ghorn while making sure he never deals damage to the boss.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 94, affix: "Meteor", title: "Comme un Pro II", title_en: "Like a Pro II", desc: "Le groupe doit compléter le donjon sans qu'aucun membre ne se prenne de dégâts de météorite.", desc_en: "The group must complete the dungeon without any member taking meteor damage.", points: 10, hard: false, personal: false, conditions: [], logRequired: true, logCheckable: { encounterID: null, abilityID: 143, type: 'DamageDone' } },
+      { id: 95, affix: "Meteor", title: "En Equipe", title_en: "As a Team", desc: "Tous les joueurs doivent se prendre les dégâts d'une même météorite pendant le combat contre le boss et le vaincre (la zone d'impact ne compte pas).", desc_en: "All players must take damage from the same meteor during the boss fight and kill it (the impact zone doesn't count).", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 121, affix: "Truesight", title: "Vue sanglante", title_en: "Bloody Sight", desc: "Le groupe doit tuer 3 mobs boostés par les Heskyr en un seul pull.", desc_en: "The group must kill 3 mobs empowered by the Heskyr in a single pull.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 122, affix: "Truesight", title: "Recherché", title_en: "Wanted", desc: "Dès qu'une orbe tombe, le groupe doit impérativement tuer le mob désigné dans le temps imparti.", desc_en: "As soon as an orb drops, the group must kill the designated mob within the given time.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 107, affix: "Eira", title: "Combattre pour Survivre", title_en: "Fight to Survive", desc: "Le groupe doit vaincre la Sorcière Blanche sans interrompre la « Rune de la Sorcière Blanche ». Eira doit lancer ce sort au moins une fois.", desc_en: "The group must kill the White Witch without interrupting the \"Rune of the White Witch\". Eira must cast this spell at least once.", points: 10, hard: false, personal: false, conditions: [] },
+      { id: 109, affix: "Ghorn", title: "Figé", title_en: "Stuck", desc: "Une fois le combat contre Ghorn engagé, aucun membre du groupe ne doit se déplacer avant de l'avoir vaincu.", desc_en: "Once the fight against Ghorn is engaged, no group member may move before defeating him.", points: 10, hard: false, personal: false, conditions: ["dash"] },
     ];
 
-    const AFFIXES_ORDER_S3 = ["Enforcer", "Foudre", "Shadow", "Orbs", "Gelée", "Boss Boost", "Sang", "Pierre", "Eira", "Ghorn", "Meteor"];
+    const AFFIXES_ORDER_S3 = ["Enforcer", "Foudre", "Shadow", "Orbs", "Gelée", "Boss Boost", "Sang", "Pierre", "Eira", "Ghorn", "Meteor", "Truesight"];
+
+    // Métadonnées d'affichage des affixes : nom officiel in-game, couleur thématique,
+    // chemin d'icône (à fournir — l'affichage se dégrade proprement si le fichier n'existe pas encore).
+    const AFFIX_META = {
+      "Enforcer": { name: "Sbires Renforcés", name_en: "Empowered Minions", color: "#c9a84c", icon: "images/affixes/empowered-minions.jpg" },
+      "Foudre": { name: "Bouclier de Tempête", name_en: "Storm Shield", color: "#7b4fc7", icon: "images/affixes/storm-shield.jpg" },
+      "Shadow": { name: "L'Épreuve du Seigneur des Ombres", name_en: "Shadow Lord's Trial", color: "#9b6fd6", icon: "images/affixes/shadow-lords-trial.jpg" },
+      "Orbs": { name: "Orbes Anormales", name_en: "Anomalous Orbs", color: "#e8c050", icon: "images/affixes/anomalous-orbs.jpg" },
+      "Gelée": { name: "Glace Liante", name_en: "Binding Ice", color: "#4fc8e8", icon: "images/affixes/binding-ice.jpg" },
+      "Boss Boost": { name: "Ultimatum", name_en: "Ultimatum", color: "#7b8fd6", icon: "images/affixes/ultimatum.jpg" },
+      "Sang": { name: "Éclats de Sang", name_en: "Blood Shards", color: "#e85a2d", icon: "images/affixes/blood-shards.jpg" },
+      "Pierre": { name: "Peau de Pierre", name_en: "Stone Skin", color: "#b8924f", icon: "images/affixes/stone-skin.jpg" },
+      "Eira": { name: "Eira la Sorcière Blanche", name_en: "Eira the White Witch", color: "#5fc8f0", icon: "images/affixes/eira-the-white-witch.jpg" },
+      "Ghorn": { name: "Ghorn l'Avalanche", name_en: "Ghorn the Avalanche", color: "#3fd6e8", icon: "images/affixes/ghorn-the-avalanche.jpg" },
+      "Meteor": { name: "Pluie de Météores", name_en: "Meteor Rain", color: "#f0941f", icon: "images/affixes/meteor-rain.jpg" },
+      "Truesight": { name: "Vue Véritable", name_en: "Truesight", color: "#d63838", icon: "images/affixes/truesight.jpg" },
+    };
+
+    // Renvoie le nom de l'affixe dans la langue active (FR par défaut, EN si currentLang === 'en')
+    function affixDisplayName(meta) {
+      return (currentLang === 'en' && meta.name_en) ? meta.name_en : meta.name;
+    }
 
     // ============================================================
     // SÉLECTEUR DE SAISON ACTIVE
@@ -2469,8 +2934,9 @@
           seasonAffixesOrder.forEach(aff => {
             const affHFs = seasonAffixes.filter(a => a.affix === aff);
             if (!affHFs.length) return;
+            const meta = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--text-dim)' };
             detailHtml += `<div class="hf-list" style="margin-bottom:10px">
-          <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;font-style:italic">${aff}</div>`;
+          <div style="font-size:12px;color:${meta.color};margin-bottom:4px;font-style:italic;font-weight:600">${affixDisplayName(meta)}</div>`;
             affHFs.forEach(a => {
               const done = s.done.has(a.id);
               const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
@@ -2556,7 +3022,7 @@
       // sans fond si le fichier n'existe pas encore, pas d'erreur bloquante)
       "Ruins of Regath": "images/ruins-of-regath.jpg",
       "Scryer's Peak": "images/scryers-peak.jpg",
-      "Xul, the Blood Monolith": "images/xul-blood-monolith.jpg",
+      "Xul, the Blood Monolith": "images/xul-the-blood-monolith.jpg",
       // Bannière dédiée à la catégorie Affixes (optionnelle)
       "__affixes__": "images/affixes.jpg",
     };
@@ -2582,13 +3048,16 @@
         <div class="hf-grid">`;
         hfs.forEach(a => {
           const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
-          html += `<div class="hf-card" onclick="this.classList.toggle('open')">
+          const card = `<div class="hf-card ${a.comingSoon ? 'coming-soon' : ''}" onclick="this.classList.toggle('open')">
         <div class="hf-card-header">
           <span class="hf-card-title">${title}</span>
           <div class="hf-badges">${renderBadges(a)}</div>
         </div>
         <div class="hf-card-desc">${currentLang === 'en' && a.desc_en ? a.desc_en : a.desc}</div>
       </div>`;
+          html += a.logCheckable
+            ? `<div class="hf-card-wrap">${card}${renderLogCheckWidget(a)}</div>`
+            : card;
         });
         html += `</div></div></div>`;
       });
@@ -2604,35 +3073,32 @@
         seasonAffixesOrder.forEach(aff => {
           const affHFs = seasonAffixes.filter(a => a.affix === aff);
           if (!affHFs.length) return;
-          html += `<div style="margin:10px 0 6px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);font-family:'Cinzel',serif">${aff}</div>
+          const meta = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--gold)', icon: '' };
+          const affName = affixDisplayName(meta);
+          html += `<div class="affix-subheader" style="border-color:${meta.color}33;background:${meta.color}14;">
+          <span class="affix-icon-wrap" style="border-color:${meta.color}66;">
+            <img src="${meta.icon}" alt="${affName}" onerror="this.style.display='none'">
+          </span>
+          <span class="affix-name" style="color:${meta.color}">${affName}</span>
+        </div>
         <div class="hf-grid">`;
           affHFs.forEach(a => {
             const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
-            html += `<div class="hf-card" onclick="this.classList.toggle('open')">
+            const card = `<div class="hf-card ${a.comingSoon ? 'coming-soon' : ''}" onclick="this.classList.toggle('open')">
         <div class="hf-card-header">
           <span class="hf-card-title">${title}</span>
           <div class="hf-badges">${renderBadges(a)}</div>
         </div>
         <div class="hf-card-desc">${currentLang === 'en' && a.desc_en ? a.desc_en : a.desc}</div>
       </div>`;
+            html += a.logCheckable
+              ? `<div class="hf-card-wrap">${card}${renderLogCheckWidget(a)}</div>`
+              : card;
           });
           html += `</div>`;
         });
         html += `</div></div>`;
       }
-
-      // HF SECRET
-      html += `<div class="secret-section">
-    <div class="secret-title">${t('secret.section')}</div>
-    <div class="secret-card" onclick="this.classList.toggle('open')">
-      <div class="secret-card-header">
-        <span class="secret-card-title">${t('secret.title')}</span>
-      </div>
-      <div class="secret-card-desc">
-        <span class="secret-coming-soon">${t('secret.coming')}</span>
-      </div>
-    </div>
-  </div>`;
 
       document.getElementById('ach-content').innerHTML = html;
     }
@@ -2694,10 +3160,11 @@
       <div class="admin-dungeon-title">${d}</div>`;
         hfs.forEach(a => {
           const checked = adminCurrentDone.has(a.id);
-          html += `<div class="admin-hf-row">
-        <div class="admin-hf-check ${checked ? 'checked' : ''}" onclick="toggleHF(${a.id}, this)"></div>
+          const disabled = !!a.comingSoon;
+          html += `<div class="admin-hf-row" style="${disabled ? 'opacity:0.4;' : ''}">
+        <div class="admin-hf-check ${checked ? 'checked' : ''}" ${disabled ? '' : `onclick="toggleHF(${a.id}, this)"`} style="${disabled ? 'cursor:default;' : ''}"></div>
         <div class="admin-hf-info">
-          <div class="admin-hf-name">${a.title} ${a.hard ? '⭐' : ''} ${a.personal ? '👤' : ''}</div>
+          <div class="admin-hf-name">${a.title}${disabled ? ' (#' + a.id + ')' : ''} ${a.hard ? '⭐' : ''} ${a.personal ? '👤' : ''}</div>
           <div class="admin-hf-meta">${a.points} pts</div>
         </div>
       </div>`;
@@ -2708,14 +3175,16 @@
         seasonAffixesOrder.forEach(aff => {
           const affHFs = seasonAffixes.filter(a => a.affix === aff);
           if (!affHFs.length) return;
+          const meta = AFFIX_META[aff] || { name: aff, name_en: aff };
           html += `<div class="admin-dungeon">
-      <div class="admin-dungeon-title">Affixe — ${aff}</div>`;
+      <div class="admin-dungeon-title">Affixe — ${meta.name} <span style="opacity:0.5;font-size:11px">(${aff})</span></div>`;
           affHFs.forEach(a => {
             const checked = adminCurrentDone.has(a.id);
-            html += `<div class="admin-hf-row">
-        <div class="admin-hf-check ${checked ? 'checked' : ''}" onclick="toggleHF(${a.id}, this)"></div>
+            const disabled = !!a.comingSoon;
+            html += `<div class="admin-hf-row" style="${disabled ? 'opacity:0.4;' : ''}">
+        <div class="admin-hf-check ${checked ? 'checked' : ''}" ${disabled ? '' : `onclick="toggleHF(${a.id}, this)"`} style="${disabled ? 'cursor:default;' : ''}"></div>
         <div class="admin-hf-info">
-          <div class="admin-hf-name">${a.title} ${a.hard ? '⭐' : ''} ${a.personal ? '👤' : ''}</div>
+          <div class="admin-hf-name">${a.title}${disabled ? ' (#' + a.id + ')' : ''} ${a.hard ? '⭐' : ''} ${a.personal ? '👤' : ''}</div>
           <div class="admin-hf-meta">${a.points} pts</div>
         </div>
       </div>`;
@@ -2762,17 +3231,157 @@
 
     // ---- BADGES ----
     // Images dans images/badges/hard.png, solo.png, group.png, log.png
-    // Images conditions dans images/conditions/portal.png, dispell.png, dice.png, res.png, shadow.png, drum.png, poulet.png, dash.png
+    // Images conditions dans images/conditions/portal.png, dispell.png, dice.png, res.png, shadow.png, drum.png, poulet.png, dash.png, mount.png, jump.png, campfire.png
+    // ---- LOG CHECK WIDGET ----
+    const LOG_CHECK_COOLDOWNS = {}; // hfId → timestamp fin de cooldown
+    const EDGE_CHECK_URL = 'https://ehsnzujkmtbzikdbqnjt.supabase.co/functions/v1/gloire-check-hf';
+    const SUPABASE_ANON_FOR_EDGE = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+
+    function renderLogCheckWidget(a) {
+      const btnLabel = currentLang === 'en' ? 'Verify via log' : 'Vérifier via log';
+      return `<div class="log-check-wrap" onclick="event.stopPropagation()">
+        <button class="log-check-btn" id="log-btn-${a.id}" onclick="openLogCheck(${a.id})">${btnLabel}</button>
+        <div class="log-check-input-row" id="log-row-${a.id}">
+          <input class="log-check-input" id="log-input-${a.id}" type="text"
+            placeholder="${currentLang === 'en' ? 'Report code (ex: AbCd1234)' : 'Code du report (ex: AbCd1234)'}"
+            onkeydown="if(event.key==='Enter') submitLogCheck(${a.id})">
+          <button class="log-check-submit" id="log-submit-${a.id}" onclick="submitLogCheck(${a.id})">
+            ${currentLang === 'en' ? 'Check' : 'Vérifier'}
+          </button>
+        </div>
+        <div class="log-check-result" id="log-result-${a.id}"></div>
+      </div>`;
+    }
+
+    function openLogCheck(hfId) {
+      const row = document.getElementById('log-row-' + hfId);
+      const result = document.getElementById('log-result-' + hfId);
+      row.classList.toggle('open');
+      result.classList.remove('show');
+    }
+
+    async function submitLogCheck(hfId) {
+      // Vérifier le cooldown
+      const now = Date.now();
+      if (LOG_CHECK_COOLDOWNS[hfId] && now < LOG_CHECK_COOLDOWNS[hfId]) {
+        const remaining = Math.ceil((LOG_CHECK_COOLDOWNS[hfId] - now) / 1000);
+        showLogResult(hfId, 'error', currentLang === 'en'
+          ? `Please wait ${remaining}s before trying again.`
+          : `Veuillez attendre ${remaining}s avant de réessayer.`);
+        return;
+      }
+
+      const input = document.getElementById('log-input-' + hfId);
+      const code = input.value.trim();
+      if (!code) {
+        showLogResult(hfId, 'error', currentLang === 'en' ? 'Enter a report code.' : 'Entrez un code de report.');
+        return;
+      }
+
+      const btn = document.getElementById('log-submit-' + hfId);
+      btn.disabled = true;
+      btn.textContent = currentLang === 'en' ? 'Checking...' : 'Vérification...';
+      showLogResult(hfId, 'error', '');
+
+      try {
+        // Appel à l'Edge Function — le token Fellowship est côté serveur, invisible ici
+        const res = await fetch(EDGE_CHECK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_FOR_EDGE,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_FOR_EDGE,
+          },
+          body: JSON.stringify({ report_code: code }),
+        });
+
+        const data = await res.json();
+
+        // Cooldown : 60s si succès, 10s si erreur serveur
+        const cooldown = data.ok ? 60000 : 10000;
+        LOG_CHECK_COOLDOWNS[hfId] = Date.now() + cooldown;
+        startCooldownDisplay(hfId, cooldown / 1000);
+
+        if (!data.ok) {
+          showLogResult(hfId, 'error', data.error || (currentLang === 'en' ? 'Server error.' : 'Erreur serveur.'));
+          return;
+        }
+
+        if (!data.players_found?.length) {
+          showLogResult(hfId, 'error', currentLang === 'en'
+            ? 'No registered player found in this report.'
+            : 'Aucun joueur inscrit trouvé dans ce report.');
+          return;
+        }
+
+        const hfResult = data.results?.[hfId];
+        if (hfResult === true) {
+          const playersStr = data.players_found.join(', ');
+          showLogResult(hfId, 'ok', currentLang === 'en'
+            ? `✓ Validated for ${playersStr}!`
+            : `✓ Validé pour ${playersStr} !`);
+        } else if (hfResult === false) {
+          showLogResult(hfId, 'fail', currentLang === 'en'
+            ? '✗ At least one player took forbidden damage.'
+            : '✗ Au moins un joueur a reçu des dégâts interdits.');
+        } else if (hfResult === null) {
+          showLogResult(hfId, 'error', currentLang === 'en'
+            ? '— Affix not active in this report (wrong dungeon or level).'
+            : '— Affixe non actif dans ce report (donjon ou niveau incorrect).');
+        } else {
+          showLogResult(hfId, 'error', currentLang === 'en'
+            ? 'No matching fight found in this report.'
+            : 'Aucun combat correspondant trouvé dans ce report.');
+        }
+
+      } catch (e) {
+        showLogResult(hfId, 'error', currentLang === 'en'
+          ? 'Connection error: ' + e.message
+          : 'Erreur de connexion : ' + e.message);
+        LOG_CHECK_COOLDOWNS[hfId] = Date.now() + 10000;
+        startCooldownDisplay(hfId, 10);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = currentLang === 'en' ? 'Check' : 'Vérifier';
+      }
+    }
+
+    function showLogResult(hfId, type, msg) {
+      const el = document.getElementById('log-result-' + hfId);
+      if (!msg) { el.classList.remove('show'); return; }
+      el.className = 'log-check-result show ' + type;
+      el.innerHTML = msg + `<span class="log-check-cooldown" id="log-cd-${hfId}"></span>`;
+    }
+
+    function startCooldownDisplay(hfId, seconds) {
+      const btn = document.getElementById('log-btn-' + hfId);
+      if (btn) btn.disabled = true;
+      let remaining = Math.ceil(seconds);
+      const tick = () => {
+        const cdEl = document.getElementById('log-cd-' + hfId);
+        if (cdEl) cdEl.textContent = remaining > 0 ? ` (${remaining}s)` : '';
+        if (remaining <= 0) {
+          const b = document.getElementById('log-btn-' + hfId);
+          if (b) b.disabled = false;
+          return;
+        }
+        remaining--;
+        setTimeout(tick, 1000);
+      };
+      tick();
+    }
+
     function renderBadges(a) {
+      if (a.comingSoon) return ''; // pas de points ni badges pour un HF pas encore défini
       let html = '';
       if (a.hard)
-        html += `<span class="badge" title="${t('badge.hard')}"><img src="images/badges/hard.png" alt="${t('badge.hard')}"></span>`;
+        html += `<span class="badge" data-tooltip="${t('badge.hard')}"><img src="images/badges/hard.png" alt="${t('badge.hard')}"></span>`;
       if (a.personal)
-        html += `<span class="badge" title="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
+        html += `<span class="badge" data-tooltip="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
       if (a.logRequired)
-        html += `<span class="badge" title="${t('badge.log')}"><img src="images/badges/log.png" alt="${t('badge.log')}"></span>`;
+        html += `<span class="badge" data-tooltip="${t('badge.log')}"><img src="images/conditions/log.png" alt="${t('badge.log')}"></span>`;
       (a.conditions || []).forEach(c =>
-        html += `<span class="badge" title="${t('cond.' + c)}"><img src="images/conditions/${c}.png" alt="${c}"></span>`
+        html += `<span class="badge" data-tooltip="${t('cond.' + c)}"><img src="images/conditions/${c}.png" alt="${c}"></span>`
       );
       html += `<span class="badge badge-pts">${a.points} pts</span>`;
       return html;
@@ -2782,6 +3391,26 @@
     // Remplis les valeurs EN ci-dessous. Les FR sont les textes par défaut.
     const TRANSLATIONS = {
       'nav.join': { fr: 'Rejoindre', en: 'Join' },
+      'nav.verify': { fr: 'Vérifier', en: 'Verify' },
+      'verify.title': { fr: 'Vérifier via log', en: 'Verify via log' },
+      'verify.subtitle': { fr: 'Colle ton report code Fellowship Logs, on vérifie automatiquement tous tes hauts-faits éligibles en une seule passe.', en: 'Paste your Fellowship Logs report code, we automatically check all your eligible achievements in one go.' },
+      'verify.label': { fr: 'Code du report', en: 'Report code' },
+      'verify.btn': { fr: 'Analyser', en: 'Analyze' },
+      'verify.checking': { fr: 'Analyse en cours...', en: 'Analyzing...' },
+      'verify.no_player': { fr: 'Aucun joueur inscrit trouvé dans ce report.', en: 'No registered player found in this report.' },
+      'verify.no_fight': { fr: 'Aucun combat correspondant trouvé dans ce report.', en: 'No matching fight found in this report.' },
+      'verify.error': { fr: 'Erreur : ', en: 'Error: ' },
+      'verify.players': { fr: 'Joueurs détectés : ', en: 'Players found: ' },
+      'verify.ok': { fr: '✓ Validé', en: '✓ Validated' },
+      'verify.fail': { fr: '✗ Non validé', en: '✗ Not validated' },
+      'verify.wait': { fr: 'Veuillez attendre ', en: 'Please wait ' },
+      'verify.wait2': { fr: 's avant de réessayer.', en: 's before trying again.' },
+      'verify.help.title': { fr: 'Comment trouver mon report code ?', en: 'How to find my report code?' },
+      'verify.help.1': { fr: 'Va sur fellowshiplogs.com', en: 'Go to fellowshiplogs.com' },
+      'verify.help.2': { fr: 'Cherche ton personnage', en: 'Search for your character' },
+      'verify.help.3': { fr: 'Clique sur le donjon concerné', en: 'Click on the relevant dungeon' },
+      'verify.help.4': { fr: 'Choisis le report (difficulté / date)', en: 'Select the report (difficulty / date)' },
+      'verify.help.5': { fr: "Copie le code dans l'URL", en: 'Copy the code from the URL' },
       'header.event-title': { fr: 'Gloire à la Compagnie', en: 'Glory to the Fellowship' },
       'nav.joiningform': { fr: 'Rejoindre l\'événement', en: 'Join the event' },
       'nav.leaderboard': { fr: 'Classement', en: 'Leaderboard' },
@@ -2822,7 +3451,7 @@
       'secret.close': { fr: 'Fermer', en: 'Close' },
       'badge.hard': { fr: 'Difficile', en: 'Hard' },
       'badge.solo': { fr: 'Solo', en: 'Solo' },
-      'badge.log': { fr: 'Preuve (log/replay) requise', en: 'Proof (log/replay) required' },
+      'badge.log': { fr: 'Log requis', en: 'Log required' },
       'badge.group': { fr: 'Groupe', en: 'Group' },
       'cond.portal': { fr: 'Portail interdit', en: 'Portal forbidden' },
       'cond.dispell': { fr: 'Dispell interdit', en: 'Dispell forbidden' },
@@ -2832,6 +3461,9 @@
       'cond.drum': { fr: 'Tambour interdit', en: 'Drum forbidden' },
       'cond.poulet': { fr: 'Poulet interdit', en: 'Chicken forbidden' },
       'cond.dash': { fr: 'Dash interdit', en: 'Dash forbidden' },
+      'cond.mount': { fr: 'Montures interdites', en: 'Mounts forbidden' },
+      'cond.jump': { fr: 'Saut interdit', en: 'Jump forbidden' },
+      'cond.campfire': { fr: 'Feu de camp interdit', en: 'Campfire forbidden' },
       'affixes.section': { fr: 'Affixes', en: 'Affixes' },
       'lb.detail.expand_all': { fr: 'Tout déplier', en: 'Expand all' },
       'lb.detail.collapse_all': { fr: 'Tout replier', en: 'Collapse all' },
@@ -2842,7 +3474,7 @@
       'season.status.ongoing': { fr: 'En cours', en: 'Ongoing' },
       'season.status.coming': { fr: 'Coming Soon', en: 'Coming Soon' },
       'teaser.title': { fr: 'La Pre-Saison 3 arrive bientôt', en: 'Pre-Season 3 is coming soon' },
-      'teaser.desc': { fr: "Les hauts-faits de cette nouvelle saison sont en cours de préparation. Annonce officielle très prochainement — restez à l'écoute sur Twitch et Discord !", en: 'This new season\'s achievements are currently being prepared. Official announcement coming very soon — stay tuned on Twitch and Discord!' },
+      'teaser.desc': { fr: "Les hauts-faits de cette nouvelle saison sont en cours de préparation. Annonce officielle très prochainement. Restez à l'écoute sur Twitch et Discord !", en: "This new season's achievements are currently being prepared. Official announcement coming very soon. Stay tuned on Twitch and Discord!" },
       // Noms de donjons
       "Abime des marins": { fr: "Abime des marins", en: "Sailor's Abyss" },
       "Bois de L'aube": { fr: "Bois de L'aube", en: "Everdawn Grove" },
@@ -2912,7 +3544,7 @@
       "Jamais 203": { fr: "Jamais 203", en: "Third Time’s the Charm" },
     };
 
-    let currentLang = localStorage.getItem('pouf_lang') || 'fr';
+    let currentLang = localStorage.getItem('pouf_lang') || 'en';
 
     function t(key) {
       const entry = TRANSLATIONS[key];
@@ -2927,7 +3559,33 @@
       document.getElementById('tab-achievements').textContent = t('nav.achievements');
       document.getElementById('tab-rules').textContent = t('nav.rules');
       document.getElementById('join-btn').textContent = t('nav.join');
+      // tab verify — reconstruit avec le badge NEW
+      const verifyLabel = document.getElementById('tab-verify-label');
+      const badgeNew = document.getElementById('badge-new');
+      if (verifyLabel) verifyLabel.textContent = t('nav.verify');
+      if (badgeNew) badgeNew.style.display = verifyNewSeen ? 'none' : '';
+      // page verify
+      const vTitle = document.getElementById('verify-title');
+      const vSub = document.getElementById('verify-subtitle');
+      const vLabel = document.getElementById('verify-label');
+      const vBtn = document.getElementById('verify-run-btn');
+      if (vTitle) vTitle.textContent = t('verify.title');
+      if (vSub) vSub.textContent = t('verify.subtitle');
+      if (vLabel) vLabel.textContent = t('verify.label');
+      if (vBtn && !vBtn.disabled) vBtn.textContent = t('verify.btn');
+      const helpLabel = document.getElementById('verify-help-label');
+      if (helpLabel) helpLabel.textContent = t('verify.help.title');
+      ['1','2','3','4','5'].forEach(n => {
+        const el = document.getElementById('verify-help-' + n);
+        if (el) el.textContent = t('verify.help.' + n);
+      });
+      const exLabel = document.getElementById('verify-help-example-label');
+      const codeLabel = document.getElementById('verify-help-code-label');
+      if (exLabel) exLabel.textContent = currentLang === 'en' ? 'Example:' : 'Exemple :';
+      if (codeLabel) codeLabel.textContent = currentLang === 'en' ? 'The code is' : 'Le code est';
+      renderVerifyHFList(); // re-render la liste avec la nouvelle langue
       document.getElementById('event-title').textContent = t('header.event-title');
+      // (nav.joiningform conservé pour compatibilité future)
       document.getElementById('lang-btn-fr').classList.toggle('active', currentLang === 'fr');
       document.getElementById('lang-btn-en').classList.toggle('active', currentLang === 'en');
       document.querySelector('#season-tab-S2 .season-tab-label').textContent = t('season.s2');
@@ -2949,8 +3607,7 @@
       if (document.getElementById('page-rules').classList.contains('active')) renderRules();
     }
 
-
-   // ---- JOIN ----
+    // ---- JOIN ----
     function renderJoin() {
       const fr = currentLang === 'fr';
       document.getElementById('join-content').innerHTML = `
@@ -2993,13 +3650,12 @@
             ? "Remplis le formulaire d'inscription avec ton nom de personnage et ton ID Fellowship. Pouf ajoutera ton compte dès que possible."
             : "Fill in the registration form with your character name and Fellowship ID. Pouf will add your account as soon as possible."
           }</div>
-          <a class="join-cta-btn" href="https://docs.google.com/forms/d/e/1FAIpQLSc1t3Eol7FKP1efLmgBTiJSQ43mjIdSqltBys6Egv-3W-Hfzw/viewform?usp=sharing&ouid=118146898505717091637" target="_blank" rel="noopener">
+          <a class="join-cta-btn" href="https://docs.google.com/forms/d/e/1FAIpQLScs9iALvfOe3cWvW0nudi7zY5cFrSRsdy3_WAMY65HoCaeIag/viewform?usp=dialog" target="_blank" rel="noopener">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
             ${fr ? "Formulaire d'inscription" : 'Registration form'}
           </a>
         </div>`;
     }
-
 
     // ---- RULES ----
     function renderRules() {
@@ -3061,7 +3717,10 @@
         </div>
       </div>`;
     }
-    
+
+    let verifyNewSeen = !!localStorage.getItem('gloire_verify_seen');
+    let verifyCooldownUntil = 0;
+
     function showPage(id, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -3071,6 +3730,16 @@
       if (id === 'achievements') renderAchievements();
       if (id === 'rules') renderRules();
       if (id === 'join') renderJoin();
+      if (id === 'verify') {
+        // Masquer le badge NEW au premier clic
+        if (!verifyNewSeen) {
+          verifyNewSeen = true;
+          localStorage.setItem('gloire_verify_seen', '1');
+          const badge = document.getElementById('badge-new');
+          if (badge) badge.style.display = 'none';
+        }
+        renderVerifyHFList();
+      }
       // Hide/show le panel saisons selon la page
       const seasonNav = document.getElementById('season-nav');
       if (seasonNav) {
@@ -3078,6 +3747,242 @@
         seasonNav.style.display = showSeasonNav ? 'flex' : 'none';
       }
     }
+
+    // Metadata des HF logCheckables — miroir de l'Edge Function pour l'affichage
+    const VERIFY_HF_META = {
+      51: { title: 'Like a Pro I',         title_en: 'Like a Pro I',        dungeon_fr: 'Sables Empyréens', dungeon_en: 'Empyrean Sands', affix: null },
+      94: { title: 'Like a Pro II',        title_en: 'Like a Pro II',       dungeon_fr: null,               dungeon_en: null,             affix: 'Meteor' },
+      91: { title: "D'une pierre 2 coups", title_en: 'Two Birds One Stone', dungeon_fr: null,               dungeon_en: null,             affix: 'Pierre' },
+    };
+
+    function getVerifyDungeon(meta) {
+      return currentLang === 'en' ? meta.dungeon_en : meta.dungeon_fr;
+    }
+
+    function toggleVerifyHelp() {
+      const title = document.getElementById('verify-help-title');
+      const body  = document.getElementById('verify-help-body');
+      if (!title || !body) return;
+      title.classList.toggle('open');
+      body.classList.toggle('open');
+    }
+
+    function renderVerifyHFList() {
+      const el = document.getElementById('verify-hf-list');
+      if (!el) return;
+      const ids = Object.keys(VERIFY_HF_META);
+      if (!ids.length) { el.innerHTML = ''; return; }
+      const label = currentLang === 'en'
+        ? 'Automatically verifiable achievements'
+        : 'Hauts-faits vérifiables automatiquement';
+      let html = `<div class="verify-hf-list-title">${label}</div>`;
+
+      ids.forEach(hfId => {
+        const meta = VERIFY_HF_META[hfId];
+        const name = currentLang === 'en' ? meta.title_en : meta.title;
+
+        if (meta.affix && AFFIX_META[meta.affix]) {
+          // HF affixe : style affix-subheader
+          const affMeta = AFFIX_META[meta.affix];
+          const affName = affixDisplayName(affMeta);
+          html += `<div class="verify-hf-entry" style="
+            border:1px solid ${affMeta.color}33;
+            background:${affMeta.color}14;
+            border-radius:6px; padding:10px 14px;
+            display:flex; align-items:center; gap:10px;">
+            <span class="affix-icon-wrap" style="border-color:${affMeta.color}66;flex-shrink:0;">
+              <img src="${affMeta.icon}" alt="${affName}" onerror="this.style.display='none'">
+            </span>
+            <span style="font-family:'Cinzel',serif;font-size:13px;color:${affMeta.color};flex:1;">${name}</span>
+            <span style="font-size:12px;color:${affMeta.color}99;font-style:italic;">${affName}</span>
+          </div>`;
+        } else {
+          // HF donjon : style dungeon-block miniature avec fond image
+          const dungeonKey = meta.dungeon_fr;
+          const dungeonName = getVerifyDungeon(meta);
+          const imgPath = dungeonKey ? (DUNGEON_IMAGES[dungeonKey] || '') : '';
+          const bgStyle = imgPath ? `background-image:url('${imgPath}');` : '';
+          html += `<div class="verify-hf-entry" style="position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--border);">
+            ${bgStyle ? `<div style="position:absolute;inset:0;background-size:cover;background-position:center;opacity:0.35;${bgStyle}"></div>` : ''}
+            <div style="position:relative;z-index:1;display:flex;align-items:center;gap:10px;padding:10px 14px;">
+              <span style="font-family:'Cinzel',serif;font-size:13px;color:var(--text);flex:1;">${name}</span>
+              <span style="font-size:12px;color:var(--text-muted);font-style:italic;">${dungeonName || ''}</span>
+            </div>
+          </div>`;
+        }
+      });
+      el.innerHTML = html;
+    }
+
+    async function runVerify() {
+      const now = Date.now();
+      if (now < verifyCooldownUntil) {
+        const remaining = Math.ceil((verifyCooldownUntil - now) / 1000);
+        document.getElementById('verify-cd').textContent =
+          t('verify.wait') + remaining + t('verify.wait2');
+        return;
+      }
+
+      const code = document.getElementById('verify-code-input').value.trim();
+      if (!code) return;
+
+      const btn = document.getElementById('verify-run-btn');
+      const results = document.getElementById('verify-results');
+      btn.disabled = true;
+      btn.textContent = t('verify.checking');
+      results.innerHTML = '';
+      document.getElementById('verify-cd').textContent = '';
+
+      try {
+        const res = await fetch(EDGE_CHECK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_FOR_EDGE,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_FOR_EDGE,
+          },
+          body: JSON.stringify({ report_code: code }),
+        });
+        const data = await res.json();
+
+        verifyCooldownUntil = Date.now() + (data.ok ? 60000 : 10000);
+        startVerifyCooldown(data.ok ? 60 : 10);
+
+        if (!data.ok) {
+          results.innerHTML = `<div class="verify-error">${t('verify.error')}${data.error || ''}</div>`;
+          return;
+        }
+        if (!data.players_found?.length) {
+          results.innerHTML = `<div class="verify-error">${t('verify.no_player')}</div>`;
+          return;
+        }
+
+        // Joueurs détectés
+        let html = `<div class="verify-players-found">${t('verify.players')}<strong>${data.players_found.join(', ')}</strong></div>`;
+
+        // Résultats par HF
+        const hfResults = data.results || {};
+        const hfIds = Object.keys(hfResults);
+        if (!hfIds.length) {
+          html += `<div class="verify-error">${t('verify.no_fight')}</div>`;
+        } else {
+          for (const hfId of hfIds) {
+            const meta = VERIFY_HF_META[hfId] || { title: 'HF #' + hfId, title_en: 'HF #' + hfId, dungeon: '', affix: null };
+            const passed = hfResults[hfId];
+            const name = currentLang === 'en' ? meta.title_en : meta.title;
+            const statusClass = passed === true ? 'ok' : passed === false ? 'fail' : 'na';
+            const statusIcon  = passed === true ? '✓' : passed === false ? '✗' : '.';
+            const statusText  = passed === true
+              ? t('verify.ok')
+              : passed === false
+              ? t('verify.fail')
+              : (currentLang === 'en' ? 'Affix not active' : 'Affixe non actif');
+
+            // Rendu avec DA cohérente avec Achievements
+            let entryStyle = '';
+            let leftBlock = '';
+            if (meta.affix && AFFIX_META[meta.affix]) {
+              const affMeta = AFFIX_META[meta.affix];
+              const affName = affixDisplayName(affMeta);
+              entryStyle = `border-color:${affMeta.color}33;background:${affMeta.color}14;`;
+              leftBlock = `<span class="affix-icon-wrap" style="border-color:${affMeta.color}66;flex-shrink:0;">
+                <img src="${affMeta.icon}" alt="${affName}" onerror="this.style.display='none'">
+              </span>`;
+            } else {
+              const dungeonKey = meta.dungeon_fr;
+              const imgPath = dungeonKey ? (DUNGEON_IMAGES[dungeonKey] || '') : '';
+              if (imgPath) {
+                leftBlock = `<div style="position:absolute;inset:0;background-image:url('${imgPath}');background-size:cover;background-position:center;opacity:0.25;border-radius:4px;"></div>`;
+              }
+            }
+            const dungeonName = getVerifyDungeon(meta);
+
+            html += `<div class="verify-hf-result ${statusClass}" style="position:relative;${entryStyle}">
+              ${leftBlock}
+              <span class="status-icon" style="position:relative;z-index:1;">${statusIcon}</span>
+              <div style="position:relative;z-index:1;flex:1;">
+                <div class="hf-name">${name}</div>
+                <div class="hf-dungeon">${dungeonName ? dungeonName + ' · ' : ''}${statusText}</div>
+              </div>
+            </div>`;
+          }
+        }
+        results.innerHTML = html;
+
+      } catch (e) {
+        results.innerHTML = `<div class="verify-error">${t('verify.error')}${e.message}</div>`;
+        verifyCooldownUntil = Date.now() + 10000;
+        startVerifyCooldown(10);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = t('verify.btn');
+      }
+    }
+
+    function startVerifyCooldown(seconds) {
+      const cdEl = document.getElementById('verify-cd');
+      const btn  = document.getElementById('verify-run-btn');
+      if (btn) btn.disabled = true;
+      let remaining = Math.ceil(seconds);
+      const tick = () => {
+        if (!cdEl) return;
+        cdEl.textContent = remaining > 0 ? t('verify.wait') + remaining + t('verify.wait2') : '';
+        if (remaining <= 0) {
+          if (btn) btn.disabled = false;
+          return;
+        }
+        remaining--;
+        setTimeout(tick, 1000);
+      };
+      tick();
+    }
+
+    // ---- TOOLTIP FLOTTANT (badges/conditions des HF) ----
+    // Délégation d'événements sur document : fonctionne même quand les .badge sont
+    // regénérés dynamiquement (renderAchievements/renderLeaderboard). Positionné en
+    // position:fixed + JS pour ne jamais être tronqué par un ancêtre overflow:hidden
+    // (ex: .dungeon-block, nécessaire pour ses coins arrondis sur l'image de fond).
+    (function () {
+      const tooltip = document.getElementById('hf-tooltip');
+      let activeBadge = null;
+
+      function positionTooltip(badge) {
+        const rect = badge.getBoundingClientRect();
+        tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+        const tooltipHeight = tooltip.offsetHeight || 28;
+        const spaceAbove = rect.top;
+        if (spaceAbove < tooltipHeight + 14) {
+          // Pas assez de place au-dessus (ex: badge tout en haut de l'écran) -> afficher en dessous
+          tooltip.style.top = (rect.bottom + 7) + 'px';
+          tooltip.classList.add('below');
+        } else {
+          tooltip.style.top = (rect.top - tooltipHeight - 7) + 'px';
+          tooltip.classList.remove('below');
+        }
+      }
+
+      document.addEventListener('mouseover', function (e) {
+        const badge = e.target.closest('.badge[data-tooltip]');
+        if (!badge || badge === activeBadge) return;
+        activeBadge = badge;
+        tooltip.textContent = badge.getAttribute('data-tooltip');
+        tooltip.style.display = 'block';
+        positionTooltip(badge);
+      });
+
+      document.addEventListener('mouseout', function (e) {
+        const badge = e.target.closest('.badge[data-tooltip]');
+        if (!badge) return;
+        if (e.relatedTarget && badge.contains(e.relatedTarget)) return; // survol d'un enfant interne
+        activeBadge = null;
+        tooltip.style.display = 'none';
+      });
+
+      // Si la fenêtre défile/se redimensionne pendant un survol, on recale ou on masque
+      window.addEventListener('scroll', function () {
+        if (activeBadge) positionTooltip(activeBadge);
+      }, { passive: true });
+    })();
 
     // ---- INIT ----
     applyLangToStaticElements();
@@ -3144,7 +4049,7 @@
 
     function openProfile(playerId, playerName) {
       const badges = (_playerBadges && _playerBadges[playerId]) || [];
-      const lang = localStorage.getItem('pouf_lang') || 'fr';
+      const lang = localStorage.getItem('pouf_lang') || 'en';
       document.getElementById('modal-player-name').textContent = playerName || '—';
       const grid = document.getElementById('modal-badges-grid');
       grid.innerHTML = !badges.length

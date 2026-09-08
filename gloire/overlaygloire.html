@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gloire à la Compagnie — Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Fond transparent pour OBS */
+  html, body {
+    background: transparent !important;
+    overflow: hidden;
+    width: 1920px; height: 1080px;
+    font-family: 'Crimson Pro', serif;
+  }
+
+  /* ── TOKENS ──────────────────────────────────────── */
+  :root {
+    --gold:       #c9a84c;
+    --gold-light: #e2c97e;
+    --gold-dim:   #a8893a;
+    --bg:         rgba(10, 8, 6, 0.88);
+    --bg2:        rgba(20, 16, 10, 0.80);
+    --border:     rgba(201, 168, 76, 0.22);
+    --border-bright: rgba(201, 168, 76, 0.5);
+    --text:       #e8e0cc;
+    --text-dim:   #b8a880;
+    --text-muted: #6b5f42;
+    --red:        #c94c4c;
+    --green:      #4cc94c;
+  }
+
+  /* ── LAYOUT HORIZONTAL (bas d'écran) ────────────── */
+  #layout-horizontal {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 90px;
+    display: none;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+
+  #layout-horizontal.active { display: flex; align-items: stretch; }
+
+  .h-section {
+    display: flex; align-items: center;
+    padding: 0 18px;
+    border-right: 1px solid var(--border);
+    gap: 14px;
+  }
+  .h-section:last-child { border-right: none; }
+
+  /* Section titre horizontal */
+  .h-label {
+    font-family: 'Cinzel', serif; font-size: 9px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold-dim); writing-mode: vertical-rl;
+    transform: rotate(180deg); flex-shrink: 0;
+  }
+
+  /* Leaderboard horizontal : 5 joueurs en ligne */
+  .h-lb {
+    display: flex; align-items: center; gap: 16px; flex: 1;
+  }
+  .h-lb-entry {
+    display: flex; align-items: center; gap: 7px;
+    white-space: nowrap;
+  }
+  .h-lb-rank {
+    font-family: 'Cinzel', serif; font-size: 12px;
+    color: var(--gold-dim); width: 18px; text-align: right;
+    flex-shrink: 0;
+  }
+  .h-lb-rank.r1 { color: #ffd700; font-size: 15px; }
+  .h-lb-rank.r2 { color: #c0c0c0; }
+  .h-lb-rank.r3 { color: #cd7f32; }
+  .h-lb-name {
+    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600;
+    color: #f0e8d0; max-width: 160px;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .h-lb-pts {
+    font-size: 15px; color: var(--gold);
+    font-style: italic; font-weight: 600;
+  }
+  .h-sep { width: 1px; height: 40px; background: var(--border); flex-shrink: 0; }
+
+  /* HF horizontal */
+  .h-hfs {
+    display: flex; align-items: center; gap: 12px;
+    overflow: hidden; flex: 1;
+  }
+  .h-hf-entry {
+    display: flex; flex-direction: column; justify-content: center;
+    border-left: 3px solid var(--gold-dim);
+    padding-left: 9px; min-width: 160px; max-width: 220px;
+  }
+  .h-hf-name {
+    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600;
+    color: #f0e8d0; line-height: 1.2;
+  }
+  .h-hf-desc {
+    font-size: 12px; color: #c8b880;
+    font-style: italic; line-height: 1.3; margin-top: 3px;
+    overflow: hidden; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+
+  /* Pub horizontal */
+  .h-pub {
+    font-size: 16px; color: #f0e8d0;
+    font-style: italic; max-width: 280px;
+    line-height: 1.4; text-align: center; font-weight: 500;
+  }
+  .h-pub-icon { font-size: 22px; flex-shrink: 0; }
+
+  /* ── LAYOUT VERTICAL (haut gauche) ──────────────── */
+  #layout-vertical {
+    position: absolute;
+    top: 0; left: 0;
+    width: 320px; /* légèrement plus large pour le texte */
+    height: 756px;
+    display: none;
+    flex-direction: column;
+    background: rgba(8, 6, 4, 0.93); /* plus opaque pour le contraste */
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    border-bottom-right-radius: 8px;
+  }
+
+  #layout-vertical.active { display: flex; }
+
+  /* Header vertical */
+  .v-header {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .v-event-name {
+    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); line-height: 1;
+  }
+  .v-season-label {
+    font-size: 13px; color: #9a8a5a;
+    font-style: italic; margin-top: 4px;
+  }
+
+  /* Section verticale */
+  .v-section {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .v-section:last-child { border-bottom: none; flex: 1; }
+
+  .v-section-title {
+    font-family: 'Cinzel', serif; font-size: 9px; font-weight: 600;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold-dim); padding: 9px 18px 6px;
+  }
+
+  /* Leaderboard vertical */
+  .v-lb-entry {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 18px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    transition: background 0.3s;
+  }
+  .v-lb-entry:first-child { border-top: none; }
+  .v-lb-rank {
+    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600;
+    color: var(--gold-dim); width: 20px;
+    text-align: right; flex-shrink: 0;
+  }
+  .v-lb-rank.r1 { color: #ffd700; font-size: 16px; }
+  .v-lb-rank.r2 { color: #d0d0d0; font-size: 14px; }
+  .v-lb-rank.r3 { color: #cd7f32; font-size: 14px; }
+  .v-lb-name {
+    font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600;
+    color: #f0e8d0; flex: 1; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .v-lb-pts {
+    font-size: 15px; color: var(--gold); font-weight: 600;
+    font-style: italic; flex-shrink: 0;
+  }
+  .v-lb-entry.new-entry { animation: flash-in 0.6s ease; }
+  @keyframes flash-in {
+    from { background: rgba(201,168,76,0.15); }
+    to   { background: transparent; }
+  }
+
+  /* HF verticaux */
+  .v-hf-entry {
+    padding: 9px 16px 9px 14px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    border-left: 3px solid var(--gold-dim);
+    margin: 0 12px 0 14px;
+    border-radius: 0 2px 2px 0;
+  }
+  .v-hf-entry + .v-hf-entry { margin-top: 7px; }
+  .v-hf-name {
+    font-family: 'Cinzel', serif; font-size: 14px; font-weight: 600;
+    color: #f0e8d0; line-height: 1.2;
+  }
+  .v-hf-desc {
+    font-size: 13px; color: #c8b880;
+    font-style: italic; line-height: 1.45; margin-top: 4px;
+  }
+  .v-hf-list { padding: 6px 0 12px; }
+
+  /* Pub verticale */
+  .v-pub {
+    padding: 14px 18px;
+    font-size: 16px; color: #f0e8d0;
+    font-style: italic; font-weight: 500; line-height: 1.5;
+    text-align: center; flex: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── DONJON EN COURS (les deux layouts) ─────────── */
+  .dungeon-badge {
+    font-family: 'Cinzel', serif; font-size: 10px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold-dim); background: rgba(201,168,76,0.06);
+    border: 1px solid var(--border); border-radius: 3px;
+    padding: 3px 8px; white-space: nowrap;
+  }
+
+  /* ── ANIMATION D'ENTRÉE ──────────────────────────── */
+  #layout-horizontal, #layout-vertical {
+    transition: opacity 0.4s ease;
+  }
+  .fade-out { opacity: 0 !important; }
+
+  /* ── EMPTY STATE ─────────────────────────────────── */
+  .empty { color: var(--text-muted); font-style: italic; font-size: 12px; padding: 8px 16px; }
+</style>
+</head>
+<body>
+
+<!-- ── LAYOUT HORIZONTAL ───────────────────────────── -->
+<div id="layout-horizontal">
+
+  <!-- Leaderboard -->
+  <div class="h-section" id="h-lb-section" style="flex:1;">
+    <span class="h-label">Classement</span>
+    <div class="h-lb" id="h-lb"></div>
+  </div>
+
+  <!-- Donjon + HF -->
+  <div class="h-section" id="h-hf-section" style="flex:1.4;">
+    <span class="h-label">Hauts-faits</span>
+    <div style="display:flex;flex-direction:column;gap:3px;margin-right:10px;">
+      <div style="font-size:9px;color:var(--text-muted);font-family:'Cinzel',serif;letter-spacing:.1em;text-transform:uppercase;">Donjon</div>
+      <div class="dungeon-badge" id="h-dungeon-name">—</div>
+    </div>
+    <div class="h-hfs" id="h-hfs"></div>
+  </div>
+
+  <!-- Pub -->
+  <div class="h-section" id="h-pub-section" style="width:300px;">
+    <span class="h-pub-icon">✦</span>
+    <div class="h-pub" id="h-pub-text"></div>
+  </div>
+
+</div>
+
+<!-- ── LAYOUT VERTICAL ─────────────────────────────── -->
+<div id="layout-vertical">
+
+  <div class="v-header">
+    <div class="v-event-name">Gloire à la Compagnie</div>
+    <div class="v-season-label" id="v-season-label">Saison 3</div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="v-section" id="v-lb-section">
+    <div class="v-section-title">Classement</div>
+    <div id="v-lb"></div>
+  </div>
+
+  <!-- HF -->
+  <div class="v-section" id="v-hf-section">
+    <div class="v-section-title" id="v-hf-title">Hauts-faits · <span id="v-dungeon-name" style="color:var(--gold);font-style:italic;"></span></div>
+    <div class="v-hf-list" id="v-hfs"></div>
+  </div>
+
+  <!-- Pub -->
+  <div class="v-section" id="v-pub-section">
+    <div class="v-section-title">Info</div>
+    <div class="v-pub" id="v-pub-text"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  // ── CONFIG ────────────────────────────────────────
+  const SUPABASE_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+  const SUPABASE_ANON = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+  const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // ── DONNÉES HF (extraites de gloire/index.html) ──
+  // Seulement id + points + dungeon, suffisant pour calculer les scores
+  const HF_S2 = [
+    {id:1,p:10,d:"Abime des marins"},{id:2,p:10,d:"Abime des marins"},{id:3,p:20,d:"Abime des marins"},
+    {id:4,p:10,d:"Bois de L'aube"},{id:5,p:10,d:"Bois de L'aube"},{id:6,p:20,d:"Bois de L'aube"},
+    {id:7,p:10,d:"Carrière tombe-dieu"},{id:8,p:10,d:"Carrière tombe-dieu"},{id:9,p:20,d:"Carrière tombe-dieu"},
+    {id:10,p:10,d:"Caveau de Lamespectre"},{id:11,p:10,d:"Caveau de Lamespectre"},{id:12,p:10,d:"Caveau de Lamespectre"},{id:13,p:10,d:"Caveau de Lamespectre"},{id:14,p:10,d:"Caveau de Lamespectre"},{id:15,p:20,d:"Caveau de Lamespectre"},
+    {id:16,p:10,d:"Coeur de guivre"},{id:17,p:10,d:"Coeur de guivre"},{id:18,p:20,d:"Coeur de guivre"},
+    {id:19,p:10,d:"Coeur de Tuzari"},{id:20,p:10,d:"Coeur de Tuzari"},{id:21,p:10,d:"Coeur de Tuzari"},{id:22,p:10,d:"Coeur de Tuzari"},{id:23,p:10,d:"Coeur de Tuzari"},{id:24,p:20,d:"Coeur de Tuzari"},
+    {id:25,p:10,d:"Creux Soyeux"},{id:26,p:10,d:"Creux Soyeux"},{id:27,p:20,d:"Creux Soyeux"},
+    {id:28,p:10,d:"Guet Tempete"},{id:29,p:10,d:"Guet Tempete"},{id:30,p:20,d:"Guet Tempete"},
+    {id:31,p:10,d:"La chute Cithrel"},{id:32,p:10,d:"La chute Cithrel"},{id:33,p:20,d:"La chute Cithrel"},
+    {id:34,p:10,d:"Marché d'Urrak"},{id:35,p:10,d:"Marché d'Urrak"},{id:36,p:20,d:"Marché d'Urrak"},
+    {id:37,p:10,d:"Sables Empyréens"},{id:38,p:10,d:"Sables Empyréens"},{id:39,p:20,d:"Sables Empyréens"},
+    {id:40,p:10,d:"Saccage de Drakheim"},{id:41,p:10,d:"Saccage de Drakheim"},{id:42,p:10,d:"Saccage de Drakheim"},{id:43,p:10,d:"Saccage de Drakheim"},{id:44,p:10,d:"Saccage de Drakheim"},{id:45,p:10,d:"Saccage de Drakheim"},{id:46,p:10,d:"Saccage de Drakheim"},{id:47,p:10,d:"Saccage de Drakheim"},{id:48,p:20,d:"Saccage de Drakheim"},
+  ];
+  const DUNGEONS_S2 = ["Abime des marins","Bois de L'aube","Carrière tombe-dieu","Coeur de guivre","Creux Soyeux","Guet Tempete","Marché d'Urrak","Sables Empyréens","Caveau de Lamespectre","Coeur de Tuzari","La chute Cithrel","Saccage de Drakheim"];
+
+  const HF_S3_DUNGEONS = [
+    {id:49,p:10,d:"Marché d'Urrak"},{id:50,p:10,d:"Guet Tempete"},{id:51,p:10,d:"Sables Empyréens"},
+    {id:52,p:10,d:"Creux Soyeux"},{id:53,p:10,d:"Carrière tombe-dieu"},{id:54,p:10,d:"Abime des marins"},
+    {id:55,p:10,d:"Coeur de guivre"},{id:56,p:10,d:"Caveau de Lamespectre"},{id:57,p:10,d:"Bois de L'aube"},
+    {id:58,p:10,d:"La chute Cithrel"},{id:59,p:10,d:"Coeur de Tuzari"},{id:60,p:10,d:"Saccage de Drakheim"},
+    {id:61,p:10,d:"Ruins of Regath"},{id:62,p:10,d:"Scryer's Peak"},{id:63,p:10,d:"Xul, the Blood Monolith"},
+    {id:64,p:10,d:"Marché d'Urrak"},{id:65,p:10,d:"Guet Tempete"},{id:66,p:10,d:"Sables Empyréens"},
+    {id:67,p:10,d:"Coeur de Tuzari"},{id:68,p:10,d:"Coeur de guivre"},{id:69,p:10,d:"Ruins of Regath"},
+    {id:70,p:10,d:"Caveau de Lamespectre"},{id:71,p:10,d:"Creux Soyeux"},{id:72,p:10,d:"Bois de L'aube"},
+    {id:73,p:10,d:"Scryer's Peak"},{id:74,p:10,d:"Abime des marins"},{id:75,p:10,d:"La chute Cithrel"},
+    {id:96,p:10,d:"Carrière tombe-dieu"},{id:97,p:10,d:"Saccage de Drakheim"},{id:98,p:10,d:"Xul, the Blood Monolith"},
+    {id:99,p:10,d:"Coeur de guivre"},{id:100,p:10,d:"Marché d'Urrak"},{id:101,p:10,d:"Abime des marins"},
+    {id:102,p:10,d:"Bois de L'aube"},{id:103,p:10,d:"Caveau de Lamespectre"},{id:104,p:10,d:"Saccage de Drakheim"},
+    {id:105,p:10,d:"Coeur de Tuzari"},{id:106,p:10,d:"Creux Soyeux"},{id:108,p:10,d:"Guet Tempete"},
+    {id:110,p:10,d:"La chute Cithrel"},{id:111,p:10,d:"Ruins of Regath"},{id:112,p:10,d:"Sables Empyréens"},
+    {id:113,p:10,d:"Scryer's Peak"},{id:114,p:10,d:"Xul, the Blood Monolith"},
+    {id:115,p:10,d:"Xul, the Blood Monolith"},{id:116,p:10,d:"Xul, the Blood Monolith"},{id:117,p:10,d:"Xul, the Blood Monolith"},{id:118,p:10,d:"Xul, the Blood Monolith"},{id:119,p:10,d:"Xul, the Blood Monolith"},{id:120,p:10,d:"Xul, the Blood Monolith"},
+  ];
+  const HF_S3_AFFIXES = [
+    {id:76,p:10},{id:77,p:10},{id:78,p:10},{id:79,p:10},{id:80,p:10},
+    {id:81,p:10},{id:82,p:10},{id:83,p:10},{id:84,p:10},{id:85,p:10},
+    {id:86,p:10},{id:87,p:10},{id:88,p:10},{id:89,p:10},{id:90,p:10},
+    {id:91,p:10},{id:92,p:10},{id:93,p:10},{id:94,p:10},{id:95,p:10},
+    {id:107,p:10},{id:109,p:10},{id:121,p:10},{id:122,p:10},
+  ];
+  const DUNGEONS_S3 = ["Abime des marins","Bois de L'aube","Carrière tombe-dieu","Coeur de guivre","Creux Soyeux","Guet Tempete","Marché d'Urrak","Sables Empyréens","Caveau de Lamespectre","Coeur de Tuzari","La chute Cithrel","Saccage de Drakheim","Ruins of Regath","Scryer's Peak","Xul, the Blood Monolith"];
+
+  // ── CALCUL DES SCORES (même logique que gloire/index.html) ──
+  function computeScores(players, completions, season) {
+    let hfs, dungeons;
+    if (season === 'S2') {
+      hfs = HF_S2; dungeons = DUNGEONS_S2;
+    } else if (season === 'S3') {
+      hfs = [...HF_S3_DUNGEONS, ...HF_S3_AFFIXES]; dungeons = DUNGEONS_S3;
+    } else { // Total
+      hfs = [...HF_S2, ...HF_S3_DUNGEONS, ...HF_S3_AFFIXES];
+      dungeons = [...new Set([...DUNGEONS_S2, ...DUNGEONS_S3])];
+    }
+
+    const hfMap = {};
+    hfs.forEach(h => hfMap[h.id] = h);
+
+    const byPlayer = {};
+    players.forEach(p => byPlayer[p.id] = new Set());
+    completions.forEach(c => { if (byPlayer[c.player_id]) byPlayer[c.player_id].add(c.achievement_id); });
+
+    return players.map(p => {
+      const done = byPlayer[p.id];
+      let base = 0;
+      done.forEach(aid => { if (hfMap[aid]) base += hfMap[aid].p; });
+      // Bonus +5 par donjon entièrement complété
+      let bonus = 0;
+      dungeons.forEach(d => {
+        const dHfs = hfs.filter(h => h.d === d);
+        if (dHfs.length && dHfs.every(h => done.has(h.id))) bonus += 5;
+      });
+      return { id: p.id, name: p.name, total: base + bonus };
+    }).sort((a, b) => b.total - a.total).slice(0, 5);
+  }
+
+  // ── ÉTAT LOCAL ───────────────────────────────────
+  let state = null;
+  let rawPlayers = null;
+  let rawCompletions = null;
+
+  // ── API SUPABASE (REST) ───────────────────────────
+  async function supaFetch(path, opts = {}) {
+    const res = await fetch(SUPABASE_URL + path, {
+      ...opts,
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON,
+        'Content-Type': 'application/json',
+        ...(opts.headers || {}),
+      },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
+  // ── CHARGEMENT INITIAL ───────────────────────────
+  async function loadState() {
+    const [overlayRows, players, completions] = await Promise.all([
+      supaFetch('/rest/v1/overlay_state?id=eq.1&select=*'),
+      supaFetch('/rest/v1/players?select=id,name&order=name'),
+      supaFetch('/rest/v1/player_achievements?select=player_id,achievement_id'),
+    ]);
+    rawPlayers     = players;
+    rawCompletions = completions;
+    state = overlayRows[0] || defaultState();
+    const top5 = computeScores(rawPlayers, rawCompletions, state.season || 'S3');
+    render(state, top5);
+  }
+
+  function defaultState() {
+    return { layout: 'vertical', dungeon: '', hf_data: [], show_leaderboard: true, show_hfs: true, show_pub: false, pub_text: '', season: 'S3' };
+  }
+
+  // ── REALTIME via SDK Supabase JS v2 ──────────────
+  function connectRealtime() {
+    supa
+      .channel('overlay_state_changes')
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'overlay_state', filter: 'id=eq.1' },
+        async (payload) => {
+          const newState = payload.new;
+          if (!newState) return;
+          state = newState;
+          const top5 = computeScores(rawPlayers || [], rawCompletions || [], newState.season || 'S3');
+          render(newState, top5);
+        })
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR') setTimeout(connectRealtime, 3000);
+      });
+  }
+
+
+
+  // ── RENDU ─────────────────────────────────────────
+  function render(s, lbRows) {
+    const isH = s.layout === 'horizontal';
+    const isV = s.layout === 'vertical';
+
+    const hLayout = document.getElementById('layout-horizontal');
+    const vLayout = document.getElementById('layout-vertical');
+    hLayout.classList.toggle('active', isH);
+    vLayout.classList.toggle('active', isV);
+
+    const season = s.season || 'S3';
+    const seasonLabel = season === 'S2' ? 'Pré-Saison 2' : season === 'S3' ? 'Pré-Saison 3' : 'Total';
+
+    // ── Leaderboard ──
+    const lbHtml = lbRows.map((p, i) => {
+      const rank = i + 1;
+      const pts  = p.total || 0;
+      return isH
+        ? `<div class="h-lb-entry">
+            <span class="h-lb-rank ${rank<=3?'r'+rank:''}">${rankStr(rank)}</span>
+            <span class="h-lb-name">${esc(p.name)}</span>
+            <span class="h-lb-pts">${pts} pts</span>
+           </div>${rank < lbRows.length ? '<div class="h-sep"></div>' : ''}`
+        : `<div class="v-lb-entry">
+            <span class="v-lb-rank ${rank<=3?'r'+rank:''}">${rankStr(rank)}</span>
+            <span class="v-lb-name">${esc(p.name)}</span>
+            <span class="v-lb-pts">${pts}</span>
+           </div>`;
+    }).join('');
+
+    if (isH) {
+      toggleSection('h-lb-section',  s.show_leaderboard);
+      toggleSection('h-hf-section',  s.show_hfs);
+      toggleSection('h-pub-section', s.show_pub);
+      document.getElementById('h-lb').innerHTML          = lbHtml || '<span class="empty">Aucun joueur</span>';
+      document.getElementById('h-dungeon-name').textContent = s.dungeon || '.';
+      document.getElementById('h-hfs').innerHTML         = renderHFs(s.hf_data || [], 'h');
+      document.getElementById('h-pub-text').textContent  = s.pub_text || '';
+    }
+
+    if (isV) {
+      toggleSection('v-lb-section',  s.show_leaderboard);
+      toggleSection('v-hf-section',  s.show_hfs);
+      toggleSection('v-pub-section', s.show_pub);
+      document.getElementById('v-season-label').textContent  = seasonLabel;
+      document.getElementById('v-lb').innerHTML              = lbHtml || '<span class="empty">Aucun joueur</span>';
+      document.getElementById('v-dungeon-name').textContent  = s.dungeon || '';
+      document.getElementById('v-hfs').innerHTML             = renderHFs(s.hf_data || [], 'v');
+      document.getElementById('v-pub-text').textContent      = s.pub_text || '';
+    }
+  }
+
+  function renderHFs(hfData, mode) {
+    if (!hfData.length) return '<span class="empty">Aucun haut-fait sélectionné</span>';
+    return hfData.map(hf =>
+      mode === 'h'
+        ? `<div class="h-hf-entry">
+            <div class="h-hf-name">${esc(hf.title)}</div>
+            <div class="h-hf-desc">${esc(hf.desc)}</div>
+           </div>`
+        : `<div class="v-hf-entry">
+            <div class="v-hf-name">${esc(hf.title)}</div>
+            <div class="v-hf-desc">${esc(hf.desc)}</div>
+           </div>`
+    ).join('');
+  }
+
+  function toggleSection(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? '' : 'none';
+  }
+
+  function rankStr(r) {
+    return r === 1 ? '◆' : r === 2 ? '◇' : r === 3 ? '◈' : r + '.';
+  }
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── INIT ─────────────────────────────────────────
+  loadState().catch(console.error);
+  connectRealtime();
+</script>
+</body>
+</html>
