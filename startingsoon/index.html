@@ -499,11 +499,26 @@ function liveBlock(source){
   if (source === 'gloire'){
     const d = S.live.gloire;
     if (!d) return '<div class="line">Le classement arrive.</div>';
-    const lead = d.leaderName
-      ? 'En tête : <em>' + esc(d.leaderName) + '</em> avec <b>' + d.leaderScore + '</b> hauts-faits'
-      : 'Le classement est encore vierge.';
-    return '<div class="line">' + esc(d.seasonLabel) + ' — <b>' + d.players + '</b> joueurs engagés</div>' +
-           '<div class="line">' + lead + '</div>';
+
+    if (d.started){
+      return '<div class="line">' + esc(d.seasonLabel) + ' — <b>' + d.players + '</b> ' +
+               (d.players > 1 ? 'joueurs engagés' : 'joueur engagé') + '</div>' +
+             '<div class="line">En tête : <em>' + esc(d.leaderName) + '</em> avec <b>' +
+               d.leaderScore + '</b> ' + (d.leaderScore > 1 ? 'hauts-faits' : 'haut-fait') + '</div>';
+    }
+
+    // Saison pas encore lancée : on annonce ce qu'il y a à décrocher.
+    const terrain = [];
+    if (d.dungeons) terrain.push('<b>' + d.dungeons + '</b> ' + (d.dungeons > 1 ? 'donjons' : 'donjon'));
+    if (d.affixes)  terrain.push('<b>' + d.affixes + '</b> ' + (d.affixes > 1 ? 'affixes' : 'affixe'));
+
+    const l1 = esc(d.seasonLabel) + ' — <b>' + d.total + '</b> ' +
+               (d.total > 1 ? 'hauts-faits' : 'haut-fait') +
+               (terrain.length ? ' sur ' + terrain.join(' et ') : '');
+    const l2 = '<b>' + d.points + '</b> points à décrocher' +
+               (d.hard ? ', dont <b>' + d.hard + '</b> en difficulté élevée' : '');
+
+    return '<div class="line">' + l1 + '</div><div class="line">' + l2 + '</div>';
   }
   return '';
 }
@@ -608,40 +623,63 @@ async function loadStronghold(){
 /* Données Gloire à la Compagnie.
    La saison vient d'overlay_state.season ('S2' | 'S3' | 'Total'), la même valeur
    que tu règles dans l'onglet Overlay — les hauts-faits des saisons précédentes
-   ne sont donc jamais comptés ici. */
+   ne sont jamais comptés ici.
+
+   Avant le lancement d'une saison, personne n'a encore coché quoi que ce soit :
+   l'encart annonce alors la taille du défi (hauts-faits, donjons, points) plutôt
+   qu'un classement vide. Il bascule tout seul sur la progression dès le premier
+   haut-fait validé. */
 const SEASON_LABELS = { S2: 'Pré-Saison 2', S3: 'Pré-Saison 3', Total: 'Toutes saisons' };
+
+const plural = (n, mot) => n + ' ' + mot + (n > 1 ? 's' : '');
 
 async function loadGloire(){
   const stateRows = await sbFetch('/rest/v1/overlay_state?id=eq.1&select=season').catch(() => []);
   const season = (stateRows && stateRows[0] && stateRows[0].season) || 'S3';
-
-  // 'Total' = pas de filtre ; sinon on ne garde que les HF de la saison en cours.
   const seasonNum = season === 'S2' ? 2 : season === 'S3' ? 3 : null;
+
+  // 'Total' = pas de filtre de saison
   const achFilter = seasonNum ? '&season=eq.' + seasonNum : '';
+  const achievements = await sbFetch(
+    '/rest/v1/achievements?select=id,dungeon,affix,points,is_hard,coming_soon' + achFilter);
 
-  const [players, achievements, completions] = await Promise.all([
-    sbFetch('/rest/v1/players?select=id,name'),
-    sbFetch('/rest/v1/achievements?select=id' + achFilter),
-    sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id')
-  ]);
+  // Les hauts-faits marqués coming_soon ne sont pas encore décrochables.
+  const open = achievements.filter(a => !a.coming_soon);
+  const ids  = open.map(a => a.id);
 
-  const inSeason = new Set(achievements.map(a => a.id));
+  const dungeons = new Set(open.map(a => a.dungeon).filter(Boolean));
+  const affixes  = new Set(open.map(a => a.affix).filter(Boolean));
+  const points   = open.reduce((n, a) => n + (a.points || 0), 0);
+  const hard     = open.filter(a => a.is_hard).length;
 
-  const counts = new Map();
-  for (const c of completions){
-    if (!inSeason.has(c.achievement_id)) continue;
-    counts.set(c.player_id, (counts.get(c.player_id) || 0) + 1);
+  // Progression : on ne demande que les validations de cette saison.
+  let completions = [];
+  if (ids.length){
+    completions = await sbFetch(
+      '/rest/v1/player_achievements?select=player_id,achievement_id' +
+      '&achievement_id=in.(' + ids.join(',') + ')').catch(() => []);
   }
 
-  let leader = null, best = 0;
-  for (const [pid, n] of counts) if (n > best){ best = n; leader = pid; }
-  const nameById = new Map(players.map(p => [p.id, p.name]));
+  const counts = new Map();
+  for (const c of completions) counts.set(c.player_id, (counts.get(c.player_id) || 0) + 1);
+
+  let leaderName = null, leaderScore = 0;
+  if (counts.size){
+    let leader = null;
+    for (const [pid, n] of counts) if (n > leaderScore){ leaderScore = n; leader = pid; }
+    const players = await sbFetch('/rest/v1/players?select=id,name').catch(() => []);
+    leaderName = new Map(players.map(p => [p.id, p.name])).get(leader) || null;
+  }
 
   return {
     seasonLabel: SEASON_LABELS[season] || season,
-    players: counts.size,          // joueurs ayant au moins un HF cette saison
-    leaderName: leader ? (nameById.get(leader) || null) : null,
-    leaderScore: best
+    total: open.length,
+    dungeons: dungeons.size,
+    affixes: affixes.size,
+    points, hard,
+    started: counts.size > 0,
+    players: counts.size,
+    leaderName, leaderScore
   };
 }
 
