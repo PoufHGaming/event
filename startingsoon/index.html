@@ -16,7 +16,7 @@
   --border:    #8A7340;
   --ember:     #C9662A;
   --label:     #C7AA63;
-  --pill-live: #7DDF7E;   /* couleur du site */
+  --pill-live: #74B978;   /* #7ddf7e du site, désaturé pour l'écran sombre */
   --pill-soon: #5FC2B8;   /* #5dc4c4 du site, réchauffé pour cohabiter avec l'or */
   --muted:     rgba(232,227,216,.72);
 }
@@ -502,7 +502,7 @@ function liveBlock(source){
     const lead = d.leaderName
       ? 'En tête : <em>' + esc(d.leaderName) + '</em> avec <b>' + d.leaderScore + '</b> hauts-faits'
       : 'Le classement est encore vierge.';
-    return '<div class="line"><b>' + d.players + '</b> joueurs engagés cette pré-saison</div>' +
+    return '<div class="line">' + esc(d.seasonLabel) + ' — <b>' + d.players + '</b> joueurs engagés</div>' +
            '<div class="line">' + lead + '</div>';
   }
   return '';
@@ -605,22 +605,41 @@ async function loadStronghold(){
   };
 }
 
-/* Données Gloire à la Compagnie. */
+/* Données Gloire à la Compagnie.
+   La saison vient d'overlay_state.season ('S2' | 'S3' | 'Total'), la même valeur
+   que tu règles dans l'onglet Overlay — les hauts-faits des saisons précédentes
+   ne sont donc jamais comptés ici. */
+const SEASON_LABELS = { S2: 'Pré-Saison 2', S3: 'Pré-Saison 3', Total: 'Toutes saisons' };
+
 async function loadGloire(){
-  const [players, achievements] = await Promise.all([
+  const stateRows = await sbFetch('/rest/v1/overlay_state?id=eq.1&select=season').catch(() => []);
+  const season = (stateRows && stateRows[0] && stateRows[0].season) || 'S3';
+
+  // 'Total' = pas de filtre ; sinon on ne garde que les HF de la saison en cours.
+  const seasonNum = season === 'S2' ? 2 : season === 'S3' ? 3 : null;
+  const achFilter = seasonNum ? '&season=eq.' + seasonNum : '';
+
+  const [players, achievements, completions] = await Promise.all([
     sbFetch('/rest/v1/players?select=id,name'),
-    sbFetch('/rest/v1/player_achievements?select=player_id')
+    sbFetch('/rest/v1/achievements?select=id' + achFilter),
+    sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id')
   ]);
 
+  const inSeason = new Set(achievements.map(a => a.id));
+
   const counts = new Map();
-  for (const a of achievements) counts.set(a.player_id, (counts.get(a.player_id) || 0) + 1);
+  for (const c of completions){
+    if (!inSeason.has(c.achievement_id)) continue;
+    counts.set(c.player_id, (counts.get(c.player_id) || 0) + 1);
+  }
 
   let leader = null, best = 0;
-  for (const [pid, n] of counts){ if (n > best){ best = n; leader = pid; } }
+  for (const [pid, n] of counts) if (n > best){ best = n; leader = pid; }
   const nameById = new Map(players.map(p => [p.id, p.name]));
 
   return {
-    players: players.length,
+    seasonLabel: SEASON_LABELS[season] || season,
+    players: counts.size,          // joueurs ayant au moins un HF cette saison
     leaderName: leader ? (nameById.get(leader) || null) : null,
     leaderScore: best
   };
