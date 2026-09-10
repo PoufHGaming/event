@@ -784,225 +784,113 @@
     /* PLAYER DETAIL IN LEADERBOARD */
     .lb-detail {
       display: none;
-      padding: 12px 8px 20px 8px;
+      padding: 16px 16px 20px 56px;
       grid-column: 1 / -1;
     }
 
-    .lb-row.open .lb-detail { display: block; }
-    .lb-row { cursor: pointer; }
-
-    .lb-row .player-name::after {
-      content: ' \25B8'; font-size: 10px; color: var(--text-dim); opacity: 0.5;
-    }
-    .lb-row.open .player-name::after { content: ' \25BE'; }
-
-    /* ── Sections par donjon ── */
-    .ach-section { margin-bottom: 20px; }
-
-    .ach-section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 5px 8px;
-      margin-bottom: 5px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .ach-section-name {
-      font-family: 'Cinzel', serif;
-      font-size: 15px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      font-weight: bold;
-      color: var(--gold-dim);
-    }
-
-    .ach-section-count {
-      font-family: 'Cinzel', serif;
-      font-size: 11px;
-      color: var(--text-muted);
-      font-style: italic;
-    }
-    .ach-section-count.complete { color: var(--teal); }
-
-    /* ── Ligne HF ── */
-    .ach-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 12px 8px 8px;
-      border-radius: 4px;
-      border-left: 3px solid var(--border);
-      margin-bottom: 4px;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-      background: var(--bg2);
-    }
-
-    .ach-row:hover { background: rgba(201,168,76,0.04); }
-
-    .ach-row.done {
-      border-left-color: var(--teal);
-      background: rgba(76,168,168,0.05);
-    }
-    .ach-row.done:hover { background: rgba(76,168,168,0.09); }
-
-    .ach-row.undone { border-left-color: rgba(255,255,255,0.08); }
-
-    /* Icône carré image du donjon */
-    .ach-row-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      overflow: hidden;
-      border: 2px solid var(--border);
-      position: relative;
-      background: var(--bg3);
-    }
-
-    .ach-row-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.55;
+    .lb-row.open .lb-detail {
       display: block;
     }
 
-    .ach-row.done .ach-row-icon img { opacity: 0.9; }
-
-    /* Coche ✓ en overlay sur l'icône */
-    .ach-row-icon-check {
-      display: none;
-      position: absolute;
-      inset: 0;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--teal);
-      background: rgba(0,0,0,0.45);
+    .lb-row {
+      cursor: pointer;
     }
 
-    .ach-row.done .ach-row-icon-check { display: flex; }
-
-    /* Corps texte */
-    .ach-row-body {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .ach-row-title {
-      font-family: 'Cinzel', serif;
-      font-size: 13px;
-      letter-spacing: 0.03em;
+    .lb-row .player-name::after {
+      content: ' \25B8';
+      font-size: 10px;
       color: var(--text-dim);
-      line-height: 1.3;
-      margin-bottom: 2px;
+      opacity: 0.5;
     }
 
-    .ach-row.done .ach-row-title { color: var(--text); }
-    .ach-row.undone .ach-row-title { color: #8a7a6a; }
-
-    .ach-row-desc {
-      font-size: 14px;
-      color: #bdaea0;
-      font-style: italic;
-      line-height: 1.45;
+    .lb-row.open .player-name::after {
+      content: ' \25BE';
     }
 
-    /* Description étendue au clic */
-    .ach-row-desc-full {
-      display: none;
-      font-size: 14px;
-      color: #bdaea0;
-      font-style: italic;
-      line-height: 1.55;
-      margin-top: 6px;
-      padding-top: 6px;
-      border-top: 1px solid var(--border);
+    .dungeon-section {
+      margin-bottom: 16px;
     }
 
-    .ach-row.expanded .ach-row-desc { display: none; }
-    .ach-row.expanded .ach-row-desc-full { display: block; }
-
-    /* Conditions */
-    .ach-row-conds {
+    .dp-header {
       display: flex;
-      gap: 4px;
-      flex-shrink: 0;
+      justify-content: space-between;
       align-items: center;
+      font-size: 11px;
+      margin-bottom: 0;
+      padding: 6px 4px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+      border-radius: 3px;
     }
 
-    .ach-row-conds img {
-      width: 20px;
-      height: 20px;
-      object-fit: contain;
-      opacity: 0.9;
+    .dp-header:hover {
+      background: rgba(201, 168, 76, 0.04);
     }
 
-    /* Badges solo/hard/log */
-    .ach-row-badges {
+    .dp-header-left {
       display: flex;
-      gap: 3px;
-      flex-shrink: 0;
       align-items: center;
+      gap: 6px;
     }
 
-    .ach-row-badges img {
-      width: 16px;
-      height: 16px;
-      object-fit: contain;
-      opacity: 0.75;
-    }
-
-    /* Points */
-    .ach-row-pts {
-      font-family: 'Cinzel', serif;
-      font-size: 12px;
+    .dp-chevron {
       color: var(--text-muted);
-      flex-shrink: 0;
-      white-space: nowrap;
-      min-width: 52px;
-      text-align: right;
+      font-size: 9px;
+      transition: transform 0.2s;
+      display: inline-block;
     }
 
-    .ach-row.done .ach-row-pts { color: var(--teal); }
+    .dungeon-section.open .dp-chevron {
+      transform: rotate(90deg);
+    }
 
-    /* Season badge */
+    .dp-name {
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .dp-count {
+      color: var(--gold-dim);
+    }
+
+    .dp-count.complete {
+      color: var(--teal);
+    }
+
+    .hf-list {
+      display: none;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 8px;
+    }
+
+    .dungeon-section.open .hf-list {
+      display: flex;
+    }
+
     .season-badge {
       font-family: 'Cinzel', serif;
-      font-size: 8px;
+      font-size: 9px;
       letter-spacing: 0.06em;
-      padding: 1px 5px;
+      padding: 1px 6px;
       border-radius: 999px;
       border: 1px solid var(--border);
       color: var(--text-muted);
       flex-shrink: 0;
     }
-    .season-badge.s2 { color: var(--text-muted); border-color: var(--border); }
-    .season-badge.s3 { color: #7ddf7d; border-color: rgba(125,223,125,0.35); }
 
-    /* Affixes groupe */
-    .ach-affix-group { margin-bottom: 14px; }
-
-    .ach-affix-label {
-      font-size: 15px;
-      font-weight: bold;
-      font-style: italic;
-      font-weight: 600;
-      margin-bottom: 5px;
-      padding: 4px 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      border-bottom: 1px solid var(--border);
+    .season-badge.s2 {
+      color: var(--text-muted);
+      border-color: var(--border);
     }
 
-    .ach-affix-label img {
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      object-fit: cover;
+    .season-badge.s3 {
+      color: #7ddf7d;
+      border-color: rgba(125, 223, 125, 0.35);
     }
 
     .lb-detail-toolbar {
@@ -1025,18 +913,66 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .lb-detail-toolbar button:hover { color: var(--text); border-color: var(--border-bright); }
 
-    /* Compat */
-    .hf-item { display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:3px;font-size:13px; }
-    .hf-item.done { background:rgba(76,168,168,0.07); }
-    .hf-check-icon { width:16px;height:16px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px; }
-    .hf-item.done .hf-check-icon { border-color:var(--teal);background:rgba(76,168,168,0.2);color:var(--teal); }
-    .hf-item-name { flex:1;color:var(--text-dim); }
-    .hf-item.done .hf-item-name { color:var(--text); }
-    .hf-item-pts { font-size:11px;color:var(--text-dim); }
-    .hf-item.done .hf-item-pts { color:var(--teal); }
-    .hf-item-badges { display:flex;gap:2px;align-items:center; }
+    .lb-detail-toolbar button:hover {
+      color: var(--text);
+      border-color: var(--border-bright);
+    }
+
+    .hf-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 8px;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+
+    .hf-item.done {
+      background: rgba(76, 168, 168, 0.07);
+    }
+
+    .hf-check-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .hf-item.done .hf-check-icon {
+      border-color: var(--teal);
+      background: rgba(76, 168, 168, 0.2);
+      color: var(--teal);
+    }
+
+    .hf-item-name {
+      flex: 1;
+      color: var(--text-dim);
+    }
+
+    .hf-item.done .hf-item-name {
+      color: var(--text);
+    }
+
+    .hf-item-pts {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .hf-item.done .hf-item-pts {
+      color: var(--teal);
+    }
+
+    .hf-item-badges {
+      display: flex;
+      gap: 2px;
+      align-items: center;
+    }
 
     /* ACHIEVEMENTS PAGE */
     .dungeon-block {
@@ -2956,109 +2892,67 @@
           ? `<span class="season-badge ${a._season.toLowerCase()}">${a._season}</span>` : '';
 
         const detailId = `lb-detail-${s.id}`;
-
-        // Couleurs thématiques par donjon
-        const DUNGEON_COLORS = {
-          "Abime des marins":       "#3a7a9c",
-          "Bois de L'aube":         "#5a8a3a",
-          "Carrière tombe-dieu":    "#7a5a3a",
-          "Caveau de Lamespectre":  "#4a5a8a",
-          "Coeur de guivre":        "#6a9aaa",
-          "Coeur de Tuzari":        "#7a4a2a",
-          "Creux Soyeux":           "#8a6a3a",
-          "Guet Tempete":           "#6a6aaa",
-          "La chute Cithrel":       "#9a5a4a",
-          "Marché d'Urrak":         "#8a7a3a",
-          "Sables Empyréens":       "#c9a84c",
-          "Saccage de Drakheim":    "#5a3a8a",
-          "Ruins of Regath":        "#8a3a3a",
-          "Scryer's Peak":          "#4a7aaa",
-          "Xul, the Blood Monolith":"#9a3a5a",
-        };
-
-        // ── Helper : génère une ligne HF ──
-        const achRow = (a, imgPath, dungeonKey) => {
-          const done  = s.done.has(a.id);
-          const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
-          const desc  = (currentLang === 'en' && a.desc_en)  ? a.desc_en  : a.desc;
-          const sbHtml = seasonBadgeHtml(a);
-          const color  = dungeonKey ? (DUNGEON_COLORS[dungeonKey] || 'var(--border)') : 'var(--border)';
-
-          // Icône carré image donjon
-          const iconHtml = `<div class="ach-row-icon" style="border-color:${color}${done ? '' : '55'}">
-            ${imgPath ? `<img src="${imgPath}" alt="">` : ''}
-            <div class="ach-row-icon-check">✓</div>
-          </div>`;
-
-          // Conditions
-          const condsHtml = (a.conditions || []).length
-            ? `<div class="ach-row-conds">${(a.conditions||[]).map(c =>
-                `<img src="images/conditions/${c}.png" alt="${c}" title="${t('cond.'+c)}">`
-              ).join('')}</div>`
-            : '';
-
-          // Badges solo/hard/log
-          let badgesHtml = '';
-          if (a.hard)        badgesHtml += `<img src="images/badges/hard.png" title="${t('badge.hard')}">`;
-          if (a.personal)    badgesHtml += `<img src="images/badges/solo.png" title="${t('badge.solo')}">`;
-          if (a.logRequired) badgesHtml += `<img src="images/conditions/log.png" title="${t('badge.log')}">`;
-          if (badgesHtml)    badgesHtml  = `<div class="ach-row-badges">${badgesHtml}</div>`;
-
-          return `<div class="ach-row ${done ? 'done' : 'undone'}" style="border-left-color:${done ? color : color+'44'}" onclick="event.stopPropagation(); this.classList.toggle('expanded')">
-            ${iconHtml}
-            <div class="ach-row-body">
-              <div class="ach-row-title">${title}${sbHtml ? ' ' + sbHtml : ''}</div>
-              <div class="ach-row-desc">${desc}</div>
-              <div class="ach-row-desc-full">${desc}</div>
-            </div>
-            ${condsHtml}
-            ${badgesHtml}
-            <div class="ach-row-pts">${done ? '+' : ''}${a.points} pts</div>
-          </div>`;
-        };
-
-        let detailHtml = `<div class="lb-detail" id="${detailId}">`;
-
-        // ── Donjons ──
+        let detailHtml = `<div class="lb-detail" id="${detailId}">
+      <div class="lb-detail-toolbar">
+        <button onclick="event.stopPropagation(); toggleAllDungeonSections('${detailId}', true)">${t('lb.detail.expand_all')}</button>
+        <button onclick="event.stopPropagation(); toggleAllDungeonSections('${detailId}', false)">${t('lb.detail.collapse_all')}</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">`;
         seasonDungeonsOrder.forEach(d => {
-          const dHFs    = seasonAchievements.filter(a => a.dungeon === d);
-          if (!dHFs.length) return;
-          const dDone   = dHFs.filter(a => s.done.has(a.id)).length;
+          const dHFs = seasonAchievements.filter(a => a.dungeon === d);
+          if (!dHFs.length) return; // donjon sans HF dans cette saison (ex: nouveaux donjons S3 absents de S2)
+          const dDone = dHFs.filter(a => s.done.has(a.id)).length;
           const complete = dDone === dHFs.length;
-          const imgPath  = DUNGEON_IMAGES[d] || '';
-          const color    = DUNGEON_COLORS[d]  || 'var(--gold-dim)';
-          detailHtml += `<div class="ach-section">
-            <div class="ach-section-header" style="border-bottom-color:${color}44">
-              <span class="ach-section-name" style="color:${color}">${t(d)}</span>
-              <span class="ach-section-count ${complete ? 'complete' : ''}">${dDone}/${dHFs.length}${complete ? ' · +5 pts ✓' : ''}</span>
-            </div>`;
-          dHFs.forEach(a => { detailHtml += achRow(a, imgPath, d); });
-          detailHtml += `</div>`;
+          detailHtml += `<div class="dungeon-section">
+        <div class="dp-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+          <span class="dp-header-left"><span class="dp-chevron">▸</span><span class="dp-name">${t(d)}</span></span>
+          <span class="dp-count ${complete ? 'complete' : ''}">${dDone}/${dHFs.length}${complete ? ' · +5pts' : ''}</span>
+        </div>
+        <div class="hf-list">`;
+          dHFs.forEach(a => {
+            const done = s.done.has(a.id);
+            const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
+            detailHtml += `<div class="hf-item ${done ? 'done' : ''}">
+          <div class="hf-check-icon">${done ? '✓' : ''}</div>
+          ${seasonBadgeHtml(a)}
+          <span class="hf-item-name">${title}</span>
+          <div class="hf-item-badges">${renderBadges(a)}</div>
+          <span class="hf-item-pts">${done ? '+' + a.points : a.points} pts</span>
+        </div>`;
+          });
+          detailHtml += '</div></div>';
         });
+        detailHtml += '</div>';
 
-        // ── Affixes ──
+        // Section Affixes (catégorie à part, pas de bonus +5)
         if (seasonAffixes.length) {
-          detailHtml += `<div class="ach-section">
-            <div class="ach-section-header">
-              <span class="ach-section-name">${t('affixes.section')}</span>
-            </div>`;
+          detailHtml += `<div class="dungeon-section" style="margin-top:14px">
+        <div class="dp-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+          <span class="dp-header-left"><span class="dp-chevron">▸</span><span class="dp-name">${t('affixes.section')}</span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 28px">`;
           seasonAffixesOrder.forEach(aff => {
             const affHFs = seasonAffixes.filter(a => a.affix === aff);
             if (!affHFs.length) return;
-            const meta    = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--text-dim)', icon: '' };
-            const affName = affixDisplayName(meta);
-            detailHtml += `<div class="ach-affix-group">
-              <div class="ach-affix-label" style="color:${meta.color};border-bottom-color:${meta.color}44">
-                <img src="${meta.icon}" alt="${affName}" onerror="this.style.display='none'">
-                ${affName}
-              </div>`;
-            affHFs.forEach(a => { detailHtml += achRow(a, meta.icon, null); });
-            detailHtml += `</div>`;
+            const meta = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--text-dim)' };
+            detailHtml += `<div class="hf-list" style="margin-bottom:10px">
+          <div style="font-size:12px;color:${meta.color};margin-bottom:4px;font-style:italic;font-weight:600">${affixDisplayName(meta)}</div>`;
+            affHFs.forEach(a => {
+              const done = s.done.has(a.id);
+              const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
+              detailHtml += `<div class="hf-item ${done ? 'done' : ''}">
+          <div class="hf-check-icon">${done ? '✓' : ''}</div>
+          ${seasonBadgeHtml(a)}
+          <span class="hf-item-name">${title}</span>
+          <div class="hf-item-badges">${renderBadges(a)}</div>
+          <span class="hf-item-pts">${done ? '+' + a.points : a.points} pts</span>
+        </div>`;
+            });
+            detailHtml += '</div>';
           });
-          detailHtml += `</div>`;
+          detailHtml += '</div></div>';
         }
-
-        detailHtml += `</div>`;
+        detailHtml += '</div>';
 
         html += `<div class="lb-row ${rankClass}${noBonusClass}" onclick="this.classList.toggle('open')">
       <div class="rank-num">${rankLabel}</div>
