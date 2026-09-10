@@ -784,7 +784,7 @@
     /* PLAYER DETAIL IN LEADERBOARD */
     .lb-detail {
       display: none;
-      padding: 16px 16px 20px 16px;
+      padding: 12px 8px 20px 8px;
       grid-column: 1 / -1;
     }
 
@@ -807,20 +807,18 @@
       content: ' \25BE';
     }
 
-    /* ── WoW-style achievement cards ── */
-    .ach-section {
-      margin-bottom: 20px;
-    }
+    /* ── Sections par donjon ── */
+    .ach-section { margin-bottom: 18px; }
 
     .ach-section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 10px;
-      margin-bottom: 8px;
+      padding: 6px 10px;
+      margin-bottom: 6px;
       border-bottom: 1px solid var(--border);
       background: rgba(201,168,76,0.04);
-      border-radius: 3px;
+      border-radius: 3px 3px 0 0;
     }
 
     .ach-section-name {
@@ -837,166 +835,164 @@
       color: var(--text-muted);
     }
 
-    .ach-section-count.complete {
-      color: var(--teal);
-    }
+    .ach-section-count.complete { color: var(--teal); }
 
-    .ach-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 6px;
-    }
-
-    /* Carte individuelle HF */
-    .ach-card {
-      position: relative;
+    /* ── Ligne HF ── */
+    .ach-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 10px;
-      border-radius: 5px;
-      border: 1px solid var(--border);
+      padding: 7px 10px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      margin-bottom: 3px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
       background: var(--bg2);
+      border-color: var(--border);
+      position: relative;
       overflow: hidden;
-      min-height: 52px;
-      transition: border-color 0.2s;
     }
 
-    .ach-card:hover { border-color: var(--border-bright); }
-
-    /* Fond image donjon très sombre */
-    .ach-card-bg {
+    /* Fond image donjon très subtil */
+    .ach-row-bg {
       position: absolute;
       inset: 0;
       background-size: cover;
       background-position: center;
-      opacity: 0;
-      transition: opacity 0.2s;
+      opacity: 0.12;
+      pointer-events: none;
     }
 
-    /* État complété : fond légèrement visible, bordure or/teal */
-    .ach-card.done {
-      border-color: rgba(76, 168, 168, 0.35);
-      background: rgba(76, 168, 168, 0.06);
+    .ach-row.done {
+      border-color: rgba(76,168,168,0.3);
+      background: rgba(76,168,168,0.05);
     }
 
-    .ach-card.done .ach-card-bg {
-      opacity: 0.18;
-    }
+    .ach-row.done .ach-row-bg { opacity: 0.18; }
 
-    /* État non complété : grisé */
-    .ach-card.undone {
-      opacity: 0.45;
-      filter: grayscale(0.4);
-    }
+    .ach-row.undone { opacity: 0.6; }
+    .ach-row.undone:hover { opacity: 1; }
+    .ach-row:hover { border-color: var(--border-bright); background: rgba(201,168,76,0.04); }
+    .ach-row.done:hover { border-color: rgba(76,168,168,0.5); }
 
-    /* Icône de statut */
-    .ach-card-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 4px;
+    /* Icône statut */
+    .ach-row-status {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      background: var(--bg3);
       position: relative;
       z-index: 1;
-      border: 1px solid var(--border);
-      background: var(--bg3);
-      overflow: hidden;
     }
 
-    .ach-card.done .ach-card-icon {
-      border-color: rgba(76,168,168,0.5);
-      background: rgba(76,168,168,0.15);
-    }
-
-    .ach-card-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.7;
-    }
-
-    .ach-card.done .ach-card-icon img {
-      opacity: 1;
-    }
-
-    .ach-card-icon .ach-check {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
+    .ach-row.done .ach-row-status {
+      border-color: var(--teal);
+      background: rgba(76,168,168,0.2);
       color: var(--teal);
-      background: rgba(76,168,168,0.25);
-      font-weight: 700;
     }
 
-    .ach-card-body {
+    /* Corps texte */
+    .ach-row-body {
       flex: 1;
       min-width: 0;
       position: relative;
       z-index: 1;
     }
 
-    .ach-card-title {
+    .ach-row-title {
       font-family: 'Cinzel', serif;
-      font-size: 11px;
-      letter-spacing: 0.04em;
+      font-size: 12px;
+      letter-spacing: 0.03em;
       color: var(--text-dim);
       line-height: 1.3;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    .ach-card.done .ach-card-title {
-      color: var(--text);
-    }
+    .ach-row.done .ach-row-title { color: var(--text); }
 
-    .ach-card-desc {
-      font-size: 11px;
+    .ach-row-desc {
+      font-size: 12px;
       color: var(--text-muted);
       font-style: italic;
-      line-height: 1.35;
+      line-height: 1.4;
       margin-top: 2px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
 
-    .ach-card-pts {
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      color: var(--text-muted);
+    .ach-row.done .ach-row-desc { color: var(--text-dim); }
+
+    /* Description étendue (clic) */
+    .ach-row-desc-full {
+      display: none;
+      font-size: 13px;
+      color: var(--text-dim);
+      font-style: italic;
+      line-height: 1.55;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    .ach-row.expanded .ach-row-desc { display: none; }
+    .ach-row.expanded .ach-row-desc-full { display: block; }
+
+    /* Conditions (badges interdits) */
+    .ach-row-conds {
+      display: flex;
+      gap: 3px;
       flex-shrink: 0;
+      align-items: center;
       position: relative;
       z-index: 1;
+    }
+
+    .ach-row-conds img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      opacity: 0.85;
+    }
+
+    /* Badges solo/hard/log */
+    .ach-row-badges {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ach-row-badges img {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+      opacity: 0.75;
+    }
+
+    /* Points */
+    .ach-row-pts {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-shrink: 0;
       white-space: nowrap;
+      position: relative;
+      z-index: 1;
+      min-width: 48px;
+      text-align: right;
     }
 
-    .ach-card.done .ach-card-pts {
-      color: var(--teal);
-    }
+    .ach-row.done .ach-row-pts { color: var(--teal); }
 
-    /* Affixes section */
-    .ach-affix-group {
-      margin-bottom: 12px;
-    }
-
-    .ach-affix-label {
-      font-size: 10px;
-      font-style: italic;
-      font-weight: 600;
-      margin-bottom: 5px;
-      padding-left: 2px;
-    }
-
-    /* Season badge compact */
+    /* Season badge */
     .season-badge {
       font-family: 'Cinzel', serif;
       font-size: 8px;
@@ -1013,11 +1009,31 @@
     .season-badge.s2 { color: var(--text-muted); border-color: var(--border); }
     .season-badge.s3 { color: #7ddf7d; border-color: rgba(125,223,125,0.35); }
 
+    /* Affixes groupe */
+    .ach-affix-group { margin-bottom: 12px; }
+
+    .ach-affix-label {
+      font-size: 11px;
+      font-style: italic;
+      font-weight: 600;
+      margin-bottom: 4px;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ach-affix-label img {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
     .lb-detail-toolbar {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .lb-detail-toolbar button {
@@ -1039,16 +1055,16 @@
       border-color: var(--border-bright);
     }
 
-    /* Garder hf-item pour compatibilité mobile */
-    .hf-item { display: flex; align-items: center; gap: 10px; padding: 5px 8px; border-radius: 3px; font-size: 13px; }
-    .hf-item.done { background: rgba(76,168,168,0.07); }
-    .hf-check-icon { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; }
-    .hf-item.done .hf-check-icon { border-color: var(--teal); background: rgba(76,168,168,0.2); color: var(--teal); }
-    .hf-item-name { flex: 1; color: var(--text-dim); }
-    .hf-item.done .hf-item-name { color: var(--text); }
-    .hf-item-pts { font-size: 11px; color: var(--text-dim); }
-    .hf-item.done .hf-item-pts { color: var(--teal); }
-    .hf-item-badges { display: flex; gap: 2px; align-items: center; }
+    /* Compat mobile */
+    .hf-item { display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:3px;font-size:13px; }
+    .hf-item.done { background:rgba(76,168,168,0.07); }
+    .hf-check-icon { width:16px;height:16px;border-radius:50%;border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px; }
+    .hf-item.done .hf-check-icon { border-color:var(--teal);background:rgba(76,168,168,0.2);color:var(--teal); }
+    .hf-item-name { flex:1;color:var(--text-dim); }
+    .hf-item.done .hf-item-name { color:var(--text); }
+    .hf-item-pts { font-size:11px;color:var(--text-dim); }
+    .hf-item.done .hf-item-pts { color:var(--teal); }
+    .hf-item-badges { display:flex;gap:2px;align-items:center; }
 
     /* ACHIEVEMENTS PAGE */
     .dungeon-block {
@@ -2969,24 +2985,39 @@
 
         const detailId = `lb-detail-${s.id}`;
 
-        // ── Helper : génère une carte WoW-style pour un HF ──
-        const achCard = (a, imgPath) => {
-          const done = s.done.has(a.id);
+        // ── Helper : génère une ligne HF ──
+        const achRow = (a, imgPath) => {
+          const done  = s.done.has(a.id);
           const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
           const desc  = (currentLang === 'en' && a.desc_en)  ? a.desc_en  : a.desc;
           const bgStyle = imgPath ? `background-image:url('${imgPath}');` : '';
-          const sbHtml = seasonBadgeHtml(a);
-          return `<div class="ach-card ${done ? 'done' : 'undone'}" onclick="event.stopPropagation()">
-            <div class="ach-card-bg" style="${bgStyle}"></div>
-            <div class="ach-card-icon">
-              ${imgPath ? `<img src="${imgPath}" alt="">` : ''}
-              ${done ? '<span class="ach-check">✓</span>' : ''}
+          const sbHtml  = seasonBadgeHtml(a);
+
+          // Conditions (forbidden icons)
+          const condsHtml = (a.conditions || []).length
+            ? `<div class="ach-row-conds">${(a.conditions||[]).map(c =>
+                `<img src="images/conditions/${c}.png" alt="${c}" title="${t('cond.'+c)}">`
+              ).join('')}</div>`
+            : '';
+
+          // Badges solo/hard/log
+          let badgesHtml = '';
+          if (a.hard)        badgesHtml += `<img src="images/badges/hard.png" title="${t('badge.hard')}">`;
+          if (a.personal)    badgesHtml += `<img src="images/badges/solo.png" title="${t('badge.solo')}">`;
+          if (a.logRequired) badgesHtml += `<img src="images/conditions/log.png" title="${t('badge.log')}">`;
+          if (badgesHtml)    badgesHtml  = `<div class="ach-row-badges">${badgesHtml}</div>`;
+
+          return `<div class="ach-row ${done ? 'done' : 'undone'}" onclick="event.stopPropagation(); this.classList.toggle('expanded')">
+            <div class="ach-row-bg" style="${bgStyle}"></div>
+            <div class="ach-row-status">${done ? '✓' : ''}</div>
+            <div class="ach-row-body">
+              <div class="ach-row-title">${title}${sbHtml ? ' ' + sbHtml : ''}</div>
+              <div class="ach-row-desc">${desc}</div>
+              <div class="ach-row-desc-full">${desc}</div>
             </div>
-            <div class="ach-card-body">
-              <div class="ach-card-title">${title}${sbHtml ? ' ' + sbHtml : ''}</div>
-              <div class="ach-card-desc">${desc}</div>
-            </div>
-            <div class="ach-card-pts">${done ? '+' : ''}${a.points} pts</div>
+            ${condsHtml}
+            ${badgesHtml}
+            <div class="ach-row-pts">${done ? '+' : ''}${a.points} pts</div>
           </div>`;
         };
 
@@ -2994,19 +3025,18 @@
 
         // ── Donjons ──
         seasonDungeonsOrder.forEach(d => {
-          const dHFs = seasonAchievements.filter(a => a.dungeon === d);
+          const dHFs    = seasonAchievements.filter(a => a.dungeon === d);
           if (!dHFs.length) return;
-          const dDone  = dHFs.filter(a => s.done.has(a.id)).length;
+          const dDone   = dHFs.filter(a => s.done.has(a.id)).length;
           const complete = dDone === dHFs.length;
           const imgPath  = DUNGEON_IMAGES[d] || '';
           detailHtml += `<div class="ach-section">
             <div class="ach-section-header">
               <span class="ach-section-name">${t(d)}</span>
               <span class="ach-section-count ${complete ? 'complete' : ''}">${dDone}/${dHFs.length}${complete ? ' · +5 pts ✓' : ''}</span>
-            </div>
-            <div class="ach-grid">`;
-          dHFs.forEach(a => { detailHtml += achCard(a, imgPath); });
-          detailHtml += `</div></div>`;
+            </div>`;
+          dHFs.forEach(a => { detailHtml += achRow(a, imgPath); });
+          detailHtml += `</div>`;
         });
 
         // ── Affixes ──
@@ -3018,16 +3048,15 @@
           seasonAffixesOrder.forEach(aff => {
             const affHFs = seasonAffixes.filter(a => a.affix === aff);
             if (!affHFs.length) return;
-            const meta = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--text-dim)', icon: '' };
+            const meta   = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--text-dim)', icon: '' };
             const affName = affixDisplayName(meta);
             detailHtml += `<div class="ach-affix-group">
               <div class="ach-affix-label" style="color:${meta.color}">
-                <img src="${meta.icon}" alt="${affName}" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:5px;object-fit:cover;" onerror="this.style.display='none'">
+                <img src="${meta.icon}" alt="${affName}" onerror="this.style.display='none'">
                 ${affName}
-              </div>
-              <div class="ach-grid">`;
-            affHFs.forEach(a => { detailHtml += achCard(a, meta.icon); });
-            detailHtml += `</div></div>`;
+              </div>`;
+            affHFs.forEach(a => { detailHtml += achRow(a, meta.icon); });
+            detailHtml += `</div>`;
           });
           detailHtml += `</div>`;
         }
