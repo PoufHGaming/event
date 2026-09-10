@@ -3316,7 +3316,7 @@
 
         const hfResult = data.results?.[hfId];
         if (hfResult === true) {
-          const playersStr = data.players_found.join(', ');
+          const playersStr = [...new Set(data.players_found)].join(', ');
           showLogResult(hfId, 'ok', currentLang === 'en'
             ? `✓ Validated for ${playersStr}!`
             : `✓ Validé pour ${playersStr} !`);
@@ -3858,7 +3858,8 @@
         }
 
         // Joueurs détectés
-        let html = `<div class="verify-players-found">${t('verify.players')}<strong>${data.players_found.join(', ')}</strong></div>`;
+        const uniquePlayers = [...new Set(data.players_found)];
+        let html = `<div class="verify-players-found">${t('verify.players')}<strong>${uniquePlayers.join(', ')}</strong></div>`;
 
         // Résultats par HF
         const hfResults = data.results || {};
