@@ -3032,7 +3032,12 @@
           const color  = dungeonKey ? (DUNGEON_COLORS[dungeonKey] || 'var(--border)') : 'var(--border)';
 
           // Icône carré image donjon
-          const iconHtml = `<div class="ach-row-icon" style="border-color:${color}${done ? '' : '55'}">
+          // isHex défini plus bas — on recalcule ici pour l'icône
+          const _isHex = color.startsWith('#');
+          const iconBorder = done
+            ? (_isHex ? color : 'rgba(255,255,255,0.7)')
+            : (_isHex ? color + '44' : 'rgba(255,255,255,0.12)');
+          const iconHtml = `<div class="ach-row-icon" style="border-color:${iconBorder}">
             ${imgPath ? `<img src="${imgPath}" alt="">` : ''}
             <div class="ach-row-icon-check">✓</div>
           </div>`;
