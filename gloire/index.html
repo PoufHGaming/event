@@ -3879,13 +3879,13 @@
     }
 
     // ---- WOW PANEL NAVIGATION ----
-    // Couleur graduée 0% → 100% (rouge → orange → jaune → vert)
+    // Couleur graduée 0% → 100% (neutre → or → teal)
     function pctColor(pct) {
       if (pct === 100) return '#7ddf7d';
-      if (pct >= 75)   return '#c9a84c';
-      if (pct >= 50)   return '#d4844a';
-      if (pct >= 25)   return '#c96a3a';
-      return '#b05050';
+      if (pct >= 75)   return '#a8c84c';
+      if (pct >= 50)   return '#c9a84c';
+      if (pct >= 25)   return '#9a8a6a';
+      return '#706860';
     }
 
     function wowToggleCat(panelId, catName) {
