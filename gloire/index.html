@@ -860,7 +860,7 @@
       justify-content: space-between;
       padding: 7px 12px 7px 20px;
       font-size: 12px;
-      color: var(--text-muted);
+      color: var(--text-dim);
       cursor: pointer;
       transition: background 0.12s, color 0.12s;
       border-left: 2px solid transparent;
@@ -3264,7 +3264,7 @@
           navHtml += `<div class="wow-cat" id="${panelId}-cat-${catName}">
             <div class="wow-cat-header" onclick="event.stopPropagation(); wowToggleCat('${panelId}', '${catName}')">
               <span>${catName}</span>
-              <span class="wow-cat-pct ${catDone===catTotal && catTotal>0 ? 'complete' : ''}">${catPct}%</span>
+              <span class="wow-cat-pct" style="color:${pctColor(catPct)}">${catPct}%</span>
             </div>
             <div class="wow-cat-items">`;
 
@@ -3879,6 +3879,15 @@
     }
 
     // ---- WOW PANEL NAVIGATION ----
+    // Couleur graduée 0% → 100% (rouge → orange → jaune → vert)
+    function pctColor(pct) {
+      if (pct === 100) return '#7ddf7d';
+      if (pct >= 75)   return '#c9a84c';
+      if (pct >= 50)   return '#d4844a';
+      if (pct >= 25)   return '#c96a3a';
+      return '#b05050';
+    }
+
     function wowToggleCat(panelId, catName) {
       const catEl = document.getElementById(panelId + '-cat-' + catName);
       if (!catEl) return;
