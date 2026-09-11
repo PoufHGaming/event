@@ -3098,7 +3098,7 @@
               <span class="ach-section-count ${complete ? 'complete' : ''}">${dDone}/${dHFs.length}${complete ? ' · +5 pts ✓' : ''}</span>
             </div>
             <div class="ach-section-body">`;
-          dHFs.forEach(a => { detailHtml += achRow(a, imgPath, d); });
+          [...dHFs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0)).forEach(a => { detailHtml += achRow(a, imgPath, d); });
           detailHtml += `</div></div>`;
         });
 
@@ -3122,7 +3122,7 @@
                 <img src="${meta.icon}" alt="${affName}" onerror="this.style.display='none'">
                 ${affName}
               </div>`;
-            affHFs.forEach(a => { detailHtml += achRow(a, meta.icon, null); });
+            [...affHFs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0)).forEach(a => { detailHtml += achRow(a, meta.icon, null); });
             detailHtml += `</div>`;
           });
           detailHtml += `</div></div>`;
