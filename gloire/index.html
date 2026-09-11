@@ -784,7 +784,7 @@
     /* PLAYER DETAIL IN LEADERBOARD */
     .lb-detail {
       display: none;
-      padding: 12px 8px 20px 8px;
+      padding: 0;
       grid-column: 1 / -1;
     }
 
@@ -796,82 +796,141 @@
     }
     .lb-row.open .player-name::after { content: ' \25BE'; }
 
-    /* ── Sections par donjon ── */
-    .ach-section { margin-bottom: 16px; }
+    /* ── Layout 2 colonnes WoW ── */
+    .wow-panel {
+      display: flex;
+      gap: 0;
+      min-height: 420px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 4px 0 16px;
+    }
 
-    .ach-section-header {
+    /* Colonne gauche — navigation */
+    .wow-nav {
+      width: 200px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Catégorie principale */
+    .wow-cat {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wow-cat-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 10px;
-      margin-bottom: 0;
-      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
       cursor: pointer;
       user-select: none;
-      border-radius: 3px 3px 0 0;
-      transition: background 0.15s;
+      transition: background 0.15s, color 0.15s;
     }
-    .ach-section-header:hover { background: rgba(201,168,76,0.05); }
+    .wow-cat-header:hover { background: rgba(201,168,76,0.06); color: var(--text); }
+    .wow-cat-header.active { color: var(--gold); background: rgba(201,168,76,0.08); }
 
-    .ach-section-header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .ach-section-chevron {
-      font-size: 9px;
+    .wow-cat-chevron {
+      font-size: 8px;
       color: var(--text-muted);
       transition: transform 0.2s;
-      display: inline-block;
     }
-    .ach-section.open .ach-section-chevron { transform: rotate(90deg); }
+    .wow-cat.open .wow-cat-chevron { transform: rotate(90deg); }
 
-    .ach-section-name {
+    /* Liste des sous-éléments (donjons) */
+    .wow-cat-items {
+      display: none;
+      background: rgba(0,0,0,0.15);
+    }
+    .wow-cat.open .wow-cat-items { display: block; }
+
+    .wow-nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px 7px 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      border-left: 2px solid transparent;
+    }
+    .wow-nav-item:hover { background: rgba(201,168,76,0.06); color: var(--text); }
+    .wow-nav-item.active {
+      color: var(--gold-light);
+      background: rgba(201,168,76,0.1);
+      border-left-color: var(--gold);
+    }
+
+    .wow-nav-item-count {
       font-family: 'Cinzel', serif;
-      font-size: 15px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      font-weight: bold;
-      color: var(--gold-dim);
+      font-size: 10px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .wow-nav-item-count.complete { color: var(--teal); }
+
+    /* Colonne droite — contenu HF */
+    .wow-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      background: var(--bg);
     }
 
-    .ach-section-count {
+    /* En-tête du contenu */
+    .wow-content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wow-content-title {
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .wow-content-stats {
       font-family: 'Cinzel', serif;
       font-size: 11px;
       color: var(--text-muted);
       font-style: italic;
     }
-    .ach-section-count.complete { color: var(--teal); }
+    .wow-content-stats.complete { color: var(--teal); }
 
-    /* Corps section — caché par défaut */
-    .ach-section-body {
-      display: none;
-      padding-top: 5px;
-    }
-    .ach-section.open .ach-section-body { display: block; }
-
-    /* Toolbar expand/collapse all */
-    .ach-toolbar {
+    /* Sous-section dans le contenu (groupe d'affixes) */
+    .wow-sub-header {
       display: flex;
-      justify-content: flex-end;
+      align-items: center;
       gap: 8px;
-      margin-bottom: 12px;
+      padding: 6px 0 4px;
+      margin: 12px 0 6px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-style: italic;
+      font-weight: 600;
     }
-    .ach-toolbar button {
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 4px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-      transition: all 0.15s;
+    .wow-sub-header img {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      object-fit: cover;
     }
-    .ach-toolbar button:hover { color: var(--text); border-color: var(--border-bright); }
 
     /* ── Ligne HF ── */
     .ach-row {
@@ -3002,9 +3061,22 @@
         const seasonBadgeHtml = (a) => showSeasonBadge && a._season
           ? `<span class="season-badge ${a._season.toLowerCase()}">${a._season}</span>` : '';
 
-        const detailId = `lb-detail-${s.id}`;
+        // ── Catégories WoW ──
+        const DUNGEON_CATS = {
+          "Dungeon": [
+            "Coeur de guivre", "Ruins of Regath", "Scryer's Peak", "Guet Tempete",
+            "Sables Empyréens", "Bois de L'aube", "Marché d'Urrak",
+            "Abime des marins", "Carrière tombe-dieu", "Creux Soyeux"
+          ],
+          "Capstone": [
+            "Caveau de Lamespectre", "Saccage de Drakheim",
+            "Coeur de Tuzari", "La chute Cithrel"
+          ],
+          "Pinnacle": [
+            "Xul, the Blood Monolith"
+          ],
+        };
 
-        // Couleurs thématiques par donjon
         const DUNGEON_COLORS = {
           "Abime des marins":       "#3a7a9c",
           "Bois de L'aube":         "#5a8a3a",
@@ -3023,33 +3095,29 @@
           "Xul, the Blood Monolith":"#9a3a5a",
         };
 
-        // ── Helper : génère une ligne HF ──
-        const achRow = (a, imgPath, dungeonKey) => {
+        // ── Helper : ligne HF ──
+        const achRow = (a, imgPath, dungeonKey, colorOverride) => {
           const done  = s.done.has(a.id);
           const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
           const desc  = (currentLang === 'en' && a.desc_en)  ? a.desc_en  : a.desc;
           const sbHtml = seasonBadgeHtml(a);
-          const color  = dungeonKey ? (DUNGEON_COLORS[dungeonKey] || 'var(--border)') : 'var(--border)';
+          const color  = colorOverride || (dungeonKey ? (DUNGEON_COLORS[dungeonKey] || 'var(--border)') : 'var(--border)');
 
-          // Icône carré image donjon
-          // isHex défini plus bas — on recalcule ici pour l'icône
           const _isHex = color.startsWith('#');
           const iconBorder = done
-            ? (_isHex ? color : 'rgba(255,255,255,0.7)')
-            : (_isHex ? color + '44' : 'rgba(255,255,255,0.12)');
+            ? color
+            : ('var(--border)');
           const iconHtml = `<div class="ach-row-icon" style="border-color:${iconBorder}">
             ${imgPath ? `<img src="${imgPath}" alt="">` : ''}
             <div class="ach-row-icon-check">✓</div>
           </div>`;
 
-          // Conditions
           const condsHtml = (a.conditions || []).length
             ? `<div class="ach-row-conds">${(a.conditions||[]).map(c =>
                 `<img src="images/conditions/${c}.png" alt="${c}" title="${t('cond.'+c)}">`
               ).join('')}</div>`
             : '';
 
-          // Badges solo/hard/log
           let badgesHtml = '';
           if (a.hard)        badgesHtml += `<img src="images/badges/hard.png" title="${t('badge.hard')}">`;
           if (a.personal)    badgesHtml += `<img src="images/badges/solo.png" title="${t('badge.solo')}">`;
@@ -3072,61 +3140,147 @@
           </div>`;
         };
 
-        // Toggle section collapse/expand
-        const toggleSection = (el) => { el.closest('.ach-section').classList.toggle('open'); };
+        // ── Helper : liste de HF triée done en premier ──
+        const sortedRows = (hfs, imgPath, key) =>
+          [...hfs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0))
+                  .map(a => achRow(a, imgPath, key)).join('');
 
-        let detailHtml = `<div class="lb-detail" id="${detailId}">
-          <div class="ach-toolbar">
-            <button onclick="event.stopPropagation(); document.getElementById('${detailId}').querySelectorAll('.ach-section').forEach(s=>s.classList.add('open'))">${t('lb.detail.expand_all')}</button>
-            <button onclick="event.stopPropagation(); document.getElementById('${detailId}').querySelectorAll('.ach-section').forEach(s=>s.classList.remove('open'))">${t('lb.detail.collapse_all')}</button>
-          </div>`;
+        // ── Helper : stats d'une liste de HF ──
+        const hfStats = (hfs) => {
+          const done = hfs.filter(a => s.done.has(a.id)).length;
+          return { done, total: hfs.length, complete: done === hfs.length };
+        };
 
-        // ── Donjons ──
-        seasonDungeonsOrder.forEach(d => {
-          const dHFs    = seasonAchievements.filter(a => a.dungeon === d);
-          if (!dHFs.length) return;
-          const dDone   = dHFs.filter(a => s.done.has(a.id)).length;
-          const complete = dDone === dHFs.length;
-          const imgPath  = DUNGEON_IMAGES[d] || '';
-          const color    = DUNGEON_COLORS[d]  || 'var(--gold-dim)';
-          detailHtml += `<div class="ach-section">
-            <div class="ach-section-header" style="border-bottom-color:${color}44" onclick="event.stopPropagation(); this.closest('.ach-section').classList.toggle('open')">
-              <div class="ach-section-header-left">
-                <span class="ach-section-chevron">▸</span>
-                <span class="ach-section-name" style="color:${color}">${t(d)}</span>
-              </div>
-              <span class="ach-section-count ${complete ? 'complete' : ''}">${dDone}/${dHFs.length}${complete ? ' · +5 pts ✓' : ''}</span>
-            </div>
-            <div class="ach-section-body">`;
-          [...dHFs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0)).forEach(a => { detailHtml += achRow(a, imgPath, d); });
-          detailHtml += `</div></div>`;
+        // ── Construire les données de navigation ──
+        const navData = {};
+
+        // Catégories Dungeon / Capstone / Pinnacle
+        Object.entries(DUNGEON_CATS).forEach(([catName, dungeons]) => {
+          navData[catName] = { type: 'dungeons', items: [] };
+          dungeons.forEach(d => {
+            const hfs = seasonAchievements.filter(a => a.dungeon === d);
+            if (!hfs.length) return;
+            const st = hfStats(hfs);
+            navData[catName].items.push({ key: d, label: t(d), hfs, imgPath: DUNGEON_IMAGES[d]||'', color: DUNGEON_COLORS[d]||'var(--gold-dim)', ...st });
+          });
         });
 
-        // ── Affixes ──
+        // Affixes
         if (seasonAffixes.length) {
-          detailHtml += `<div class="ach-section">
-            <div class="ach-section-header" onclick="event.stopPropagation(); this.closest('.ach-section').classList.toggle('open')">
-              <div class="ach-section-header-left">
-                <span class="ach-section-chevron">▸</span>
-                <span class="ach-section-name">${t('affixes.section')}</span>
+          navData['Affixes'] = { type: 'affixes', items: [] };
+          seasonAffixesOrder.forEach(aff => {
+            const hfs = seasonAffixes.filter(a => a.affix === aff);
+            if (!hfs.length) return;
+            const meta = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--text-dim)', icon: '' };
+            const st = hfStats(hfs);
+            navData['Affixes'].items.push({ key: aff, label: affixDisplayName(meta), hfs, imgPath: meta.icon, color: meta.color, ...st });
+          });
+        }
+
+        // ── Générer le contenu HF d'une sélection ──
+        const renderWowContent = (panelId, catName, filterKey, navData, s) => {
+          const cat = navData[catName];
+          if (!cat) return;
+
+          const items = filterKey ? cat.items.filter(i => i.key === filterKey) : cat.items;
+          const allHfs = items.flatMap(i => i.hfs);
+          const totalDone = allHfs.filter(a => s.done.has(a.id)).length;
+          const isComplete = totalDone === allHfs.length && allHfs.length > 0;
+
+          const titleLabel = filterKey ? (items[0]?.label || filterKey) : catName;
+
+          let html = `<div class="wow-content-header">
+            <span class="wow-content-title">${titleLabel}</span>
+            <span class="wow-content-stats ${isComplete ? 'complete' : ''}">${totalDone}/${allHfs.length} pts${isComplete ? ' · complet ✓' : ''}</span>
+          </div>`;
+
+          if (cat.type === 'dungeons') {
+            if (filterKey) {
+              // Donjon spécifique : done en premier
+              html += sortedRows(items[0]?.hfs || [], items[0]?.imgPath, filterKey);
+            } else {
+              // Tous : fusionner tous les HF, trier done en premier globalement
+              const allItems = items.flatMap(item =>
+                item.hfs.map(a => ({ a, imgPath: item.imgPath, key: item.key }))
+              );
+              allItems.sort((x, y) => (s.done.has(y.a.id)?1:0) - (s.done.has(x.a.id)?1:0));
+              allItems.forEach(({ a, imgPath, key }) => { html += achRow(a, imgPath, key); });
+            }
+          } else {
+            // Affixes : fusionner tous les HF, trier done en premier globalement
+            if (!filterKey) {
+              const allItems = items.flatMap(item =>
+                item.hfs.map(a => ({ a, imgPath: item.imgPath, meta: AFFIX_META[item.key] || { name: item.key, color: 'var(--text-dim)', icon: '' }, label: item.label }))
+              );
+              allItems.sort((x, y) => (s.done.has(y.a.id)?1:0) - (s.done.has(x.a.id)?1:0));
+            // Affixes ALL : fusionner, trier done en premier, sans sous-header
+              allItems.forEach(({ a, imgPath, meta }) => { html += achRow(a, imgPath, null, meta?.color); });
+            } else {
+              items.forEach(item => {
+                const meta = AFFIX_META[item.key] || { name: item.key, color: 'var(--text-dim)', icon: '' };
+                html += `<div class="wow-sub-header" style="color:${meta.color};border-bottom-color:${meta.color}44">
+                  <img src="${meta.icon}" alt="" onerror="this.style.display='none'">
+                  ${item.label}
+                </div>`;
+                html += [...item.hfs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0)).map(a => achRow(a, item.imgPath, null, item.color)).join('');
+              });
+            }
+          }
+
+          document.getElementById(panelId + '-content').innerHTML = html;
+        };
+
+        // ── Générer le panel WoW complet ──
+        const detailId = `lb-detail-${s.id}`;
+        const panelId  = `wow-${s.id}`;
+
+        // Navigation gauche
+        let navHtml = '';
+        const catOrder = ['Dungeon', 'Capstone', 'Pinnacle', 'Affixes'];
+        catOrder.forEach(catName => {
+          const cat = navData[catName];
+          if (!cat || !cat.items.length) return;
+          const allHfs   = cat.items.flatMap(i => i.hfs);
+          const catDone  = allHfs.filter(a => s.done.has(a.id)).length;
+          const catTotal = allHfs.length;
+
+          navHtml += `<div class="wow-cat" id="${panelId}-cat-${catName}">
+            <div class="wow-cat-header" onclick="event.stopPropagation(); wowToggleCat('${panelId}', '${catName}')">
+              <span>${catName}</span>
+              <span class="wow-cat-chevron">▸</span>
+            </div>
+            <div class="wow-cat-items">`;
+
+          // Item "Tous" pour la catégorie
+          navHtml += `<div class="wow-nav-item" id="${panelId}-item-${catName}-all"
+            onclick="event.stopPropagation(); wowSelectItem('${panelId}', '${catName}', null)">
+            <span>Tous</span>
+            <span class="wow-nav-item-count ${catDone===catTotal && catTotal>0 ? 'complete' : ''}">${catDone}/${catTotal}</span>
+          </div>`;
+
+          cat.items.forEach((item, idx) => {
+            const safeKey = item.key.replace(/[^a-z0-9]/gi,'_');
+            navHtml += `<div class="wow-nav-item" id="${panelId}-item-${catName}-${safeKey}"
+              onclick="event.stopPropagation(); wowSelectItemByIndex('${panelId}', '${catName}', ${idx})"
+              style="border-left-color:${item.color}44">
+              <span>${item.label}</span>
+              <span class="wow-nav-item-count ${item.complete ? 'complete' : ''}">${item.done}/${item.total}</span>
+            </div>`;
+          });
+
+          navHtml += `</div></div>`;
+        });
+
+        let detailHtml = `<div class="lb-detail" id="${detailId}">
+          <div class="wow-panel">
+            <div class="wow-nav">${navHtml}</div>
+            <div class="wow-content" id="${panelId}-content">
+              <div style="color:var(--text-muted);font-style:italic;padding:20px;text-align:center;font-size:13px">
+                Sélectionne une catégorie →
               </div>
             </div>
-            <div class="ach-section-body">`;
-          seasonAffixesOrder.forEach(aff => {
-            const affHFs = seasonAffixes.filter(a => a.affix === aff);
-            if (!affHFs.length) return;
-            const meta    = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--text-dim)', icon: '' };
-            const affName = affixDisplayName(meta);
-            detailHtml += `<div class="ach-affix-group">
-              <div class="ach-affix-label" style="color:${meta.color};border-bottom-color:${meta.color}44">
-                <img src="${meta.icon}" alt="${affName}" onerror="this.style.display='none'">
-                ${affName}
-              </div>`;
-            [...affHFs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0)).forEach(a => { detailHtml += achRow(a, meta.icon, null); });
-            detailHtml += `</div>`;
-          });
-          detailHtml += `</div></div>`;
-        }
+          </div>
+        </div>`;
 
         detailHtml += `</div>`;
 
@@ -3139,6 +3293,13 @@
       <div class="score-total">${s.total}</div>
       ${detailHtml}
     </div>`;
+
+        // Stocker renderWowContent sur lb-detail après insertion dans le DOM (via timeout)
+        const _s = s, _navData = navData, _panelId = panelId, _detailId = detailId;
+        setTimeout(() => {
+          const el = document.getElementById(_detailId);
+          if (el) { el._renderWow = (catName, filterKey) => renderWowContent(_panelId, catName, filterKey, _navData, _s); el._navData = _navData; }
+        }, 0);
       });
 
       html += renderLbPagination(filtered.length, totalPages, lbCurrentPage);
@@ -3561,6 +3722,46 @@
       );
       html += `<span class="badge badge-pts">${a.points} pts</span>`;
       return html;
+    }
+
+    // ---- WOW PANEL NAVIGATION ----
+    function wowToggleCat(panelId, catName) {
+      const catEl = document.getElementById(panelId + '-cat-' + catName);
+      if (!catEl) return;
+      const wasOpen = catEl.classList.contains('open');
+      // Fermer toutes les catégories du panel
+      document.querySelectorAll(`[id^="${panelId}-cat-"]`).forEach(el => el.classList.remove('open'));
+      document.querySelectorAll(`[id^="${panelId}-item-"]`).forEach(el => el.classList.remove('active'));
+      document.querySelectorAll(`[id^="${panelId}"] .wow-cat-header`).forEach(el => el.classList.remove('active'));
+      if (!wasOpen) {
+        catEl.classList.add('open');
+        catEl.querySelector('.wow-cat-header').classList.add('active');
+        wowSelectItem(panelId, catName, null);
+      }
+    }
+
+    // Appelé par "Tous" (filterKey = null)
+    function wowSelectItem(panelId, catName, filterKey) {
+      document.querySelectorAll(`[id^="${panelId}-item-"]`).forEach(el => el.classList.remove('active'));
+      const suffix = filterKey ? filterKey.replace(/[^a-z0-9]/gi, '_') : 'all';
+      const itemEl = document.getElementById(`${panelId}-item-${catName}-${suffix}`);
+      if (itemEl) itemEl.classList.add('active');
+      const detailEl = document.getElementById(panelId.replace('wow-', 'lb-detail-'));
+      if (detailEl && detailEl._renderWow) detailEl._renderWow(catName, null);
+    }
+
+    // Appelé par un item de donjon/affixe (via index pour éviter les problèmes d'apostrophes)
+    function wowSelectItemByIndex(panelId, catName, idx) {
+      const detailEl = document.getElementById(panelId.replace('wow-', 'lb-detail-'));
+      if (!detailEl || !detailEl._navData) return;
+      const cat = detailEl._navData[catName];
+      if (!cat || !cat.items[idx]) return;
+      const item = cat.items[idx];
+      document.querySelectorAll(`[id^="${panelId}-item-"]`).forEach(el => el.classList.remove('active'));
+      const safeKey = item.key.replace(/[^a-z0-9]/gi, '_');
+      const itemEl = document.getElementById(`${panelId}-item-${catName}-${safeKey}`);
+      if (itemEl) itemEl.classList.add('active');
+      if (detailEl._renderWow) detailEl._renderWow(catName, item.key);
     }
 
     // ---- TRADUCTIONS ----
