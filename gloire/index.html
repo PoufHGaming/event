@@ -906,7 +906,7 @@
       overflow: hidden;
       border-width: 2px;
       border-style: solid;
-      border-color: var(--border); /* surchargeable par style inline */
+      border-color: var(--border);
       position: relative;
       background: var(--bg3);
     }
@@ -3035,10 +3035,11 @@
 
           // Icône carré image donjon
           // isHex défini plus bas — on recalcule ici pour l'icône
+          // done → bordure colorée visible, undone → pas de bordure spéciale (var(--border) du CSS suffit)
           const _isHex = color.startsWith('#');
           const iconBorder = done
-            ? (_isHex ? color : 'rgba(255,255,255,0.7)')
-            : (_isHex ? color + '44' : 'rgba(255,255,255,0.12)');
+            ? (color + (_isHex ? '' : ''))   // couleur pleine si done
+            : 'var(--border)';               // bordure neutre si undone
           const iconHtml = `<div class="ach-row-icon" style="border-color:${iconBorder}">
             ${imgPath ? `<img src="${imgPath}" alt="">` : ''}
             <div class="ach-row-icon-check">✓</div>
