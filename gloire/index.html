@@ -915,6 +915,56 @@
     .wow-content-stats.complete { color: var(--teal); }
 
     /* Sous-section dans le contenu (groupe d'affixes) */
+    /* ── Page d'accueil WoW panel (récents) ── */
+    .wow-home {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 20px;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .wow-home-title {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+    }
+
+    .wow-home-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .wow-home-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      font-size: 13px;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .wow-home-total {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.08em;
+    }
+
+    .wow-home-total span {
+      color: var(--gold);
+    }
+
     .wow-sub-header {
       display: flex;
       align-items: center;
@@ -2891,8 +2941,14 @@
       const scorableIds = new Set(allScorable.map(a => a.id));
       const byPlayer = {};
       players.forEach(p => byPlayer[p.id] = new Set());
+      // Map player_id → { achievement_id → completed_at }
+      const completedAt = {};
       completions.forEach(c => {
-        if (byPlayer[c.player_id]) byPlayer[c.player_id].add(c.achievement_id);
+        if (byPlayer[c.player_id]) {
+          byPlayer[c.player_id].add(c.achievement_id);
+          if (!completedAt[c.player_id]) completedAt[c.player_id] = {};
+          completedAt[c.player_id][c.achievement_id] = c.completed_at || null;
+        }
       });
 
       return players.map(p => {
@@ -2920,7 +2976,8 @@
           total: base + bonus,
           hf_count: hfCount,
           hf_total: allScorable.length,
-          done
+          done,
+          completedAt: completedAt[p.id] || {}
         };
       }).sort((a, b) => b.total - a.total);
     }
@@ -2946,7 +3003,7 @@
       try {
         const [players, completions] = await Promise.all([
           sbFetch('/rest/v1/players?select=id,name&order=name'),
-          sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id')
+          sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id,completed_at&order=completed_at.asc')
         ]);
         rawPlayers = players;
         rawCompletions = completions;
@@ -3288,14 +3345,58 @@
           navHtml += `</div></div>`;
         });
 
+        // ── Page d'accueil : 4 derniers HF validés ──
+        const { allScorable: allScorableForHome } = getSeasonData(currentSeason);
+        const doneHfs = allScorableForHome.filter(a => s.done.has(a.id));
+        // Trier par completed_at DESC pour avoir les vrais derniers validés
+        const recentHfs = [...doneHfs]
+          .sort((a, b) => {
+            const ta = s.completedAt[a.id] || '';
+            const tb = s.completedAt[b.id] || '';
+            return tb.localeCompare(ta);
+          })
+          .slice(0, 4);
+
+        let homeHtml = '';
+        if (recentHfs.length === 0) {
+          homeHtml = `<div class="wow-home-empty">${currentLang === 'en' ? 'No achievements yet.' : 'Aucun haut-fait valid\u00e9 pour l\u2019instant.'}</div>`;
+        } else {
+          recentHfs.forEach(a => {
+            const dungeonKey = a.dungeon || null;
+            const affixKey   = a.affix   || null;
+            const imgPath = dungeonKey ? (DUNGEON_IMAGES[dungeonKey] || '') : (affixKey ? (AFFIX_META[affixKey]?.icon || '') : '');
+            const color   = dungeonKey ? (DUNGEON_COLORS[dungeonKey] || 'var(--gold)') : (affixKey ? (AFFIX_META[affixKey]?.color || 'var(--gold)') : 'var(--gold)');
+            const title   = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
+            const _isHex  = (color||'').startsWith('#');
+            const iconBorder = _isHex ? color : 'rgba(201,168,76,0.5)';
+            homeHtml += `<div class="ach-row done" style="border-left-color:${color}">
+              <div class="ach-row-icon" style="border-color:${iconBorder}">
+                ${imgPath ? `<img src="${imgPath}" alt="">` : ''}
+                <div class="ach-row-icon-check">✓</div>
+              </div>
+              <div class="ach-row-body">
+                <div class="ach-row-title">${title}</div>
+                <div class="ach-row-desc">${dungeonKey ? t(dungeonKey) : (affixKey ? (AFFIX_META[affixKey] ? affixDisplayName(AFFIX_META[affixKey]) : affixKey) : '')}</div>
+              </div>
+              <div class="ach-row-pts">+${a.points} pts</div>
+            </div>`;
+          });
+        }
+
+        const totalDoneAll = allScorableForHome.filter(a => s.done.has(a.id)).length;
+        const totalAll     = allScorableForHome.length;
+        const totalPtsAll  = doneHfs.reduce((sum, a) => sum + a.points, 0);
+
+        const homeContent = `<div class="wow-home">
+          <div class="wow-home-title">${currentLang === 'en' ? '✦ Achievements ✦' : '✦ Hauts-faits ✦'}</div>
+          <div class="wow-home-grid">${homeHtml}</div>
+          ${recentHfs.length > 0 ? `<div class="wow-home-total">${currentLang === 'en' ? 'Latest achievements' : 'Derniers hauts-faits validés'} &nbsp;·&nbsp; <span>${totalDoneAll}/${totalAll}</span> · <span>${totalPtsAll} pts</span></div>` : ''}
+        </div>`;
+
         let detailHtml = `<div class="lb-detail" id="${detailId}">
           <div class="wow-panel">
             <div class="wow-nav">${navHtml}</div>
-            <div class="wow-content" id="${panelId}-content">
-              <div style="color:var(--text-muted);font-style:italic;padding:20px;text-align:center;font-size:13px">
-                Sélectionne une catégorie →
-              </div>
-            </div>
+            <div class="wow-content" id="${panelId}-content">${homeContent}</div>
           </div>
         </div>`;
 
@@ -3315,7 +3416,7 @@
         const _s = s, _navData = navData, _panelId = panelId, _detailId = detailId;
         setTimeout(() => {
           const el = document.getElementById(_detailId);
-          if (el) { el._renderWow = (catName, filterKey) => renderWowContent(_panelId, catName, filterKey, _navData, _s); el._navData = _navData; }
+          if (el) { el._renderWow = (catName, filterKey) => renderWowContent(_panelId, catName, filterKey, _navData, _s); el._navData = _navData; el._homeContent = document.getElementById(_panelId + '-content')?.innerHTML || ''; }
         }, 0);
       });
 
@@ -3892,7 +3993,6 @@
       const catEl = document.getElementById(panelId + '-cat-' + catName);
       if (!catEl) return;
       const wasOpen = catEl.classList.contains('open');
-      // Fermer toutes les catégories du panel
       document.querySelectorAll(`[id^="${panelId}-cat-"]`).forEach(el => el.classList.remove('open'));
       document.querySelectorAll(`[id^="${panelId}-item-"]`).forEach(el => el.classList.remove('active'));
       document.querySelectorAll(`[id^="${panelId}"] .wow-cat-header`).forEach(el => el.classList.remove('active'));
@@ -3900,6 +4000,12 @@
         catEl.classList.add('open');
         catEl.querySelector('.wow-cat-header').classList.add('active');
         wowSelectItem(panelId, catName, null);
+      } else {
+        // Clic sur catégorie déjà ouverte → retour à l'accueil
+        const detailEl = document.getElementById(panelId.replace('wow-', 'lb-detail-'));
+        if (detailEl && detailEl._homeContent) {
+          document.getElementById(panelId + '-content').innerHTML = detailEl._homeContent;
+        }
       }
     }
 
