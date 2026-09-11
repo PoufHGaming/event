@@ -1091,7 +1091,26 @@
     .season-badge.s3 { color: #7ddf7d; border-color: rgba(125,223,125,0.35); }
 
     /* Affixes groupe */
-    .ach-affix-group { margin-bottom: 14px; }
+    .wow-cat-pct {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .wow-cat-pct.complete { color: var(--teal); }
+
+    /* Ajuster les img dans ach-row-conds et ach-row-badges (maintenant wrappées dans .badge) */
+    .ach-row-conds .badge,
+    .ach-row-badges .badge {
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+    }
+    .ach-row-conds .badge img,
+    .ach-row-badges .badge img {
+      width: 100%;
+      height: 100%;
+    }
 
     .ach-affix-label {
       font-size: 15px;
@@ -2660,7 +2679,7 @@
       { id: 103, dungeon: "Carrière tombe-dieu", title: "Incognito II", title_en: "Incognito II", desc: "Le groupe ne doit aggro aucun \"Dredge\" en étant sur la plateforme. En cas d'aggro, toutes les personnes qui n'ont pas atteint l'autre côté doivent recommencer.", desc_en: "The group must not aggro any \"Dredge\" while on the platform. If aggroed, everyone who hasn't reached the other side must start over.", points: 10, hard: false, personal: false, conditions: ['portal', 'shadow', 'dash'] },
       { id: 104, dungeon: "Saccage de Drakheim", title: "Ténèbre Glacial", title_en: "Glacial Shadows", desc: "Le groupe doit vaincre Auga Handhafi avec un ours polaire présent dans le combat (l'ours polaire ne doit pas mourir).", desc_en: "The group must defeat Auga Handhafi with a Polar Bear present in the fight (the Polar Bear must not die).", points: 10, hard: false, personal: false, conditions: [] },
       { id: 105, dungeon: "Caveau de Lamespectre", title: "Une perte de Rat", title_en: "Waste of a Rat", desc: "Le groupe doit amener le même \"Gunpowder Rat\" sur chaque boss de zone.", desc_en: "The group must bring the same \"Gunpowder Rat\" to every zone boss.", points: 10, hard: false, personal: false, conditions: [] },
-      { id: 106, dungeon: "La chute Cithrel", title: "Juste le minimum", title_en: "Just the minimum", desc: "Le groupe doit vaincre les 3 boss avec moins de 70% de complétion du donjon. (PAS D'EMISSAIRE)", desc_en: "The group must defeat all 3 bosses with less than 70% dungeon completion. (NO SHADOWLORDS)", points: 10, hard: false, personal: false, conditions: ['poulet', 'portal', 'shadow', 'dash', 'res', 'campfire'] },
+      { id: 106, dungeon: "La chute Cithrel", title: "Juste le minimum", title_en: "Just the minimum", desc: "Le groupe doit vaincre les 3 boss avec moins de 70% de complétion du donjon.", desc_en: "The group must defeat all 3 bosses with less than 70% dungeon completion.", points: 10, hard: false, personal: false, conditions: ['poulet', 'portal', 'shadow', 'dash', 'res', 'campfire'] },
       { id: 115, dungeon: "Xul, the Blood Monolith", title: "Simon II", title_en: "Simon II", desc: "Le groupe doit détruire le conduit correspondant à son debuff : « Édit de Fragilité » : Conduit du Regard Saignant (rouge), « Édit de Fardeau » : Conduit du Cercle Ardent (jaune), « Édit d'Isolation » : Conduit des Ombres Frappantes (violet).", desc_en: "The group must destroy the conduit matching their debuff: \"Edict of Frailty\": Conduit of the Bleeding Gaze (red), \"Edict of Burden\": Conduit of the Burning Circle (yellow), \"Edict of Isolation\": Conduit of Striking Shadows (purple).", points: 10, hard: false, personal: false, conditions: [] },
       { id: 116, dungeon: "Xul, the Blood Monolith", title: "So ok", title_en: "So ok", desc: "Le groupe doit faire exploser 10 invocations pendant le combat contre Han-Eth et le vaincre", desc_en: "The group must defeat 10 Creations during Han-Eth fights and kill him.", points: 10, hard: false, personal: false, conditions: [] },
       { id: 117, dungeon: "Xul, the Blood Monolith", title: "Marche Arrière", title_en: "Backped", desc: "Le groupe doit réussir le labytrinth contre Vel'Korath en n'utilisant que la marche arrière", desc_en: "The group must complete the maze against Vel'Korath using only the backped", points: 10, hard: false, personal: false, conditions: ['dash', 'portal', 'drum'] },
@@ -3114,14 +3133,14 @@
 
           const condsHtml = (a.conditions || []).length
             ? `<div class="ach-row-conds">${(a.conditions||[]).map(c =>
-                `<img src="images/conditions/${c}.png" alt="${c}" title="${t('cond.'+c)}">`
+                `<span class="badge" data-tooltip="${t('cond.'+c)}"><img src="images/conditions/${c}.png" alt="${c}"></span>`
               ).join('')}</div>`
             : '';
 
           let badgesHtml = '';
-          if (a.hard)        badgesHtml += `<img src="images/badges/hard.png" title="${t('badge.hard')}">`;
-          if (a.personal)    badgesHtml += `<img src="images/badges/solo.png" title="${t('badge.solo')}">`;
-          if (a.logRequired) badgesHtml += `<img src="images/conditions/log.png" title="${t('badge.log')}">`;
+          if (a.hard)        badgesHtml += `<span class="badge" data-tooltip="${t('badge.hard')}"><img src="images/badges/hard.png" alt="${t('badge.hard')}"></span>`;
+          if (a.personal)    badgesHtml += `<span class="badge" data-tooltip="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
+          if (a.logRequired) badgesHtml += `<span class="badge" data-tooltip="${t('badge.log')}"><img src="images/conditions/log.png" alt="${t('badge.log')}"></span>`;
           if (badgesHtml)    badgesHtml  = `<div class="ach-row-badges">${badgesHtml}</div>`;
 
           const isHex = color.startsWith('#');
@@ -3217,11 +3236,8 @@
               allItems.forEach(({ a, imgPath, meta }) => { html += achRow(a, imgPath, null, meta?.color); });
             } else {
               items.forEach(item => {
-                const meta = AFFIX_META[item.key] || { name: item.key, color: 'var(--text-dim)', icon: '' };
-                html += `<div class="wow-sub-header" style="color:${meta.color};border-bottom-color:${meta.color}44">
-                  <img src="${meta.icon}" alt="" onerror="this.style.display='none'">
-                  ${item.label}
-                </div>`;
+                // Pas de wow-sub-header quand on filtre sur un affixe spécifique
+                // (le nom est déjà dans le wow-content-header)
                 html += [...item.hfs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0)).map(a => achRow(a, item.imgPath, null, item.color)).join('');
               });
             }
@@ -3244,17 +3260,18 @@
           const catDone  = allHfs.filter(a => s.done.has(a.id)).length;
           const catTotal = allHfs.length;
 
+          const catPct = catTotal > 0 ? Math.round(catDone/catTotal*100) : 0;
           navHtml += `<div class="wow-cat" id="${panelId}-cat-${catName}">
             <div class="wow-cat-header" onclick="event.stopPropagation(); wowToggleCat('${panelId}', '${catName}')">
               <span>${catName}</span>
-              <span class="wow-cat-chevron">▸</span>
+              <span class="wow-cat-pct ${catDone===catTotal && catTotal>0 ? 'complete' : ''}">${catPct}%</span>
             </div>
             <div class="wow-cat-items">`;
 
           // Item "Tous" pour la catégorie
           navHtml += `<div class="wow-nav-item" id="${panelId}-item-${catName}-all"
             onclick="event.stopPropagation(); wowSelectItem('${panelId}', '${catName}', null)">
-            <span>Tous</span>
+            <span>${currentLang === 'en' ? 'All' : 'Tous'}</span>
             <span class="wow-nav-item-count ${catDone===catTotal && catTotal>0 ? 'complete' : ''}">${catDone}/${catTotal}</span>
           </div>`;
 
@@ -3364,80 +3381,217 @@
       "__affixes__": "images/affixes.jpg",
     };
 
+    // ── Page Hauts-faits : état de navigation ──
+    const ACH_STATE = { catOpen: null, filterKey: null };
+
     function renderAchievements() {
-      // Saison 3 pas encore lancée : message de teasing à la place de la liste de HF.
       if (currentSeason === 'S3' && !SEASON_3_LIVE) {
         document.getElementById('ach-content').innerHTML = renderSeasonTeaser();
         return;
       }
       const { achievements: seasonAchievements, dungeonsOrder: seasonDungeonsOrder, affixes: seasonAffixes, affixesOrder: seasonAffixesOrder } = getSeasonData(currentSeason);
-      let html = '';
-      seasonDungeonsOrder.forEach(d => {
-        const hfs = seasonAchievements.filter(a => a.dungeon === d);
-        if (!hfs.length) return; // donjon sans HF dans cette saison
-        const maxPts = hfs.reduce((s, a) => s + a.points, 0) + 5;
-        const imgPath = DUNGEON_IMAGES[d] || '';
-        const bgStyle = imgPath ? `background-image: url('${imgPath}');` : '';
-        html += `<div class="dungeon-block">
-      <div class="dungeon-bg" style="${bgStyle}"></div>
-      <div class="dungeon-inner">
-        <div class="dungeon-title">${t(d)} <span class="bonus-tag">${t('hf.bonus_tag')}</span> <span style="margin-left:auto;font-size:14px;color:var(--text-dim)">${maxPts} ${t('hf.pts_max')}</span></div>
-        <div class="hf-grid">`;
-        hfs.forEach(a => {
-          const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
-          const card = `<div class="hf-card ${a.comingSoon ? 'coming-soon' : ''}" onclick="this.classList.toggle('open')">
-        <div class="hf-card-header">
-          <span class="hf-card-title">${title}</span>
-          <div class="hf-badges">${renderBadges(a)}</div>
-        </div>
-        <div class="hf-card-desc">${currentLang === 'en' && a.desc_en ? a.desc_en : a.desc}</div>
-      </div>`;
-          html += a.logCheckable
-            ? `<div class="hf-card-wrap">${card}${renderLogCheckWidget(a)}</div>`
-            : card;
-        });
-        html += `</div></div></div>`;
-      });
 
-      // CATÉGORIE AFFIXES (pas liée à un donjon, pas de bonus +5)
-      if (seasonAffixes.length) {
-        const affixImgPath = DUNGEON_IMAGES['__affixes__'] || '';
-        const affixBgStyle = affixImgPath ? `background-image: url('${affixImgPath}');` : '';
-        html += `<div class="dungeon-block">
-      <div class="dungeon-bg" style="${affixBgStyle}"></div>
-      <div class="dungeon-inner">
-        <div class="dungeon-title">${t('affixes.section')}</div>`;
-        seasonAffixesOrder.forEach(aff => {
-          const affHFs = seasonAffixes.filter(a => a.affix === aff);
-          if (!affHFs.length) return;
-          const meta = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--gold)', icon: '' };
-          const affName = affixDisplayName(meta);
-          html += `<div class="affix-subheader" style="border-color:${meta.color}33;background:${meta.color}14;">
-          <span class="affix-icon-wrap" style="border-color:${meta.color}66;">
-            <img src="${meta.icon}" alt="${affName}" onerror="this.style.display='none'">
-          </span>
-          <span class="affix-name" style="color:${meta.color}">${affName}</span>
-        </div>
-        <div class="hf-grid">`;
-          affHFs.forEach(a => {
-            const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
-            const card = `<div class="hf-card ${a.comingSoon ? 'coming-soon' : ''}" onclick="this.classList.toggle('open')">
-        <div class="hf-card-header">
-          <span class="hf-card-title">${title}</span>
-          <div class="hf-badges">${renderBadges(a)}</div>
-        </div>
-        <div class="hf-card-desc">${currentLang === 'en' && a.desc_en ? a.desc_en : a.desc}</div>
-      </div>`;
-            html += a.logCheckable
-              ? `<div class="hf-card-wrap">${card}${renderLogCheckWidget(a)}</div>`
-              : card;
-          });
-          html += `</div>`;
+      // ── Catégories (mêmes que leaderboard) ──
+      const DUNGEON_CATS_ACH = {
+        "Dungeon":   ["Coeur de guivre","Ruins of Regath","Scryer's Peak","Guet Tempete","Sables Empyréens","Bois de L'aube","Marché d'Urrak","Abime des marins","Carrière tombe-dieu","Creux Soyeux"],
+        "Capstone":  ["Caveau de Lamespectre","Saccage de Drakheim","Coeur de Tuzari","La chute Cithrel"],
+        "Pinnacle":  ["Xul, the Blood Monolith"],
+      };
+      const DUNGEON_COLORS_ACH = {
+        "Abime des marins":"#3a7a9c","Bois de L'aube":"#5a8a3a","Carrière tombe-dieu":"#7a5a3a",
+        "Caveau de Lamespectre":"#4a5a8a","Coeur de guivre":"#6a9aaa","Coeur de Tuzari":"#7a4a2a",
+        "Creux Soyeux":"#8a6a3a","Guet Tempete":"#6a6aaa","La chute Cithrel":"#9a5a4a",
+        "Marché d'Urrak":"#8a7a3a","Sables Empyréens":"#c9a84c","Saccage de Drakheim":"#5a3a8a",
+        "Ruins of Regath":"#8a3a3a","Scryer's Peak":"#4a7aaa","Xul, the Blood Monolith":"#9a3a5a",
+      };
+
+      // ── Helper : ligne HF lecture seule ──
+      const achRowStatic = (a, imgPath, color) => {
+        const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
+        const desc  = (currentLang === 'en' && a.desc_en)  ? a.desc_en  : a.desc;
+        const _isHex = (color||'').startsWith('#');
+        const iconBorder = _isHex ? color : 'var(--border)';
+        const borderLeft = _isHex ? color + '66' : 'var(--border)';
+
+        const condsHtml = (a.conditions || []).length
+          ? `<div class="ach-row-conds">${(a.conditions||[]).map(c =>
+              `<span class="badge" data-tooltip="${t('cond.'+c)}"><img src="images/conditions/${c}.png" alt="${c}"></span>`
+            ).join('')}</div>` : '';
+
+        let badgesHtml = '';
+        if (a.hard)        badgesHtml += `<span class="badge" data-tooltip="${t('badge.hard')}"><img src="images/badges/hard.png" alt="${t('badge.hard')}"></span>`;
+        if (a.personal)    badgesHtml += `<span class="badge" data-tooltip="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
+        if (a.logRequired) badgesHtml += `<span class="badge" data-tooltip="${t('badge.log')}"><img src="images/conditions/log.png" alt="${t('badge.log')}"></span>`;
+        if (badgesHtml)    badgesHtml  = `<div class="ach-row-badges">${badgesHtml}</div>`;
+
+        const iconHtml = `<div class="ach-row-icon" style="border-color:${iconBorder}">
+          ${imgPath ? `<img src="${imgPath}" alt="">` : ''}
+        </div>`;
+
+        const logWidget = a.logCheckable ? renderLogCheckWidget(a) : '';
+
+        return `<div class="ach-row" style="border-left-color:${borderLeft}" onclick="event.stopPropagation(); this.classList.toggle('expanded')">
+          ${iconHtml}
+          <div class="ach-row-body">
+            <div class="ach-row-title" style="color:var(--text)">${title}</div>
+            <div class="ach-row-desc">${desc}</div>
+            <div class="ach-row-desc-full">${desc}${logWidget ? '<div style="margin-top:8px">'+logWidget+'</div>' : ''}</div>
+          </div>
+          ${condsHtml}
+          ${badgesHtml}
+          <div class="ach-row-pts" style="color:var(--gold)">${a.points} pts</div>
+        </div>`;
+      };
+
+      // ── Construire navData ──
+      const navDataAch = {};
+      Object.entries(DUNGEON_CATS_ACH).forEach(([catName, dungeons]) => {
+        navDataAch[catName] = { type: 'dungeons', items: [] };
+        dungeons.forEach(d => {
+          const hfs = seasonAchievements.filter(a => a.dungeon === d);
+          if (!hfs.length) return;
+          const maxPts = hfs.reduce((sum, a) => sum + a.points, 0) + 5;
+          navDataAch[catName].items.push({ key: d, label: t(d), hfs, imgPath: DUNGEON_IMAGES[d]||'', color: DUNGEON_COLORS_ACH[d]||'var(--gold-dim)', total: hfs.length, maxPts });
         });
-        html += `</div></div>`;
+      });
+      if (seasonAffixes.length) {
+        navDataAch['Affixes'] = { type: 'affixes', items: [] };
+        seasonAffixesOrder.forEach(aff => {
+          const hfs = seasonAffixes.filter(a => a.affix === aff);
+          if (!hfs.length) return;
+          const meta = AFFIX_META[aff] || { name: aff, name_en: aff, color: 'var(--text-dim)', icon: '' };
+          navDataAch['Affixes'].items.push({ key: aff, label: affixDisplayName(meta), hfs, imgPath: meta.icon, color: meta.color, total: hfs.length });
+        });
       }
 
-      document.getElementById('ach-content').innerHTML = html;
+      // ── Rendu contenu droite ──
+      const renderAchContent = (catName, filterKey) => {
+        const cat = navDataAch[catName];
+        if (!cat) return;
+        const items = filterKey ? cat.items.filter(i => i.key === filterKey) : cat.items;
+        const allHfs = items.flatMap(i => i.hfs);
+        const totalPts = allHfs.reduce((s,a) => s + a.points, 0);
+        const titleLabel = filterKey ? (items[0]?.label || filterKey) : catName;
+        const color = filterKey ? (items[0]?.color || 'var(--gold)') : 'var(--gold)';
+
+        let html = `<div class="wow-content-header">
+          <span class="wow-content-title" style="color:${color}">${titleLabel}</span>
+          <span class="wow-content-stats">${allHfs.length} ${currentLang === 'en' ? 'Achievement' : 'Haut-Fait'} · ${totalPts}${filterKey && items[0]?.maxPts ? '+5' : ''} pts max</span>
+        </div>`;
+
+        if (cat.type === 'dungeons') {
+          if (filterKey) {
+            items[0]?.hfs.forEach(a => { html += achRowStatic(a, items[0].imgPath, items[0].color); });
+          } else {
+            items.forEach(item => { item.hfs.forEach(a => { html += achRowStatic(a, item.imgPath, item.color); }); });
+          }
+        } else {
+          if (filterKey) {
+            items[0]?.hfs.forEach(a => { html += achRowStatic(a, items[0].imgPath, items[0].color); });
+          } else {
+            items.forEach(item => {
+              const meta = AFFIX_META[item.key] || { name: item.key, color: 'var(--text-dim)', icon: '' };
+              html += `<div class="wow-sub-header" style="color:${meta.color};border-bottom-color:${meta.color}44">
+                <img src="${meta.icon}" alt="" onerror="this.style.display='none'">
+                ${item.label}
+              </div>`;
+              item.hfs.forEach(a => { html += achRowStatic(a, item.imgPath, item.color); });
+            });
+          }
+        }
+        document.getElementById('ach-wow-content').innerHTML = html;
+        ACH_STATE.catOpen = catName;
+        ACH_STATE.filterKey = filterKey;
+      };
+
+      // ── Nav gauche ──
+      const catOrder = ['Dungeon','Capstone','Pinnacle','Affixes'];
+      let navHtml = '';
+      catOrder.forEach(catName => {
+        const cat = navDataAch[catName];
+        if (!cat || !cat.items.length) return;
+        const catTotal = cat.items.reduce((s,i) => s + i.total, 0);
+        navHtml += `<div class="wow-cat" id="ach-cat-${catName}">
+          <div class="wow-cat-header" onclick="achToggleCat('${catName}')">
+            <span>${catName}</span>
+            <span class="wow-cat-chevron">▸</span>
+          </div>
+          <div class="wow-cat-items">
+            <div class="wow-nav-item" id="ach-item-${catName}-all" onclick="achSelectItem('${catName}', null)">
+              <span>${currentLang === 'en' ? 'All' : 'Tous'}</span>
+              <span class="wow-nav-item-count">${catTotal} ${currentLang === 'en' ? 'Achievement' : 'Haut-Fait'}s</span>
+            </div>`;
+        cat.items.forEach((item, idx) => {
+          const safeKey = item.key.replace(/[^a-z0-9]/gi,'_');
+          navHtml += `<div class="wow-nav-item" id="ach-item-${catName}-${safeKey}"
+            onclick="achSelectItemByIndex('${catName}', ${idx})"
+            style="border-left-color:${item.color}44">
+            <span>${item.label}</span>
+            <span class="wow-nav-item-count">${item.total} ${currentLang === 'en' ? 'Achievement' : 'Haut-Fait'}s</span>
+          </div>`;
+        });
+        navHtml += `</div></div>`;
+      });
+
+      document.getElementById('ach-content').innerHTML = `<div class="wow-panel">
+        <div class="wow-nav">${navHtml}</div>
+        <div class="wow-content" id="ach-wow-content">
+          <div style="color:var(--text-muted);font-style:italic;padding:20px;text-align:center;font-size:13px">
+            ${currentLang === 'en' ? 'Select a category →' : 'Sélectionne une catégorie →'}
+          </div>
+        </div>
+      </div>`;
+
+      // Stocker renderAchContent pour les fonctions globales
+      window._achRender = renderAchContent;
+      window._navDataAch = navDataAch;
+
+      // Restaurer l'état si déjà ouvert
+      if (ACH_STATE.catOpen && navDataAch[ACH_STATE.catOpen]) {
+        achToggleCat(ACH_STATE.catOpen, true);
+        renderAchContent(ACH_STATE.catOpen, ACH_STATE.filterKey);
+        // Activer le bon item nav
+        const fk = ACH_STATE.filterKey;
+        const suffix = fk ? fk.replace(/[^a-z0-9]/gi,'_') : 'all';
+        const el = document.getElementById(`ach-item-${ACH_STATE.catOpen}-${suffix}`);
+        if (el) el.classList.add('active');
+      }
+    }
+
+    function achToggleCat(catName, forceOpen) {
+      const wasOpen = document.getElementById('ach-cat-' + catName)?.classList.contains('open');
+      document.querySelectorAll('[id^="ach-cat-"]').forEach(el => el.classList.remove('open'));
+      document.querySelectorAll('[id^="ach-item-"]').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.wow-cat-header').forEach(el => el.classList.remove('active'));
+      if (forceOpen || !wasOpen) {
+        const catEl = document.getElementById('ach-cat-' + catName);
+        if (catEl) { catEl.classList.add('open'); catEl.querySelector('.wow-cat-header').classList.add('active'); }
+        if (!forceOpen && window._achRender) {
+          window._achRender(catName, null);
+          const allEl = document.getElementById(`ach-item-${catName}-all`);
+          if (allEl) allEl.classList.add('active');
+        }
+      }
+    }
+
+    function achSelectItem(catName, filterKey) {
+      document.querySelectorAll('[id^="ach-item-"]').forEach(el => el.classList.remove('active'));
+      const suffix = filterKey ? filterKey.replace(/[^a-z0-9]/gi,'_') : 'all';
+      const el = document.getElementById(`ach-item-${catName}-${suffix}`);
+      if (el) el.classList.add('active');
+      if (window._achRender) window._achRender(catName, null);
+    }
+
+    function achSelectItemByIndex(catName, idx) {
+      if (!window._navDataAch) return;
+      const cat = window._navDataAch[catName];
+      if (!cat || !cat.items[idx]) return;
+      const item = cat.items[idx];
+      document.querySelectorAll('[id^="ach-item-"]').forEach(el => el.classList.remove('active'));
+      const safeKey = item.key.replace(/[^a-z0-9]/gi,'_');
+      const el = document.getElementById(`ach-item-${catName}-${safeKey}`);
+      if (el) el.classList.add('active');
+      if (window._achRender) window._achRender(catName, item.key);
     }
 
     // ---- ADMIN ----
