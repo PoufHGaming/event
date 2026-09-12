@@ -30,6 +30,7 @@
       position: absolute;
       top: 0; left: 0;
       width: 340px;
+      height: 520px;
       display: flex;
       flex-direction: column;
       background: var(--bg);
@@ -80,6 +81,7 @@
       flex: 1;
       position: relative;
       overflow: hidden;
+      min-height: 0;
     }
 
     /* Module générique */
@@ -454,12 +456,7 @@
     const seasonLabel = season === 'S2' ? 'Pré-Saison 2' : season === 'S3' ? 'Pré-Saison 3' : 'Total';
     document.getElementById('ov-season-label').textContent = seasonLabel;
 
-    // Ajuster la hauteur selon les modules actifs
-    const overlay = document.getElementById('overlay');
-    const modCount = getActiveModulesForState(s).length;
-    // Hauteur : header ~70px + dots ~22px + progress 2px + body
-    // Body adapté à chaque module
-    overlay.style.height = 'auto';
+    // Hauteur fixe définie en CSS
 
     // Leaderboard
     const top5 = computeScores(rawPlayers || [], rawCompletions || [], season);
