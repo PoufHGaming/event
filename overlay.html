@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Méta-overlay — Pouf_HGaming</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:       #c9a84c;
+  --gold-light: #e8c96a;
+  --gold-dim:   #9a7a3a;
+  --border:     rgba(201,168,76,0.22);
+  --bg:         rgba(6,5,3,0.94);
+  --teal:       #4ca8a8;
+  --text:       #f0e8d0;
+
+  --st-active:  #74b978;
+  --st-soon:    #d9a441;
+  --st-ended:   #6b6455;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:transparent;overflow:hidden}
+
+/* Ancré en bas à gauche : c'est la place qu'occupait le panneau Gloire. */
+#overlay{
+  position:absolute;
+  bottom:0; left:0;
+  width:340px;
+  height:312px;
+  display:flex;
+  flex-direction:column;
+  background:var(--bg);
+  border-right:1px solid var(--border);
+  border-top:1px solid var(--border);
+  border-top-right-radius:10px;
+  backdrop-filter:blur(12px);
+  overflow:hidden;
+  font-family:'Crimson Pro',Georgia,serif;
+  color:var(--text);
+  text-shadow:0 1px 2px rgba(0,0,0,.8);   /* net après compression Twitch */
+}
+
+/* ── En-tête fixe ─────────────────────────────────────────── */
+.ov-header{
+  padding:13px 18px 10px;
+  border-bottom:1px solid var(--border);
+  background:rgba(201,168,76,0.04);
+  flex-shrink:0;
+}
+.ov-title{
+  font-family:'Cinzel',serif;
+  font-size:14px; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase;
+  color:var(--gold); line-height:1;
+}
+.ov-subtitle{
+  font-size:13px; color:#9a8a5a;
+  font-style:italic; margin-top:4px;
+}
+
+/* ── Corps : une carte à la fois ──────────────────────────── */
+.ov-body{ flex:1; position:relative; min-height:0; overflow:hidden; }
+
+.ov-card{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  padding:12px 18px 10px;
+  opacity:0;
+  transition:opacity .6s ease;
+  pointer-events:none;
+}
+.ov-card.visible{ opacity:1; }
+
+/* Ligne de tête : pastille de statut à gauche, type à droite */
+.ov-card-top{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; margin-bottom:7px;
+}
+.ov-status{
+  display:flex; align-items:center; gap:6px;
+  font-family:'Cinzel',serif;
+  font-size:9px; font-weight:600;
+  letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold-dim);
+  white-space:nowrap;
+}
+.ov-status i{
+  width:7px; height:7px; border-radius:50%;
+  background:var(--st-ended);
+  flex-shrink:0;
+}
+.ov-status.active i{ background:var(--st-active); box-shadow:0 0 7px rgba(116,185,120,.5); }
+.ov-status.soon   i{ background:var(--st-soon);   box-shadow:0 0 7px rgba(217,164,65,.45); }
+
+.ov-type{
+  font-family:'Cinzel',serif;
+  font-size:9px; font-weight:600;
+  letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold-dim);
+  text-align:right;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+.ov-name{
+  font-family:'Cinzel',serif;
+  font-size:20px; font-weight:600;
+  line-height:1.15;
+  color:var(--gold-light);
+  margin-bottom:9px;
+}
+
+.ov-lines{
+  flex:0 1 auto; min-height:0;
+  display:flex; flex-direction:column; gap:6px;
+  overflow:hidden;
+}
+.ov-line{
+  font-size:16px; line-height:1.4;
+  color:var(--text);
+  overflow-wrap:anywhere;
+}
+/* Les nombres ressortent sans qu'on ait à les baliser à la main. */
+.ov-line b{
+  font-family:'Cinzel',serif; font-weight:600;
+  font-size:18px; color:var(--gold-light);
+  padding:0 1px;
+}
+.ov-line.muted{ color:#c8b880; font-style:italic; font-size:15px; }
+
+/* Barre de valeur, seulement si le panneau déclare une métrique 0-100 */
+.ov-value{
+  height:4px; margin-top:10px; flex-shrink:0;
+  background:rgba(201,168,76,0.13);
+  border-radius:2px; overflow:hidden;
+}
+.ov-value span{
+  display:block; height:100%;
+  background:linear-gradient(90deg,var(--gold-dim),var(--gold-light));
+  transition:width .8s ease;
+}
+
+/* ── Pied : dots + message global ─────────────────────────── */
+.ov-footer{
+  flex-shrink:0;
+  display:flex; align-items:center; gap:10px;
+  padding:9px 18px 10px;
+  border-top:1px solid var(--border);
+}
+.ov-dots{ display:flex; gap:6px; flex-shrink:0; }
+.ov-dot{
+  width:6px; height:6px; border-radius:50%;
+  background:rgba(201,168,76,0.2);
+  transition:background .4s, transform .4s;
+}
+.ov-dot.active{ background:var(--gold); transform:scale(1.4); }
+
+.ov-msg{
+  flex:1; min-width:0;
+  font-size:13px; font-style:italic;
+  color:var(--teal);
+  text-align:right;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+/* ── Barre de rotation ────────────────────────────────────── */
+.ov-progress{
+  height:2px; flex-shrink:0;
+  background:rgba(201,168,76,0.15);
+  position:relative; overflow:hidden;
+}
+.ov-progress span{
+  position:absolute; top:0; left:0; bottom:0;
+  width:0; background:var(--gold);
+}
+
+.ov-empty{
+  padding:26px 18px; text-align:center;
+  color:rgba(201,168,76,.35);
+  font-style:italic; font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div id="overlay">
+  <div class="ov-header">
+    <div class="ov-title"    id="ov-title">Pouf_HGaming</div>
+    <div class="ov-subtitle" id="ov-subtitle">Events communautaires</div>
+  </div>
+
+  <div class="ov-body" id="ov-body"></div>
+
+  <div class="ov-footer">
+    <div class="ov-dots" id="ov-dots"></div>
+    <div class="ov-msg"  id="ov-msg"></div>
+  </div>
+
+  <div class="ov-progress"><span id="ov-progress-bar"></span></div>
+</div>
+
+<script>
+/* ============================================================================
+   MÉTA-OVERLAY — Pouf_HGaming
+   Source navigateur OBS, 340 × 360, ancré en bas à gauche.
+
+   Tout se pilote depuis admin.html > « Méta-overlay ». Cette page n'exécute
+   aucun SQL : elle lit des valeurs déjà calculées côté Postgres.
+   ========================================================================== */
+
+const SB_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+const SB_ANON = 'sb_publishable_GgNaGBPs4nD65Mt60yGJxA_82DhdeRO';
+
+const DEFAUTS = {
+  title:'Pouf_HGaming', subtitle:'Events communautaires', footer_text:'',
+  rotation_ms:7000, config_refresh_ms:10000, data_refresh_ms:120000
+};
+
+const LIBELLE_STATUT = { active:'En cours', soon:'Bientôt', ended:'Terminé' };
+
+const S = {
+  config:  Object.assign({}, DEFAUTS),
+  panels:  [],
+  metrics: {},          // { cle: valeur }
+  index:   0,
+  timer:   null
+};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s)
+  .replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* Échappement réduit à &, < et > — les seuls nécessaires hors attribut, et
+   surtout les seuls sans chiffres : &#39; serait mutilé par la mise en gras
+   des nombres, qui attraperait le 39 au passage. */
+const escTexte = s => String(s == null ? '' : s)
+  .replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+async function sb(path, opts){
+  const res = await fetch(SB_URL + path, Object.assign({
+    headers:{ apikey:SB_ANON, Authorization:'Bearer ' + SB_ANON,
+              'Content-Type':'application/json' },
+    cache:'no-store'
+  }, opts));
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.status === 204 ? null : res.json();
+}
+
+/* ── Chargements ─────────────────────────────────────────── */
+async function chargerConfig(){
+  try{
+    const r = await sb('/rest/v1/meta_overlay_config?id=eq.1&select=*');
+    if (r && r[0]) S.config = Object.assign({}, DEFAUTS, r[0]);
+  }catch(e){ console.warn('[méta] config indisponible :', e.message); }
+
+  $('ov-title').textContent    = S.config.title || DEFAUTS.title;
+  $('ov-subtitle').textContent = S.config.subtitle || '';
+  $('ov-msg').textContent      = S.config.footer_text || '';
+}
+
+async function chargerPanneaux(){
+  try{
+    const r = await sb('/rest/v1/meta_panels?enabled=eq.true&order=sort_order.asc' +
+                       '&select=id,name,type,status,body,progress_key,duration_ms');
+    if (r) S.panels = r;
+  }catch(e){ console.warn('[méta] panneaux indisponibles :', e.message); }
+  if (S.index >= S.panels.length) S.index = 0;
+  dessinerDots();
+}
+
+async function chargerMetriques(){
+  // On demande d'abord à Postgres de recalculer ce qui est périmé. La fonction
+  // ne touche qu'aux métriques dont le délai est dépassé, donc l'appeler à
+  // chaque cycle ne coûte quasiment rien.
+  try{ await sb('/rest/v1/rpc/refresh_meta_metrics', { method:'POST', body:'{}' }); }
+  catch(e){ console.warn('[méta] recalcul impossible :', e.message); }
+
+  try{
+    const r = await sb('/rest/v1/meta_metrics_public?select=key,value');
+    if (r){
+      const m = {};
+      for (const row of r) m[row.key] = row.value;
+      S.metrics = m;
+    }
+  }catch(e){ console.warn('[méta] métriques indisponibles :', e.message); }
+}
+
+/* ── Rendu ───────────────────────────────────────────────── */
+
+/* Remplace {ma_metrique} par sa valeur.
+   Seules les valeurs substituées PUREMENT numériques passent en or : les
+   chiffres de la prose (« Pré-Saison 3 ») et les valeurs composites
+   (« Dying · 220 pts ») restent au corps du texte. Découpe la métrique en
+   deux si tu veux l'emphase sur une partie seulement. */
+const MARQ_D = '\u0001', MARQ_F = '\u0002';
+
+function interpoler(texte){
+  const brut = String(texte || '').replace(/\{([^}]+)\}/g, (_, cle) => {
+    const v = S.metrics[cle.trim()];
+    if (v === undefined || v === null || v === '') return '—';
+    return /^[\d\s.,%]+$/.test(v) ? MARQ_D + v + MARQ_F : v;
+  });
+  // Échappement d'abord, balises ensuite : rien de ce qui est saisi en
+  // admin ne peut s'exécuter ici.
+  return escTexte(brut)
+    .split(MARQ_D).join('<b>')
+    .split(MARQ_F).join('</b>');
+}
+
+function dessinerDots(){
+  const box = $('ov-dots');
+  box.innerHTML = '';
+  if (S.panels.length < 2) return;
+  S.panels.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.className = 'ov-dot' + (i === S.index ? ' active' : '');
+    box.appendChild(d);
+  });
+}
+
+function dessinerCarte(){
+  const body = $('ov-body');
+
+  if (!S.panels.length){
+    body.innerHTML = '<div class="ov-empty">Aucun event affiché pour le moment.</div>';
+    return;
+  }
+
+  const p = S.panels[S.index % S.panels.length];
+  const statut = ['active','soon','ended'].includes(p.status) ? p.status : 'ended';
+
+  const lignes = String(p.body || '')
+    .split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+    .map((l, i) => `<div class="ov-line${i ? ' muted' : ''}">${interpoler(l)}</div>`)
+    .join('');
+
+  let barre = '';
+  if (p.progress_key){
+    const brut = parseFloat(S.metrics[p.progress_key]);
+    if (isFinite(brut)){
+      const pct = Math.max(0, Math.min(100, brut));
+      barre = `<div class="ov-value"><span style="width:${pct}%"></span></div>`;
+    }
+  }
+
+  const carte = document.createElement('div');
+  carte.className = 'ov-card';
+  carte.innerHTML =
+    `<div class="ov-card-top">
+       <div class="ov-status ${statut}"><i></i>${esc(LIBELLE_STATUT[statut])}</div>
+       <div class="ov-type">${esc(p.type || '')}</div>
+     </div>
+     <div class="ov-name">${esc(p.name)}</div>
+     <div class="ov-lines">${lignes}</div>
+     ${barre}`;
+
+  // Fondu croisé : l'ancienne carte s'efface pendant que la nouvelle arrive.
+  const ancienne = body.querySelector('.ov-card');
+  body.appendChild(carte);
+  requestAnimationFrame(() => carte.classList.add('visible'));
+  if (ancienne){
+    ancienne.classList.remove('visible');
+    setTimeout(() => ancienne.remove(), 650);
+  }
+
+  dessinerDots();
+  lancerBarre(dureeCarte(p));
+}
+
+function dureeCarte(p){
+  const d = Number(p && p.duration_ms);
+  if (isFinite(d) && d >= 2000) return d;
+  const g = Number(S.config.rotation_ms);
+  return (isFinite(g) && g >= 2000) ? g : DEFAUTS.rotation_ms;
+}
+
+/* La barre du bas se vide sur la durée exacte de la carte affichée. */
+function lancerBarre(ms){
+  const bar = $('ov-progress-bar');
+  bar.style.transition = 'none';
+  bar.style.width = '0%';
+  void bar.offsetWidth;                       // force le recalcul
+  bar.style.transition = `width ${ms}ms linear`;
+  bar.style.width = '100%';
+}
+
+function programmerRotation(){
+  clearTimeout(S.timer);
+  if (!S.panels.length){ S.timer = setTimeout(programmerRotation, 5000); return; }
+  const p = S.panels[S.index % S.panels.length];
+  S.timer = setTimeout(() => {
+    S.index = (S.index + 1) % S.panels.length;
+    dessinerCarte();
+    programmerRotation();
+  }, dureeCarte(p));
+}
+
+/* ── Démarrage ───────────────────────────────────────────── */
+async function demarrer(){
+  await chargerConfig();
+  await chargerPanneaux();
+  await chargerMetriques();
+  dessinerCarte();
+  programmerRotation();
+
+  // Les réglages sont légers : on les relit souvent pour que l'admin
+  // soit réactif quand tu actives ou désactives un panneau en direct.
+  setInterval(async () => {
+    const avant = JSON.stringify(S.panels.map(p => p.id));
+    await chargerConfig();
+    await chargerPanneaux();
+    if (JSON.stringify(S.panels.map(p => p.id)) !== avant){
+      S.index = 0;
+      dessinerCarte();
+      programmerRotation();
+    }
+  }, Math.max(5000, Number(S.config.config_refresh_ms) || DEFAUTS.config_refresh_ms));
+
+  // Les chiffres, eux, sont mis en cache côté Postgres : inutile de les
+  // redemander souvent.
+  setInterval(chargerMetriques,
+    Math.max(30000, Number(S.config.data_refresh_ms) || DEFAUTS.data_refresh_ms));
+}
+
+demarrer();
+
+/* Reprise propre quand la scène OBS redevient active. */
+addEventListener('obsSourceActiveChanged', e => {
+  if (e.detail && e.detail.active){ chargerMetriques(); programmerRotation(); }
+});
+</script>
+</body>
+</html>
