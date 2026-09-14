@@ -965,6 +965,120 @@
       color: var(--gold);
     }
 
+    /* ── HF Secret inline ── */
+    .wow-secret-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px 8px 8px;
+      border-radius: 4px;
+      border-left: 3px solid rgba(155,127,234,0.6);
+      margin: 8px 0 4px;
+      cursor: pointer;
+      background: rgba(155,127,234,0.06);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s;
+    }
+    .wow-secret-row:hover { background: rgba(155,127,234,0.12); }
+
+    /* Braises violettes animées */
+    .wow-secret-embers {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .wow-secret-embers::before,
+    .wow-secret-embers::after {
+      content: '';
+      position: absolute;
+      width: 100%; height: 100%;
+      background: radial-gradient(ellipse at 20% 80%, rgba(155,127,234,0.18) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(100,60,200,0.12) 0%, transparent 60%);
+      animation: ember-drift 4s ease-in-out infinite alternate;
+    }
+    .wow-secret-embers::after {
+      animation-delay: -2s;
+      background: radial-gradient(ellipse at 60% 50%, rgba(180,100,255,0.1) 0%, transparent 50%);
+      animation: ember-drift2 5s ease-in-out infinite alternate;
+    }
+    @keyframes ember-drift {
+      0%   { transform: translateX(-6px) translateY(3px) scale(1); opacity: 0.7; }
+      100% { transform: translateX(6px) translateY(-3px) scale(1.05); opacity: 1; }
+    }
+    @keyframes ember-drift2 {
+      0%   { transform: translateX(4px) translateY(-4px); opacity: 0.5; }
+      100% { transform: translateX(-4px) translateY(4px); opacity: 0.9; }
+    }
+
+    /* Particules flottantes */
+    .wow-secret-sparks {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .wow-secret-sparks span {
+      position: absolute;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: rgba(180,130,255,0.7);
+      animation: spark-float 3s ease-in-out infinite;
+    }
+    .wow-secret-sparks span:nth-child(1) { left:15%; animation-delay:0s; animation-duration:3.2s; }
+    .wow-secret-sparks span:nth-child(2) { left:35%; animation-delay:0.8s; animation-duration:2.8s; }
+    .wow-secret-sparks span:nth-child(3) { left:55%; animation-delay:1.4s; animation-duration:3.6s; }
+    .wow-secret-sparks span:nth-child(4) { left:75%; animation-delay:0.4s; animation-duration:2.5s; }
+    .wow-secret-sparks span:nth-child(5) { left:90%; animation-delay:1.9s; animation-duration:3.1s; }
+    @keyframes spark-float {
+      0%   { bottom: -4px; opacity: 0; transform: scale(0.5); }
+      20%  { opacity: 0.9; }
+      80%  { opacity: 0.4; }
+      100% { bottom: 100%; opacity: 0; transform: scale(0.2) translateX(8px); }
+    }
+
+    /* Icône ? */
+    .wow-secret-icon {
+      width: 36px; height: 36px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      border: 2px solid rgba(155,127,234,0.6);
+      background: rgba(100,60,180,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #b8a0f0;
+      position: relative; z-index: 1;
+      text-shadow: 0 0 10px rgba(155,127,234,0.8);
+      animation: icon-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes icon-pulse {
+      0%, 100% { box-shadow: 0 0 6px rgba(155,127,234,0.3); }
+      50%       { box-shadow: 0 0 16px rgba(155,127,234,0.7); }
+    }
+
+    .wow-secret-body {
+      flex: 1; min-width: 0;
+      position: relative; z-index: 1;
+    }
+    .wow-secret-title {
+      font-family: 'Cinzel', serif;
+      font-size: 13px; letter-spacing: 0.03em;
+      color: #b8a0f0; line-height: 1.3;
+      text-shadow: 0 0 8px rgba(155,127,234,0.4);
+    }
+    .wow-secret-desc {
+      font-size: 14px; color: #a090d8;
+      font-style: italic; line-height: 1.45;
+      margin-top: 2px;
+      letter-spacing: 0.08em;
+    }
+
+    /* Zone secrète cachée */
+    .wow-secret-zone {
+      height: 32px;
+      cursor: default;
+      flex-shrink: 0;
+    }
+
     .wow-sub-header {
       display: flex;
       align-items: center;
@@ -2462,7 +2576,7 @@
     <div class="event-subtitle" id="header-organiser">Organisé par Pouf</div>
     <div class="header-ornament">
       <span class="header-ornament-line"></span>
-      <span class="secret-rune" id="secret-rune" onclick="openRuneModal()" title="">✦</span>
+      <span class="secret-rune" id="secret-rune" onclick="openRuneModal('s2')" title="">✦</span>
       <span class="header-ornament-line"></span>
     </div>
     <div class="social-links">
@@ -3345,6 +3459,13 @@
           navHtml += `</div></div>`;
         });
 
+        // ── Zone secrète cachée (S3 uniquement) ──
+        if (currentSeason === 'S3') {
+          navHtml += `<div class="wow-secret-zone" id="${panelId}-secret"
+            onclick="event.stopPropagation(); wowShowSecret('${panelId}')"
+            title=""></div>`;
+        }
+
         // ── Page d'accueil : 4 derniers HF validés ──
         const { allScorable: allScorableForHome } = getSeasonData(currentSeason);
         const doneHfs = allScorableForHome.filter(a => s.done.has(a.id));
@@ -3987,6 +4108,34 @@
       if (pct >= 50)   return '#c9a84c';
       if (pct >= 25)   return '#9a8a6a';
       return '#706860';
+    }
+
+    function wowShowSecret(panelId) {
+      // Désactiver toutes les sélections actives
+      document.querySelectorAll(`[id^="${panelId}-cat-"]`).forEach(el => el.classList.remove('open'));
+      document.querySelectorAll(`[id^="${panelId}-item-"]`).forEach(el => el.classList.remove('active'));
+      document.querySelectorAll(`[id^="${panelId}"] .wow-cat-header`).forEach(el => el.classList.remove('active'));
+
+      const lang = typeof currentLang !== 'undefined' ? currentLang : 'fr';
+      const title = lang === 'en' ? 'Secret Achievement' : 'Haut-fait secret';
+      const desc  = lang === 'en' ? 'Coming Soon' : 'Bientôt disponible';
+
+      const html = `<div style="padding:12px 0">
+        <div class="wow-secret-row" onclick="event.stopPropagation(); this.classList.toggle('expanded')">
+          <div class="wow-secret-embers"></div>
+          <div class="wow-secret-sparks">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="wow-secret-icon">✦</div>
+          <div class="wow-secret-body">
+            <div class="wow-secret-title">${title}</div>
+            <div class="wow-secret-desc">${desc}</div>
+          </div>
+        </div>
+      </div>`;
+
+      const contentEl = document.getElementById(panelId + '-content');
+      if (contentEl) contentEl.innerHTML = html;
     }
 
     function wowToggleCat(panelId, catName) {
@@ -4717,9 +4866,14 @@
     }
 
     // ── RUNE SECRÈTE (easter egg) ──
-    function openRuneModal() {
-      document.getElementById('rune-modal-title').textContent = t('secret.title');
-      document.getElementById('rune-modal-desc').textContent = t('secret.coming');
+    function openRuneModal(source) {
+      const isS3 = source === 's3';
+      document.getElementById('rune-modal-title').textContent = isS3
+        ? (currentLang === 'en' ? '✦ Secret Achievement ✦' : '✦ Haut-fait secret ✦')
+        : t('secret.title');
+      document.getElementById('rune-modal-desc').textContent = isS3
+        ? (currentLang === 'en' ? 'Secret Achievement — Coming Soon' : 'Haut-fait secret — Bientôt disponible')
+        : t('secret.coming');
       document.getElementById('rune-modal-close-btn').textContent = t('secret.close');
       document.getElementById('rune-modal-overlay').classList.add('open');
       document.body.style.overflow = 'hidden';
