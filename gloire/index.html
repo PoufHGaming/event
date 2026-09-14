@@ -3125,7 +3125,7 @@
 
         let rankLabel;
         if (s.total === 0) {
-          rankLabel = `<span style="font-size:12px">${i + 1}</span>`;
+          rankLabel = `<span style="font-size:12px">${s._rank}</span>`;
         } else if (visualRank >= 0 && rank <= 3) {
           rankLabel = `<span style="font-style:italic;font-size:11px">${rankIcons[rank - 1] || rank}</span>`;
         } else {
@@ -4092,8 +4092,8 @@
       'hf.pts_max': { fr: 'pts max', en: 'pts max' },
       'secret.section': { fr: '✦ Haut-fait secret ✦', en: '✦ Secret Achievement ✦' },
       'secret.title': { fr: '— ? —', en: '— ? —' },
-      'secret.desc': { fr: "Sous des coques immobiles, ils prennent jusqu'à sombrer sous son poids.", en: 'Beneath motionless hulls, they take until they sink under its weight.' },
-      'secret.coming': { fr: "Sous des coques immobiles, ils prennent jusqu'à sombrer sous son poids.", en: 'Beneath motionless hulls, they take until they sink under its weight.' },
+      'secret.desc': { fr: "Sous des coques immobiles, ils prennent jusqu'à sombrer sous son poids... Le temps passe, leur butin s'agrandit, et votre main a faim.", en: 'Beneath motionless hulls, they take until they sink under its weight... Time goes by, their treasure grows, and your hand is hungry.' },
+      'secret.coming': { fr: "Sous des coques immobiles, ils prennent jusqu'à sombrer sous son poids... Le temps passe, leur butin s'agrandit, et votre main a faim.", en: 'Beneath motionless hulls, they take until they sink under its weight... Time goes by, their treasure grows, and your hand is hungry.' },
       'secret.close': { fr: 'Fermer', en: 'Close' },
       'badge.hard': { fr: 'Difficile', en: 'Hard' },
       'badge.solo': { fr: 'Solo', en: 'Solo' },
