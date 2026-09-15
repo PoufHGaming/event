@@ -3656,6 +3656,7 @@
         let badgesHtml = '';
         if (a.hard)        badgesHtml += `<span class="badge" data-tooltip="${t('badge.hard')}"><img src="images/badges/hard.png" alt="${t('badge.hard')}"></span>`;
         if (a.personal)    badgesHtml += `<span class="badge" data-tooltip="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
+        if (a.timed)       badgesHtml += `<span class="badge" data-tooltip="${t('badge.timed')}"><img src="images/conditions/timer.png" alt="timer"></span>`;
         if (a.logRequired) badgesHtml += `<span class="badge" data-tooltip="${t('badge.log')}"><img src="images/conditions/log.png" alt="${t('badge.log')}"></span>`;
         if (badgesHtml)    badgesHtml  = `<div class="ach-row-badges">${badgesHtml}</div>`;
 
