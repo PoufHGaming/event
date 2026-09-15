@@ -1612,6 +1612,18 @@
       border-bottom-color: rgba(201, 168, 76, 0.35);
     }
 
+    .badge-timed {
+      background: rgba(76,168,168,0.15);
+      border: 1px solid rgba(76,168,168,0.4);
+      border-radius: 4px;
+      width: 22px; height: 22px;
+    }
+    .badge-timed-inner {
+      font-size: 13px;
+      line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+
     .badge-pts {
       width: auto;
       height: 22px;
@@ -3311,7 +3323,7 @@
           let badgesHtml = '';
           if (a.hard)        badgesHtml += `<span class="badge" data-tooltip="${t('badge.hard')}"><img src="images/badges/hard.png" alt="${t('badge.hard')}"></span>`;
           if (a.personal)    badgesHtml += `<span class="badge" data-tooltip="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
-          if (a.timed)       badgesHtml += `<span class="badge" data-tooltip="${t('badge.timed')}">⏱</span>`;
+          if (a.timed)       badgesHtml += `<span class="badge" data-tooltip="${t('badge.timed')}"><img src="images/conditions/timer.png" alt="timer"></span>`;
           if (a.logRequired) badgesHtml += `<span class="badge" data-tooltip="${t('badge.log')}"><img src="images/conditions/log.png" alt="${t('badge.log')}"></span>`;
           if (badgesHtml)    badgesHtml  = `<div class="ach-row-badges">${badgesHtml}</div>`;
 
@@ -4093,7 +4105,7 @@
       if (a.personal)
         html += `<span class="badge" data-tooltip="${t('badge.solo')}"><img src="images/badges/solo.png" alt="${t('badge.solo')}"></span>`;
       if (a.timed)
-        html += `<span class="badge" data-tooltip="${t('badge.timed')}">⏱</span>`;
+        html += `<span class="badge" data-tooltip="${t('badge.timed')}"><img src="images/conditions/timer.png" alt="timer"></span>`;
       if (a.logRequired)
         html += `<span class="badge" data-tooltip="${t('badge.log')}"><img src="images/conditions/log.png" alt="${t('badge.log')}"></span>`;
       (a.conditions || []).forEach(c =>
