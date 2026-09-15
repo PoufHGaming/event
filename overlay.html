@@ -215,6 +215,21 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
    aucun SQL : elle lit des valeurs déjà calculées côté Postgres.
    ========================================================================== */
 
+/* ── Échelle de rendu ──────────────────────────────────────────────────
+   OBS agrandit une source trop petite, et un agrandissement est toujours
+   flou. On rend donc en grand et tu réduis dans OBS : la réduction, elle,
+   reste nette.
+
+   Ajoute ?echelle=2 à l'URL de la source et règle-la en 680 × 624.
+   Avec ?echelle=3 : 1020 × 936. Puis redimensionne dans OBS.
+
+   C'est bien un rendu en grand, pas un étirement d'image : le texte est
+   dessiné à la taille finale, donc les polices restent parfaitement nettes. */
+(function appliquerEchelle(){
+  const e = parseFloat(new URLSearchParams(location.search).get('echelle'));
+  if (isFinite(e) && e >= 1 && e <= 4) document.documentElement.style.zoom = e;
+})();
+
 const SB_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
 const SB_ANON = 'sb_publishable_GgNaGBPs4nD65Mt60yGJxA_82DhdeRO';
 
