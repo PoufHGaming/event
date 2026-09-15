@@ -121,13 +121,19 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
   color:var(--text);
   overflow-wrap:anywhere;
 }
-/* Les nombres ressortent sans qu'on ait à les baliser à la main. */
+/* Trois rendus, pilotés depuis l'admin :
+     texte brut   → blanc cassé, le corps du texte
+     *texte*      → estompé italique, pour une ligne secondaire
+     **texte**    → or Cinzel, pour ce qu'on veut faire ressortir
+   Les valeurs numériques issues d'une métrique prennent l'or toutes seules. */
 .ov-line b{
-  font-family:'Cinzel',serif; font-weight:600;
+  font-family:'Cinzel',serif; font-weight:600; font-style:normal;
   font-size:18px; color:var(--gold-light);
   padding:0 1px;
 }
-.ov-line.muted{ color:#c8b880; font-style:italic; font-size:15px; }
+.ov-line i{
+  font-style:italic; color:#c8b880; font-size:15px;
+}
 
 /* Barre de valeur, seulement si le panneau déclare une métrique 0-100 */
 .ov-value{
@@ -288,24 +294,27 @@ async function chargerMetriques(){
 
 /* ── Rendu ───────────────────────────────────────────────── */
 
-/* Remplace {ma_metrique} par sa valeur.
-   Seules les valeurs substituées PUREMENT numériques passent en or : les
-   chiffres de la prose (« Pré-Saison 3 ») et les valeurs composites
-   (« Dying · 220 pts ») restent au corps du texte. Découpe la métrique en
-   deux si tu veux l'emphase sur une partie seulement. */
-const MARQ_D = '\u0001', MARQ_F = '\u0002';
-
+/* Trois passes, dans cet ordre précis :
+     1. on échappe le gabarit, donc rien de saisi en admin ne s'exécute
+     2. on interprète le balisage *…* et **…**
+     3. on substitue les métriques EN DERNIER, en échappant leur valeur —
+        une donnée qui contiendrait une étoile ne peut donc pas déformer
+        la mise en forme du reste de la ligne. */
 function interpoler(texte){
-  const brut = String(texte || '').replace(/\{([^}]+)\}/g, (_, cle) => {
+  let h = escTexte(String(texte || ''));
+
+  h = h.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+       .replace(/\*([^*]+)\*/g,       '<i>$1</i>');
+
+  h = h.replace(/\{([^}]+)\}/g, (_, cle) => {
     const v = S.metrics[cle.trim()];
     if (v === undefined || v === null || v === '') return '—';
-    return /^[\d\s.,%]+$/.test(v) ? MARQ_D + v + MARQ_F : v;
+    const t = escTexte(v);
+    // Une valeur purement numérique passe en or sans qu'on ait à la baliser.
+    return /^[\d\s.,%]+$/.test(v) ? '<b>' + t + '</b>' : t;
   });
-  // Échappement d'abord, balises ensuite : rien de ce qui est saisi en
-  // admin ne peut s'exécuter ici.
-  return escTexte(brut)
-    .split(MARQ_D).join('<b>')
-    .split(MARQ_F).join('</b>');
+
+  return h;
 }
 
 function dessinerDots(){
@@ -332,7 +341,7 @@ function dessinerCarte(){
 
   const lignes = String(p.body || '')
     .split(/\r?\n/).map(l => l.trim()).filter(Boolean)
-    .map((l, i) => `<div class="ov-line${i ? ' muted' : ''}">${interpoler(l)}</div>`)
+    .map(l => `<div class="ov-line">${interpoler(l)}</div>`)
     .join('');
 
   let barre = '';
