@@ -27,8 +27,8 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 #overlay{
   position:absolute;
   bottom:0; left:0;
-  width:340px;
-  height:312px;
+  width:400px;
+  height:400px;
   display:flex;
   flex-direction:column;
   background:var(--bg);
@@ -44,20 +44,20 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 
 /* ── En-tête fixe ─────────────────────────────────────────── */
 .ov-header{
-  padding:13px 18px 10px;
+  padding:15px 22px 12px;
   border-bottom:1px solid var(--border);
   background:rgba(201,168,76,0.04);
   flex-shrink:0;
 }
 .ov-title{
   font-family:'Cinzel',serif;
-  font-size:14px; font-weight:700;
+  font-size:17px; font-weight:700;
   letter-spacing:.18em; text-transform:uppercase;
   color:var(--gold); line-height:1;
 }
 .ov-subtitle{
-  font-size:13px; color:#9a8a5a;
-  font-style:italic; margin-top:4px;
+  font-size:15px; color:#9a8a5a;
+  font-style:italic; margin-top:5px;
 }
 
 /* ── Corps : une carte à la fois ──────────────────────────── */
@@ -66,7 +66,7 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 .ov-card{
   position:absolute; inset:0;
   display:flex; flex-direction:column;
-  padding:12px 18px 10px;
+  padding:14px 22px 12px;
   opacity:0;
   transition:opacity .6s ease;
   pointer-events:none;
@@ -81,13 +81,13 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 .ov-status{
   display:flex; align-items:center; gap:6px;
   font-family:'Cinzel',serif;
-  font-size:9px; font-weight:600;
+  font-size:11px; font-weight:600;
   letter-spacing:.22em; text-transform:uppercase;
   color:var(--gold-dim);
   white-space:nowrap;
 }
 .ov-status i{
-  width:7px; height:7px; border-radius:50%;
+  width:9px; height:9px; border-radius:50%;
   background:var(--st-ended);
   flex-shrink:0;
 }
@@ -96,7 +96,7 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 
 .ov-type{
   font-family:'Cinzel',serif;
-  font-size:9px; font-weight:600;
+  font-size:11px; font-weight:600;
   letter-spacing:.22em; text-transform:uppercase;
   color:var(--gold-dim);
   text-align:right;
@@ -105,19 +105,19 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 
 .ov-name{
   font-family:'Cinzel',serif;
-  font-size:20px; font-weight:600;
-  line-height:1.15;
+  font-size:25px; font-weight:600;
+  line-height:1.14;
   color:var(--gold-light);
-  margin-bottom:9px;
+  margin-bottom:11px;
 }
 
 .ov-lines{
   flex:0 1 auto; min-height:0;
-  display:flex; flex-direction:column; gap:6px;
+  display:flex; flex-direction:column; gap:8px;
   overflow:hidden;
 }
 .ov-line{
-  font-size:16px; line-height:1.4;
+  font-size:19px; line-height:1.38;
   color:var(--text);
   overflow-wrap:anywhere;
 }
@@ -128,16 +128,16 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
    Les valeurs numériques issues d'une métrique prennent l'or toutes seules. */
 .ov-line b{
   font-family:'Cinzel',serif; font-weight:600; font-style:normal;
-  font-size:18px; color:var(--gold-light);
+  font-size:22px; color:var(--gold-light);
   padding:0 1px;
 }
 .ov-line i{
-  font-style:italic; color:#c8b880; font-size:15px;
+  font-style:italic; color:#c8b880; font-size:17px;
 }
 
 /* Barre de valeur, seulement si le panneau déclare une métrique 0-100 */
 .ov-value{
-  height:4px; margin-top:10px; flex-shrink:0;
+  height:5px; margin-top:12px; flex-shrink:0;
   background:rgba(201,168,76,0.13);
   border-radius:2px; overflow:hidden;
 }
@@ -151,12 +151,12 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 .ov-footer{
   flex-shrink:0;
   display:flex; align-items:center; gap:10px;
-  padding:9px 18px 10px;
+  padding:11px 22px 12px;
   border-top:1px solid var(--border);
 }
 .ov-dots{ display:flex; gap:6px; flex-shrink:0; }
 .ov-dot{
-  width:6px; height:6px; border-radius:50%;
+  width:7px; height:7px; border-radius:50%;
   background:rgba(201,168,76,0.2);
   transition:background .4s, transform .4s;
 }
@@ -164,7 +164,7 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 
 .ov-msg{
   flex:1; min-width:0;
-  font-size:13px; font-style:italic;
+  font-size:15px; font-style:italic;
   color:var(--teal);
   text-align:right;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -172,7 +172,7 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
 
 /* ── Barre de rotation ────────────────────────────────────── */
 .ov-progress{
-  height:2px; flex-shrink:0;
+  height:3px; flex-shrink:0;
   background:rgba(201,168,76,0.15);
   position:relative; overflow:hidden;
 }
@@ -220,8 +220,8 @@ html,body{width:100%;height:100%;background:transparent;overflow:hidden}
    flou. On rend donc en grand et tu réduis dans OBS : la réduction, elle,
    reste nette.
 
-   Ajoute ?echelle=2 à l'URL de la source et règle-la en 680 × 624.
-   Avec ?echelle=3 : 1020 × 936. Puis redimensionne dans OBS.
+   Ajoute ?echelle=2 à l'URL de la source et règle-la en 800 × 800.
+   Avec ?echelle=3 : 1200 × 1200. Puis redimensionne dans OBS.
 
    C'est bien un rendu en grand, pas un étirement d'image : le texte est
    dessiné à la taille finale, donc les polices restent parfaitement nettes. */
