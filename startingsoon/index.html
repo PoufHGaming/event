@@ -421,7 +421,7 @@ function applyScreen(row, resetTimer){
   S.screen = row;
 
   const isBrb = row.mode === 'brb';
-  document.title = (isBrb ? 'Pause' : 'Starting Soon') + ' . Pouf_HGaming';
+  document.title = (isBrb ? 'Pause' : 'Starting Soon') + ' — Pouf_HGaming';
   $('clock-label').textContent = isBrb ? 'De retour dans' : 'Le live commence dans';
   $('columns').classList.toggle('solo', isBrb);
   $('note').textContent = isBrb ? (row.brb_note || '') : (row.note || '');
@@ -536,7 +536,7 @@ function liveBlock(source){
     if (d.dungeons) terrain.push('<b>' + d.dungeons + '</b> ' + (d.dungeons > 1 ? 'donjons' : 'donjon'));
     if (d.affixes)  terrain.push('<b>' + d.affixes + '</b> ' + (d.affixes > 1 ? 'affixes' : 'affixe'));
 
-    const l1 = esc(d.seasonLabel) + ' - <b>' + d.total + '</b> ' +
+    const l1 = esc(d.seasonLabel) + ' — <b>' + d.total + '</b> ' +
                (d.total > 1 ? 'hauts-faits' : 'haut-fait') +
                (terrain.length ? ' sur ' + terrain.join(' et ') : '');
     const l2 = d.hfToutesSaisons
