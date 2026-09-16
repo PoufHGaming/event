@@ -260,7 +260,7 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
    ========================================================================== */
 
 const SB_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
-const SB_ANON = 'sb_publishable_GgNaGBPs4nD65Mt60yGJxA_82DhdeRO';
+const SB_ANON = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
 
 const SCREEN_REFRESH_MS = 10000;   // réglages : réactif quand tu changes de mode
 const LIVE_REFRESH_MS   = 60000;   // chiffres du TCG
@@ -316,6 +316,21 @@ function pick(field, fallback){
 
 function lines(txt){
   return String(txt || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+}
+
+/* Compte les lignes SANS en rapatrier le contenu : PostgREST renvoie le
+   total dans l'en-tête content-range. Quelques octets au lieu de la table. */
+async function sbCount(path){
+  const r = await fetch(SB_URL + path, {
+    method:'HEAD',
+    headers:{ apikey:SB_ANON, Authorization:'Bearer ' + SB_ANON, Prefer:'count=exact' },
+    cache:'no-store'
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const cr = r.headers.get('content-range') || '';       // « * / 1247 »
+  const n = parseInt(cr.split('/')[1], 10);
+  if (isNaN(n)) throw new Error('comptage indisponible');
+  return n;
 }
 
 async function sbFetch(path){
@@ -406,7 +421,7 @@ function applyScreen(row, resetTimer){
   S.screen = row;
 
   const isBrb = row.mode === 'brb';
-  document.title = (isBrb ? 'Pause' : 'Starting Soon') + ' — Pouf_HGaming';
+  document.title = (isBrb ? 'Pause' : 'Starting Soon') + ' . Pouf_HGaming';
   $('clock-label').textContent = isBrb ? 'De retour dans' : 'Le live commence dans';
   $('columns').classList.toggle('solo', isBrb);
   $('note').textContent = isBrb ? (row.brb_note || '') : (row.note || '');
@@ -508,8 +523,10 @@ function liveBlock(source){
     if (!d) return '<div class="line">Le classement arrive.</div>';
 
     if (d.started){
-      return '<div class="line">' + esc(d.seasonLabel) + ' — <b>' + d.players + '</b> ' +
-               (d.players > 1 ? 'joueurs engagés' : 'joueur engagé') + '</div>' +
+      const ligneTotal = d.hfToutesSaisons != null
+        ? '<b>' + d.hfToutesSaisons + '</b> hauts-faits validés par la compagnie, toutes saisons confondues'
+        : esc(d.seasonLabel) + ' en cours';
+      return '<div class="line">' + ligneTotal + '</div>' +
              '<div class="line">En tête : <em>' + esc(d.leaderName) + '</em> avec <b>' +
                d.leaderScore + '</b> ' + (d.leaderScore > 1 ? 'hauts-faits' : 'haut-fait') + '</div>';
     }
@@ -519,11 +536,13 @@ function liveBlock(source){
     if (d.dungeons) terrain.push('<b>' + d.dungeons + '</b> ' + (d.dungeons > 1 ? 'donjons' : 'donjon'));
     if (d.affixes)  terrain.push('<b>' + d.affixes + '</b> ' + (d.affixes > 1 ? 'affixes' : 'affixe'));
 
-    const l1 = esc(d.seasonLabel) + ' — <b>' + d.total + '</b> ' +
+    const l1 = esc(d.seasonLabel) + ' - <b>' + d.total + '</b> ' +
                (d.total > 1 ? 'hauts-faits' : 'haut-fait') +
                (terrain.length ? ' sur ' + terrain.join(' et ') : '');
-    const l2 = '<b>' + d.points + '</b> points à décrocher' +
-               (d.hard ? ', dont <b>' + d.hard + '</b> en difficulté élevée' : '');
+    const l2 = d.hfToutesSaisons
+      ? '<b>' + d.hfToutesSaisons + '</b> hauts-faits déjà validés par la compagnie depuis le début'
+      : '<b>' + d.points + '</b> points à décrocher' +
+        (d.hard ? ', dont <b>' + d.hard + '</b> en difficulté élevée' : '');
 
     return '<div class="line">' + l1 + '</div><div class="line">' + l2 + '</div>';
   }
@@ -679,6 +698,7 @@ async function loadGloire(){
   }
 
   return {
+    hfToutesSaisons: hfTotalToutesSaisons,
     seasonLabel: SEASON_LABELS[season] || season,
     total: open.length,
     dungeons: dungeons.size,
