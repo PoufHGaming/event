@@ -105,8 +105,20 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
   display:grid;grid-template-columns:1fr 1fr;gap:80px;
   width:1420px;margin-top:24px;align-items:start;
 }
-.columns.solo{grid-template-columns:900px;justify-content:center}
-.columns.solo .col-programme{display:none}
+.col-reserve{min-height:288px}
+
+/* Repères de calage, visibles uniquement avec ?reperes=1 */
+body.reperes .col-reserve{
+  outline:1px dashed rgba(232,196,90,.45);
+  position:relative;
+}
+body.reperes .col-reserve::after{
+  content:'Zone méta-overlay';
+  position:absolute;top:10px;left:0;right:0;text-align:center;
+  font-family:'Bebas Neue',Impact,sans-serif;
+  font-size:22px;letter-spacing:.16em;
+  color:rgba(232,196,90,.5);
+}
 
 .col-title{
   font-family:'Bebas Neue',Impact,sans-serif;
@@ -229,10 +241,11 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
         <div class="col-title">Au programme</div>
         <ul class="programme" id="programme"></ul>
       </div>
-      <div class="col-event">
-        <div class="col-title">Les events du moment</div>
-        <div class="event" id="event"></div>
-        <div class="dots" id="dots"></div>
+      <!-- Zone réservée au méta-overlay, superposé dans OBS.
+           Volontairement vide et transparente : elle ne sert qu'à tenir la
+           place, pour que la colonne de gauche ne se recentre pas.
+           Ajoute ?reperes=1 à l'URL pour la matérialiser au calage. -->
+      <div class="col-reserve" id="col-reserve"></div>
       </div>
     </div>
 
@@ -248,14 +261,16 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
    ÉCRAN D'ATTENTE — Pouf_HGaming
    Un seul fichier. Source navigateur OBS, 1920×1080.
 
-   Tout se pilote depuis admin.html → « Écran d'attente » (table stream_screen
-   et stream_events). Les paramètres d'URL ci-dessous restent disponibles pour
+   Tout se pilote depuis admin.html → « Écran d'attente » (table stream_screen).
+   Le bloc de droite est volontairement vide : c'est la place du méta-overlay,
+   superposé dans OBS. Les paramètres d'URL ci-dessous restent disponibles pour
    un réglage ponctuel : ils écrasent la base sans rien y modifier.
 
      ?mode=brb                              force le mode pause
      ?duree=8                               minutes de compte à rebours
      ?debut=20:30                           heure de début absolue
      ?prog=Boosters|Scryers+Peak|Debrief    programme, séparé par des |
+     ?reperes=1                             matérialise la zone réservée
      ?nodb=1                                ignore Supabase (aperçu hors ligne)
    ========================================================================== */
 
@@ -263,8 +278,6 @@ const SB_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
 const SB_ANON = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
 
 const SCREEN_REFRESH_MS = 10000;   // réglages : réactif quand tu changes de mode
-const LIVE_REFRESH_MS   = 60000;   // chiffres du TCG
-const ROTATE_MS         = 20000;   // rotation des encarts d'events
 const ZERO_ROTATE_MS    = 9000;    // rotation des messages une fois à zéro
 
 /* Teinte de la pastille déduite du texte saisi en admin, pour ne rien avoir
@@ -287,13 +300,6 @@ const FALLBACK = {
   zero_messages: 'Le heal finit son café, deux secondes\nOn attend que le tank arrête de pull\nFormation du groupe en cours',
   brb_note: '',
   brb_zero_messages: 'Je remonte du donjon\nOn repart dans une seconde',
-  events: [{
-    title: 'The Stronghold',
-    subtitle: 'TCG communautaire Fellowship',
-    status: 'En cours',
-    body: 'Cent vingt-cinq cartes, six raretés, rien à acheter. Tes points de chaîne deviennent des boosters.',
-    live_source: 'stronghold'
-  }]
 };
 
 const params = new URLSearchParams(location.search);
@@ -383,14 +389,11 @@ addEventListener('resize', fit);
 /* ── état ────────────────────────────────────────────────────────── */
 const S = {
   screen: null,        // ligne stream_screen résolue
-  events: [],          // encarts actifs
-  eventIdx: 0,
   target: null,        // Date de fin du compte à rebours
   relativeAnchor: 0,   // minutes utilisées pour le calcul relatif en cours
   atZero: false,
   zeroIdx: 0,
-  live: { stronghold: null, gloire: null },
-  liveStale: true
+  atZeroShown: false
 };
 
 /* ── résolution de la configuration ──────────────────────────────── */
@@ -423,7 +426,6 @@ function applyScreen(row, resetTimer){
   const isBrb = row.mode === 'brb';
   document.title = (isBrb ? 'Pause' : 'Starting Soon') + ' — Pouf_HGaming';
   $('clock-label').textContent = isBrb ? 'De retour dans' : 'Le live commence dans';
-  $('columns').classList.toggle('solo', isBrb);
   $('note').textContent = isBrb ? (row.brb_note || '') : (row.note || '');
 
   renderProgramme(lines(row.programme));
@@ -507,86 +509,6 @@ function rotateZero(){
   setTimeout(rotateZero, ZERO_ROTATE_MS);
 }
 
-/* ── encarts d'events ────────────────────────────────────────────── */
-function liveBlock(source){
-  if (source === 'stronghold'){
-    const d = S.live.stronghold;
-    if (!d) return '<div class="line">Les compteurs de la collection arrivent.</div>';
-    const leg = d.legendaryName
-      ? 'Dernière Legendary : <em>' + esc(d.legendaryName) + '</em> par <em>' + esc(d.legendaryUser) + '</em>'
-      : 'Aucune Legendary trouvée pour l\u2019instant. Ce soir peut-être.';
-    return '<div class="line"><b>' + d.found + '</b> / <b>' + d.total + '</b> cartes trouvées par la communauté</div>' +
-           '<div class="line">' + leg + '</div>';
-  }
-  if (source === 'gloire'){
-    const d = S.live.gloire;
-    if (!d) return '<div class="line">Le classement arrive.</div>';
-
-    if (d.started){
-      const ligneTotal = d.hfToutesSaisons != null
-        ? '<b>' + d.hfToutesSaisons + '</b> hauts-faits validés par la compagnie, toutes saisons confondues'
-        : esc(d.seasonLabel) + ' en cours';
-      return '<div class="line">' + ligneTotal + '</div>' +
-             '<div class="line">En tête : <em>' + esc(d.leaderName) + '</em> avec <b>' +
-               d.leaderScore + '</b> ' + (d.leaderScore > 1 ? 'hauts-faits' : 'haut-fait') + '</div>';
-    }
-
-    // Saison pas encore lancée : on annonce ce qu'il y a à décrocher.
-    const terrain = [];
-    if (d.dungeons) terrain.push('<b>' + d.dungeons + '</b> ' + (d.dungeons > 1 ? 'donjons' : 'donjon'));
-    if (d.affixes)  terrain.push('<b>' + d.affixes + '</b> ' + (d.affixes > 1 ? 'affixes' : 'affixe'));
-
-    const l1 = esc(d.seasonLabel) + ' — <b>' + d.total + '</b> ' +
-               (d.total > 1 ? 'hauts-faits' : 'haut-fait') +
-               (terrain.length ? ' sur ' + terrain.join(' et ') : '');
-    const l2 = d.hfToutesSaisons
-      ? '<b>' + d.hfToutesSaisons + '</b> hauts-faits déjà validés par la compagnie depuis le début'
-      : '<b>' + d.points + '</b> points à décrocher' +
-        (d.hard ? ', dont <b>' + d.hard + '</b> en difficulté élevée' : '');
-
-    return '<div class="line">' + l1 + '</div><div class="line">' + l2 + '</div>';
-  }
-  return '';
-}
-
-function renderEvent(){
-  const box = $('event');
-  const list = S.events.length ? S.events : FALLBACK.events;
-  const ev = list[S.eventIdx % list.length];
-  const live = liveBlock(ev.live_source);
-
-  box.innerHTML =
-    '<div class="event-head">' +
-      '<div class="event-title">' + esc(ev.title) + '</div>' +
-      (ev.status ? '<div class="event-status ' + statusTone(ev.status) + '">' + esc(ev.status) + '</div>' : '') +
-    '</div>' +
-    (ev.subtitle ? '<div class="event-subtitle">' + esc(ev.subtitle) + '</div>' : '') +
-    (ev.body ? '<div class="event-body">' + esc(ev.body) + '</div>' : '') +
-    (live ? '<div class="event-live' + (S.liveStale ? ' stale' : '') + '">' + live + '</div>' : '');
-
-  const dots = $('dots');
-  dots.innerHTML = '';
-  if (list.length > 1){
-    list.forEach((_, i) => {
-      const d = document.createElement('span');
-      d.className = 'dot' + (i === S.eventIdx % list.length ? ' on' : '');
-      dots.appendChild(d);
-    });
-  }
-}
-
-function rotateEvent(){
-  const list = S.events.length ? S.events : FALLBACK.events;
-  if (list.length < 2) return;
-  const box = $('event');
-  box.classList.add('fading');
-  setTimeout(() => {
-    S.eventIdx = (S.eventIdx + 1) % list.length;
-    renderEvent();
-    box.classList.remove('fading');
-  }, 600);
-}
-
 /* ── chargements Supabase ────────────────────────────────────────── */
 async function loadScreen(resetTimer){
   let row = null;
@@ -601,134 +523,6 @@ async function loadScreen(resetTimer){
   applyScreen(Object.assign({}, FALLBACK, row || {}, overrides()), resetTimer);
 }
 
-async function loadEvents(){
-  if (!useDb) { S.events = FALLBACK.events; renderEvent(); return; }
-  try {
-    const rows = await sbFetch(
-      '/rest/v1/stream_events?active=eq.true&order=sort_order.asc&select=title,subtitle,status,body,live_source');
-    if (rows && rows.length){
-      S.events = rows;
-      if (S.eventIdx >= rows.length) S.eventIdx = 0;
-    }
-  } catch (e){
-    console.warn('[écran] events indisponibles :', e.message);
-    if (!S.events.length) S.events = FALLBACK.events;
-  }
-  renderEvent();
-}
-
-/* Données Stronghold — mêmes requêtes que le bandeau overlay, pour rester cohérent. */
-async function loadStronghold(){
-  const [cards, collections, users] = await Promise.all([
-    sbFetch('/rest/v1/tcg_cards?select=id,name,rarity&is_active=eq.true'),
-    sbFetch('/rest/v1/tcg_user_collections?select=user_id,card_id,first_obtained_at&quantity=gt.0'),
-    sbFetch('/rest/v1/tcg_users?select=id,username')
-  ]);
-
-  const cardsById = new Map(cards.map(c => [c.id, c]));
-  const nameById  = new Map(users.map(u => [u.id, u.username || '???']));
-
-  const foundIds = new Set();
-  let lastLeg = null;
-  for (const row of collections){
-    const card = cardsById.get(row.card_id);
-    if (!card) continue;
-    foundIds.add(row.card_id);
-    if (card.rarity !== 'LEGENDARY') continue;
-    if (!lastLeg || new Date(row.first_obtained_at) > new Date(lastLeg.first_obtained_at)) lastLeg = row;
-  }
-
-  return {
-    found: foundIds.size,
-    total: cards.length,
-    legendaryName: lastLeg ? pick(cardsById.get(lastLeg.card_id).name, '') : null,
-    legendaryUser: lastLeg ? (nameById.get(lastLeg.user_id) || '???') : null
-  };
-}
-
-/* Données Gloire à la Compagnie.
-   La saison vient d'overlay_state.season ('S2' | 'S3' | 'Total'), la même valeur
-   que tu règles dans l'onglet Overlay — les hauts-faits des saisons précédentes
-   ne sont jamais comptés ici.
-
-   Avant le lancement d'une saison, personne n'a encore coché quoi que ce soit :
-   l'encart annonce alors la taille du défi (hauts-faits, donjons, points) plutôt
-   qu'un classement vide. Il bascule tout seul sur la progression dès le premier
-   haut-fait validé. */
-const SEASON_LABELS = { S2: 'Pré-Saison 2', S3: 'Pré-Saison 3', Total: 'Toutes saisons' };
-
-const plural = (n, mot) => n + ' ' + mot + (n > 1 ? 's' : '');
-
-async function loadGloire(){
-  const stateRows = await sbFetch('/rest/v1/overlay_state?id=eq.1&select=season').catch(() => []);
-  const season = (stateRows && stateRows[0] && stateRows[0].season) || 'S3';
-  const seasonNum = season === 'S2' ? 2 : season === 'S3' ? 3 : null;
-
-  // 'Total' = pas de filtre de saison
-  const achFilter = seasonNum ? '&season=eq.' + seasonNum : '';
-  const achievements = await sbFetch(
-    '/rest/v1/achievements?select=id,dungeon,affix,points,is_hard,coming_soon' + achFilter);
-
-  // Les hauts-faits marqués coming_soon ne sont pas encore décrochables.
-  const open = achievements.filter(a => !a.coming_soon);
-  const ids  = open.map(a => a.id);
-
-  const dungeons = new Set(open.map(a => a.dungeon).filter(Boolean));
-  const affixes  = new Set(open.map(a => a.affix).filter(Boolean));
-  const points   = open.reduce((n, a) => n + (a.points || 0), 0);
-  const hard     = open.filter(a => a.is_hard).length;
-
-  // Progression : on ne demande que les validations de cette saison.
-  let completions = [];
-  if (ids.length){
-    completions = await sbFetch(
-      '/rest/v1/player_achievements?select=player_id,achievement_id' +
-      '&achievement_id=in.(' + ids.join(',') + ')').catch(() => []);
-  }
-
-  const counts = new Map();
-  for (const c of completions) counts.set(c.player_id, (counts.get(c.player_id) || 0) + 1);
-
-  let leaderName = null, leaderScore = 0;
-  if (counts.size){
-    let leader = null;
-    for (const [pid, n] of counts) if (n > leaderScore){ leaderScore = n; leader = pid; }
-    const players = await sbFetch('/rest/v1/players?select=id,name').catch(() => []);
-    leaderName = new Map(players.map(p => [p.id, p.name])).get(leader) || null;
-  }
-
-  return {
-    hfToutesSaisons: hfTotalToutesSaisons,
-    seasonLabel: SEASON_LABELS[season] || season,
-    total: open.length,
-    dungeons: dungeons.size,
-    affixes: affixes.size,
-    points, hard,
-    started: counts.size > 0,
-    players: counts.size,
-    leaderName, leaderScore
-  };
-}
-
-async function loadLive(){
-  if (!useDb){ S.liveStale = true; renderEvent(); return; }
-
-  const list = S.events.length ? S.events : FALLBACK.events;
-  const sources = new Set(list.map(e => e.live_source));
-  const jobs = [];
-
-  if (sources.has('stronghold'))
-    jobs.push(loadStronghold().then(d => S.live.stronghold = d).catch(e => console.warn('[écran] Stronghold :', e.message)));
-  if (sources.has('gloire'))
-    jobs.push(loadGloire().then(d => S.live.gloire = d).catch(e => console.warn('[écran] Gloire :', e.message)));
-
-  const before = JSON.stringify(S.live);
-  await Promise.all(jobs);
-  // Si rien n'a bougé alors qu'on attendait des données, on estompe au lieu d'effacer.
-  S.liveStale = jobs.length > 0 && JSON.stringify(S.live) === before && !S.live.stronghold && !S.live.gloire;
-  renderEvent();
-}
-
 /* ── démarrage ───────────────────────────────────────────────────── */
 let booting = false;
 async function boot(resetTimer){
@@ -736,21 +530,17 @@ async function boot(resetTimer){
   booting = true;
   try {
     await loadScreen(resetTimer);
-    await loadEvents();
-    await loadLive();
   } finally {
     booting = false;
   }
 }
 
-renderEvent();
+if (params.has('reperes')) document.body.classList.add('reperes');
+
 boot(true);
 
 setInterval(tick, 250);
 setInterval(() => loadScreen(false), SCREEN_REFRESH_MS);  // sans relancer le compteur en cours
-setInterval(loadEvents, 120000);
-setInterval(loadLive, LIVE_REFRESH_MS);
-setInterval(rotateEvent, ROTATE_MS);
 
 /* ── intégration OBS ─────────────────────────────────────────────────
    Si « Actualiser le navigateur quand la scène devient active » est coché,
