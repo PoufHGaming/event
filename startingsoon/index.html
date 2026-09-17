@@ -107,6 +107,15 @@ html,body{width:100%;height:100%;background:var(--bg-deep);overflow:hidden}
 }
 .col-reserve{min-height:288px}
 
+/* Diagnostic de calage, masqué à l'antenne */
+.diag{display:none}
+body.reperes .diag{
+  display:block;
+  position:absolute;left:0;right:0;bottom:18px;z-index:9;
+  text-align:center;font-size:17px;font-family:ui-monospace,monospace;
+  color:rgba(232,196,90,.75);
+}
+
 /* Repères de calage, visibles uniquement avec ?reperes=1 */
 body.reperes .col-reserve{
   outline:1px dashed rgba(232,196,90,.45);
@@ -252,6 +261,7 @@ body.reperes .col-reserve::after{
   </div>
 
   <div class="note" id="note"></div>
+  <div class="diag" id="diag"></div>
   <div class="glow"></div>
   <div class="embers" id="embers"></div>
 </div>
@@ -275,9 +285,8 @@ body.reperes .col-reserve::after{
    ========================================================================== */
 
 const SB_URL  = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
-const SB_ANON = 'sb_publishable_VaKW09b17IXBlU_snJ7S_g_xiwNzyvH';
+const SB_ANON = 'sb_publishable_GgNaGBPs4nD65Mt60yGJxA_82DhdeRO';
 
-const SCREEN_REFRESH_MS = 10000;   // réglages : réactif quand tu changes de mode
 const ZERO_ROTATE_MS    = 9000;    // rotation des messages une fois à zéro
 
 /* Teinte de la pastille déduite du texte saisi en admin, pour ne rien avoir
@@ -511,15 +520,21 @@ function rotateZero(){
 
 /* ── chargements Supabase ────────────────────────────────────────── */
 async function loadScreen(resetTimer){
-  let row = null;
+  let row = null, diag = 'hors base (?nodb=1)';
   if (useDb){
     try {
       const rows = await sbFetch('/rest/v1/stream_screen?id=eq.1&select=*');
       row = rows && rows[0];
+      diag = row ? 'base lue' : 'base lue, mais aucune ligne id=1';
     } catch (e){
+      diag = 'ÉCHEC : ' + e.message + (/401|403/.test(e.message) ? ' — clé anon invalide ?' : '');
       console.warn('[écran] réglages indisponibles :', e.message);
     }
   }
+  // Affiché uniquement avec ?reperes=1 : à l'antenne, l'écran doit se replier
+  // en silence, mais au calage il faut voir ce qui se passe.
+  const d = $('diag');
+  if (d) d.textContent = diag + (row ? ' · programme : ' + lines(row.programme).length + ' ligne(s)' : '');
   applyScreen(Object.assign({}, FALLBACK, row || {}, overrides()), resetTimer);
 }
 
@@ -539,14 +554,25 @@ if (params.has('reperes')) document.body.classList.add('reperes');
 
 boot(true);
 
-setInterval(tick, 250);
-setInterval(() => loadScreen(false), SCREEN_REFRESH_MS);  // sans relancer le compteur en cours
+setInterval(tick, 250);   // l'affichage du compteur
+
+/* Relecture périodique, désactivée par défaut. Ajoute ?sync=10 à l'URL pour
+   relire la base toutes les 10 secondes — utile seulement si tu changes le
+   mode ou le programme pendant que la scène est déjà à l'antenne. */
+const sync = parseFloat(params.get('sync'));
+if (isFinite(sync) && sync >= 5){
+  setInterval(() => loadScreen(false), sync * 1000);   // sans relancer le compteur
+}
 
 /* ── intégration OBS ─────────────────────────────────────────────────
-   Si « Actualiser le navigateur quand la scène devient active » est coché,
-   la page se recharge et boot(true) suffit. Sinon ces événements relancent
-   proprement le compte à rebours au retour sur la scène — il ne continue
-   jamais de courir depuis le lancement d'OBS. */
+   Plus aucune relecture périodique : la configuration est lue une seule
+   fois à l'ouverture. Elle l'est de nouveau à chaque fois que la scène
+   redevient active, ce qui relance aussi proprement le compte à rebours —
+   il ne continue jamais de courir depuis le lancement d'OBS.
+
+   Conséquence à connaître : un changement fait en admin pendant que la
+   scène est déjà à l'antenne n'apparaîtra pas tout seul. Repasse sur la
+   scène, ou clique droit sur la source puis « Actualiser ». */
 addEventListener('obsSourceActiveChanged',  e => { if (e.detail && e.detail.active)  boot(true); });
 addEventListener('obsSourceVisibleChanged', e => { if (e.detail && e.detail.visible) boot(true); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) boot(true); });
