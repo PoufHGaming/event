@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Stream Overlay – Gloire à la Compagnie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: transparent;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    :root {
+      --gold:       #c9a84c;
+      --gold-light: #e8c96a;
+      --gold-dim:   #9a7a3a;
+      --border:     rgba(201,168,76,0.25);
+      --bg:         rgba(6,5,3,0.93);
+      --teal:       #4ca8a8;
+    }
+
+    /* ── PANEL PRINCIPAL ── */
+    #panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 480px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    /* Header */
+    .so-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(201,168,76,0.05);
+    }
+
+    .so-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .so-logo {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .so-season {
+      font-size: 12px;
+      color: #9a8a5a;
+      font-style: italic;
+    }
+
+    .so-header-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+    }
+
+    /* Liste HF */
+    .so-list {
+      padding: 8px 0;
+    }
+
+    .so-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(201,168,76,0.07);
+      transition: background 0.2s;
+    }
+
+    .so-entry:last-child { border-bottom: none; }
+
+    /* Numéro */
+    .so-num {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      color: var(--gold-dim);
+      width: 18px;
+      flex-shrink: 0;
+      padding-top: 3px;
+      text-align: right;
+    }
+
+    /* Corps */
+    .so-body { flex: 1; min-width: 0; }
+
+    .so-title {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #f0e8d0;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+
+    .so-dungeon {
+      font-size: 11px;
+      color: var(--gold-dim);
+      font-style: italic;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
+    }
+
+    .so-desc {
+      font-size: 13px;
+      color: #b8aa88;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* Conditions */
+    .so-conds {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .so-cond-img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      opacity: 0.85;
+    }
+
+    /* Accent coloré par donjon */
+    .so-accent {
+      width: 3px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      align-self: stretch;
+      min-height: 36px;
+    }
+
+    /* Footer */
+    .so-footer {
+      padding: 8px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(201,168,76,0.03);
+    }
+
+    .so-footer-text {
+      font-size: 11px;
+      color: var(--gold-dim);
+      font-style: italic;
+      letter-spacing: 0.06em;
+    }
+
+    .so-footer-url {
+      font-size: 10px;
+      color: #5a5040;
+      letter-spacing: 0.08em;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* État vide / erreur */
+    .so-empty {
+      padding: 32px 20px;
+      text-align: center;
+      color: rgba(201,168,76,0.35);
+      font-style: italic;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="panel">
+  <div class="so-header">
+    <div class="so-header-left">
+      <div class="so-logo">Gloire à la Compagnie</div>
+      <div class="so-season" id="so-season">Pré-Saison 3</div>
+    </div>
+    <div class="so-header-label" id="so-label">Objectifs en cours</div>
+  </div>
+  <div class="so-list" id="so-list">
+    <div class="so-empty">Chargement...</div>
+  </div>
+  <div class="so-footer">
+    <div class="so-footer-text" id="so-footer-text">✦ En direct sur Twitch</div>
+    <div class="so-footer-url">poufhgaming.com/gloire</div>
+  </div>
+</div>
+
+<script>
+  // ── DONNÉES HF (copie allégée de index.html) ──
+  const ALL_HFS = [
+    // S2
+    {id:1,dungeon:"Abime des marins",title:"Surfeur dans l'âme",title_en:"Surfer at Heart",desc:"Tous les joueurs doivent se prendre 1 vague sans utiliser de sorts pendant la vague contre Sinthara.",desc_en:"All players must get hit by 1 wave without using movement spells during the fight against Sinthara.",conditions:[]},
+    {id:2,dungeon:"Abime des marins",title:"BIG PULL",title_en:"BIG PULL",desc:"Le groupe doit tuer 40 forgotten soul en 1 pull.",desc_en:"The group must kill 40 Forgotten Soul in 1 pull.",conditions:[]},
+    {id:3,dungeon:"Abime des marins",title:"Pourquoi choisir",title_en:"Why Choose",desc:"Le groupe doit se séparer en 2 et se rejoindre au feu de camp.",desc_en:"The group must split in 2 and reunite at the campfire.",conditions:["portal","shadow"]},
+    {id:4,dungeon:"Bois de L'aube",title:"La charge sauvage",title_en:"Wild Charge",desc:"Tous les totems doivent être détruits avec la charge du cerf.",desc_en:"All totems must be destroyed with the stag's charge.",conditions:["poulet"]},
+    {id:5,dungeon:"Bois de L'aube",title:"Reforestation",title_en:"Reforestation",desc:"Le groupe ne doit tuer aucune créature de type plante.",desc_en:"The group must not kill any plant-type creature.",conditions:[]},
+    {id:6,dungeon:"Bois de L'aube",title:"Sang pour 100",title_en:"A Bloody Percent",desc:"Le groupe doit tuer 4 Bloodstone Goliath à 10sec d'intervalle.",desc_en:"The group must kill 4 Bloodstone Goliath within 10 seconds.",conditions:[]},
+    {id:7,dungeon:"Carrière tombe-dieu",title:"Incognito",title_en:"Incognito",desc:"Aucun membre du groupe ne doit aggro de mob sur la plateforme.",desc_en:"No group member should aggro any mobs on the platform.",conditions:["portal","shadow"]},
+    {id:8,dungeon:"Carrière tombe-dieu",title:"Rock Solid",title_en:"Rock Solid",desc:"Le groupe doit commencer le combat contre le Titan avec les 2 Elemental à 95% HP.",desc_en:"Start the fight against the Titan with both Elementals at 95% HP.",conditions:[]},
+    {id:9,dungeon:"Carrière tombe-dieu",title:"Tout est dans le timing",title_en:"It's All in the Timing",desc:"Obtenir 50% de score de donjon sur la plateforme sans aggro la patrouille. NO SNAP",desc_en:"Obtain 50% dungeon score on the platform without aggroing patrols. NO SNAP.",conditions:[],timed:true},
+    {id:10,dungeon:"Caveau de Lamespectre",title:"Allié ou Ennemi ?",title_en:"Ally or Enemy?",desc:"Le groupe doit survivre à un combat avec 4 sentinelles dans un pull.",desc_en:"The group must survive a fight with 4 Greedspawn in one pull.",conditions:[]},
+    {id:11,dungeon:"Caveau de Lamespectre",title:"Pierre qui roule",title_en:"Rolling Stone",desc:"N'infligez pas de dégâts à la boule d'or pendant le combat contre Bael Aurum.",desc_en:"Kill Bael Aurum without focusing the Orb of Bael'Aurum.",conditions:[]},
+    {id:12,dungeon:"Caveau de Lamespectre",title:"Devy Jones",title_en:"Devy Jones",desc:"1 cannonier doit être en vie au début de la P2 de Katrine.",desc_en:"1 Cannoneer must be alive at the start of Katrine's P2.",conditions:[]},
+    {id:13,dungeon:"Caveau de Lamespectre",title:"Complètement Marteau",title_en:"Completely Hammered",desc:"Le groupe doit se prendre TOUS les requins pendant le combat contre Marrow.",desc_en:"The group must take ALL the sharks during the fight against Marrow.",conditions:[]},
+    {id:14,dungeon:"Caveau de Lamespectre",title:"Je connais un passage",title_en:"I Know a Shortcut",desc:"Vaincre Marrow en premier avec 0% de complétion.",desc_en:"Defeat Marrow first WITH 0% completion.",conditions:["portal","shadow"]},
+    {id:15,dungeon:"Caveau de Lamespectre",title:"Allié",title_en:"Ally",desc:"Tuer n'importe quel boss grâce aux sentinelles.",desc_en:"A Sentinel must deal the finishing blow to any boss.",conditions:[]},
+    {id:16,dungeon:"Coeur de guivre",title:"Givré",title_en:"Frozen",desc:"Ne jamais interrompre le sort Frigid Mists de Veras.",desc_en:"Never interrupt Veras' Frigid Mist spell.",conditions:[]},
+    {id:17,dungeon:"Coeur de guivre",title:"Transit",title_en:"Chilled",desc:"Le joueur doit atteindre 10 stacks de givre.",desc_en:"The player must reach 10 stacks of frost.",conditions:[]},
+    {id:18,dungeon:"Coeur de guivre",title:"Sculpture sur Glace",title_en:"Ice Sculpture",desc:"Commencer le combat contre Veras avec les 2 Greater Ice Elemental à 95% HP.",desc_en:"Start the fight against Veras with both Greater Ice Elementals at 95% HP.",conditions:[]},
+    {id:19,dungeon:"Coeur de Tuzari",title:"La marche",title_en:"The March",desc:"Aucune créature ne doit être ralentie ou contrôlée pendant Ez'rath.",desc_en:"No creature should be slowed or controlled during Ez'rath.",conditions:["poulet"]},
+    {id:20,dungeon:"Coeur de Tuzari",title:"Petits pas",title_en:"Baby Steps",desc:"Aucun membre du groupe ne doit se prendre une orbe pendant Moar'gore.",desc_en:"No group member should take an orb during Moar'gore.",conditions:[]},
+    {id:21,dungeon:"Coeur de Tuzari",title:"Pulvérisateur",title_en:"Pulverizer",desc:"Toutes les plantes du donjon doivent être tuées.",desc_en:"All plants in the dungeon must be killed.",conditions:[]},
+    {id:22,dungeon:"Coeur de Tuzari",title:"Qu'ils brûlent",title_en:"Let Them Burn",desc:"Aucun membre du groupe ne doit tuer de Pyromancien.",desc_en:"No group member should kill an Arsonist.",conditions:["portal","shadow","poulet"]},
+    {id:23,dungeon:"Coeur de Tuzari",title:"Mauvaise graine",title_en:"Bad Seed",desc:"Pendant Vun'Kahr, aucune plante ne doit apparaître.",desc_en:"During Vun'Kahr, no plant should appear.",conditions:[]},
+    {id:24,dungeon:"Coeur de Tuzari",title:"Balo'Tuzari",title_en:"TuzBall",desc:"Ni le groupe ni Moar'gore ne doit se prendre une orbe.",desc_en:"Neither the group nor Moar'gore should take an orb.",conditions:[]},
+    {id:25,dungeon:"Creux Soyeux",title:"Progéniture",title_en:"Offspring",desc:"Vaincre Vexira avec au moins 6 araignées encore en vie.",desc_en:"Defeat Vexira while at least 6 summoned spiders are still alive.",conditions:["poulet"]},
+    {id:26,dungeon:"Creux Soyeux",title:"Cent Dix Pelles",title_en:"No-Spell Dispel",desc:"Compléter le donjon sans aucun dispel.",desc_en:"Complete the dungeon without any dispel.",conditions:["dispell"]},
+    {id:27,dungeon:"Creux Soyeux",title:"Insecticide",title_en:"Insecticide",desc:"Vaincre toutes les horreurs et lancer le combat contre Vexira avant la fin du timer.",desc_en:"Defeat all Carrion Horror and engage Vexira within timer.",conditions:[],timed:true},
+    {id:28,dungeon:"Guet Tempete",title:"Grappin",title_en:"Grappling Hook",desc:"Tuer Brogg sans tuer de Mancatcher.",desc_en:"Kill Brogg without killing Mancatchers.",conditions:["poulet"]},
+    {id:29,dungeon:"Guet Tempete",title:"Enragé",title_en:"Enraged",desc:"Vaincre un pillard qui a atteint 20 stacks.",desc_en:"Defeat a pillager who has reached 20 stacks.",conditions:[]},
+    {id:30,dungeon:"Guet Tempete",title:"World Boss",title_en:"World Boss",desc:"Vaincre un pillard qui a atteint 35 stacks.",desc_en:"Defeat a pillager who has reached 35 stacks.",conditions:[]},
+    {id:31,dungeon:"La chute Cithrel",title:"La roulette",title_en:"Roulette",desc:"Pendant Noor, ne pas prendre de dégâts de Cold-blooded Twist et Razor Trap.",desc_en:"During Noor, take no damage from Cold-blooded Twist and Razor Trap.",conditions:[]},
+    {id:32,dungeon:"La chute Cithrel",title:"Soif de Sang",title_en:"Bloodlust",desc:"Pendant Cithrel, tous les membres doivent avoir au moins 1 stack de sang à chaque cast.",desc_en:"During Cithrel, all members must have at least 1 blood stack at each cast.",conditions:[]},
+    {id:33,dungeon:"La chute Cithrel",title:"Big bang",title_en:"Big Bang",desc:"Pendant Koros, détruire 6 orbes en un coup.",desc_en:"During Koros, destroy 6 orbs in one hit.",conditions:[]},
+    {id:34,dungeon:"La chute Cithrel",title:"La montagne",title_en:"The Mountain",desc:"Ne tuer AUCUN Spellbound Golem.",desc_en:"Kill NO Spellbound Golem.",conditions:["portal","shadow","poulet"]},
+    {id:35,dungeon:"La chute Cithrel",title:"Une Perte de.. Balle",title_en:"Waste of a Ball",desc:"Amener la MÊME orbe dans TOUTES les zones des boss.",desc_en:"Bring the SAME orb into ALL of the boss's zones.",conditions:[]},
+    {id:36,dungeon:"La chute Cithrel",title:"Zéro Absolu",title_en:"Absolute Zero",desc:"Le joueur doit obtenir 20 stacks de givre.",desc_en:"The player must obtain 20 stacks of frost.",conditions:[]},
+    {id:37,dungeon:"Marché d'Urrak",title:"La Paire",title_en:"The Dual",desc:"Faire monter un boss à 40 stacks minimum avant de le tuer.",desc_en:"Have a boss reach 40 stacks minimum before killing it.",conditions:[]},
+    {id:38,dungeon:"Marché d'Urrak",title:"POUR LA FAMILLE",title_en:"For the Family",desc:"Libérer tous les villageois sans dépasser 100% d'accomplissement avant la fin du timer.",desc_en:"Free all villagers without exceeding 100% completion before timer ends.",conditions:[],timed:true},
+    {id:39,dungeon:"Marché d'Urrak",title:"La Maire",title_en:"The Duel",desc:"Faire monter un boss à 80 stacks minimum avant de le tuer.",desc_en:"Have a boss reach 80 stacks minimum before killing it.",conditions:[]},
+    {id:40,dungeon:"Sables Empyréens",title:"Sneaky",title_en:"Sneaky",desc:"Accomplir le donjon sans aggro une seule patrouille.",desc_en:"Complete the dungeon without aggroing a single patrol.",conditions:["portal","shadow"]},
+    {id:41,dungeon:"Sables Empyréens",title:"Crack le Code",title_en:"Crack the Code",desc:"Tuer 6-4-8-3 orbes dans cet ordre pendant Sin-Magir.",desc_en:"Kill 6-4-8-3 orbs in this exact order during Sin-Magir.",conditions:[]},
+    {id:42,dungeon:"Sables Empyréens",title:"Comme un Pro",title_en:"Like a Pro",desc:"Ramener le pack en bas des escaliers sur Sin-Magir avec 95% HP.",desc_en:"Bring the pack down the stairs to Sin-Magir at 95% HP.",conditions:["poulet"]},
+    {id:43,dungeon:"Saccage de Drakheim",title:"C'est pas comme ça",title_en:"Not Like This",desc:"10 stacks de Givre & 10 stacks de Feu pendant Fodir Kaldur.",desc_en:"10 stacks of Frost and 10 stacks of Fire during Fodir Kaldur.",conditions:[]},
+    {id:44,dungeon:"Saccage de Drakheim",title:"Je ne sais pas nager",title_en:"I Can't Swim",desc:"Aucun membre ne doit mettre de pied dans l'eau.",desc_en:"No group member must step into the water.",conditions:["portal"]},
+    {id:45,dungeon:"Saccage de Drakheim",title:"Dans le doute",title_en:"When in Doubt",desc:"Détruire au moins 8 orbes avant de tuer Auga Handhafi.",desc_en:"Destroy at least 8 orbs before killing Auga Handhafi.",conditions:[]},
+    {id:46,dungeon:"Saccage de Drakheim",title:"Hydrophobe",title_en:"Hydrophobic",desc:"Pendant Chilgar, ne pas prendre de vague/pilier/tornade.",desc_en:"During Chilgar, take no wave, pillar, or tornado damage.",conditions:[]},
+    {id:47,dungeon:"Saccage de Drakheim",title:"De feu et de glace",title_en:"Of Fire and Ice",desc:"Vaincre Isilagour & Eldsupptok à 10sec d'intervalle.",desc_en:"Defeat Isilagour and Eldsupptok within 10 seconds.",conditions:[]},
+    {id:48,dungeon:"Saccage de Drakheim",title:"Jamais 203",title_en:"Third Time's the Charm",desc:"Commencer le combat contre Fodir Kaldur avec Isilagour & Eldsupptok à 95% HP.",desc_en:"Start the fight against Fodir Kaldur with both at 95% HP.",conditions:[]},
+    // S3 Dungeons
+    {id:49,dungeon:"Marché d'Urrak",title:"PrisNo break",title_en:"PrisNo Break",desc:"Compléter le donjon sans tuer aucune créature associée à un totem.",desc_en:"Complete the dungeon without killing any creature associated with a totem.",conditions:["portal","poulet","shadow","dash"]},
+    {id:50,dungeon:"Guet Tempete",title:"Coeur de Tempête",title_en:"Heart of the Storm",desc:"Faire passer les HP de Warlord Brogg de 81% à 71% en moins de 30sec.",desc_en:"Reduce Warlord Brogg's HP from 81% to 71% in less than 30 seconds.",conditions:[]},
+    {id:51,dungeon:"Sables Empyréens",title:"Comme un Pro I",title_en:"Like a Pro I",desc:"Vaincre Sin-Magir sans se prendre de dégâts de Celestial Burst.",desc_en:"Defeat Sin-Magir without taking damage from Celestial Burst.",conditions:[]},
+    {id:52,dungeon:"Creux Soyeux",title:"Calin mortel",title_en:"Deadly Cuddle",desc:"Compléter le donjon sans interrompre Kidnap et en ayant vaincu toutes les Gravesnare Kidnapper.",desc_en:"Complete the dungeon without interrupting Kidnap and killing all Gravesnare Kidnapper.",conditions:["portal","poulet","shadow"]},
+    {id:53,dungeon:"Carrière tombe-dieu",title:"Sous les radard",title_en:"Under the Radar",desc:"Ne détruire aucune Wardstone sauf celle du boss.",desc_en:"Do not destroy any Wardstone except the boss's one.",conditions:["shadow","poulet"]},
+    {id:54,dungeon:"Coeur de guivre",title:"Sneaky II",title_en:"Sneaky II",desc:"Compléter le donjon sans aggro aucune patrouille.",desc_en:"Complete the dungeon without aggroing any patrol.",conditions:["portal","poulet","shadow","dash"]},
+    {id:55,dungeon:"Abime des marins",title:"Equipage déchu",title_en:"Fallen Crew",desc:"Vaincre 1 élémentaire en Phase 1 et 1 autre en Phase 2 pendant Sinthara.",desc_en:"Defeat 1 water elemental in Phase 1 and another in Phase 2 during Sinthara.",conditions:["poulet"]},
+    {id:56,dungeon:"Bois de L'aube",title:"Arc-en-Pluie",title_en:"Rain bow",desc:"Engager Malgut avec 2 Desecrator à 95% HP et les garder en vie.",desc_en:"Engage Malgut with 2 Desecrators at 95% HP and keep them alive.",conditions:["poulet"]},
+    {id:57,dungeon:"Caveau de Lamespectre",title:"Contre-courant",title_en:"Against the Current",desc:"Survivre à au moins 1 phase de High Tide sans utiliser Anchor.",desc_en:"Survive at least 1 High Tide phase without using Anchor.",conditions:[]},
+    {id:58,dungeon:"Caveau de Lamespectre",title:"Mutinerie",title_en:"Mutiny",desc:"Vaincre Deathless Katrine sans tuer la patrouille sur le pont.",desc_en:"Defeat Deathless Katrine without killing the patrol on the deck.",conditions:[]},
+    {id:59,dungeon:"Caveau de Lamespectre",title:"Les dents de la mer",title_en:"Jaws of the Sea",desc:"Tous les boss vaincus avec au moins 1 requin encore en vie.",desc_en:"Defeat all bosses while at least 1 shark is still alive.",conditions:[]},
+    {id:60,dungeon:"Saccage de Drakheim",title:"Roi de la glisse",title_en:"King of the Slide",desc:"Obtenir 50% du score sur l'île du feu de camp sans toucher l'eau.",desc_en:"Obtain 50% score on the campfire island without touching the water.",conditions:["portal","dash"]},
+    {id:61,dungeon:"Saccage de Drakheim",title:"Eau Chaude",title_en:"Hot water",desc:"Vaincre Eldsupptok pendant le combat contre Chilgar. Les 2 à 95% HP en même temps.",desc_en:"Defeat Eldsupptok during the fight against Chilgar. Both at 95% HP at the same time.",conditions:[]},
+    {id:62,dungeon:"Saccage de Drakheim",title:"Laissez les pillers",title_en:"Leave the Pillagers",desc:"Compléter le donjon sans vaincre aucune créature d'un groupe avec un Pillager.",desc_en:"Complete the dungeon without defeating any creature from a group containing a Pillager.",conditions:["portal","poulet","shadow","dash"]},
+    {id:63,dungeon:"La chute Cithrel",title:"Sans-tinnel",title_en:"No-tinnel",desc:"Compléter le donjon sans aggro de Sentinnel sauf le pack devant Cithrel.",desc_en:"Complete the dungeon without aggroing any Sentinnel except the pack in front of Cithrel.",conditions:["portal","poulet","shadow","dash","campfire"]},
+    {id:64,dungeon:"La chute Cithrel",title:"Le traitre doit mourir",title_en:"The Traitor Must Die",desc:"Vaincre Noor sans tuer aucune créature pendant le combat.",desc_en:"Defeat Noor without killing any creature during the fight.",conditions:[]},
+    {id:65,dungeon:"La chute Cithrel",title:"Fracture",title_en:"Fracture",desc:"Vaincre Ancient Koros en soakant Calamitous Fracture une seule fois par joueur.",desc_en:"Defeat Ancient Koros while each player soaks Calamitous Fracture only once.",conditions:[]},
+    {id:66,dungeon:"Coeur de Tuzari",title:"Discrétion assurée",title_en:"Guaranteed Stealth",desc:"Compléter le donjon sans aggro de patrouille.",desc_en:"Complete the dungeon without aggroing any patrol.",conditions:["portal","poulet","shadow","dash"]},
+    {id:67,dungeon:"Coeur de Tuzari",title:"Une épine dans le pied",title_en:"A Thorn in the Foot",desc:"Tuer 3 Barbarous Lasher pendant Vun'Kahr, chacun à 95% HP au départ.",desc_en:"Kill 3 Barbarous Lashers during Vun'Kahr, each at 95% HP before the fight.",conditions:["poulet"]},
+    {id:68,dungeon:"Coeur de Tuzari",title:"Big Pull II",title_en:"Big Pull II",desc:"Vaincre 40 Slaughtervine dans le même pull, tous à 95% HP en même temps.",desc_en:"Defeat 40 Slaughtervines in the same pull, all at 95% HP at the same time.",conditions:[]},
+    {id:69,dungeon:"Ruins of Regath",title:"La Faim de Gunde",title_en:"Gunde Hunger",desc:"Activer chaque pilier sans jamais perdre tous ses stacks de buff de sang.",desc_en:"Activate each pillar without ever losing all blood buff stacks.",conditions:[]},
+    {id:70,dungeon:"Ruins of Regath",title:"Transfusion",title_en:"Transfusion",desc:"Tous les piliers de 0 à 20 en moins de 30 secondes en même temps.",desc_en:"All pillars from 0 to 20 in less than 30 seconds at the same time.",conditions:[]},
+    {id:71,dungeon:"Ruins of Regath",title:"Toucher Mortel",title_en:"Deadfull Touch",desc:"Chaque joueur touche 2 totems différents pendant chaque cast de Unholy Hymn.",desc_en:"Each player must touch 2 different totems during each Unholy Hymn cast.",conditions:["portal","dash","drum"]},
+    {id:72,dungeon:"Scryer's Peak",title:"Pourcentage Mielleux",title_en:"Honey Percent",desc:"Vaincre 5 Polar Bears à 10 secondes d'intervalle.",desc_en:"Defeat 5 Polar Bears within a 10-second interval.",conditions:[]},
+    {id:73,dungeon:"Scryer's Peak",title:"Bumpi",title_en:"Bumpi",desc:"Traverser sous le pont uniquement via le bump de Sanguine Crusher.",desc_en:"Cross under the bridge only by being bumped by Sanguine Crusher.",conditions:["jump"]},
+    {id:74,dungeon:"Scryer's Peak",title:"Sang pour Sang",title_en:"Blood for Blood",desc:"Le boss doit stack avant tout membre du groupe et ne pas perdre son buff.",desc_en:"The boss must stack before any group member and not lose his buff.",conditions:[]},
+    {id:75,dungeon:"Coeur de Tuzari",title:"Stacks are always good",title_en:"Stacks are always good",desc:"70 stacks de Siphon Blood total pendant Moar'Gore.",desc_en:"Reach a total of 70 Siphon Blood stacks during Moar'Gore.",conditions:[]},
+    {id:96,dungeon:"Marché d'Urrak",title:"Pour la famille II",title_en:"For the Family II",desc:"Libérer tous les villageois sans aggro de patrouille.",desc_en:"Free all villagers without aggroing any patrol.",conditions:["campfire","portal","shadow","dash","res","poulet"]},
+    {id:97,dungeon:"Sables Empyréens",title:"Fifty Swifty",title_en:"Fifty Swifty",desc:"Vaincre Sin-Magir avec moins de 50% de complétion du donjon. (PAS D'EMISSAIRE)",desc_en:"Defeat Sin-Magir with less than 50% dungeon completion. (NO SHADOWLORDS)",conditions:["campfire","portal","shadow","dash","res","poulet"]},
+    {id:98,dungeon:"Bois de L'aube",title:"TropTémique",title_en:"TooTemic",desc:"Détruire 2 Bloodstone Totem lors de la même charge d'Akali.",desc_en:"Destroy 2 Bloodstone Totems during the same charge of Akali.",conditions:[]},
+    {id:99,dungeon:"Coeur de guivre",title:"All in",title_en:"All in",desc:"Tuer le dernier pack avec le boss. Pack complet à 95% HP avant l'engage.",desc_en:"Kill the last pack with the boss. Full pack at 95% HP before engaging.",conditions:["poulet"]},
+    {id:100,dungeon:"Creux Soyeux",title:"Robin Hood",title_en:"Robin Hood",desc:"Tuer tous les Looters (27) sans qu'aucun joueur ne ramasse d'or.",desc_en:"Kill every Looter (27) without any player grabbing a stack of gold.",conditions:[]},
+    {id:101,dungeon:"Guet Tempete",title:"No Rage",title_en:"No Rage",desc:"Compléter le donjon sans tuer plus d'un Pillager enragé.",desc_en:"Complete the dungeon without killing more than one Enraging Pillager.",conditions:["poulet","portal","shadow","dash","campfire"]},
+    {id:102,dungeon:"Abime des marins",title:"Datura",title_en:"Datura",desc:"Chaque joueur doit avoir 10 stacks de Witchreef Toxin en même temps.",desc_en:"Each player must have 10 stacks of Witchreef Toxin at the same time.",conditions:[]},
+    {id:103,dungeon:"Carrière tombe-dieu",title:"Incognito II",title_en:"Incognito II",desc:"Ne pas aggro de Dredge sur la plateforme.",desc_en:"Do not aggro any Dredge while on the platform.",conditions:["portal","shadow","dash"]},
+    {id:104,dungeon:"Saccage de Drakheim",title:"Ténèbre Glacial",title_en:"Glacial Shadows",desc:"Vaincre Auga Handhafi avec un ours polaire présent (ne doit pas mourir).",desc_en:"Defeat Auga Handhafi with a Polar Bear present (it must not die).",conditions:[]},
+    {id:105,dungeon:"Caveau de Lamespectre",title:"Une perte de Rat",title_en:"Waste of a Rat",desc:"Amener le même Gunpowder Rat sur chaque boss de zone.",desc_en:"Bring the same Gunpowder Rat to every zone boss.",conditions:[]},
+    {id:106,dungeon:"La chute Cithrel",title:"Juste le minimum",title_en:"Just the minimum",desc:"Vaincre les 3 boss avec moins de 70% de complétion.",desc_en:"Defeat all 3 bosses with less than 70% dungeon completion.",conditions:["poulet","portal","shadow","dash","res","campfire"]},
+    {id:115,dungeon:"Xul, the Blood Monolith",title:"Simon II",title_en:"Simon II",desc:"Détruire le conduit correspondant à son debuff.",desc_en:"Destroy the conduit matching your debuff.",conditions:[]},
+    {id:116,dungeon:"Xul, the Blood Monolith",title:"So ok",title_en:"So ok",desc:"Faire exploser 10 invocations pendant Han-Eth et le vaincre.",desc_en:"Defeat 10 Creations during Han-Eth fights and kill him.",conditions:[]},
+    {id:117,dungeon:"Xul, the Blood Monolith",title:"Marche Arrière",title_en:"Backped",desc:"Réussir le labyrinthe contre Vel'Korath en marche arrière uniquement.",desc_en:"Complete the maze against Vel'Korath using only backpedal.",conditions:["dash","portal","drum"]},
+    {id:118,dungeon:"Xul, the Blood Monolith",title:"Où es'skyr ?",title_en:"Wher'skyr ?",desc:"Atteindre Xul'vorith sans agro aucun Fanatique Heskyr.",desc_en:"Reach Xul'vorith without aggroing any Heskyr Zealot.",conditions:["portal","poulet","dash","shadow"]},
+    {id:119,dungeon:"Xul, the Blood Monolith",title:"Secoue-toi",title_en:"Shake it off",desc:"Tuer 15 Échos Sanguins dans le même pull.",desc_en:"Kill 15 Sanguine Echoes in the same pull.",conditions:[]},
+    {id:120,dungeon:"Xul, the Blood Monolith",title:"Le calme avant la tempête",title_en:"The calm before the storm",desc:"Tuer 3 Mages Heskyr dans le même pull.",desc_en:"Kill 3 Heskyr Magi in the same pull.",conditions:[]},
+    // S3 Affixes
+    {id:76,affix:"Empowered Minions",title:"Les cinq doigts de la main",title_en:"The Five Fingers",desc:"Vaincre 5 créatures renforcées dans le même pull, toutes à 95% HP.",desc_en:"Defeat 5 empowered creatures in the same pull, all at 95% HP.",conditions:["poulet"]},
+    {id:77,affix:"Storm Shield",title:"Voltage Maximum",title_en:"High Voltage",desc:"Ne pas être lié avec aucun joueur à chaque frappe de foudre.",desc_en:"Not be linked to any other player each time the lightning strikes.",conditions:[]},
+    {id:78,affix:"Shadow Lord's Trial",title:"ULTIME ? Prêt !",title_en:"Ultimate? Ready!",desc:"Vaincre les 2 émissaires à 10 secondes d'intervalle.",desc_en:"Defeat both emissaries within a 10-second interval.",conditions:[]},
+    {id:79,affix:"Anomalous Orbs",title:"Simon",title_en:"Simon",desc:"Vaincre les orbes dans l'ordre : Rouge > Violet > Jaune > Vert > Bleu > Blanc.",desc_en:"Defeat the orbs in order: Red > Purple > Yellow > Green > Blue > White.",conditions:[]},
+    {id:80,affix:"Binding Ice",title:"Gèle-les",title_en:"Froz-Them",desc:"Tous les joueurs doivent être gelés à chaque fois.",desc_en:"All players must be frozen every time.",conditions:[]},
+    {id:81,affix:"Ultimatum",title:"Tyranique",title_en:"Tyrannical",desc:"Compléter un donjon dans les temps avec tous les membres à 9 000 GS ou moins.",desc_en:"Complete a dungeon within the timer with all members at 9,000 GS or less.",conditions:[],timed:true},
+    {id:82,affix:"Blood Shards",title:"Vampire",title_en:"Vampire",desc:"Obtenir 100% du donjon sans perdre le buff dès le 1er buff.",desc_en:"Reach 100% dungeon score without losing the buff from the 1st buff.",conditions:[]},
+    {id:83,affix:"Stone Skin",title:"Explosion en chaîne",title_en:"Chain Reaction",desc:"Les explosions de mort doivent toujours toucher d'autres créatures.",desc_en:"Explosions from a creature's death must always deal damage to others.",conditions:[]},
+    {id:84,affix:"Empowered Minions",title:"C'est qui le patron ?",title_en:"Who's the boss?",desc:"Vaincre 2 créatures renforcées et le boss dans un même pull, tous à 95% HP.",desc_en:"Defeat 2 empowered creatures and the boss in the same pull, all at 95% HP.",conditions:["poulet"]},
+    {id:85,affix:"Storm Shield",title:"Voltage limité",title_en:"Limited Voltage",desc:"N'être lié qu'à 1 autre personne à chaque frappe de foudre.",desc_en:"Only be linked to 1 other person each time the lightning strikes.",conditions:[]},
+    {id:86,affix:"Shadow Lord's Trial",title:"Où sont les pourcent ?!",title_en:"Where Are the Percentages?!",desc:"Vaincre le boss sans plus de 3 orbes, puis compléter sans tuer de créature.",desc_en:"Defeat the boss with max 3 orbs, then complete without killing any creature.",conditions:[]},
+    {id:87,affix:"Anomalous Orbs",title:"Toi tu vies, toi tu crèves !",title_en:"You Live, You Die!",desc:"Ne pas avoir plus de 2 buffs d'orbe en même temps.",desc_en:"Do not have more than 2 orb-related buffs at the same time.",conditions:[]},
+    {id:88,affix:"Binding Ice",title:"Les 2 font la paire",title_en:"The Two Make a Pair",desc:"Seulement 2 joueurs gelés à chaque fois.",desc_en:"Only 2 players frozen each time.",conditions:[]},
+    {id:89,affix:"Ultimatum",title:"Diablowlic",title_en:"Diablowlic",desc:"Compléter un donjon dans les temps avec tous les membres à 7 000 GS ou moins.",desc_en:"Complete a dungeon within the timer with all members at 7,000 GS or less.",conditions:[],timed:true},
+    {id:90,affix:"Blood Shards",title:"Hématophobie",title_en:"Hematophobia",desc:"Compléter le donjon sans dépasser 6 stacks.",desc_en:"Complete the dungeon without exceeding 6 stacks.",conditions:[]},
+    {id:91,affix:"Stone Skin",title:"D'une pierre 2 coup",title_en:"Two Birds One Stone",desc:"Vaincre le boss avec une explosion causée par la mort d'un mob.",desc_en:"Defeat the dungeon boss with an explosion caused by a mob's death.",conditions:[]},
+    {id:92,affix:"Eira",title:"Boule de neige",title_en:"Snowball",desc:"Vaincre Eira sans interrompre Winter Bolt.",desc_en:"Defeat Eira without interrupting Winter Bolt.",conditions:[]},
+    {id:93,affix:"Ghorn",title:"Sans mort-teau",title_en:"No Harm-mer",desc:"Vaincre Ghorn sans qu'il inflige jamais de dégâts au boss.",desc_en:"Defeat Ghorn while making sure he never deals damage to the boss.",conditions:[]},
+    {id:94,affix:"Meteor Rain",title:"Comme un Pro II",title_en:"Like a Pro II",desc:"Compléter le donjon sans qu'aucun membre ne prenne de dégâts de météorite.",desc_en:"Complete the dungeon without any member taking meteor damage.",conditions:[]},
+    {id:95,affix:"Meteor Rain",title:"En Equipe",title_en:"As a Team",desc:"Tous les joueurs doivent prendre les dégâts d'une même météorite pendant le boss.",desc_en:"All players must take damage from the same meteor during the boss fight.",conditions:[]},
+    {id:107,affix:"Eira",title:"Combattre pour Survivre",title_en:"Fight to Survive",desc:"Vaincre Eira sans interrompre la Rune de la Sorcière Blanche.",desc_en:"Defeat Eira without interrupting the Rune of the White Witch.",conditions:[]},
+    {id:109,affix:"Ghorn",title:"Figé",title_en:"Stuck",desc:"Une fois le combat contre Ghorn engagé, aucun membre ne peut se déplacer.",desc_en:"Once the fight against Ghorn is engaged, no group member may move.",conditions:["dash"]},
+    {id:121,affix:"Truesight",title:"Vue sanglante",title_en:"Bloody Sight",desc:"Tuer 3 mobs boostés par les Heskyr en un seul pull.",desc_en:"Kill 3 mobs empowered by the Heskyr in a single pull.",conditions:[]},
+    {id:122,affix:"Truesight",title:"Recherché",title_en:"Wanted",desc:"Tuer le mob désigné dès qu'une orbe tombe. Le faire 3x dans le même run.",desc_en:"Kill the designated mob when an orb drops. Do it 3 times in the same run.",conditions:[]},
+  ];
+
+  const HF_MAP = {};
+  ALL_HFS.forEach(h => HF_MAP[h.id] = h);
+
+  const DUNGEON_COLORS = {
+    "Abime des marins":"#3a7a9c","Bois de L'aube":"#5a8a3a","Carrière tombe-dieu":"#7a5a3a",
+    "Caveau de Lamespectre":"#4a5a8a","Coeur de guivre":"#6a9aaa","Coeur de Tuzari":"#7a4a2a",
+    "Creux Soyeux":"#8a6a3a","Guet Tempete":"#6a6aaa","La chute Cithrel":"#9a5a4a",
+    "Marché d'Urrak":"#8a7a3a","Sables Empyréens":"#c9a84c","Saccage de Drakheim":"#5a3a8a",
+    "Ruins of Regath":"#8a3a3a","Scryer's Peak":"#4a7aaa","Xul, the Blood Monolith":"#9a3a5a",
+  };
+
+  // ── LECTURE PARAMS URL ──
+  const params  = new URLSearchParams(window.location.search);
+  const lang    = params.get('lang') || 'fr';
+  const hfIds   = (params.get('hf') || '').split(',').map(Number).filter(Boolean);
+
+  // Appliquer langue
+  document.documentElement.lang = lang;
+  document.getElementById('so-label').textContent    = lang === 'en' ? 'Current objectives' : 'Objectifs en cours';
+  document.getElementById('so-footer-text').textContent = lang === 'en' ? '✦ Live on Twitch' : '✦ En direct sur Twitch';
+
+  // ── RENDU ──
+  const list = document.getElementById('so-list');
+
+  if (!hfIds.length) {
+    list.innerHTML = `<div class="so-empty">${lang === 'en' ? 'No achievement selected.' : 'Aucun haut-fait sélectionné.'}</div>`;
+  } else {
+    list.innerHTML = hfIds.map((id, i) => {
+      const hf = HF_MAP[id];
+      if (!hf) return '';
+
+      const title    = (lang === 'en' && hf.title_en) ? hf.title_en : hf.title;
+      const desc     = (lang === 'en' && hf.desc_en)  ? hf.desc_en  : hf.desc;
+      const location = hf.dungeon || hf.affix || '';
+      const color    = hf.dungeon ? (DUNGEON_COLORS[hf.dungeon] || 'var(--gold-dim)') : 'var(--gold-dim)';
+
+      const condsHtml = (hf.conditions || []).map(c =>
+        `<img class="so-cond-img" src="images/conditions/${c}.png" alt="${c}" title="${c}" onerror="this.style.display='none'">`
+      ).join('');
+
+      const timerBadge = hf.timed
+        ? `<img class="so-cond-img" src="images/conditions/timer.png" alt="timer" title="${lang === 'en' ? 'Timed' : 'Timer'}" onerror="this.style.display='none'">`
+        : '';
+
+      return `<div class="so-entry">
+        <div class="so-accent" style="background:${color}"></div>
+        <div class="so-num">${i + 1}.</div>
+        <div class="so-body">
+          <div class="so-dungeon">${location}</div>
+          <div class="so-title">${title}</div>
+          <div class="so-desc">${desc}</div>
+        </div>
+        ${(condsHtml || timerBadge) ? `<div class="so-conds">${timerBadge}${condsHtml}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+</script>
+</body>
+</html>
