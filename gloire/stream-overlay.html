@@ -119,12 +119,13 @@
 
     .so-dungeon {
       font-size: 11px;
-      color: var(--gold-dim);
+      color: var(--gold-light);
       font-style: italic;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       margin-bottom: 4px;
       text-transform: uppercase;
       font-family: 'Cinzel', serif;
+      opacity: 0.85;
     }
 
     .so-desc {
@@ -199,7 +200,7 @@
 <div id="panel">
   <div class="so-header">
     <div class="so-header-left">
-      <div class="so-logo">Gloire à la Compagnie</div>
+      <div class="so-logo" id="so-logo">Gloire à la Compagnie</div>
       <div class="so-season" id="so-season">Pré-Saison 3</div>
     </div>
     <div class="so-header-label" id="so-label">Objectifs en cours</div>
@@ -207,10 +208,7 @@
   <div class="so-list" id="so-list">
     <div class="so-empty">Chargement...</div>
   </div>
-  <div class="so-footer">
-    <div class="so-footer-text" id="so-footer-text">✦ En direct sur Twitch</div>
-    <div class="so-footer-url">poufhgaming.com/gloire</div>
-  </div>
+
 </div>
 
 <script>
@@ -348,6 +346,24 @@
     "Ruins of Regath":"#8a3a3a","Scryer's Peak":"#4a7aaa","Xul, the Blood Monolith":"#9a3a5a",
   };
 
+  const DUNGEON_EN = {
+    "Abime des marins":"Sailor's Abyss",
+    "Bois de L'aube":"Everdawn Grove",
+    "Carrière tombe-dieu":"Godfall Quarry",
+    "Caveau de Lamespectre":"Wraithtide Vault",
+    "Coeur de guivre":"Wyrmheart",
+    "Coeur de Tuzari":"The Heart of Tuzari",
+    "Creux Soyeux":"Silken Hollow",
+    "Guet Tempete":"Stormwatch",
+    "La chute Cithrel":"Cithrel's Fall",
+    "Marché d'Urrak":"Urrak Market",
+    "Sables Empyréens":"Empyrean Sands",
+    "Saccage de Drakheim":"Ransack of Drakheim",
+    "Ruins of Regath":"Ruins of Regath",
+    "Scryer's Peak":"Scryer's Peak",
+    "Xul, the Blood Monolith":"Xul, the Blood Monolith"
+  };
+
   // ── LECTURE PARAMS URL ──
   const params  = new URLSearchParams(window.location.search);
   const lang    = params.get('lang') || 'fr';
@@ -355,8 +371,9 @@
 
   // Appliquer langue
   document.documentElement.lang = lang;
-  document.getElementById('so-label').textContent    = lang === 'en' ? 'Current objectives' : 'Objectifs en cours';
-  document.getElementById('so-footer-text').textContent = lang === 'en' ? '✦ Live on Twitch' : '✦ En direct sur Twitch';
+  document.getElementById('so-logo').textContent  = lang === 'en' ? 'Glory to the Fellowship' : 'Gloire à la Compagnie';
+  document.getElementById('so-season').textContent = lang === 'en' ? 'Pre-Season 3' : 'Pré-Saison 3';
+  document.getElementById('so-label').textContent  = lang === 'en' ? 'Current objectives' : 'Objectifs en cours';
 
   // ── RENDU ──
   const list = document.getElementById('so-list');
@@ -370,7 +387,7 @@
 
       const title    = (lang === 'en' && hf.title_en) ? hf.title_en : hf.title;
       const desc     = (lang === 'en' && hf.desc_en)  ? hf.desc_en  : hf.desc;
-      const location = hf.dungeon || hf.affix || '';
+      const location = lang === 'en' ? (hf.dungeon ? (DUNGEON_EN[hf.dungeon] || hf.dungeon) : (hf.affix || '')) : (hf.dungeon || hf.affix || '');
       const color    = hf.dungeon ? (DUNGEON_COLORS[hf.dungeon] || 'var(--gold-dim)') : 'var(--gold-dim)';
 
       const condsHtml = (hf.conditions || []).map(c =>
