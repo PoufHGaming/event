@@ -313,6 +313,35 @@
       transform: translateY(-1px);
     }
 
+
+    /* ── HF en attente de validation : coché avec "?" (jaune) ── */
+    .ach-row.pending {
+      border-left-color: #c9a84c;
+      background: rgba(201,168,76,0.06);
+    }
+    .ach-row.pending:hover { background: rgba(201,168,76,0.10); }
+    .ach-row.pending .ach-row-title { color: var(--text); }
+    .ach-row.pending .ach-row-icon img { opacity: 0.9; }
+    .ach-row.pending .ach-row-icon-check {
+      display: flex;
+      color: #e8c96a;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .ach-row.pending .ach-row-pts { color: #c9a84c; }
+
+    /* Grille de soumission : HF déjà validé / déjà en attente */
+    .submit-hf-item.is-done { opacity: 0.4; cursor: not-allowed; }
+    .submit-hf-item.is-done:hover { background: var(--bg3); border-color: var(--border); }
+    .submit-hf-status {
+      font-size: 11px;
+      font-style: italic;
+      white-space: nowrap;
+      color: #c9a84c;
+    }
+    .submit-hf-item.is-done .submit-hf-status { color: var(--teal); }
+
     /* ── Mode switcher Verify ── */
     .verify-mode-switcher {
       display: flex;
@@ -588,8 +617,8 @@
       font-family: 'Cinzel', serif;
       font-size: 12px;
       color: #c9a84c;
-      margin-left: 6px;
       font-style: italic;
+      opacity: 0.95;
     }
     .pending-badge {
       display: inline-flex;
@@ -981,7 +1010,7 @@
     /* LEADERBOARD */
     .lb-header {
       display: grid;
-      grid-template-columns: 40px 1fr 80px 80px 80px 80px;
+      grid-template-columns: 40px 1fr 80px 80px 80px 120px;
       gap: 12px;
       padding: 0 16px 10px;
       font-family: 'Cinzel', serif;
@@ -995,7 +1024,7 @@
 
     .lb-row {
       display: grid;
-      grid-template-columns: 40px 1fr 80px 80px 80px 80px;
+      grid-template-columns: 40px 1fr 80px 80px 80px 120px;
       gap: 12px;
       align-items: center;
       padding: 14px 16px;
@@ -1009,7 +1038,7 @@
     /* Mode TOTAL : pas de colonne bonus, on retombe sur 5 colonnes */
     .lb-header.no-bonus-col,
     .lb-row.no-bonus-col {
-      grid-template-columns: 40px 1fr 80px 80px 80px;
+      grid-template-columns: 40px 1fr 80px 80px 120px;
     }
 
     .lb-row:hover {
@@ -1061,6 +1090,11 @@
       font-size: 18px;
       color: var(--gold);
       text-align: right;
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
+      gap: 8px;
+      white-space: nowrap;
     }
 
     .score-base,
@@ -2750,7 +2784,7 @@
       /* Leaderboard : 3 colonnes sur mobile (rang + nom + total) */
       .lb-header,
       .lb-row {
-        grid-template-columns: 32px 1fr 52px;
+        grid-template-columns: 32px 1fr 96px;
         gap: 8px;
         padding: 10px 10px;
       }
@@ -3161,7 +3195,7 @@
           <!-- Joueur -->
           <div class="submit-field">
             <label class="submit-label" id="submit-label-player">Ton personnage <span>*</span></label>
-            <select class="submit-select" id="submit-player">
+            <select class="submit-select" id="submit-player" onchange="renderSubmitHFGrid()">
               <option value="" id="submit-player-default">— Choisir —</option>
             </select>
           </div>
@@ -3640,7 +3674,7 @@
         const [players, completions, pendingRequests] = await Promise.all([
           sbFetch('/rest/v1/players?select=id,name&order=name'),
           sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id,completed_at&order=completed_at.asc'),
-          sbFetch('/rest/v1/validation_requests?select=player_id,hf_ids,status&status=eq.pending')
+          sbFetch('/rest/v1/validation_pending_public?select=player_id,hf_ids')
         ]);
         rawPlayers = players;
         rawCompletions = completions;
@@ -3698,23 +3732,27 @@
   </div>`;
     }
 
+    // Poids de tri : validé (2) > en attente (1) > non fait (0)
+    function hfWeight(s, id) {
+      return s.done.has(id) ? 2 : (s.pendingSet && s.pendingSet.has(id) ? 1 : 0);
+    }
+
     function renderLeaderboard(scores) {
-      // Calculer les points pending pour chaque joueur
-      if (rawPending && rawPending.length) {
+      // Points en attente : UNION des HF pending par joueur (un HF soumis 2x ne compte qu'une fois)
+      {
         const { allScorable } = getSeasonData(currentSeason);
         const hfPtsMap = {};
         allScorable.forEach(a => hfPtsMap[a.id] = a.points);
         scores.forEach(s => {
-          s.pendingPts = 0; s.pendingCount = 0;
-          rawPending.forEach(req => {
+          s.pendingSet = new Set();
+          (rawPending || []).forEach(req => {
             if (req.player_id !== s.id) return;
             (req.hf_ids || []).forEach(hfId => {
-              if (!s.done.has(hfId) && hfPtsMap[hfId]) {
-                s.pendingPts   += hfPtsMap[hfId];
-                s.pendingCount += 1;
-              }
+              if (!s.done.has(hfId) && hfPtsMap[hfId]) s.pendingSet.add(hfId);
             });
           });
+          s.pendingCount = s.pendingSet.size;
+          s.pendingPts = [...s.pendingSet].reduce((sum, id) => sum + hfPtsMap[id], 0);
         });
       }
       // Saison 3 pas encore lancée : on affiche un message de teasing à la place
@@ -3830,18 +3868,17 @@
         // ── Helper : ligne HF ──
         const achRow = (a, imgPath, dungeonKey, colorOverride) => {
           const done  = s.done.has(a.id);
+          const pending = !done && !!(s.pendingSet && s.pendingSet.has(a.id));
           const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
           const desc  = (currentLang === 'en' && a.desc_en)  ? a.desc_en  : a.desc;
           const sbHtml = seasonBadgeHtml(a);
           const color  = colorOverride || (dungeonKey ? (DUNGEON_COLORS[dungeonKey] || 'var(--border)') : 'var(--border)');
 
           const _isHex = color.startsWith('#');
-          const iconBorder = done
-            ? color
-            : ('var(--border)');
+          const iconBorder = done ? color : (pending ? '#c9a84c' : 'var(--border)');
           const iconHtml = `<div class="ach-row-icon" style="border-color:${iconBorder}">
             ${imgPath ? `<img src="${imgPath}" alt="">` : ''}
-            <div class="ach-row-icon-check">✓</div>
+            <div class="ach-row-icon-check">${pending ? '?' : '✓'}</div>
           </div>`;
 
           const condsHtml = (a.conditions || []).length
@@ -3860,7 +3897,9 @@
           const isHex = color.startsWith('#');
           const borderDone   = color;
           const borderUndone = isHex ? color + '44' : 'rgba(255,255,255,0.08)';
-          return `<div class="ach-row ${done ? 'done' : 'undone'}" style="border-left-color:${done ? borderDone : borderUndone}" onclick="event.stopPropagation(); this.classList.toggle('expanded')">
+          const rowState = done ? 'done' : (pending ? 'pending' : 'undone');
+          const rowBorder = done ? borderDone : (pending ? '#c9a84c' : borderUndone);
+          return `<div class="ach-row ${rowState}" style="border-left-color:${rowBorder}" onclick="event.stopPropagation(); this.classList.toggle('expanded')">
             ${iconHtml}
             <div class="ach-row-body">
               <div class="ach-row-title">${title}${sbHtml ? ' ' + sbHtml : ''}</div>
@@ -3869,13 +3908,13 @@
             </div>
             ${condsHtml}
             ${badgesHtml}
-            <div class="ach-row-pts">${done ? '+' : ''}${a.points} pts</div>
+            <div class="ach-row-pts">${pending ? `(+${a.points})` : (done ? '+' : '') + a.points} pts</div>
           </div>`;
         };
 
         // ── Helper : liste de HF triée done en premier ──
         const sortedRows = (hfs, imgPath, key) =>
-          [...hfs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0))
+          [...hfs].sort((a,b) => hfWeight(s,b.id)-hfWeight(s,a.id))
                   .map(a => achRow(a, imgPath, key)).join('');
 
         // ── Helper : stats d'une liste de HF ──
@@ -3936,7 +3975,7 @@
               const allItems = items.flatMap(item =>
                 item.hfs.map(a => ({ a, imgPath: item.imgPath, key: item.key }))
               );
-              allItems.sort((x, y) => (s.done.has(y.a.id)?1:0) - (s.done.has(x.a.id)?1:0));
+              allItems.sort((x, y) => hfWeight(s,y.a.id) - hfWeight(s,x.a.id));
               allItems.forEach(({ a, imgPath, key }) => { html += achRow(a, imgPath, key); });
             }
           } else {
@@ -3945,14 +3984,14 @@
               const allItems = items.flatMap(item =>
                 item.hfs.map(a => ({ a, imgPath: item.imgPath, meta: AFFIX_META[item.key] || { name: item.key, color: 'var(--text-dim)', icon: '' }, label: item.label }))
               );
-              allItems.sort((x, y) => (s.done.has(y.a.id)?1:0) - (s.done.has(x.a.id)?1:0));
+              allItems.sort((x, y) => hfWeight(s,y.a.id) - hfWeight(s,x.a.id));
             // Affixes ALL : fusionner, trier done en premier, sans sous-header
               allItems.forEach(({ a, imgPath, meta }) => { html += achRow(a, imgPath, null, meta?.color); });
             } else {
               items.forEach(item => {
                 // Pas de wow-sub-header quand on filtre sur un affixe spécifique
                 // (le nom est déjà dans le wow-content-header)
-                html += [...item.hfs].sort((a,b) => (s.done.has(b.id)?1:0)-(s.done.has(a.id)?1:0)).map(a => achRow(a, item.imgPath, null, item.color)).join('');
+                html += [...item.hfs].sort((a,b) => hfWeight(s,b.id)-hfWeight(s,a.id)).map(a => achRow(a, item.imgPath, null, item.color)).join('');
               });
             }
           }
@@ -4072,7 +4111,7 @@
       <div class="score-base col-base">${s.base}</div>
       ${hideBonus ? '' : `<div class="score-bonus col-bonus">${s.bonus > 0 ? '+' + s.bonus : '—'}</div>`}
       <div class="hf-count col-hf">${s.hf_count}/${s.hf_total}</div>
-      <div class="score-total">${s.total}${s.pendingPts > 0 ? `<span class="score-pending" title="${s.pendingCount} HF en attente de validation">+${s.pendingPts} ?</span>` : ''}</div>
+      <div class="score-total">${s.pendingPts > 0 ? `<span class="score-pending" title="${currentLang === 'en' ? s.pendingCount + ' achievement(s) pending review' : s.pendingCount + ' haut(s)-fait(s) en attente de validation'}">(+${s.pendingPts})</span>` : ''}<span>${s.total}</span></div>
       ${detailHtml}
     </div>`;
 
@@ -4907,6 +4946,7 @@
     }
 
     function submitToggleHF(el) {
+      if (el.classList.contains('is-done')) return;   // déjà validé : non sélectionnable
       el.classList.toggle('selected');
       const check = el.querySelector('.submit-hf-check');
       if (check) check.textContent = el.classList.contains('selected') ? '✓' : '';
@@ -4915,24 +4955,40 @@
     function renderSubmitHFGrid() {
       const grid = document.getElementById('submit-hf-grid');
       if (!grid) return;
-      const { allScorable, dungeonsOrder } = getSeasonData('S3');
+      const fr = currentLang !== 'en';
+      const keep = new Set(getSubmitHFIds());   // conserve la sélection (changement de langue…)
+
+      // États pour le joueur choisi : HF déjà validés (grisés) / déjà en attente (badge ⏳)
+      const pid = parseInt(document.getElementById('submit-player')?.value || '');
+      const doneSet = new Set((rawCompletions || []).filter(x => x.player_id === pid).map(x => x.achievement_id));
+      const pendSet = new Set();
+      (rawPending || []).forEach(r => { if (r.player_id === pid) (r.hf_ids || []).forEach(id => pendSet.add(id)); });
+
+      const { allScorable } = getSeasonData('S3');
       const affixScorables = (getSeasonData('S3').affixes || []);
       const allHfs = [...allScorable, ...affixScorables.filter(a => !allScorable.find(x => x.id === a.id))];
+      const EN = {
+        "Abime des marins":"Sailor's Abyss","Bois de L'aube":"Everdawn Grove",
+        "Carrière tombe-dieu":"Godfall Quarry","Caveau de Lamespectre":"Wraithtide Vault",
+        "Coeur de guivre":"Wyrmheart","Coeur de Tuzari":"Heart of Tuzari",
+        "Creux Soyeux":"Silken Hollow","Guet Tempete":"Stormwatch",
+        "La chute Cithrel":"Cithrel's Fall","Marché d'Urrak":"Urrak Market",
+        "Sables Empyréens":"Empyrean Sands","Saccage de Drakheim":"Ransack of Drakheim",
+        "Ruins of Regath":"Ruins of Regath","Scryer's Peak":"Scryer's Peak",
+        "Xul, the Blood Monolith":"Xul, the Blood Monolith"
+      };
       grid.innerHTML = allHfs.map(a => {
-        const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
-        const cat   = a.dungeon ? (currentLang === 'en' ? ({
-          "Abime des marins":"Sailor's Abyss","Bois de L'aube":"Everdawn Grove",
-          "Carrière tombe-dieu":"Godfall Quarry","Caveau de Lamespectre":"Wraithtide Vault",
-          "Coeur de guivre":"Wyrmheart","Coeur de Tuzari":"Heart of Tuzari",
-          "Creux Soyeux":"Silken Hollow","Guet Tempete":"Stormwatch",
-          "La chute Cithrel":"Cithrel's Fall","Marché d'Urrak":"Urrak Market",
-          "Sables Empyréens":"Empyrean Sands","Saccage de Drakheim":"Ransack of Drakheim",
-          "Ruins of Regath":"Ruins of Regath","Scryer's Peak":"Scryer's Peak",
-          "Xul, the Blood Monolith":"Xul, the Blood Monolith"
-        }[a.dungeon] || a.dungeon) : a.dungeon) : (a.affix || '');
-        return `<div class="submit-hf-item" data-hf-id="${a.id}" onclick="submitToggleHF(this)">
-          <div class="submit-hf-check"></div>
+        const title = (!fr && a.title_en) ? a.title_en : a.title;
+        const cat = a.dungeon ? (!fr ? (EN[a.dungeon] || a.dungeon) : a.dungeon) : (a.affix || '');
+        const isDone = !isNaN(pid) && doneSet.has(a.id);
+        const isPend = !isDone && !isNaN(pid) && pendSet.has(a.id);
+        const isSel  = !isDone && keep.has(a.id);
+        const status = isDone ? (fr ? '✓ validé' : '✓ validated')
+                     : isPend ? (fr ? '⏳ en attente' : '⏳ pending') : '';
+        return `<div class="submit-hf-item${isDone ? ' is-done' : ''}${isSel ? ' selected' : ''}" data-hf-id="${a.id}" onclick="submitToggleHF(this)">
+          <div class="submit-hf-check">${isSel ? '✓' : ''}</div>
           <span class="submit-hf-label">${title}</span>
+          ${status ? `<span class="submit-hf-status">${status}</span>` : ''}
           <span class="submit-hf-cat">${cat}</span>
         </div>`;
       }).join('');
@@ -4953,108 +5009,165 @@
       el.className = 'submit-status ' + (type || 'info');
     }
 
+    // Appel d'une fonction Supabase (RPC)
+    function sbRpc(fn, args) {
+      return sbFetch('/rest/v1/rpc/' + fn, SUPABASE_ANON_KEY, { method: 'POST', body: args });
+    }
+
+    function submitErrorMessage(r) {
+      const fr = currentLang !== 'en';
+      switch (r.error) {
+        case 'RATE_LIMIT':
+          return fr ? `Doucement ! Tu pourras renvoyer une demande dans ${r.retry_after}s.`
+                    : `Slow down! You can send another request in ${r.retry_after}s.`;
+      case 'RATE_LIMIT_HOUR':
+          return fr ? `Trop de demandes depuis cette connexion. Réessaie dans un moment.`
+                    : `Too many requests from this connection. Please try again later.`;
+        case 'TOO_MANY_PENDING':
+          return fr ? `Tu as déjà 5 demandes en attente. Laisse-nous le temps de les vérifier !`
+                    : `You already have 5 pending requests. Give us time to review them!`;
+        case 'TOO_MANY_PROOFS':
+          return fr ? `Cette demande a déjà 6 preuves, ça suffit !`
+                    : `This request already has 6 proofs, that's plenty!`;
+        case 'ALREADY_VALIDATED':
+          return fr ? `Tous ces hauts-faits sont déjà validés pour ce joueur.`
+                    : `All these achievements are already validated for this player.`;
+        case 'NO_PROOF':
+          return fr ? `Ajoute un lien vidéo ou un fichier.` : `Add a video link or a file.`;
+        case 'INVALID_URL':
+          return fr ? `Le lien n’est pas valide (il doit commencer par http:// ou https://).`
+                    : `The link is not valid (it must start with http:// or https://).`;
+        default:
+          return fr ? `Demande refusée. Vérifie les informations et réessaie.`
+                    : `Request rejected. Check the information and try again.`;
+      }
+    }
+
+    // Bouton désactivé avec compte à rebours (cooldown entre 2 soumissions)
+    function submitCooldown(sec) {
+      const btn = document.getElementById('submit-btn');
+      const txt = document.getElementById('submit-btn-text');
+      if (!btn || !txt) return;
+      let left = Math.max(1, sec | 0);
+      btn.disabled = true;
+      const tick = () => {
+        if (left <= 0) {
+          btn.disabled = false;
+          txt.textContent = currentLang === 'en' ? 'Submit request' : 'Envoyer la demande';
+          return;
+        }
+        txt.textContent = (currentLang === 'en' ? 'Wait ' : 'Patiente ') + left + 's';
+        left--;
+        setTimeout(tick, 1000);
+      };
+      tick();
+    }
+
     async function submitValidation() {
-      const playerId = document.getElementById('submit-player').value;
-      const hfIds    = getSubmitHFIds();
+      const fr = currentLang !== 'en';
+      const playerId  = document.getElementById('submit-player').value;
+      const hfIds     = getSubmitHFIds();
       const teammates = getSubmitTeammates();
       const videoUrl  = document.getElementById('submit-video-url').value.trim();
 
-      // Validations
-      if (!playerId)    { submitSetStatus(currentLang === 'en' ? 'Please select your character.' : 'Choisis ton personnage.', 'err'); return; }
-      if (!hfIds.length) { submitSetStatus(currentLang === 'en' ? 'Select at least one achievement.' : 'Sélectionne au moins un haut-fait.', 'err'); return; }
-      if (_submitTab === 'link' && !videoUrl) { submitSetStatus(currentLang === 'en' ? 'Please provide a video link.' : 'Fournis un lien vidéo.', 'err'); return; }
-      if (_submitTab === 'file' && !_submitFile) { submitSetStatus(currentLang === 'en' ? 'Please select a file.' : 'Sélectionne un fichier.', 'err'); return; }
+      if (!playerId)     { submitSetStatus(fr ? 'Choisis ton personnage.' : 'Please select your character.', 'err'); return; }
+      if (!hfIds.length) { submitSetStatus(fr ? 'Sélectionne au moins un haut-fait.' : 'Select at least one achievement.', 'err'); return; }
+      if (_submitTab === 'link' && !videoUrl) { submitSetStatus(fr ? 'Fournis un lien vidéo.' : 'Please provide a video link.', 'err'); return; }
+      if (_submitTab === 'link' && !/^https?:\/\/\S+$/i.test(videoUrl)) { submitSetStatus(submitErrorMessage({ error: 'INVALID_URL' }), 'err'); return; }
+      if (_submitTab === 'file' && !_submitFile) { submitSetStatus(fr ? 'Sélectionne un fichier.' : 'Please select a file.', 'err'); return; }
 
       const btn = document.getElementById('submit-btn');
       btn.disabled = true;
-      let fileUrl = null;
+      let cooldownAfter = 0;   // si > 0 : on garde le bouton bloqué avec compte à rebours
 
       try {
-        // Upload fichier si nécessaire
+        // 1. Pré-vérification du cooldown AVANT tout upload (évite d'envoyer 500 MB pour rien)
+        const pre = await sbRpc('check_submit_allowed', { p_player_id: parseInt(playerId) });
+        if (pre && pre.ok === false) {
+          submitSetStatus(submitErrorMessage(pre), 'err');
+          if (pre.retry_after) cooldownAfter = pre.retry_after;
+          return;
+        }
+
+        // 2. Upload du fichier si besoin
+        let fileUrl = null;
         if (_submitTab === 'file' && _submitFile) {
-          submitSetStatus(currentLang === 'en' ? 'Uploading file...' : 'Upload en cours...', 'info');
-
+          submitSetStatus(fr ? 'Upload en cours...' : 'Uploading file...', 'info');
           const player = (rawPlayers || []).find(p => p.id == playerId);
-          const playerName = player ? player.name : 'inconnu';
-
-          // Lire en base64
           const base64 = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = e => resolve(e.target.result.split(',')[1]);
             reader.onerror = reject;
             reader.readAsDataURL(_submitFile);
           });
-
           const resp = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              fileName:   _submitFile.name,
-              mimeType:   _submitFile.type,
-              fileData:   base64,
-              playerName,
-              hfIds:      hfIds.join(','),
+              fileName: _submitFile.name, mimeType: _submitFile.type, fileData: base64,
+              playerName: player ? player.name : 'inconnu', hfIds: hfIds.join(','),
             }),
           });
-
           const result = await resp.json();
           if (!result.ok) {
-            if (result.error === 'STORAGE_FULL') {
-              submitSetStatus('Oops, il semble y avoir un souci de stockage. Contacte Pouf directement sur Discord !', 'err');
-            } else {
-              submitSetStatus((currentLang === 'en' ? 'Upload error: ' : 'Erreur upload : ') + result.error, 'err');
-            }
-            btn.disabled = false;
+            submitSetStatus(result.error === 'STORAGE_FULL'
+              ? 'Oops, il semble y avoir un souci de stockage. Contacte Pouf directement sur Discord !'
+              : (fr ? 'Erreur upload : ' : 'Upload error: ') + result.error, 'err');
             return;
           }
           fileUrl = result.fileUrl;
         }
 
-        // Insérer dans Supabase
-        submitSetStatus(currentLang === 'en' ? 'Submitting...' : 'Envoi en cours...', 'info');
-        await sbFetch('/rest/v1/validation_requests', SUPABASE_ANON_KEY, {
-          method: 'POST',
-          prefer: 'return=minimal',
-          body: {
-            player_id:  parseInt(playerId),
-            hf_ids:     hfIds,
-            teammates:  teammates,
-            video_url:  _submitTab === 'link' ? videoUrl : null,
-            file_url:   fileUrl,
-            file_name:  _submitFile ? _submitFile.name : null,
-            status:     'pending',
-            season:     currentSeason,
-          },
+        // 3. Soumission côté serveur : contrôles + fusion avec la demande en cours si mêmes HF
+        submitSetStatus(fr ? 'Envoi en cours...' : 'Submitting...', 'info');
+        const res = await sbRpc('submit_validation', {
+          p_player_id: parseInt(playerId),
+          p_hf_ids:    hfIds,
+          p_teammates: teammates,
+          p_video_url: _submitTab === 'link' ? videoUrl : null,
+          p_file_url:  fileUrl,
+          p_file_name: _submitFile ? _submitFile.name : null,
+          p_season:    currentSeason === 'S2' ? 'S2' : 'S3',
         });
 
-        submitSetStatus(
-          currentLang === 'en'
-            ? '✓ Request sent! Pouf will review it soon.'
-            : '✓ Demande envoyée ! Pouf va vérifier ça.',
-          'ok'
-        );
+        if (!res || res.ok !== true) {
+          submitSetStatus(submitErrorMessage(res || {}), 'err');
+          if (res && res.retry_after) cooldownAfter = res.retry_after;
+          return;
+        }
 
-        // Reset
-        document.getElementById('submit-player').value = '';
-        document.getElementById('submit-hf-grid').querySelectorAll('.selected').forEach(el => {
-          el.classList.remove('selected');
-          const c = el.querySelector('.submit-hf-check');
-          if (c) c.textContent = '';
-        });
+        const skipped = (res.skipped || []).length;
+        let msg = res.merged
+          ? (fr ? '✓ Preuve ajoutée à ta demande en cours — Pouf va vérifier ça.'
+                : '✓ Proof added to your pending request — Pouf will review it.')
+          : (fr ? '✓ Demande envoyée ! Pouf va vérifier ça.'
+                : '✓ Request sent! Pouf will review it soon.');
+        if (skipped) msg += fr ? ` (${skipped} haut(s)-fait(s) déjà validé(s) ignoré(s))`
+                               : ` (${skipped} already validated, ignored)`;
+        submitSetStatus(msg, 'ok');
+        cooldownAfter = 60;   // même durée que le cooldown serveur
+
+        // Reset du formulaire
         document.getElementById('submit-teammate-list').innerHTML = '';
         document.getElementById('submit-video-url').value = '';
         _submitFile = null;
         document.getElementById('submit-file-chosen').style.display = 'none';
 
-        // Recharger les pending
-        const pending = await sbFetch('/rest/v1/validation_requests?select=player_id,hf_ids,status&status=eq.pending');
+        // Rafraîchir les pending (leaderboard + grille)
+        const pending = await sbFetch('/rest/v1/validation_pending_public?select=player_id,hf_ids');
         rawPending = pending || [];
+        document.getElementById('submit-hf-grid').querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        renderSubmitHFGrid();
         if (lbData) renderLeaderboard(lbData);
 
-      } catch(err) {
-        submitSetStatus((currentLang === 'en' ? 'Error: ' : 'Erreur : ') + err.message, 'err');
+      } catch (err) {
+        // Les erreurs PostgREST arrivent en JSON texte : on affiche le message lisible
+        let m = err.message;
+        try { const j = JSON.parse(m); m = j.message || j.error || m; } catch (_) {}
+        submitSetStatus((fr ? 'Erreur : ' : 'Error: ') + m, 'err');
       } finally {
-        btn.disabled = false;
+        if (cooldownAfter > 0) submitCooldown(cooldownAfter);
+        else btn.disabled = false;
       }
     }
 
