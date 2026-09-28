@@ -313,6 +313,38 @@
       transform: translateY(-1px);
     }
 
+    /* ── Mode switcher Verify ── */
+    .verify-mode-switcher {
+      display: flex;
+      gap: 8px;
+      max-width: 560px;
+      margin: 0 auto 24px;
+    }
+    .verify-mode-btn {
+      flex: 1;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .verify-mode-btn:hover { border-color: var(--border-bright); color: var(--text); }
+    .verify-mode-btn.active {
+      border-color: var(--border-bright);
+      background: rgba(201,168,76,0.08);
+      color: var(--gold);
+    }
+
     /* ── SECTION SOUMISSION VALIDATION ── */
     .submit-section {
       max-width: 560px;
@@ -3065,11 +3097,23 @@
     </div>
 
     <div id="page-verify" class="page">
-      <div class="verify-hero">
-        <div class="verify-hero-icon">🔍</div>
-        <h2 id="verify-title">Vérifier via log</h2>
-        <p id="verify-subtitle">Colle ton report code Fellowship Logs, on vérifie automatiquement tous tes hauts-faits éligibles en une seule passe.</p>
+      <!-- Mode switcher -->
+      <div class="verify-mode-switcher">
+        <button class="verify-mode-btn" id="verify-mode-video" onclick="setVerifyMode('video')">
+          🎥 <span id="verify-mode-video-label">Vérification vidéo</span>
+        </button>
+        <button class="verify-mode-btn active" id="verify-mode-log" onclick="setVerifyMode('log')">
+          🔍 <span id="verify-mode-log-label">Vérification log</span>
+        </button>
       </div>
+
+      <!-- Section LOG -->
+      <div id="verify-section-log">
+        <div class="verify-hero">
+          <div class="verify-hero-icon">🔍</div>
+          <h2 id="verify-title">Vérifier via log</h2>
+          <p id="verify-subtitle">Colle ton report code Fellowship Logs, on vérifie automatiquement tous tes hauts-faits éligibles en une seule passe.</p>
+        </div>
       <div class="verify-hf-list" id="verify-hf-list"></div>
       <div class="verify-help" id="verify-help">
         <div class="verify-help-title" onclick="toggleVerifyHelp()" id="verify-help-title">
@@ -3102,6 +3146,11 @@
       </div>
       <div class="verify-results" id="verify-results"></div>
 
+      </div><!-- /verify-section-log -->
+
+      <!-- Section VIDEO -->
+      <div id="verify-section-video" style="display:none">
+
       <!-- ── SECTION SOUMISSION MANUELLE ── -->
       <div class="submit-section" id="submit-section">
         <div class="submit-section-title">
@@ -3113,7 +3162,7 @@
           <div class="submit-field">
             <label class="submit-label" id="submit-label-player">Ton personnage <span>*</span></label>
             <select class="submit-select" id="submit-player">
-              <option value="">— Choisir —</option>
+              <option value="" id="submit-player-default">— Choisir —</option>
             </select>
           </div>
 
@@ -3134,8 +3183,8 @@
           <div class="submit-field">
             <label class="submit-label" id="submit-label-proof">Preuve vidéo <span>*</span></label>
             <div class="submit-media-tabs">
-              <button class="submit-media-tab active" id="submit-tab-link" onclick="submitSwitchTab('link')">🔗 Lien</button>
-              <button class="submit-media-tab" id="submit-tab-file" onclick="submitSwitchTab('file')">📁 Fichier</button>
+              <button class="submit-media-tab active" id="submit-tab-link" onclick="submitSwitchTab('link')" data-fr="🔗 Lien" data-en="🔗 Link">🔗 Lien</button>
+              <button class="submit-media-tab" id="submit-tab-file" onclick="submitSwitchTab('file')" data-fr="📁 Fichier" data-en="📁 File">📁 Fichier</button>
             </div>
             <!-- Lien -->
             <div id="submit-media-link">
@@ -3167,6 +3216,7 @@
 
         </div>
       </div>
+      </div><!-- /verify-section-video -->
     </div>
 
     <div id="page-join" class="page">
@@ -4753,6 +4803,28 @@
       if (detailEl._renderWow) detailEl._renderWow(catName, item.key);
     }
 
+    // ── MODE SWITCHER VERIFY ──
+    // Par défaut : log (mais on peut basculer sur video)
+    let _verifyMode = 'log';
+
+    function setVerifyMode(mode) {
+      _verifyMode = mode;
+      const isLog = mode === 'log';
+      document.getElementById('verify-section-log').style.display   = isLog ? '' : 'none';
+      document.getElementById('verify-section-video').style.display  = isLog ? 'none' : '';
+      document.getElementById('verify-mode-log').classList.toggle('active', isLog);
+      document.getElementById('verify-mode-video').classList.toggle('active', !isLog);
+      if (!isLog) initSubmitSection();
+    }
+
+    function applyLangToVerifyMode() {
+      const fr = currentLang === 'fr';
+      const logLabel   = document.getElementById('verify-mode-log-label');
+      const videoLabel = document.getElementById('verify-mode-video-label');
+      if (logLabel)   logLabel.textContent   = fr ? 'Vérification log'   : 'Log verification';
+      if (videoLabel) videoLabel.textContent = fr ? 'Vérification vidéo' : 'Video verification';
+    }
+
     // ── SECTION SOUMISSION VALIDATION ──
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrD7qXEEyvPZUW3w2oEBbJAh_3U6wkV75TctwxE7gDiU6-uW23eOdDJhSShMWC8qabHg/exec';
     let _submitFile = null;
@@ -4792,10 +4864,11 @@
       // Options joueurs BDD
       const players = rawPlayers || [];
       const opts = players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      const chooseLbl = currentLang === 'en' ? '— Choose a player —' : '— Choisir un joueur —';
 
       row.innerHTML = `
         <select onchange="submitTeammateChange(this, ${idx})">
-          <option value="">— Choisir un joueur —</option>
+          <option value="">${chooseLbl}</option>
           ${opts}
           <option value="__external__">Ne fait pas partie de la liste</option>
         </select>
@@ -4862,7 +4935,8 @@
     function renderSubmitPlayerList() {
       const sel = document.getElementById('submit-player');
       if (!sel || !rawPlayers) return;
-      sel.innerHTML = '<option value="">— Choisir —</option>' +
+      const chooseTxt = currentLang === 'en' ? '— Choose —' : '— Choisir —';
+      sel.innerHTML = `<option value="">${chooseTxt}</option>` +
         rawPlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
     }
 
@@ -4983,6 +5057,7 @@
       renderSubmitPlayerList();
       renderSubmitHFGrid();
       applyLangToSubmit();
+      applyLangToVerifyMode();
     }
 
     function applyLangToSubmit() {
@@ -4999,6 +5074,14 @@
       if (el('submit-upload-formats'))  el('submit-upload-formats').textContent = 'MP4, WebM, MOV, MKV — 500 MB max';
       if (el('submit-video-url'))       el('submit-video-url').placeholder      = fr ? 'YouTube, Medal, Streamable...' : 'YouTube, Medal, Streamable...';
       renderSubmitHFGrid();
+      // Option par défaut du select joueur
+      const defOpt = document.getElementById('submit-player-default');
+      if (defOpt) defOpt.textContent = fr ? '— Choisir —' : '— Choose —';
+      // Tabs lien/fichier
+      ['submit-tab-link','submit-tab-file'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = el.getAttribute('data-' + (fr ? 'fr' : 'en')) || el.textContent;
+      });
     }
 
     // ---- TRADUCTIONS ----
@@ -5387,7 +5470,7 @@
       if (id === 'rules') renderRules();
       if (id === 'join') renderJoin();
       if (id === 'verify') {
-        initSubmitSection();
+        setVerifyMode('log');
         // Masquer le badge NEW au premier clic
         if (!verifyNewSeen) {
           verifyNewSeen = true;
