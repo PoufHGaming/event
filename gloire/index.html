@@ -3235,7 +3235,7 @@
                 <input type="file" id="submit-file-input" accept="video/*" onchange="submitHandleFile(this.files[0])">
                 <div class="submit-upload-zone-text">
                   <strong id="submit-upload-zone-label">Clique ou glisse ta vidéo ici</strong><br>
-                  <span id="submit-upload-formats">MP4, WebM, MOV, MKV — 500 MB max</span>
+                  <span id="submit-upload-formats">MP4, WebM, MOV, MKV, AVI — 2 Go max</span>
                 </div>
                 <div class="submit-file-chosen" id="submit-file-chosen" style="display:none"></div>
               </div>
@@ -4871,7 +4871,7 @@
     }
 
     // ── SECTION SOUMISSION VALIDATION ──
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrD7qXEEyvPZUW3w2oEBbJAh_3U6wkV75TctwxE7gDiU6-uW23eOdDJhSShMWC8qabHg/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvT2dZN6bhKD90oOGDqdYjS-LUwMwcxNrzCUp5fYGOMvQpxDOY9WzrLB_5VODAkvS94Q/exec';
     let _submitFile = null;
     let _submitTab  = 'link';
 
@@ -4883,13 +4883,107 @@
       document.getElementById('submit-media-file').style.display = tab === 'file' ? '' : 'none';
     }
 
+    // ── UPLOAD VIDÉO : jusqu'à 2 Go, directement vers Google Drive par morceaux ──
+    const UPLOAD_MAX_BYTES = 2 * 1024 * 1024 * 1024;   // 2 Go
+    const UPLOAD_CHUNK     = 16 * 1024 * 1024;         // 16 Mo (multiple de 256 Kio, exigé par Drive)
+    const VIDEO_EXT_MIME = {
+      mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime',
+      mkv: 'video/x-matroska', avi: 'video/x-msvideo', mpeg: 'video/mpeg', mpg: 'video/mpeg',
+    };
+    let _uploading = false;
+    window.addEventListener('beforeunload', ev => {
+      if (_uploading) { ev.preventDefault(); ev.returnValue = ''; }   // évite de fermer l'onglet en plein upload
+    });
+
+    function submitFileMime(f) {
+      const ext = (f.name.split('.').pop() || '').toLowerCase();
+      return VIDEO_EXT_MIME[ext] || ((f.type || '').indexOf('video/') === 0 ? f.type : '');
+    }
+
+    function fmtBytes(n) {
+      if (n >= 1024 ** 3) return (n / 1024 ** 3).toFixed(2) + ' GB';
+      return Math.round(n / 1024 ** 2) + ' MB';
+    }
+
     function submitHandleFile(file) {
       if (!file) return;
+      const fr = currentLang !== 'en';
+      if (!submitFileMime(file)) {
+        submitSetStatus(fr ? 'Format non pris en charge (MP4, WebM, MOV, MKV, AVI).' : 'Unsupported format (MP4, WebM, MOV, MKV, AVI).', 'err');
+        return;
+      }
+      if (file.size > UPLOAD_MAX_BYTES) {
+        submitSetStatus(fr ? `Fichier trop volumineux (${fmtBytes(file.size)}). Maximum : 2 Go.` : `File too large (${fmtBytes(file.size)}). Maximum: 2 GB.`, 'err');
+        return;
+      }
+      submitSetStatus('', 'info');
       _submitFile = file;
-      const mb = (file.size / 1024 / 1024).toFixed(1);
       const el = document.getElementById('submit-file-chosen');
-      el.textContent = file.name + ' (' + mb + ' MB)';
+      el.textContent = file.name + ' (' + fmtBytes(file.size) + ')';
       el.style.display = '';
+    }
+
+    // Appel Apps Script en "text/plain" : évite la pré-requête CORS qu'Apps Script ne sait pas traiter
+    async function appsScriptCall(payload) {
+      const resp = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      return resp.json();
+    }
+
+    // Envoie un morceau [start, end) vers l'URL de session Drive
+    function drivePutChunk(url, file, start, end, onBytes) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', url);
+        xhr.setRequestHeader('Content-Range', `bytes ${start}-${end - 1}/${file.size}`);
+        xhr.upload.onprogress = ev => { if (ev.lengthComputable) onBytes(start + ev.loaded); };
+        xhr.onerror   = () => reject(new Error('NETWORK'));
+        xhr.ontimeout = () => reject(new Error('NETWORK'));
+        xhr.onload = () => {
+          const rg = xhr.getResponseHeader('Range');   // "bytes=0-N" : octets déjà reçus par Drive
+          resolve({ status: xhr.status, next: rg ? parseInt(rg.split('-')[1], 10) + 1 : null });
+        };
+        xhr.send(file.slice(start, end));
+      });
+    }
+
+    // Demande à Drive où en est l'upload (reprise après une coupure réseau)
+    function driveQueryOffset(url, total) {
+      return new Promise(resolve => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', url);
+        xhr.setRequestHeader('Content-Range', `bytes */${total}`);
+        xhr.onerror = () => resolve(null);
+        xhr.onload = () => {
+          if (xhr.status === 200 || xhr.status === 201) return resolve(total);
+          const rg = xhr.getResponseHeader('Range');
+          resolve(xhr.status === 308 && rg ? parseInt(rg.split('-')[1], 10) + 1 : null);
+        };
+        xhr.send();
+      });
+    }
+
+    async function driveUploadChunks(url, file, onProgress) {
+      const total = file.size;
+      let offset = 0, failures = 0;
+      while (offset < total) {
+        const end = Math.min(offset + UPLOAD_CHUNK, total);
+        try {
+          const r = await drivePutChunk(url, file, offset, end, b => onProgress(Math.min(b, total), total));
+          if (r.status === 200 || r.status === 201) { onProgress(total, total); return; }
+          if (r.status === 308) { offset = (r.next != null ? r.next : end); failures = 0; onProgress(offset, total); continue; }
+          throw new Error('HTTP ' + r.status);
+        } catch (e) {
+          if (++failures > 4) throw new Error('UPLOAD_FAILED');
+          await new Promise(res => setTimeout(res, 1500 * failures));
+          const q = await driveQueryOffset(url, total);
+          if (q !== null) offset = q;                       // reprend là où Drive s'est arrêté
+          if (offset >= total) return;
+        }
+      }
     }
 
     function submitHandleDrop(e) {
@@ -5037,6 +5131,21 @@
         case 'INVALID_URL':
           return fr ? `Le lien n’est pas valide (il doit commencer par http:// ou https://).`
                     : `The link is not valid (it must start with http:// or https://).`;
+        case 'FILE_TOO_LARGE':
+          return fr ? `Fichier trop volumineux (2 Go maximum).` : `File too large (2 GB maximum).`;
+        case 'QUOTA_DAY':
+          return fr ? `Limite de volume atteinte pour aujourd’hui (6 Go par jour). Réessaie demain ou envoie un lien.`
+                    : `Daily upload limit reached (6 GB per day). Try again tomorrow or send a link.`;
+        case 'STORAGE_FULL':
+          return `Oops, il semble y avoir un souci de stockage. Contacte Pouf directement sur Discord !`;
+        case 'INVALID_TICKET':
+          return fr ? `Autorisation d’upload refusée ou expirée. Réessaie.` : `Upload authorization refused or expired. Please try again.`;
+        case 'UPLOAD_INCOMPLETE':
+          return fr ? `Le fichier n’est pas arrivé en entier. Réessaie, ou envoie un lien.`
+                    : `The file did not arrive completely. Try again, or send a link.`;
+        case 'UPLOAD_FAILED':
+          return fr ? `L’upload a échoué (connexion coupée ?). Réessaie, ou envoie un lien vidéo à la place.`
+                    : `Upload failed (connection lost?). Try again, or send a video link instead.`;
         default:
           return fr ? `Demande refusée. Vérifie les informations et réessaie.`
                     : `Request rejected. Check the information and try again.`;
@@ -5081,7 +5190,7 @@
       let cooldownAfter = 0;   // si > 0 : on garde le bouton bloqué avec compte à rebours
 
       try {
-        // 1. Pré-vérification du cooldown AVANT tout upload (évite d'envoyer 500 MB pour rien)
+        // 1. Pré-vérification du cooldown AVANT tout upload (évite d'envoyer 2 Go pour rien)
         const pre = await sbRpc('check_submit_allowed', { p_player_id: parseInt(playerId) });
         if (pre && pre.ok === false) {
           submitSetStatus(submitErrorMessage(pre), 'err');
@@ -5089,33 +5198,47 @@
           return;
         }
 
-        // 2. Upload du fichier si besoin
+        // 2. Upload du fichier (jusqu'à 2 Go) : ticket → session Drive → morceaux → vérification
         let fileUrl = null;
         if (_submitTab === 'file' && _submitFile) {
-          submitSetStatus(fr ? 'Upload en cours...' : 'Uploading file...', 'info');
-          const player = (rawPlayers || []).find(p => p.id == playerId);
-          const base64 = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = e => resolve(e.target.result.split(',')[1]);
-            reader.onerror = reject;
-            reader.readAsDataURL(_submitFile);
-          });
-          const resp = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              fileName: _submitFile.name, mimeType: _submitFile.type, fileData: base64,
-              playerName: player ? player.name : 'inconnu', hfIds: hfIds.join(','),
-            }),
-          });
-          const result = await resp.json();
-          if (!result.ok) {
-            submitSetStatus(result.error === 'STORAGE_FULL'
-              ? 'Oops, il semble y avoir un souci de stockage. Contacte Pouf directement sur Discord !'
-              : (fr ? 'Erreur upload : ' : 'Upload error: ') + result.error, 'err');
+          const f = _submitFile;
+
+          // a. Ticket délivré par Supabase (contrôle taille, limites de débit et de volume)
+          const tk = await sbRpc('request_upload_ticket', { p_player_id: parseInt(playerId), p_size: f.size });
+          if (!tk || tk.ok !== true) {
+            submitSetStatus(submitErrorMessage(tk || {}), 'err');
+            if (tk && tk.retry_after) cooldownAfter = tk.retry_after;
             return;
           }
-          fileUrl = result.fileUrl;
+
+          // b. Session d'upload Drive ouverte par Apps Script (uniquement avec un ticket valide)
+          submitSetStatus(fr ? 'Préparation de l’upload…' : 'Preparing upload…', 'info');
+          const init = await appsScriptCall({
+            action: 'init', token: tk.token, fileName: f.name, mimeType: submitFileMime(f),
+            size: f.size, origin: window.location.origin, hfIds: hfIds.join(','),
+          });
+          if (!init || !init.ok) {
+            submitSetStatus(submitErrorMessage({ error: (init && init.error) || 'UPLOAD_FAILED' }), 'err');
+            return;
+          }
+
+          // c. Envoi par morceaux, directement vers Google (ne ferme pas l'onglet)
+          _uploading = true;
+          let lastPct = -1;
+          await driveUploadChunks(init.uploadUrl, f, (done, total) => {
+            const pct = Math.floor(done / total * 100);
+            if (pct === lastPct) return;
+            lastPct = pct;
+            submitSetStatus((fr ? 'Upload : ' : 'Uploading: ') + pct + '% (' + fmtBytes(done) + ' / ' + fmtBytes(total) + ') — ' +
+              (fr ? 'ne ferme pas cet onglet' : 'keep this tab open'), 'info');
+          });
+          _uploading = false;
+
+          // d. Vérification : le fichier est-il arrivé en entier ?
+          submitSetStatus(fr ? 'Vérification du fichier…' : 'Checking the file…', 'info');
+          const ver = await appsScriptCall({ action: 'verify', fileId: init.fileId, size: f.size });
+          if (!ver || !ver.ok) throw new Error(submitErrorMessage({ error: 'UPLOAD_INCOMPLETE' }));
+          fileUrl = init.fileUrl;
         }
 
         // 3. Soumission côté serveur : contrôles + fusion avec la demande en cours si mêmes HF
@@ -5166,6 +5289,7 @@
         try { const j = JSON.parse(m); m = j.message || j.error || m; } catch (_) {}
         submitSetStatus((fr ? 'Erreur : ' : 'Error: ') + m, 'err');
       } finally {
+        _uploading = false;
         if (cooldownAfter > 0) submitCooldown(cooldownAfter);
         else btn.disabled = false;
       }
@@ -5190,7 +5314,7 @@
       if (el('submit-add-teammate-btn')) el('submit-add-teammate-btn').textContent = fr ? '+ Ajouter un coéquipier' : '+ Add a teammate';
       if (el('submit-btn-text'))        el('submit-btn-text').textContent       = fr ? 'Envoyer la demande' : 'Submit request';
       if (el('submit-upload-zone-label')) el('submit-upload-zone-label').textContent = fr ? 'Clique ou glisse ta vidéo ici' : 'Click or drag your video here';
-      if (el('submit-upload-formats'))  el('submit-upload-formats').textContent = 'MP4, WebM, MOV, MKV — 500 MB max';
+      if (el('submit-upload-formats'))  el('submit-upload-formats').textContent = fr ? 'MP4, WebM, MOV, MKV, AVI — 2 Go max' : 'MP4, WebM, MOV, MKV, AVI — 2 GB max';
       if (el('submit-video-url'))       el('submit-video-url').placeholder      = fr ? 'YouTube, Medal, Streamable...' : 'YouTube, Medal, Streamable...';
       renderSubmitHFGrid();
       // Option par défaut du select joueur
