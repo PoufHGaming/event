@@ -602,6 +602,16 @@
       box-shadow: 0 0 16px rgba(201,168,76,0.15);
     }
     .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .submit-btn.is-cancel {
+      background: rgba(201,76,76,0.14);
+      border-color: rgba(201,76,76,0.55);
+      color: #e05a5a;
+    }
+    .submit-btn.is-cancel:hover:not(:disabled) {
+      background: rgba(201,76,76,0.26);
+      box-shadow: 0 0 16px rgba(201,76,76,0.2);
+    }
+    .submit-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .submit-status {
       font-size: 14px;
       text-align: center;
@@ -4871,7 +4881,8 @@
     }
 
     // ── SECTION SOUMISSION VALIDATION ──
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgJJcz8Yz_YyQlqF-3LFYlSfS7wq6Sk7Skivx_7bcMFkkXGetzpP3Zfx37Zdr-0mtWUA/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvT2dZN6bhKD90oOGDqdYjS-LUwMwcxNrzCUp5fYGOMvQpxDOY9WzrLB_5VODAkvS94Q/exec';
+    const SUBMIT_MAX_TEAMMATES = 3;   // + le joueur qui soumet = 4 au total
     let _submitFile = null;
     let _submitTab  = 'link';
 
@@ -4891,6 +4902,8 @@
       mkv: 'video/x-matroska', avi: 'video/x-msvideo', mpeg: 'video/mpeg', mpg: 'video/mpeg',
     };
     let _uploading = false;
+    let _uploadCancelled = false;
+    let _currentXhr = null;
     window.addEventListener('beforeunload', ev => {
       if (_uploading) { ev.preventDefault(); ev.returnValue = ''; }   // évite de fermer l'onglet en plein upload
     });
@@ -4939,6 +4952,8 @@
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', url);
         xhr.setRequestHeader('Content-Range', `bytes ${start}-${end - 1}/${file.size}`);
+        _currentXhr = xhr;
+        xhr.onabort = () => reject(new Error('CANCELLED'));
         xhr.upload.onprogress = ev => { if (ev.lengthComputable) onBytes(start + ev.loaded); };
         xhr.onerror   = () => reject(new Error('NETWORK'));
         xhr.ontimeout = () => reject(new Error('NETWORK'));
@@ -4966,10 +4981,33 @@
       });
     }
 
+    // Bouton d'envoi : devient un bouton rouge "Annuler l'upload" pendant l'envoi de la vidéo
+    function setUploadCancelMode(on, reset) {
+      const btn = document.getElementById('submit-btn');
+      const txt = document.getElementById('submit-btn-text');
+      if (!btn || !txt) return;
+      const fr = currentLang !== 'en';
+      btn.classList.toggle('is-cancel', on);
+      if (on) {
+        btn.disabled = false;
+        txt.textContent = fr ? 'Annuler l’upload' : 'Cancel upload';
+      } else {
+        btn.disabled = true;
+        txt.textContent = reset ? (fr ? 'Envoyer la demande' : 'Submit request') : (fr ? 'Traitement…' : 'Processing…');
+      }
+    }
+
+    // Annule l'envoi en cours. Un upload Drive interrompu ne crée aucun fichier (la session expire seule).
+    function cancelUpload() {
+      _uploadCancelled = true;
+      if (_currentXhr) { try { _currentXhr.abort(); } catch (_) {} }
+    }
+
     async function driveUploadChunks(url, file, onProgress) {
       const total = file.size;
       let offset = 0, failures = 0;
       while (offset < total) {
+        if (_uploadCancelled) throw new Error('CANCELLED');
         const end = Math.min(offset + UPLOAD_CHUNK, total);
         try {
           const r = await drivePutChunk(url, file, offset, end, b => onProgress(Math.min(b, total), total));
@@ -4977,6 +5015,7 @@
           if (r.status === 308) { offset = (r.next != null ? r.next : end); failures = 0; onProgress(offset, total); continue; }
           throw new Error('HTTP ' + r.status);
         } catch (e) {
+          if (_uploadCancelled || e.message === 'CANCELLED') throw new Error('CANCELLED');
           if (++failures > 4) throw new Error('UPLOAD_FAILED');
           await new Promise(res => setTimeout(res, 1500 * failures));
           const q = await driveQueryOffset(url, total);
@@ -4993,8 +5032,24 @@
       if (file) { document.getElementById('submit-file-input').files = e.dataTransfer.files; submitHandleFile(file); }
     }
 
+    function submitRemoveTeammate(btn) {
+      btn.parentElement.remove();
+      submitUpdateTeammateBtn();
+    }
+
+    // Bouton "+ Ajouter un coéquipier (n/3)" : bloqué une fois la limite atteinte
+    function submitUpdateTeammateBtn() {
+      const btn  = document.getElementById('submit-add-teammate-btn');
+      const list = document.getElementById('submit-teammate-list');
+      if (!btn || !list) return;
+      const n = list.children.length;
+      btn.disabled = n >= SUBMIT_MAX_TEAMMATES;
+      btn.textContent = (currentLang === 'en' ? '+ Add a teammate' : '+ Ajouter un coéquipier') + ` (${n}/${SUBMIT_MAX_TEAMMATES})`;
+    }
+
     function submitAddTeammate() {
       const list = document.getElementById('submit-teammate-list');
+      if (list.children.length >= SUBMIT_MAX_TEAMMATES) return;
       const idx  = list.children.length;
       const row  = document.createElement('div');
       row.className = 'submit-teammate-row';
@@ -5012,8 +5067,9 @@
           <option value="__external__">Ne fait pas partie de la liste</option>
         </select>
         <input type="text" placeholder="Nom du joueur (optionnel)" class="submit-external-input">
-        <button class="submit-teammate-remove" onclick="this.parentElement.remove()">✕</button>`;
+        <button class="submit-teammate-remove" onclick="submitRemoveTeammate(this)">✕</button>`;
       list.appendChild(row);
+      submitUpdateTeammateBtn();
     }
 
     function submitTeammateChange(sel, idx) {
@@ -5023,15 +5079,25 @@
     }
 
     function getSubmitTeammates() {
-      const rows = document.querySelectorAll('.submit-teammate-row');
-      return Array.from(rows).map(row => {
+      const me = parseInt(document.getElementById('submit-player')?.value || '');
+      const seen = new Set();
+      const out = [];
+      document.querySelectorAll('.submit-teammate-row').forEach(row => {
         const sel = row.querySelector('select');
         const inp = row.querySelector('input[type=text]');
-        if (sel.value === '__external__') return { id: null, name: inp.value.trim() || 'Inconnu' };
-        if (!sel.value) return null;
-        const p = (rawPlayers || []).find(p => p.id == sel.value);
-        return p ? { id: p.id, name: p.name } : null;
-      }).filter(Boolean);
+        let mate = null;
+        if (sel.value === '__external__') {
+          mate = { id: null, name: inp.value.trim().slice(0, 40) || 'Inconnu' };
+        } else if (sel.value) {
+          const p = (rawPlayers || []).find(p => p.id == sel.value);
+          if (p && p.id !== me) mate = { id: p.id, name: p.name };   // on ignore le joueur lui-même
+        }
+        if (!mate) return;
+        const key = mate.id != null ? 'id:' + mate.id : 'n:' + mate.name.toLowerCase();
+        if (seen.has(key)) return;                                   // pas de doublon
+        seen.add(key); out.push(mate);
+      });
+      return out.slice(0, SUBMIT_MAX_TEAMMATES);
     }
 
     function getSubmitHFIds() {
@@ -5174,6 +5240,7 @@
 
     async function submitValidation() {
       const fr = currentLang !== 'en';
+      if (_uploading) { cancelUpload(); return; }   // pendant l'upload, le bouton sert à annuler
       const playerId  = document.getElementById('submit-player').value;
       const hfIds     = getSubmitHFIds();
       const teammates = getSubmitTeammates();
@@ -5225,7 +5292,7 @@
           }
 
           // c. Envoi par morceaux, directement vers Google (ne ferme pas l'onglet)
-          _uploading = true;
+          _uploading = true; _uploadCancelled = false; setUploadCancelMode(true);
           let lastPct = -1;
           await driveUploadChunks(init.uploadUrl, f, (done, total) => {
             const pct = Math.floor(done / total * 100);
@@ -5234,7 +5301,7 @@
             submitSetStatus((fr ? 'Upload : ' : 'Uploading: ') + pct + '% (' + fmtBytes(done) + ' / ' + fmtBytes(total) + ') — ' +
               (fr ? 'ne ferme pas cet onglet' : 'keep this tab open'), 'info');
           });
-          _uploading = false;
+          _uploading = false; setUploadCancelMode(false);
 
           // d. Vérification : le fichier est-il arrivé en entier ?
           submitSetStatus(fr ? 'Vérification du fichier…' : 'Checking the file…', 'info');
@@ -5274,6 +5341,7 @@
 
         // Reset du formulaire
         document.getElementById('submit-teammate-list').innerHTML = '';
+        submitUpdateTeammateBtn();
         document.getElementById('submit-video-url').value = '';
         _submitFile = null;
         document.getElementById('submit-file-chosen').style.display = 'none';
@@ -5286,12 +5354,21 @@
         if (lbData) renderLeaderboard(lbData);
 
       } catch (err) {
+        if (err && err.message === 'CANCELLED') {
+          submitSetStatus(fr ? 'Upload annulé. Tu peux relancer quand tu veux.' : 'Upload cancelled. You can start again anytime.', 'info');
+          return;
+        }
+        if (err && err.message === 'UPLOAD_FAILED') {
+          submitSetStatus(submitErrorMessage({ error: 'UPLOAD_FAILED' }), 'err');
+          return;
+        }
         // Les erreurs PostgREST arrivent en JSON texte : on affiche le message lisible
         let m = err.message;
         try { const j = JSON.parse(m); m = j.message || j.error || m; } catch (_) {}
         submitSetStatus((fr ? 'Erreur : ' : 'Error: ') + m, 'err');
       } finally {
         _uploading = false;
+        setUploadCancelMode(false, true);   // apparence normale du bouton
         if (cooldownAfter > 0) submitCooldown(cooldownAfter);
         else btn.disabled = false;
       }
@@ -5310,10 +5387,10 @@
       const el = (id) => document.getElementById(id);
       if (el('submit-section-title-text')) el('submit-section-title-text').textContent = fr ? 'Soumettre une validation' : 'Submit a validation';
       if (el('submit-label-player'))    el('submit-label-player').innerHTML    = (fr ? 'Ton personnage' : 'Your character') + ' <span>*</span>';
-      if (el('submit-label-teammates')) el('submit-label-teammates').textContent = fr ? 'Coéquipiers' : 'Teammates';
+      if (el('submit-label-teammates')) el('submit-label-teammates').textContent = fr ? 'Coéquipiers (3 max)' : 'Teammates (3 max)';
       if (el('submit-label-hf'))        el('submit-label-hf').innerHTML         = (fr ? 'Hauts-faits réalisés' : 'Achievements completed') + ' <span>*</span>';
       if (el('submit-label-proof'))     el('submit-label-proof').innerHTML      = (fr ? 'Preuve vidéo' : 'Video proof') + ' <span>*</span>';
-      if (el('submit-add-teammate-btn')) el('submit-add-teammate-btn').textContent = fr ? '+ Ajouter un coéquipier' : '+ Add a teammate';
+      submitUpdateTeammateBtn();
       if (el('submit-btn-text'))        el('submit-btn-text').textContent       = fr ? 'Envoyer la demande' : 'Submit request';
       if (el('submit-upload-zone-label')) el('submit-upload-zone-label').textContent = fr ? 'Clique ou glisse ta vidéo ici' : 'Click or drag your video here';
       if (el('submit-upload-formats'))  el('submit-upload-formats').textContent = fr ? 'MP4, WebM, MOV, MKV, AVI — 2 Go max' : 'MP4, WebM, MOV, MKV, AVI — 2 GB max';
@@ -5538,6 +5615,7 @@
       document.getElementById('season-status-S3').textContent = SEASON_3_LIVE ? t('season.status.ongoing') : t('season.status.coming');
       document.getElementById('season-status-S3').className = 'season-tab-status ' + (SEASON_3_LIVE ? 'status-ongoing' : 'status-coming');
       document.getElementById('lb-search-input').placeholder = t('lb.search.placeholder');
+      applyLangToVerifyMode();   // boutons Log / Vidéo traduits dès le chargement
       document.documentElement.lang = currentLang;
     }
 
