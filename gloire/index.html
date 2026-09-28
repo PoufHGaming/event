@@ -313,6 +313,268 @@
       transform: translateY(-1px);
     }
 
+    /* ── SECTION SOUMISSION VALIDATION ── */
+    .submit-section {
+      max-width: 560px;
+      margin: 28px auto 0;
+    }
+    .submit-section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .submit-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .submit-field { display: flex; flex-direction: column; gap: 6px; }
+    .submit-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .submit-label span { color: var(--gold-dim); margin-left: 4px; }
+    .submit-select, .submit-input-text {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .submit-select:focus, .submit-input-text:focus { border-color: var(--border-bright); }
+
+    /* Grille HF à cocher */
+    .submit-hf-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .submit-hf-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.12s, border-color 0.12s;
+      background: var(--bg3);
+    }
+    .submit-hf-item:hover { background: rgba(201,168,76,0.05); border-color: var(--border-bright); }
+    .submit-hf-item.selected {
+      border-color: rgba(76,168,168,0.5);
+      background: rgba(76,168,168,0.08);
+    }
+    .submit-hf-check {
+      width: 18px; height: 18px;
+      border-radius: 3px;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: transparent;
+      background: var(--bg2);
+      transition: all 0.12s;
+    }
+    .submit-hf-item.selected .submit-hf-check {
+      border-color: var(--teal);
+      background: rgba(76,168,168,0.2);
+      color: var(--teal);
+    }
+    .submit-hf-label { flex: 1; font-size: 14px; color: var(--text-dim); }
+    .submit-hf-item.selected .submit-hf-label { color: var(--text); }
+    .submit-hf-cat {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-style: italic;
+      white-space: nowrap;
+    }
+
+    /* Teammates */
+    .submit-teammate-list { display: flex; flex-direction: column; gap: 4px; }
+    .submit-teammate-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .submit-teammate-row select {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'Crimson Pro', serif;
+      font-size: 14px;
+      padding: 7px 10px;
+      outline: none;
+    }
+    .submit-teammate-row input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'Crimson Pro', serif;
+      font-size: 14px;
+      padding: 7px 10px;
+      outline: none;
+      display: none;
+    }
+    .submit-teammate-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+    .submit-teammate-remove:hover { color: var(--red); }
+    .submit-add-btn {
+      background: none;
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 4px;
+      width: 100%;
+    }
+    .submit-add-btn:hover { border-color: var(--border-bright); color: var(--text); }
+
+    /* Upload/lien */
+    .submit-media-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .submit-media-tab {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .submit-media-tab.active {
+      color: var(--gold);
+      border-color: var(--border-bright);
+      background: rgba(201,168,76,0.08);
+    }
+    .submit-upload-zone {
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .submit-upload-zone:hover, .submit-upload-zone.drag-over {
+      border-color: var(--border-bright);
+      background: rgba(201,168,76,0.04);
+    }
+    .submit-upload-zone input[type=file] { display: none; }
+    .submit-upload-zone-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    .submit-upload-zone-text strong { color: var(--gold-dim); font-style: normal; }
+    .submit-file-chosen {
+      font-size: 13px;
+      color: var(--teal);
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* Submit btn */
+    .submit-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid var(--border-bright);
+      border-radius: 4px;
+      color: var(--gold);
+      padding: 12px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background: rgba(201,168,76,0.2);
+      box-shadow: 0 0 16px rgba(201,168,76,0.15);
+    }
+    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .submit-status {
+      font-size: 14px;
+      text-align: center;
+      font-style: italic;
+      min-height: 20px;
+    }
+    .submit-status.ok   { color: #7ddf7d; }
+    .submit-status.err  { color: var(--red); }
+    .submit-status.info { color: var(--text-muted); }
+
+    /* Score pending jaune sur leaderboard */
+    .score-pending {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      color: #c9a84c;
+      margin-left: 6px;
+      font-style: italic;
+    }
+    .pending-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: rgba(201,168,76,0.2);
+      border: 1px solid rgba(201,168,76,0.5);
+      font-size: 9px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      margin-left: 4px;
+      vertical-align: middle;
+      cursor: default;
+    }
+
     /* PAGE VERIFY ─────────────────────────────────────────── */
     .verify-hero {
       text-align: center;
@@ -2839,6 +3101,72 @@
         <div class="verify-cd" id="verify-cd"></div>
       </div>
       <div class="verify-results" id="verify-results"></div>
+
+      <!-- ── SECTION SOUMISSION MANUELLE ── -->
+      <div class="submit-section" id="submit-section">
+        <div class="submit-section-title">
+          📋 <span id="submit-section-title-text">Soumettre une validation</span>
+        </div>
+        <div class="submit-card">
+
+          <!-- Joueur -->
+          <div class="submit-field">
+            <label class="submit-label" id="submit-label-player">Ton personnage <span>*</span></label>
+            <select class="submit-select" id="submit-player">
+              <option value="">— Choisir —</option>
+            </select>
+          </div>
+
+          <!-- Coéquipiers -->
+          <div class="submit-field">
+            <label class="submit-label" id="submit-label-teammates">Coéquipiers</label>
+            <div class="submit-teammate-list" id="submit-teammate-list"></div>
+            <button class="submit-add-btn" onclick="submitAddTeammate()" id="submit-add-teammate-btn">+ Ajouter un coéquipier</button>
+          </div>
+
+          <!-- HF sélectionnés -->
+          <div class="submit-field">
+            <label class="submit-label" id="submit-label-hf">Hauts-faits réalisés <span>*</span></label>
+            <div class="submit-hf-grid" id="submit-hf-grid"></div>
+          </div>
+
+          <!-- Preuve : upload ou lien -->
+          <div class="submit-field">
+            <label class="submit-label" id="submit-label-proof">Preuve vidéo <span>*</span></label>
+            <div class="submit-media-tabs">
+              <button class="submit-media-tab active" id="submit-tab-link" onclick="submitSwitchTab('link')">🔗 Lien</button>
+              <button class="submit-media-tab" id="submit-tab-file" onclick="submitSwitchTab('file')">📁 Fichier</button>
+            </div>
+            <!-- Lien -->
+            <div id="submit-media-link">
+              <input class="submit-input-text" id="submit-video-url" type="url"
+                placeholder="YouTube, Medal, Streamable...">
+            </div>
+            <!-- Upload -->
+            <div id="submit-media-file" style="display:none">
+              <div class="submit-upload-zone" id="submit-upload-zone"
+                onclick="document.getElementById('submit-file-input').click()"
+                ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                ondragleave="this.classList.remove('drag-over')"
+                ondrop="submitHandleDrop(event)">
+                <input type="file" id="submit-file-input" accept="video/*" onchange="submitHandleFile(this.files[0])">
+                <div class="submit-upload-zone-text">
+                  <strong id="submit-upload-zone-label">Clique ou glisse ta vidéo ici</strong><br>
+                  <span id="submit-upload-formats">MP4, WebM, MOV, MKV — 500 MB max</span>
+                </div>
+                <div class="submit-file-chosen" id="submit-file-chosen" style="display:none"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton submit -->
+          <button class="submit-btn" id="submit-btn" onclick="submitValidation()">
+            <span id="submit-btn-text">Envoyer la demande</span>
+          </button>
+          <div class="submit-status" id="submit-status"></div>
+
+        </div>
+      </div>
     </div>
 
     <div id="page-join" class="page">
@@ -3226,7 +3554,9 @@
           hf_count: hfCount,
           hf_total: allScorable.length,
           done,
-          completedAt: completedAt[p.id] || {}
+          completedAt: completedAt[p.id] || {},
+          pendingPts: 0,  // calculé après
+          pendingCount: 0
         };
       }).sort((a, b) => b.total - a.total);
     }
@@ -3235,6 +3565,7 @@
     let lbData = null;
     let rawPlayers = null;
     let rawCompletions = null;
+    let rawPending = [];
 
     async function loadLeaderboard() {
       if (SUPABASE_URL === 'REMPLACE_PAR_TON_URL') {
@@ -3250,12 +3581,14 @@
       }
       document.getElementById('lb-content').innerHTML = '<div class="loading">Chargement...</div>';
       try {
-        const [players, completions] = await Promise.all([
+        const [players, completions, pendingRequests] = await Promise.all([
           sbFetch('/rest/v1/players?select=id,name&order=name'),
-          sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id,completed_at&order=completed_at.asc')
+          sbFetch('/rest/v1/player_achievements?select=player_id,achievement_id,completed_at&order=completed_at.asc'),
+          sbFetch('/rest/v1/validation_requests?select=player_id,hf_ids,status&status=eq.pending')
         ]);
         rawPlayers = players;
         rawCompletions = completions;
+        rawPending = pendingRequests || [];
         lbData = computeScores(players, completions);
         await loadBadges();
         renderLeaderboard(lbData);
@@ -3310,6 +3643,24 @@
     }
 
     function renderLeaderboard(scores) {
+      // Calculer les points pending pour chaque joueur
+      if (rawPending && rawPending.length) {
+        const { allScorable } = getSeasonData(currentSeason);
+        const hfPtsMap = {};
+        allScorable.forEach(a => hfPtsMap[a.id] = a.points);
+        scores.forEach(s => {
+          s.pendingPts = 0; s.pendingCount = 0;
+          rawPending.forEach(req => {
+            if (req.player_id !== s.id) return;
+            (req.hf_ids || []).forEach(hfId => {
+              if (!s.done.has(hfId) && hfPtsMap[hfId]) {
+                s.pendingPts   += hfPtsMap[hfId];
+                s.pendingCount += 1;
+              }
+            });
+          });
+        });
+      }
       // Saison 3 pas encore lancée : on affiche un message de teasing à la place
       // du tableau, et on masque la barre de recherche (qui n'a pas de sens ici).
       if (currentSeason === 'S3' && !SEASON_3_LIVE) {
@@ -3665,7 +4016,7 @@
       <div class="score-base col-base">${s.base}</div>
       ${hideBonus ? '' : `<div class="score-bonus col-bonus">${s.bonus > 0 ? '+' + s.bonus : '—'}</div>`}
       <div class="hf-count col-hf">${s.hf_count}/${s.hf_total}</div>
-      <div class="score-total">${s.total}</div>
+      <div class="score-total">${s.total}${s.pendingPts > 0 ? `<span class="score-pending" title="${s.pendingCount} HF en attente de validation">+${s.pendingPts} ?</span>` : ''}</div>
       ${detailHtml}
     </div>`;
 
@@ -4402,6 +4753,254 @@
       if (detailEl._renderWow) detailEl._renderWow(catName, item.key);
     }
 
+    // ── SECTION SOUMISSION VALIDATION ──
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrD7qXEEyvPZUW3w2oEBbJAh_3U6wkV75TctwxE7gDiU6-uW23eOdDJhSShMWC8qabHg/exec';
+    let _submitFile = null;
+    let _submitTab  = 'link';
+
+    function submitSwitchTab(tab) {
+      _submitTab = tab;
+      document.getElementById('submit-tab-link').classList.toggle('active', tab === 'link');
+      document.getElementById('submit-tab-file').classList.toggle('active', tab === 'file');
+      document.getElementById('submit-media-link').style.display = tab === 'link' ? '' : 'none';
+      document.getElementById('submit-media-file').style.display = tab === 'file' ? '' : 'none';
+    }
+
+    function submitHandleFile(file) {
+      if (!file) return;
+      _submitFile = file;
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      const el = document.getElementById('submit-file-chosen');
+      el.textContent = file.name + ' (' + mb + ' MB)';
+      el.style.display = '';
+    }
+
+    function submitHandleDrop(e) {
+      e.preventDefault();
+      document.getElementById('submit-upload-zone').classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) { document.getElementById('submit-file-input').files = e.dataTransfer.files; submitHandleFile(file); }
+    }
+
+    function submitAddTeammate() {
+      const list = document.getElementById('submit-teammate-list');
+      const idx  = list.children.length;
+      const row  = document.createElement('div');
+      row.className = 'submit-teammate-row';
+      row.dataset.idx = idx;
+
+      // Options joueurs BDD
+      const players = rawPlayers || [];
+      const opts = players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+      row.innerHTML = `
+        <select onchange="submitTeammateChange(this, ${idx})">
+          <option value="">— Choisir un joueur —</option>
+          ${opts}
+          <option value="__external__">Ne fait pas partie de la liste</option>
+        </select>
+        <input type="text" placeholder="Nom du joueur (optionnel)" class="submit-external-input">
+        <button class="submit-teammate-remove" onclick="this.parentElement.remove()">✕</button>`;
+      list.appendChild(row);
+    }
+
+    function submitTeammateChange(sel, idx) {
+      const row   = sel.closest('.submit-teammate-row');
+      const input = row.querySelector('.submit-external-input');
+      input.style.display = sel.value === '__external__' ? '' : 'none';
+    }
+
+    function getSubmitTeammates() {
+      const rows = document.querySelectorAll('.submit-teammate-row');
+      return Array.from(rows).map(row => {
+        const sel = row.querySelector('select');
+        const inp = row.querySelector('input[type=text]');
+        if (sel.value === '__external__') return { id: null, name: inp.value.trim() || 'Inconnu' };
+        if (!sel.value) return null;
+        const p = (rawPlayers || []).find(p => p.id == sel.value);
+        return p ? { id: p.id, name: p.name } : null;
+      }).filter(Boolean);
+    }
+
+    function getSubmitHFIds() {
+      return Array.from(document.querySelectorAll('.submit-hf-item.selected'))
+        .map(el => parseInt(el.dataset.hfId));
+    }
+
+    function submitToggleHF(el) {
+      el.classList.toggle('selected');
+      const check = el.querySelector('.submit-hf-check');
+      if (check) check.textContent = el.classList.contains('selected') ? '✓' : '';
+    }
+
+    function renderSubmitHFGrid() {
+      const grid = document.getElementById('submit-hf-grid');
+      if (!grid) return;
+      const { allScorable, dungeonsOrder } = getSeasonData('S3');
+      const affixScorables = (getSeasonData('S3').affixes || []);
+      const allHfs = [...allScorable, ...affixScorables.filter(a => !allScorable.find(x => x.id === a.id))];
+      grid.innerHTML = allHfs.map(a => {
+        const title = (currentLang === 'en' && a.title_en) ? a.title_en : a.title;
+        const cat   = a.dungeon ? (currentLang === 'en' ? ({
+          "Abime des marins":"Sailor's Abyss","Bois de L'aube":"Everdawn Grove",
+          "Carrière tombe-dieu":"Godfall Quarry","Caveau de Lamespectre":"Wraithtide Vault",
+          "Coeur de guivre":"Wyrmheart","Coeur de Tuzari":"Heart of Tuzari",
+          "Creux Soyeux":"Silken Hollow","Guet Tempete":"Stormwatch",
+          "La chute Cithrel":"Cithrel's Fall","Marché d'Urrak":"Urrak Market",
+          "Sables Empyréens":"Empyrean Sands","Saccage de Drakheim":"Ransack of Drakheim",
+          "Ruins of Regath":"Ruins of Regath","Scryer's Peak":"Scryer's Peak",
+          "Xul, the Blood Monolith":"Xul, the Blood Monolith"
+        }[a.dungeon] || a.dungeon) : a.dungeon) : (a.affix || '');
+        return `<div class="submit-hf-item" data-hf-id="${a.id}" onclick="submitToggleHF(this)">
+          <div class="submit-hf-check"></div>
+          <span class="submit-hf-label">${title}</span>
+          <span class="submit-hf-cat">${cat}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function renderSubmitPlayerList() {
+      const sel = document.getElementById('submit-player');
+      if (!sel || !rawPlayers) return;
+      sel.innerHTML = '<option value="">— Choisir —</option>' +
+        rawPlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    function submitSetStatus(msg, type) {
+      const el = document.getElementById('submit-status');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'submit-status ' + (type || 'info');
+    }
+
+    async function submitValidation() {
+      const playerId = document.getElementById('submit-player').value;
+      const hfIds    = getSubmitHFIds();
+      const teammates = getSubmitTeammates();
+      const videoUrl  = document.getElementById('submit-video-url').value.trim();
+
+      // Validations
+      if (!playerId)    { submitSetStatus(currentLang === 'en' ? 'Please select your character.' : 'Choisis ton personnage.', 'err'); return; }
+      if (!hfIds.length) { submitSetStatus(currentLang === 'en' ? 'Select at least one achievement.' : 'Sélectionne au moins un haut-fait.', 'err'); return; }
+      if (_submitTab === 'link' && !videoUrl) { submitSetStatus(currentLang === 'en' ? 'Please provide a video link.' : 'Fournis un lien vidéo.', 'err'); return; }
+      if (_submitTab === 'file' && !_submitFile) { submitSetStatus(currentLang === 'en' ? 'Please select a file.' : 'Sélectionne un fichier.', 'err'); return; }
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      let fileUrl = null;
+
+      try {
+        // Upload fichier si nécessaire
+        if (_submitTab === 'file' && _submitFile) {
+          submitSetStatus(currentLang === 'en' ? 'Uploading file...' : 'Upload en cours...', 'info');
+
+          const player = (rawPlayers || []).find(p => p.id == playerId);
+          const playerName = player ? player.name : 'inconnu';
+
+          // Lire en base64
+          const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(_submitFile);
+          });
+
+          const resp = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileName:   _submitFile.name,
+              mimeType:   _submitFile.type,
+              fileData:   base64,
+              playerName,
+              hfIds:      hfIds.join(','),
+            }),
+          });
+
+          const result = await resp.json();
+          if (!result.ok) {
+            if (result.error === 'STORAGE_FULL') {
+              submitSetStatus('Oops, il semble y avoir un souci de stockage. Contacte Pouf directement sur Discord !', 'err');
+            } else {
+              submitSetStatus((currentLang === 'en' ? 'Upload error: ' : 'Erreur upload : ') + result.error, 'err');
+            }
+            btn.disabled = false;
+            return;
+          }
+          fileUrl = result.fileUrl;
+        }
+
+        // Insérer dans Supabase
+        submitSetStatus(currentLang === 'en' ? 'Submitting...' : 'Envoi en cours...', 'info');
+        await sbFetch('/rest/v1/validation_requests', SUPABASE_ANON_KEY, {
+          method: 'POST',
+          prefer: 'return=minimal',
+          body: {
+            player_id:  parseInt(playerId),
+            hf_ids:     hfIds,
+            teammates:  teammates,
+            video_url:  _submitTab === 'link' ? videoUrl : null,
+            file_url:   fileUrl,
+            file_name:  _submitFile ? _submitFile.name : null,
+            status:     'pending',
+            season:     currentSeason,
+          },
+        });
+
+        submitSetStatus(
+          currentLang === 'en'
+            ? '✓ Request sent! Pouf will review it soon.'
+            : '✓ Demande envoyée ! Pouf va vérifier ça.',
+          'ok'
+        );
+
+        // Reset
+        document.getElementById('submit-player').value = '';
+        document.getElementById('submit-hf-grid').querySelectorAll('.selected').forEach(el => {
+          el.classList.remove('selected');
+          const c = el.querySelector('.submit-hf-check');
+          if (c) c.textContent = '';
+        });
+        document.getElementById('submit-teammate-list').innerHTML = '';
+        document.getElementById('submit-video-url').value = '';
+        _submitFile = null;
+        document.getElementById('submit-file-chosen').style.display = 'none';
+
+        // Recharger les pending
+        const pending = await sbFetch('/rest/v1/validation_requests?select=player_id,hf_ids,status&status=eq.pending');
+        rawPending = pending || [];
+        if (lbData) renderLeaderboard(lbData);
+
+      } catch(err) {
+        submitSetStatus((currentLang === 'en' ? 'Error: ' : 'Erreur : ') + err.message, 'err');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // Init soumission quand on arrive sur la page Verify
+    function initSubmitSection() {
+      renderSubmitPlayerList();
+      renderSubmitHFGrid();
+      applyLangToSubmit();
+    }
+
+    function applyLangToSubmit() {
+      const fr = currentLang === 'fr';
+      const el = (id) => document.getElementById(id);
+      if (el('submit-section-title-text')) el('submit-section-title-text').textContent = fr ? 'Soumettre une validation' : 'Submit a validation';
+      if (el('submit-label-player'))    el('submit-label-player').innerHTML    = (fr ? 'Ton personnage' : 'Your character') + ' <span>*</span>';
+      if (el('submit-label-teammates')) el('submit-label-teammates').textContent = fr ? 'Coéquipiers' : 'Teammates';
+      if (el('submit-label-hf'))        el('submit-label-hf').innerHTML         = (fr ? 'Hauts-faits réalisés' : 'Achievements completed') + ' <span>*</span>';
+      if (el('submit-label-proof'))     el('submit-label-proof').innerHTML      = (fr ? 'Preuve vidéo' : 'Video proof') + ' <span>*</span>';
+      if (el('submit-add-teammate-btn')) el('submit-add-teammate-btn').textContent = fr ? '+ Ajouter un coéquipier' : '+ Add a teammate';
+      if (el('submit-btn-text'))        el('submit-btn-text').textContent       = fr ? 'Envoyer la demande' : 'Submit request';
+      if (el('submit-upload-zone-label')) el('submit-upload-zone-label').textContent = fr ? 'Clique ou glisse ta vidéo ici' : 'Click or drag your video here';
+      if (el('submit-upload-formats'))  el('submit-upload-formats').textContent = 'MP4, WebM, MOV, MKV — 500 MB max';
+      if (el('submit-video-url'))       el('submit-video-url').placeholder      = fr ? 'YouTube, Medal, Streamable...' : 'YouTube, Medal, Streamable...';
+      renderSubmitHFGrid();
+    }
+
     // ---- TRADUCTIONS ----
     // Remplis les valeurs EN ci-dessous. Les FR sont les textes par défaut.
     const TRANSLATIONS = {
@@ -4621,6 +5220,7 @@
       renderAchievements();
       if (lbData) renderLeaderboard(lbData);
       if (document.getElementById('page-rules').classList.contains('active')) renderRules();
+      applyLangToSubmit();
     }
 
     // ---- JOIN ----
@@ -4787,6 +5387,7 @@
       if (id === 'rules') renderRules();
       if (id === 'join') renderJoin();
       if (id === 'verify') {
+        initSubmitSection();
         // Masquer le badge NEW au premier clic
         if (!verifyNewSeen) {
           verifyNewSeen = true;
