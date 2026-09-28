@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Stream Overlay – Gloire à la Compagnie</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -56,10 +56,10 @@
     }
 
     .so-logo {
-      font-family: 'Cinzel', serif;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
+      font-family: 'Anton', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--gold);
     }
@@ -109,23 +109,24 @@
     .so-body { flex: 1; min-width: 0; }
 
     .so-title {
-      font-family: 'Cinzel', serif;
-      font-size: 15px;
-      font-weight: 600;
-      color: #f0e8d0;
-      line-height: 1.3;
+      font-family: 'Anton', sans-serif;
+      font-size: 17px;
+      font-weight: 400;
+      color: #f8f0e0;
+      line-height: 1.2;
       margin-bottom: 3px;
+      letter-spacing: 0.02em;
     }
 
     .so-dungeon {
+      font-family: 'Anton', sans-serif;
       font-size: 11px;
+      font-style: normal;
       color: var(--gold-light);
-      font-style: italic;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.12em;
       margin-bottom: 4px;
       text-transform: uppercase;
-      font-family: 'Cinzel', serif;
-      opacity: 0.85;
+      opacity: 0.9;
     }
 
     .so-desc {
@@ -300,7 +301,7 @@
     {id:102,dungeon:"Abime des marins",title:"Datura",title_en:"Datura",desc:"Chaque joueur doit avoir 10 stacks de Witchreef Toxin en même temps.",desc_en:"Each player must have 10 stacks of Witchreef Toxin at the same time.",conditions:[]},
     {id:103,dungeon:"Carrière tombe-dieu",title:"Incognito II",title_en:"Incognito II",desc:"Ne pas aggro de Dredge sur la plateforme.",desc_en:"Do not aggro any Dredge while on the platform.",conditions:["portal","shadow","dash"]},
     {id:104,dungeon:"Saccage de Drakheim",title:"Ténèbre Glacial",title_en:"Glacial Shadows",desc:"Vaincre Auga Handhafi avec un ours polaire présent (ne doit pas mourir).",desc_en:"Defeat Auga Handhafi with a Polar Bear present (it must not die).",conditions:[]},
-    {id:105,dungeon:"Caveau de Lamespectre",title:"Une perte de Rat",title_en:"Waste of a Rat",desc:"Amener le même Gunpowder Rat sur chaque boss de zone.",desc_en:"Bring the same Gunpowder Rat to every zone boss.",conditions:[]},
+    {id:105,dungeon:"Caveau de Lamespectre",title:"Comment es-tu arrivé là ?!",title_en:"How did you get there ?!",desc:"Le joueur doit atteindre la plateforme où se trouve Katrine sans passer par le pont inférieur",desc_en:"The player must reach the platform where Katrine is without going via the lower bridge.",conditions:["portal","dash"]},
     {id:106,dungeon:"La chute Cithrel",title:"Juste le minimum",title_en:"Just the minimum",desc:"Vaincre les 3 boss avec moins de 70% de complétion.",desc_en:"Defeat all 3 bosses with less than 70% dungeon completion.",conditions:["poulet","portal","shadow","dash","res","campfire"]},
     {id:115,dungeon:"Xul, the Blood Monolith",title:"Simon II",title_en:"Simon II",desc:"Détruire le conduit correspondant à son debuff.",desc_en:"Destroy the conduit matching your debuff.",conditions:[]},
     {id:116,dungeon:"Xul, the Blood Monolith",title:"So ok",title_en:"So ok",desc:"Faire exploser 10 invocations pendant Han-Eth et le vaincre.",desc_en:"Defeat 10 Creations during Han-Eth fights and kill him.",conditions:[]},
