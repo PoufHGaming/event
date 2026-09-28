@@ -3557,8 +3557,14 @@
         const err = await res.text();
         throw new Error(err);
       }
-      if (res.status === 204) return null;
-      return res.json();
+      if (res.status === 204 || res.status === 201) {
+        const text = await res.text();
+        if (!text || !text.trim()) return null;
+        try { return JSON.parse(text); } catch { return null; }
+      }
+      const bodyText = await res.text();
+      if (!bodyText || !bodyText.trim()) return null;
+      try { return JSON.parse(bodyText); } catch { return null; }
     }
 
     // ---- SCORE CALCULATION (côté client) ----
