@@ -5,6 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pouf — Événements Communautaires</title>
+  <script>
+    // Filet de sécurité : si Supabase renvoie le magic link sur l'accueil (adresse non listée dans
+    // Redirect URLs), on transmet le jeton à la page Hardcore au lieu de le perdre.
+    if (window.location.hash.indexOf('access_token') !== -1) {
+      window.location.replace('https://www.poufhgaming.com/hardcore/index.html' + window.location.hash);
+    }
+  </script>
   <link rel="icon" type="image/png" href="images/pouf.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
