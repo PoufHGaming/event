@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fellowship Hardcore — Stream Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* ── RESET & BASE ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: transparent;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ── HERO ICONS (couleurs par classe) ── */
+    :root {
+      --c-helena:  #b26731;
+      --c-meiko:   #29dd5c;
+      --c-xavian:  #097265;
+      --c-aeona:   #f99de9;
+      --c-sylvie:  #e74f82;
+      --c-vigour:  #dbd9c3;
+      --c-rime:    #1ca2ec;
+      --c-ardeos:  #e96326;
+      --c-elarion: #925dfc;
+      --c-tariq:   #5179f3;
+      --c-mara:    #94598e;
+      --c-gunde:   #933637;
+      /* tiers donjons */
+      --t-recrue:   #00c700;
+      --t-adepte:   #006fe6;
+      --t-champion: #a920fd;
+      --t-parangon: #b79f00;
+      --t-eternal:  #b60000;
+    }
+
+    /* ── ALERT WRAPPER — centré en haut ── */
+    #alert-wrapper {
+      position: absolute;
+      top: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 860px;
+      pointer-events: none;
+    }
+
+    /* ── ALERT CARD ── */
+    .alert-card {
+      width: 100%;
+      opacity: 0;
+      transform: translateY(-32px) scale(0.96);
+      transition: none;
+      position: relative;
+    }
+
+    .alert-card.show {
+      animation: alertIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+                 alertOut 0.5s ease-in 5.5s forwards;
+    }
+
+    @keyframes alertIn {
+      from { opacity: 0; transform: translateY(-32px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)     scale(1); }
+    }
+
+    @keyframes alertOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(-16px) scale(0.97); }
+    }
+
+    /* ── DEATH CARD ── */
+    .alert-death {
+      background:
+        linear-gradient(180deg,
+          rgba(12,4,4,0.97) 0%,
+          rgba(30,6,6,0.95) 60%,
+          rgba(12,4,4,0.97) 100%);
+      border: 1px solid rgba(255,40,40,0.55);
+      border-top: 3px solid #ff2828;
+      border-radius: 6px;
+      box-shadow:
+        0 0 0 1px rgba(255,40,40,0.2),
+        0 0 60px rgba(255,40,40,0.35),
+        0 0 120px rgba(255,40,40,0.15),
+        inset 0 1px 0 rgba(255,80,80,0.25);
+      overflow: hidden;
+    }
+
+    /* ── CAPSTONE CARD ── */
+    .alert-capstone {
+      background:
+        linear-gradient(180deg,
+          rgba(4,8,20,0.97) 0%,
+          rgba(8,14,36,0.95) 60%,
+          rgba(4,8,20,0.97) 100%);
+      border: 1px solid rgba(196,160,255,0.45);
+      border-top: 3px solid #c4a0ff;
+      border-radius: 6px;
+      box-shadow:
+        0 0 0 1px rgba(196,160,255,0.15),
+        0 0 60px rgba(196,160,255,0.25),
+        0 0 120px rgba(196,160,255,0.1),
+        inset 0 1px 0 rgba(196,160,255,0.2);
+      overflow: hidden;
+    }
+
+    /* ── INNER LAYOUT ── */
+    .alert-inner {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 110px;
+      position: relative;
+    }
+
+    /* ── HERO ICON ZONE ── */
+    .alert-icon-zone {
+      width: 110px;
+      height: 110px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .alert-icon-zone::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 10%; bottom: 10%;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.12), transparent);
+    }
+
+    .hero-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 900;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.18), transparent 60%);
+    }
+
+    /* ── CONTENT ZONE ── */
+    .alert-content {
+      flex: 1;
+      padding: 0 28px 0 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .alert-type-label {
+      font-size: 11px;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      font-weight: 700;
+    }
+
+    .alert-death .alert-type-label { color: #ff8080; }
+    .alert-capstone .alert-type-label { color: #c4a0ff; }
+
+    .alert-headline {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .alert-player-name {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      text-shadow: 0 0 30px currentColor;
+    }
+
+    .alert-hero-name {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      opacity: 0.65;
+      align-self: center;
+    }
+
+    .alert-subline {
+      font-size: 16px;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert-dungeon {
+      opacity: 0.7;
+      font-family: 'Crimson Pro', serif;
+      font-size: 17px;
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+
+    .alert-rank-badge {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 2px 10px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    /* ── ATTEMPT COUNT (death only) ── */
+    .alert-attempt {
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      opacity: 0.45;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* ── SKULL / CROWN ACCENT ── */
+    .alert-accent {
+      width: 90px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      opacity: 0.22;
+      filter: blur(0.5px);
+    }
+
+    /* ── SHIMMER LINE (top) ── */
+    .alert-shimmer {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      animation: shimmer 3s linear infinite;
+    }
+
+    .alert-death .alert-shimmer {
+      background: linear-gradient(90deg, transparent 0%, #ff4444 30%, #ffaa00 50%, #ff4444 70%, transparent 100%);
+      background-size: 200% 100%;
+    }
+
+    .alert-capstone .alert-shimmer {
+      background: linear-gradient(90deg, transparent 0%, #c4a0ff 30%, #ffffff 50%, #c4a0ff 70%, transparent 100%);
+      background-size: 200% 100%;
+    }
+
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to   { background-position: -200% 0; }
+    }
+
+    /* ── SCAN LINE EFFECT ── */
+    .alert-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 6px;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0) 0px,
+        rgba(0,0,0,0) 3px,
+        rgba(0,0,0,0.04) 3px,
+        rgba(0,0,0,0.04) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* ── CORNER DECORATIONS ── */
+    .alert-corner {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-color: currentColor;
+      border-style: solid;
+      opacity: 0.4;
+    }
+    .alert-corner.tl { top: 6px; left: 6px; border-width: 1px 0 0 1px; }
+    .alert-corner.tr { top: 6px; right: 6px; border-width: 1px 1px 0 0; }
+    .alert-corner.bl { bottom: 6px; left: 6px; border-width: 0 0 1px 1px; }
+    .alert-corner.br { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
+    .alert-death .alert-corner { color: #ff4444; }
+    .alert-capstone .alert-corner { color: #c4a0ff; }
+  </style>
+</head>
+<body>
+
+<div id="alert-wrapper">
+  <!-- Les alertes sont injectées ici dynamiquement -->
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────────────────────
+  const SUPABASE_URL      = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_GgNaGBPs4nD65Mt60yGJxA_82DhdeRO';
+  const POLL_INTERVAL_MS  = 30_000;
+  const ALERT_DURATION_MS = 6_000; // visible 6s avant de sortir
+
+  // Mapping classe → couleur
+  const CLASS_COLORS = {
+    'Helena':  '#b26731', 'Meiko':   '#29dd5c', 'Xavian':  '#097265',
+    'Aeona':   '#f99de9', 'Sylvie':  '#e74f82', 'Vigour':  '#dbd9c3',
+    'Rime':    '#1ca2ec', 'Ardeos':  '#e96326', 'Elarion': '#925dfc',
+    'Tariq':   '#5179f3', 'Mara':    '#94598e', 'Gunde':   '#933637',
+  };
+
+  // Mapping classe → emoji role (à la place d'une image)
+  const CLASS_ICONS = {
+    'Helena':  '🛡', 'Meiko':   '🛡', 'Xavian':  '🛡',
+    'Aeona':   '✨', 'Sylvie':  '✨', 'Vigour':  '✨',
+    'Rime':    '⚔', 'Ardeos':  '⚔', 'Elarion': '⚔',
+    'Tariq':   '⚔', 'Mara':    '⚔', 'Gunde':   '⚔',
+  };
+
+  // Couleurs tier donjons
+  const TIER_COLORS = {
+    'Recrue': '#00c700', 'Adepte': '#006fe6', 'Champion': '#a920fd',
+    'Parangon': '#b79f00', 'Eternal': '#b60000',
+  };
+
+  function diffLevelToRank(dl) {
+    if (!dl || dl <= 0) return { tier: '', level: 0, label: '—' };
+    // Table vérifiée sur FellowshipLogs : dl 16/17/18 = Paragon 1/2/3, dl 22 = Eternal 2,
+    // dl 47/48 = Eternal 27/28. Eternal N = dl - 20 ; paliers de 5 niveaux avant.
+    if (dl > 20) return { tier: 'Eternal', level: dl - 20, label: `Eternal ${dl - 20}` };
+    const tiers = ['Recrue', 'Adepte', 'Champion', 'Parangon'];
+    const t = Math.floor((dl - 1) / 5);
+    const level = ((dl - 1) % 5) + 1;
+    return { tier: tiers[t], level, label: `${tiers[t]} ${level}` };
+  }
+
+  function tierColor(tier) {
+    return TIER_COLORS[tier] || '#888';
+  }
+
+  // ── SON ─────────────────────────────────────────────────────────────────────
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playDeathSound() {
+    // Son grave, lourd — knell funèbre
+    const t = audioCtx.currentTime;
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    const gain2 = audioCtx.createGain();
+    const masterGain = audioCtx.createGain();
+
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(110, t);
+    osc1.frequency.exponentialRampToValueAtTime(80, t + 1.5);
+
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(220, t);
+    osc2.frequency.exponentialRampToValueAtTime(160, t + 1.2);
+
+    gain1.gain.setValueAtTime(0.6, t);
+    gain1.gain.exponentialRampToValueAtTime(0.001, t + 2.5);
+
+    gain2.gain.setValueAtTime(0.3, t);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
+
+    masterGain.gain.setValueAtTime(0.8, t);
+
+    // Impact initial
+    const impactOsc = audioCtx.createOscillator();
+    const impactGain = audioCtx.createGain();
+    impactOsc.type = 'square';
+    impactOsc.frequency.setValueAtTime(60, t);
+    impactGain.gain.setValueAtTime(0.4, t);
+    impactGain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+
+    osc1.connect(gain1); gain1.connect(masterGain);
+    osc2.connect(gain2); gain2.connect(masterGain);
+    impactOsc.connect(impactGain); impactGain.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
+
+    osc1.start(t); osc1.stop(t + 2.5);
+    osc2.start(t); osc2.stop(t + 1.8);
+    impactOsc.start(t); impactOsc.stop(t + 0.3);
+  }
+
+  function playCapstoneSound() {
+    // Son montant, victorieux — fanfare courte
+    const t = audioCtx.currentTime;
+    const notes = [523, 659, 784, 1047]; // Do Mi Sol Do
+    notes.forEach((freq, i) => {
+      const osc  = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const start = t + i * 0.12;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.35, start + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.5);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(start);
+      osc.stop(start + 0.5);
+    });
+    // Sustain final
+    const sustain = audioCtx.createOscillator();
+    const sGain   = audioCtx.createGain();
+    sustain.type = 'sine';
+    sustain.frequency.setValueAtTime(1047, t + 0.48);
+    sGain.gain.setValueAtTime(0.3, t + 0.48);
+    sGain.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
+    sustain.connect(sGain);
+    sGain.connect(audioCtx.destination);
+    sustain.start(t + 0.48);
+    sustain.stop(t + 1.8);
+  }
+
+  // ── FILE D'ATTENTE ───────────────────────────────────────────────────────────
+  let alertQueue = [];
+  let isShowing  = false;
+
+  function enqueueAlerts(events) {
+    alertQueue.push(...events);
+    if (!isShowing) processQueue();
+  }
+
+  function processQueue() {
+    if (!alertQueue.length) { isShowing = false; return; }
+    isShowing = true;
+    const evt = alertQueue.shift();
+    showAlert(evt);
+    setTimeout(processQueue, ALERT_DURATION_MS + 600);
+  }
+
+  // ── RENDU ALERTE ─────────────────────────────────────────────────────────────
+  function showAlert(evt) {
+    const isDeath    = evt.event_type === 'death';
+    const heroClass  = evt.character_class || '';
+    const heroColor  = CLASS_COLORS[heroClass] || '#aaa';
+    const heroIcon   = CLASS_ICONS[heroClass]  || '⚔';
+    const meta       = evt.metadata || {};
+    const dl         = meta.difficulty_level;
+    const rank       = dl ? diffLevelToRank(dl) : null;
+    const rankColor  = rank ? tierColor(rank.tier) : '#888';
+
+    // Jouer le son
+    if (isDeath) playDeathSound();
+    else         playCapstoneSound();
+
+    // Construire la carte
+    const wrapper = document.getElementById('alert-wrapper');
+
+    const rankBadgeHtml = rank
+      ? `<span class="alert-rank-badge" style="color:${rankColor};border-color:${rankColor}60;background:${rankColor}18">${rank.label}</span>`
+      : '';
+
+    const dungeonHtml = meta.dungeon
+      ? `<span class="alert-dungeon">${meta.dungeon}</span>`
+      : '';
+
+    let typeLabel, headline, subline, accent;
+
+    if (isDeath) {
+      typeLabel = '☠ mort hardcore';
+      headline  = `
+        <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
+        <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
+      `;
+      subline = `
+        ${dungeonHtml}
+        ${rankBadgeHtml}
+      `;
+      accent = '💀';
+    } else {
+      // Capstone
+      const capTier = meta.tier_name || 'Capstone';
+      typeLabel = `✦ ${capTier} atteint`;
+      headline  = `
+        <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
+        <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
+      `;
+      subline = `
+        ${rankBadgeHtml}
+        ${dungeonHtml}
+      `;
+      accent = rank?.tier === 'Eternal' ? '👑' : '🏆';
+    }
+
+    const attemptHtml = isDeath && evt.attempt_number
+      ? `<div class="alert-attempt">TENTATIVE #${evt.attempt_number}</div>`
+      : '';
+
+    wrapper.innerHTML = `
+      <div class="alert-card alert-${isDeath ? 'death' : 'capstone'}">
+        <div class="alert-shimmer"></div>
+        <div class="alert-corner tl"></div>
+        <div class="alert-corner tr"></div>
+        <div class="alert-corner bl"></div>
+        <div class="alert-corner br"></div>
+        <div class="alert-inner">
+          <div class="alert-icon-zone">
+            <div class="hero-icon" style="
+              border-color: ${heroColor};
+              background: radial-gradient(circle at 40% 40%, ${heroColor}30, ${heroColor}08);
+              color: ${heroColor};
+              box-shadow: 0 0 20px ${heroColor}40, inset 0 0 12px ${heroColor}20;
+            ">
+              <span style="filter:drop-shadow(0 0 6px ${heroColor})">${heroIcon}</span>
+            </div>
+          </div>
+          <div class="alert-content">
+            <div class="alert-type-label">${typeLabel}</div>
+            <div class="alert-headline">${headline}</div>
+            <div class="alert-subline">${subline}</div>
+            ${attemptHtml}
+          </div>
+          <div class="alert-accent">${accent}</div>
+        </div>
+      </div>`;
+
+    // Déclencher l'animation
+    requestAnimationFrame(() => {
+      const card = wrapper.querySelector('.alert-card');
+      if (card) card.classList.add('show');
+    });
+  }
+
+  const MARK_SEEN_URL = `${SUPABASE_URL}/functions/v1/mark-overlay-seen`;
+
+  // ── POLLING SUPABASE ─────────────────────────────────────────────────────────
+  async function pollEvents() {
+    try {
+      const now = new Date().toISOString();
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/hm_events` +
+        `?announced_overlay=eq.false` +
+        `&announce_after=lte.${now}` +
+        `&event_type=in.(death,capstone)` +
+        `&season=eq.S1` +
+        `&order=announce_after.asc` +
+        `&limit=10` +
+        `&select=id,event_type,character_name,character_class,attempt_number,metadata,capstone_id`,
+        {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          }
+        }
+      );
+
+      if (!res.ok) return;
+      const events = await res.json();
+      if (!events?.length) return;
+
+      // Marquer via Edge Function (service_role) — la clé anon ne peut pas écrire
+      const ids = events.map(e => e.id);
+      await fetch(MARK_SEEN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'apikey':        SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ ids }),
+      });
+
+      enqueueAlerts(events);
+    } catch (e) {
+      console.error('Poll error:', e);
+    }
+  }
+
+  // Démarrage
+  pollEvents();
+  setInterval(pollEvents, POLL_INTERVAL_MS);
+
+  // Débloquer AudioContext sur premier clic (requis par les navigateurs)
+  document.addEventListener('click', () => {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }, { once: true });
+</script>
+</body>
+</html>

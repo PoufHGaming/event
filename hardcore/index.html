@@ -3,27 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fellowship Hardcore — Automne 2026</title>
+  <title>Fellowship Hardcore</title>
   <link rel="icon" type="image/png" href="../images/pouf.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:      #070b0b;
-      --bg2:     #0d1a1a;
-      --border:  rgba(64,212,212,0.22);
-      --text:    #f0fafa;
-      --text-dim:#9fd8d8;
-      --text-muted:#4d8080;
-      --hc-red:  #ff4444;
-      --teal:    #40d4d4;
-      --teal-light:#72e8e8;
-      --twitch:  #9147ff;
+      --teal: #40d4d4;
+      --teal-light: #72e8e8;
+      --teal-dim: #2a9898;
+      --bg: #070b0b;
+      --bg2: #0d1a1a;
+      --bg3: #122424;
+      --border: rgba(64,212,212,0.28);
+      --border-bright: rgba(64,212,212,0.65);
+      --text: #f0fafa;
+      --text-dim: #c8f0f0;
+      --text-muted: #6ba8a8;
+      --tier1: #44ee44;
+      --tier2: #40d4d4;
+      --tier3: #c4a0ff;
+      --hc-red: #ff4444;
+      --hc-red-dim: rgba(255,68,68,0.18);
+      --hc-gold: #f0c040;
+      --hc-champion: #af4bef;
+      --hc-paragon: #f4dd40;
+      --hc-eternal: #d44448;
+      --twitch: #9147ff;
       --discord: #5865f2;
       --youtube: #ff0000;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -31,282 +41,1013 @@
       font-weight: 300;
       min-height: 100vh;
       font-size: 19px;
-      display: flex;
-      flex-direction: column;
     }
-
     body::before {
       content: '';
       position: fixed; inset: 0;
       background:
-        radial-gradient(ellipse 80% 50% at 50% -5%,  rgba(255,68,68,0.07)   0%, transparent 60%),
-        radial-gradient(ellipse 50% 50% at 50% 110%, rgba(255,68,68,0.05)   0%, transparent 55%),
-        radial-gradient(ellipse 40% 40% at 5%  85%,  rgba(196,160,255,0.04) 0%, transparent 50%),
-        radial-gradient(ellipse 30% 30% at 95% 15%,  rgba(64,212,212,0.04)  0%, transparent 50%);
+        radial-gradient(ellipse 80% 50% at 50% -5%, rgba(64,212,212,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 5% 85%, rgba(255,68,68,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse 30% 30% at 95% 15%, rgba(196,160,255,0.05) 0%, transparent 50%);
       pointer-events: none; z-index: 0;
     }
 
     .top-line {
       height: 2px;
-      background: linear-gradient(90deg,
-        transparent,
-        #882222 15%,
-        var(--hc-red) 40%,
-        #882222 60%,
-        rgba(196,160,255,0.6) 80%,
-        transparent
-      );
-      flex-shrink: 0;
+      background: linear-gradient(90deg, transparent, #882222 15%, var(--hc-red) 40%, #882222 60%, rgba(196,160,255,0.6) 80%, transparent);
     }
+
+    /* ── SOCIAL ── */
+    .social-links { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:10px; }
+    .social-link {
+      display:inline-flex; align-items:center; gap:7px;
+      padding:6px 14px; border:1px solid var(--border); border-radius:3px;
+      text-decoration:none; color:var(--text-dim); font-size:12px;
+      font-family:'Cinzel',serif; letter-spacing:0.1em; text-transform:uppercase;
+      transition:all 0.25s; background:rgba(255,255,255,0.02); white-space:nowrap;
+    }
+    .social-link svg { flex-shrink:0; width:14px; height:14px; }
+    .social-link:hover { color:var(--text); background:rgba(255,255,255,0.04); }
+    .social-link.twitch:hover  { border-color:var(--twitch); color:var(--twitch); box-shadow:0 0 12px rgba(145,71,255,0.15); }
+    .social-link.discord:hover { border-color:var(--discord); color:var(--discord); box-shadow:0 0 12px rgba(88,101,242,0.15); }
+    .social-link.youtube:hover { border-color:var(--youtube); color:var(--youtube); box-shadow:0 0 12px rgba(255,0,0,0.12); }
+
+    /* ── HEADER ── */
+    header {
+      text-align:center; padding:44px 24px 28px;
+      border-bottom:1px solid var(--border);
+      position:relative; z-index:1;
+    }
+    .event-skull { font-size:32px; margin-bottom:8px; filter:drop-shadow(0 0 12px rgba(255,68,68,0.5)); }
+    .event-title {
+      font-family:'Cinzel',serif; font-size:clamp(24px,5vw,44px); font-weight:700;
+      color:var(--hc-red); letter-spacing:0.12em; text-transform:uppercase;
+      text-shadow:0 0 40px rgba(255,68,68,0.5), 0 0 80px rgba(255,68,68,0.2);
+    }
+    .event-subtitle { font-size:15px; color:var(--text-dim); margin-top:8px; letter-spacing:0.18em; text-transform:uppercase; font-weight:300; }
+    .event-season { display:inline-flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; color:var(--text-muted); font-family:'Cinzel',serif; letter-spacing:0.12em; }
 
     /* ── NAV ── */
     nav {
-      display: flex; align-items: center; gap: 2px;
-      padding: 10px 24px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(7,11,11,0.95);
-      backdrop-filter: blur(12px);
-      position: relative; z-index: 10;
-      flex-shrink: 0;
+      display:flex; align-items:center; gap:2px;
+      padding:10px 24px;
+      border-bottom:1px solid var(--border);
+      position:sticky; top:0; z-index:100;
+      background:rgba(7,11,11,0.95);
+      backdrop-filter:blur(12px);
     }
-    .home-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      text-decoration: none; padding: 8px 14px;
-      font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.12em;
-      color: var(--text-muted); opacity: 0.65; transition: all 0.2s;
-      border: 1px solid transparent; border-radius: 3px;
+    .tab {
+      font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.12em;
+      text-transform:uppercase; padding:8px 16px;
+      background:none; border:1px solid transparent;
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s; border-radius:3px;
     }
-    .home-btn:hover { opacity: 1; color: var(--teal-light); }
-    .nav-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
-    .nav-label {
-      font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.12em;
-      text-transform: uppercase; padding: 8px 16px;
-      color: var(--hc-red); border: 1px solid rgba(255,68,68,0.4);
-      background: rgba(255,68,68,0.06); border-radius: 3px;
-    }
-    .lang-toggle { display: flex; gap: 2px; margin-left: auto; }
+    .tab:hover { border-color:var(--border); color:var(--text-dim); }
+    .tab.active { color:var(--hc-red); border-color:rgba(255,68,68,0.5); background:rgba(255,68,68,0.06); }
+    .home-btn { opacity:0.65; color:var(--text-dim); }
+    .home-btn:hover { opacity:1; color:var(--teal-light); }
+    .nav-sep { width:1px; height:20px; background:var(--border); margin:0 4px; align-self:center; }
+    .nav-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+    .lang-toggle { display:flex; gap:2px; }
     .lang-btn {
-      font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.1em;
-      padding: 6px 11px; background: var(--bg2); border: 1px solid var(--border);
-      color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+      font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.1em;
+      padding:6px 11px; background:var(--bg2); border:1px solid var(--border);
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s;
     }
-    .lang-btn:first-child { border-radius: 3px 0 0 3px; }
-    .lang-btn:last-child  { border-radius: 0 3px 3px 0; }
-    .lang-btn.active { color: var(--hc-red); border-color: rgba(255,68,68,0.5); background: rgba(255,68,68,0.08); font-weight: 600; }
+    .lang-btn:first-child { border-radius:3px 0 0 3px; }
+    .lang-btn:last-child  { border-radius:0 3px 3px 0; }
+    .lang-btn.active { color:var(--hc-red); border-color:rgba(255,68,68,0.5); background:rgba(255,68,68,0.08); font-weight:600; }
 
     /* ── MAIN ── */
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 24px 80px;
-      position: relative; z-index: 1;
-      text-align: center;
+    main { position:relative; z-index:1; max-width:980px; margin:0 auto; padding:36px 24px 80px; }
+    .page { display:none; }
+    .page.active { display:block; }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.28em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:20px; padding-bottom:10px;
+      border-bottom:1px solid var(--border);
     }
 
-    /* ── SKULL ── */
-    .cs-skull {
-      font-size: 56px;
-      margin-bottom: 24px;
-      filter: drop-shadow(0 0 24px rgba(255,68,68,0.45));
-      animation: pulse-skull 3s ease-in-out infinite;
+    /* ── SYNC BAR ── */
+    .lb-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:12px; }
+    .sync-info { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--text-muted); font-style:italic; }
+    .sync-dot { width:8px; height:8px; border-radius:50%; background:var(--text-muted); flex-shrink:0; }
+    .sync-dot.ok   { background:var(--tier1); box-shadow:0 0 7px var(--tier1); }
+    .sync-dot.error { background:var(--hc-red); box-shadow:0 0 7px var(--hc-red); }
+    .sync-dot.live { background:var(--teal); box-shadow:0 0 7px var(--teal); animation:sdot 1s ease-in-out infinite; }
+    @keyframes sdot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .refresh-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+      padding:7px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:3px;
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s;
     }
-    @keyframes pulse-skull {
-      0%, 100% { filter: drop-shadow(0 0 24px rgba(255,68,68,0.45)); transform: scale(1); }
-      50%       { filter: drop-shadow(0 0 40px rgba(255,68,68,0.7));  transform: scale(1.06); }
+    .refresh-btn:hover { border-color:var(--border-bright); color:var(--text-dim); }
+    .refresh-btn.spinning svg { animation:spin 0.8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── SEARCH ── */
+    .lb-search-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .lb-search-wrap {
+      flex:1; display:flex; align-items:center; gap:8px;
+      background:var(--bg2); border:1px solid var(--border); border-radius:4px;
+      padding:0 12px; transition:border-color 0.2s;
+    }
+    .lb-search-wrap:focus-within { border-color:rgba(255,68,68,0.5); }
+    .lb-search-wrap input {
+      flex:1; background:none; border:none; outline:none;
+      color:var(--text); font-family:'Crimson Pro',serif; font-size:16px;
+      padding:9px 0; caret-color:var(--hc-red);
+    }
+    .lb-search-wrap input::placeholder { color:var(--text-muted); }
+    .lb-search-clear { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px; padding:4px; transition:color 0.2s; }
+    .lb-search-clear:hover { color:var(--text); }
+    .lb-count { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.12em; color:var(--text-muted); white-space:nowrap; }
+
+    /* ── LEADERBOARD TABLE ── */
+    .lb-header {
+      display:grid; grid-template-columns:44px 1fr 100px 100px 110px;
+      padding:0 14px 10px; gap:8px;
+      font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.18em;
+      text-transform:uppercase; color:var(--text-muted);
+      border-bottom:1px solid var(--border);
+    }
+    .lb-row {
+      display:grid; grid-template-columns:44px 1fr 100px 100px 110px;
+      padding:0 14px; gap:8px; align-items:center;
+      border-bottom:1px solid rgba(64,212,212,0.07);
+      cursor:pointer; transition:background 0.15s; min-height:52px;
+    }
+    .lb-row:hover { background:rgba(255,68,68,0.04); }
+    .lb-row.expanded { background:rgba(255,68,68,0.06); border-bottom:none; }
+    .lb-rank {
+      font-family:'Cinzel',serif; font-size:13px; font-weight:700;
+      color:var(--text-muted); text-align:center;
+    }
+    .lb-rank.r1 { color:var(--hc-gold); text-shadow:0 0 14px rgba(240,192,64,0.5); }
+    .lb-rank.r2 { color:#c0c0c0; }
+    .lb-rank.r3 { color:#cd7f32; }
+    .lb-player { display:flex; flex-direction:column; gap:2px; }
+    .lb-player-name { font-size:17px; color:var(--text); }
+    .lb-char-list { display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; }
+    .lb-char-tag {
+      display:inline-flex; align-items:center; gap:5px;
+      font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.1em;
+      padding:2px 8px; border-radius:20px; border:1px solid;
+    }
+    .lb-char-tag.alive  { border-color:rgba(64,212,212,0.3); color:var(--teal-dim); background:rgba(64,212,212,0.06); }
+    .lb-char-tag.dead   { border-color:rgba(255,68,68,0.3); color:rgba(255,68,68,0.6); background:rgba(255,68,68,0.05); text-decoration:line-through; }
+    .lb-char-skull { font-size:10px; }
+    .lb-ilvl { font-family:'Cinzel',serif; font-size:14px; color:var(--teal-light); text-align:right; }
+    .lb-ilvl.dead { color:var(--text-muted); }
+    .lb-attempts { font-family:'Cinzel',serif; font-size:13px; color:var(--text-muted); text-align:right; }
+    .lb-capstone { text-align:right; }
+    .capstone-badge {
+      display:inline-block; font-family:'Cinzel',serif; font-size:10px;
+      letter-spacing:0.12em; padding:3px 9px; border-radius:20px; border:1px solid;
+      white-space:nowrap;
+    }
+    .capstone-badge.champion { color:var(--hc-champion); border-color:rgba(175,75,239,0.4); background:rgba(175,75,239,0.08); }
+    .capstone-badge.paragon  { color:var(--hc-paragon);  border-color:rgba(244,221,64,0.4); background:rgba(244,221,64,0.08); }
+    .capstone-badge.eternal  { color:var(--hc-eternal);  border-color:rgba(212,68,72,0.4);  background:rgba(212,68,72,0.08); }
+
+    /* ── EXPAND PANEL ── */
+    .lb-expand {
+      background:rgba(7,11,11,0.8); border-bottom:1px solid var(--border);
+      padding:14px 14px 18px 14px;
+      display:none;
+    }
+    .lb-expand.open { display:block; }
+    .expand-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .expand-char-card {
+      background:var(--bg2); border:1px solid var(--border); border-radius:6px;
+      padding:16px 18px;
+    }
+    .expand-char-card.dead-card { border-color:rgba(255,68,68,0.25); background:rgba(255,68,68,0.03); }
+    .expand-char-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .expand-char-name { font-family:'Cinzel',serif; font-size:14px; color:var(--text); }
+    .expand-char-class { font-size:13px; color:var(--text-muted); font-style:italic; }
+    .expand-stat-row { display:flex; justify-content:space-between; align-items:baseline; padding:4px 0; border-bottom:1px solid rgba(64,212,212,0.07); font-size:15px; }
+    .expand-stat-row:last-child { border-bottom:none; }
+    .expand-stat-label { color:var(--text-muted); font-size:13px; }
+    .expand-stat-value { color:var(--teal-light); font-family:'Cinzel',serif; font-size:13px; }
+    .expand-stat-value.red { color:rgba(255,68,68,0.8); }
+    .expand-death-info { margin-top:10px; padding:8px 10px; background:rgba(255,68,68,0.06); border-radius:4px; border-left:2px solid rgba(255,68,68,0.4); font-size:14px; color:rgba(255,68,68,0.7); }
+    .expand-capstones { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+
+    /* ── PAGINATION ── */
+    #lb-pagination { display:flex; align-items:center; justify-content:center; gap:4px; margin-top:16px; flex-wrap:wrap; }
+    .pg-btn {
+      font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.08em;
+      min-width:36px; height:36px; padding:0 10px;
+      background:var(--bg2); border:1px solid var(--border); border-radius:3px;
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .pg-btn:hover:not(:disabled) { border-color:var(--border-bright); color:var(--text-dim); }
+    .pg-btn.active { color:var(--hc-red); border-color:rgba(255,68,68,0.5); background:rgba(255,68,68,0.07); }
+    .pg-btn:disabled { opacity:0.3; cursor:default; }
+
+    /* ── EVENTS CATALOGUE ── */
+    .events-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .evt-filter {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+      padding:6px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:3px;
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s;
+    }
+    .evt-filter:hover { border-color:var(--border-bright); color:var(--text-dim); }
+    .evt-filter.active { color:var(--hc-red); border-color:rgba(255,68,68,0.5); background:rgba(255,68,68,0.07); }
+    .evt-list { display:flex; flex-direction:column; gap:8px; }
+    .evt-item {
+      display:flex; align-items:center; gap:14px;
+      padding:12px 16px; background:var(--bg2); border:1px solid var(--border);
+      border-radius:5px; transition:border-color 0.15s;
+    }
+    .evt-item.death    { border-left:3px solid rgba(255,68,68,0.6); }
+    .evt-item.capstone { border-left:3px solid rgba(196,160,255,0.6); }
+    .evt-item.new_attempt { border-left:3px solid rgba(64,212,212,0.4); }
+    .evt-icon { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
+    .evt-body { flex:1; }
+    .evt-title { font-size:16px; color:var(--text); }
+    .evt-title strong { color:var(--hc-red); }
+    .evt-title.cap strong { color:var(--hc-eternal); }
+    .evt-meta { font-size:13px; color:var(--text-muted); margin-top:2px; font-style:italic; }
+    .evt-time { font-family:'Cinzel',serif; font-size:11px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
+
+    /* ── RULES PAGE ── */
+    .rules-section { margin-bottom:36px; }
+    .rules-section-title {
+      font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.22em; text-transform:uppercase;
+      color:var(--text-dim); margin-bottom:16px; padding-bottom:10px;
+      border-bottom:1px solid var(--border);
+    }
+    .rules-list { display:flex; flex-direction:column; gap:10px; }
+    .rules-item {
+      padding:12px 16px; background:var(--bg2); border:1px solid var(--border);
+      border-radius:4px; font-size:16px; line-height:1.6; color:var(--text-dim);
+    }
+    .rules-item strong { color:var(--text); }
+    .rules-item.warning { border-color:rgba(255,68,68,0.3); background:rgba(255,68,68,0.04); }
+    .rules-item.warning strong { color:var(--hc-red); }
+    .capstone-table { width:100%; border-collapse:collapse; margin-top:8px; }
+    .capstone-table th {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+      padding:8px 12px; text-align:left; color:var(--text-muted);
+      border-bottom:1px solid var(--border);
+    }
+    .capstone-table td { padding:10px 12px; font-size:15px; border-bottom:1px solid rgba(64,212,212,0.07); }
+    .capstone-table tr:last-child td { border-bottom:none; }
+    .ct-champion { color:var(--hc-champion); font-family:'Cinzel',serif; font-size:13px; }
+    .ct-paragon  { color:var(--hc-paragon);  font-family:'Cinzel',serif; font-size:13px; }
+    .ct-eternal  { color:var(--hc-eternal);  font-family:'Cinzel',serif; font-size:13px; }
+
+    /* ── REGISTER PAGE ── */
+    .register-card {
+      background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+      padding:28px 32px; max-width:540px; margin:0 auto;
+    }
+    .register-title {
+      font-family:'Cinzel',serif; font-size:14px; letter-spacing:0.2em; text-transform:uppercase;
+      color:var(--text-dim); margin-bottom:8px;
+    }
+    .register-desc { font-size:15px; color:var(--text-muted); margin-bottom:28px; line-height:1.6; font-style:italic; }
+    .field { display:flex; flex-direction:column; gap:6px; margin-bottom:18px; }
+    .field label { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-muted); }
+    .field input, .field select {
+      background:var(--bg3); border:1px solid var(--border); border-radius:4px;
+      color:var(--text); font-family:'Crimson Pro',serif; font-size:16px;
+      padding:10px 14px; outline:none; transition:border-color 0.2s;
+    }
+    .field input:focus, .field select:focus { border-color:rgba(255,68,68,0.5); }
+    .field input::placeholder { color:var(--text-muted); }
+    .field select option { background:var(--bg3); }
+    .field-hint { font-size:13px; color:var(--text-muted); font-style:italic; margin-top:2px; }
+    .btn-register {
+      width:100%; padding:12px; font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.2em;
+      text-transform:uppercase; background:rgba(255,68,68,0.1); border:1px solid rgba(255,68,68,0.4);
+      color:var(--hc-red); border-radius:4px; cursor:pointer; transition:all 0.2s; margin-top:8px;
+    }
+    .btn-register:hover { background:rgba(255,68,68,0.18); border-color:rgba(255,68,68,0.7); }
+    .btn-register:disabled { opacity:0.4; cursor:default; }
+    .register-result { margin-top:16px; padding:12px 16px; border-radius:4px; font-size:15px; display:none; }
+    .register-result.ok  { background:rgba(68,238,68,0.08); border:1px solid rgba(68,238,68,0.3); color:var(--tier1); }
+    .register-result.err { background:rgba(255,68,68,0.08); border:1px solid rgba(255,68,68,0.3); color:var(--hc-red); }
+    .register-result.show { display:block; }
+    .register-warning {
+      padding:12px 16px; background:rgba(255,68,68,0.06); border:1px solid rgba(255,68,68,0.25);
+      border-radius:4px; font-size:14px; color:rgba(255,68,68,0.8); margin-bottom:22px; line-height:1.6;
     }
 
-    /* ── TITLE ── */
-    .cs-title {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(28px, 6vw, 52px);
-      font-weight: 700;
-      color: var(--hc-red);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      text-shadow:
-        0 0 40px rgba(255,68,68,0.55),
-        0 0 80px rgba(255,68,68,0.2);
-      margin-bottom: 12px;
+    /* ── LOADING / EMPTY ── */
+    .loading { text-align:center; padding:48px 0; color:var(--text-muted); font-style:italic; font-size:16px; }
+    .empty   { text-align:center; padding:48px 0; color:var(--text-muted); font-style:italic; font-size:16px; }
+
+    /* ── TOAST ── */
+    .toast {
+      position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px);
+      background:var(--bg3); border:1px solid var(--border); border-radius:4px;
+      padding:10px 20px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.1em;
+      color:var(--text-dim); pointer-events:none; transition:transform 0.3s; z-index:999;
+      white-space:nowrap;
+    }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.error { border-color:rgba(255,68,68,0.4); color:var(--hc-red); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75);
+      backdrop-filter:blur(4px); z-index:500; align-items:center; justify-content:center;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+      max-width:680px; width:calc(100% - 32px); max-height:85vh; overflow-y:auto;
+    }
+    .modal-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:18px 22px; border-bottom:1px solid var(--border);
+      position:sticky; top:0; background:var(--bg2); z-index:1;
+    }
+    .modal-player-name { font-family:'Cinzel',serif; font-size:16px; color:var(--text); }
+    .modal-close { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:4px 8px; transition:color 0.2s; }
+    .modal-close:hover { color:var(--text); }
+    .modal-body { padding:20px 22px 24px; }
+    .modal-section-title { font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-muted); margin-bottom:14px; }
+    .modal-chars { display:flex; flex-direction:column; gap:14px; }
+    .modal-char {
+      background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:14px 16px;
+    }
+    .modal-char.dead-char { border-color:rgba(255,68,68,0.2); }
+    .modal-char-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .modal-char-name { font-family:'Cinzel',serif; font-size:14px; color:var(--text); }
+    .modal-char-status-alive { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.15em; color:var(--teal-dim); padding:2px 8px; border:1px solid rgba(64,212,212,0.3); border-radius:20px; }
+    .modal-char-status-dead  { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.15em; color:rgba(255,68,68,0.7); padding:2px 8px; border:1px solid rgba(255,68,68,0.3); border-radius:20px; }
+    .modal-stats-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    .modal-stat { text-align:center; padding:8px; background:rgba(0,0,0,0.2); border-radius:4px; }
+    .modal-stat-val { font-family:'Cinzel',serif; font-size:18px; color:var(--teal-light); }
+    .modal-stat-val.red { color:rgba(255,68,68,0.8); }
+    .modal-stat-lbl { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); margin-top:2px; }
+    .modal-capstones { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+    .modal-death-info { margin-top:10px; padding:8px 12px; background:rgba(255,68,68,0.06); border-radius:4px; border-left:2px solid rgba(255,68,68,0.4); font-size:14px; color:rgba(255,68,68,0.65); font-style:italic; }
+
+    /* ── EXPAND HERO TABLE ── */
+    .hero-table { width:100%; border-collapse:collapse; }
+    .hero-table th { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-muted); padding:6px 10px; text-align:left; border-bottom:1px solid var(--border); }
+    .hero-table th:not(:first-child) { text-align:right; }
+    .hero-table td { padding:8px 10px; border-bottom:1px solid rgba(64,212,212,0.05); font-size:14px; vertical-align:middle; }
+    .hero-table td:not(:first-child) { text-align:right; }
+    .hero-table tr:last-child td { border-bottom:none; }
+    .hero-table tr.hero-row { cursor:pointer; transition:background 0.15s; }
+    .hero-table tr.hero-row:hover { background:rgba(255,68,68,0.04); }
+    .hero-table tr.hero-row.expanded-hero { background:rgba(255,68,68,0.06); }
+    .hero-table tr.hero-runs-row td { padding:0; background:var(--bg3); }
+    .hero-table tr.hero-runs-row.open { display:table-row; }
+    .hero-runs-inner { padding:12px 14px; display:none; }
+    .hero-runs-inner.open { display:block; }
+    .hero-run-item { display:grid; grid-template-columns:1fr 120px 80px 80px 90px; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid rgba(64,212,212,0.06); font-size:13px; }
+    .hero-run-item:last-child { border-bottom:none; }
+    .hero-run-dungeon { color:var(--text-dim); }
+    .hero-run-rank { text-align:right; }
+    .hero-run-rating { font-family:'Cinzel',serif; font-size:12px; color:var(--teal-light); text-align:right; }
+    .hero-run-date { color:var(--text-muted); font-size:12px; text-align:right; }
+    .hero-run-timed { text-align:center; }
+    .hero-name-cell { display:flex; align-items:center; gap:8px; }
+    .hero-status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+    /* ── JOIN STEPS (logs section) ── */
+    .join-step { display:flex; gap:18px; margin-bottom:24px; align-items:flex-start; }
+    .join-step-num { flex-shrink:0; width:32px; height:32px; border-radius:50%; background:rgba(255,68,68,0.1); border:1px solid rgba(255,68,68,0.4); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:var(--hc-red); margin-top:2px; }
+    .join-step-body { flex:1; }
+    .join-step-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+    .join-step-desc { font-size:15px; color:var(--text-muted); line-height:1.7; margin-bottom:10px; }
+    .join-step-desc a { color:var(--hc-red); text-decoration:none; border-bottom:1px solid rgba(255,68,68,0.35); }
+    .join-step-desc strong { color:var(--text); font-weight:400; }
+    .join-screenshot { background:var(--bg2); border:1px solid var(--border); border-radius:6px; overflow:hidden; margin-top:4px; }
+    .join-screenshot-label { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); padding:6px 12px; border-bottom:1px solid var(--border); }
+    .join-url-demo { padding:12px 14px; }
+    .join-url-bar { background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:8px 12px; font-family:monospace; font-size:12px; color:var(--text-muted); word-break:break-all; line-height:1.6; }
+    .url-highlight { color:var(--hc-red); font-weight:700; background:rgba(255,68,68,0.1); padding:1px 5px; border-radius:3px; }
+    .url-dim { color:var(--text-muted); }
+    .join-url-caption { font-size:13px; color:var(--text-muted); font-style:italic; margin-top:6px; }
+
+    /* Recap onboarding */
+    .recap-card { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:16px 18px; margin-bottom:12px; }
+    .recap-row { display:flex; justify-content:space-between; align-items:baseline; padding:6px 0; border-bottom:1px solid rgba(255,68,68,0.08); font-size:15px; }
+    .recap-row:last-child { border-bottom:none; }
+    .recap-label { color:var(--text-muted); font-size:13px; }
+    .recap-val { color:var(--text-dim); font-family:'Cinzel',serif; font-size:13px; }
+    .recap-heroes { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+    .recap-hero-tag { font-family:'Cinzel',serif; font-size:10px; padding:2px 8px; border-radius:20px; border:1px solid; }
+
+
+    /* ── LEADERBOARD v2 ── */
+    .lb-header { grid-template-columns: 48px 1fr 150px 100px 170px; font-size:11px; letter-spacing:0.12em; }
+    .lb-row    { grid-template-columns: 48px 1fr 150px 100px 170px; }
+
+    /* Hero portrait squares in expand panel */
+    .hero-portraits { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+    .hero-portrait {
+      width:64px; flex-shrink:0; cursor:pointer; border-radius:6px; overflow:hidden;
+      border:2px solid var(--border); transition:all 0.2s; position:relative;
+    }
+    .hero-portrait:hover  { border-color:rgba(255,255,255,0.4); transform:translateY(-2px); }
+    .hero-portrait.active { border-color:var(--hc-red); box-shadow:0 0 12px rgba(255,68,68,0.4); }
+    .hero-portrait.dead   { filter:grayscale(0.6); }
+    .hero-portrait img    { width:64px; height:64px; object-fit:cover; object-position:top; display:block; }
+    .hero-portrait-skull  {
+      position:absolute; bottom:3px; right:3px; font-size:14px;
+      filter:drop-shadow(0 0 3px rgba(0,0,0,0.9));
+    }
+    /* hero-portrait-attempt removed — no longer shown */
+
+    /* Hero detail card */
+    .hero-detail { margin-bottom:20px; }
+    .hero-detail-stats {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;
+    }
+    .hero-detail-stat {
+      background:var(--bg3); border:1px solid var(--border); border-radius:6px;
+      padding:12px; text-align:center;
+    }
+    .hero-detail-stat-val {
+      font-family:'Cinzel',serif; font-size:20px; font-weight:700; color:var(--teal-light);
+    }
+    .hero-detail-stat-lbl {
+      font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.18em; text-transform:uppercase;
+      color:var(--text-muted); margin-top:4px;
     }
 
-    .cs-subtitle {
-      font-size: 15px;
-      color: var(--text-muted);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      font-weight: 300;
-      margin-bottom: 48px;
+    /* ── DUNGEON TABLE ── */
+    .dungeon-table-wrap { border-radius:6px; overflow:hidden; border:1px solid var(--border); }
+    .dungeon-table-header {
+      display:grid; grid-template-columns:1fr 160px 90px 80px;
+      padding:8px 16px; border-bottom:1px solid var(--border); background:var(--bg3);
+    }
+    .dungeon-table-header span {
+      font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.18em;
+      text-transform:uppercase; color:var(--text-dim); font-weight:700;
+    }
+    .dungeon-table-header span:not(:first-child) { text-align:right; }
+
+    .dungeon-table { display:block; }
+    .dungeon-row {
+      position:relative; overflow:hidden;
+      min-height:60px;
+      border-bottom:1px solid rgba(0,0,0,0.4);
+      display:flex; align-items:stretch;
+      transition:filter 0.2s;
+    }
+    .dungeon-row:last-child { border-bottom:none; }
+    .dungeon-row:hover { filter:brightness(1.1); }
+
+    .dungeon-row-bg {
+      position:absolute; inset:0;
+      background-size:cover; background-position:center;
+      z-index:0;
+    }
+    .dungeon-row-overlay {
+      position:absolute; inset:0; z-index:1;
+      background:rgba(7,11,11,0.52);
+    }
+    .dungeon-row-content {
+      position:relative; z-index:2;
+      display:grid; grid-template-columns:1fr 160px 90px 80px;
+      align-items:center; width:100%;
+      padding:0 16px;
+    }
+    .dungeon-name {
+      font-family:'Cinzel',serif; font-size:14px; font-weight:700;
+      color:#ffffff; line-height:1.3; padding:14px 0;
+      text-shadow:0 2px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.7);
+    }
+    .dungeon-name.xul {
+      color:#f0a060;
+      text-shadow:0 0 14px rgba(200,115,42,0.8), 0 2px 6px rgba(0,0,0,0.95);
+    }
+    .dungeon-key {
+      text-align:right;
+      font-family:'Cinzel',serif; font-size:14px; font-weight:700;
+      text-shadow:0 2px 6px rgba(0,0,0,0.95);
+    }
+    .dungeon-score {
+      text-align:right;
+      font-family:'Cinzel',serif; font-size:13px; color:#72e8e8;
+      text-shadow:0 1px 4px rgba(0,0,0,0.9);
+    }
+    .dungeon-time {
+      text-align:right;
+      font-size:12px; color:#c8e8e8;
+      text-shadow:0 1px 4px rgba(0,0,0,0.9);
     }
 
-    /* ── COMING SOON BOX ── */
-    .cs-box {
-      border: 1px solid rgba(255,68,68,0.3);
-      background: rgba(255,68,68,0.04);
-      border-radius: 8px;
-      padding: 36px 48px;
-      max-width: 560px;
-      width: 100%;
-      margin-bottom: 40px;
-      position: relative;
-      overflow: hidden;
-    }
-    .cs-box::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,68,68,0.6), transparent);
+    @media (max-width:700px) {
+      main { padding:20px 14px 64px; }
+      .lb-header, .lb-row { grid-template-columns:36px 1fr 80px 70px; }
+      .lb-header .col-attempts, .lb-row .col-attempts { display:none; }
+      .expand-grid { grid-template-columns:1fr; }
+      .modal-stats-grid { grid-template-columns:1fr 1fr; }
+      nav { padding:8px 10px; flex-wrap:wrap; gap:4px; }
     }
 
-    .cs-coming {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(13px, 3vw, 15px);
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 16px;
+    /* ── PROFILE PAGE ── */
+    .profile-visitor {
+      max-width:480px; margin:0 auto; text-align:center; padding:48px 0;
+    }
+    .profile-visitor-title {
+      font-family:'Cinzel',serif; font-size:18px; letter-spacing:0.15em; text-transform:uppercase;
+      color:var(--text-dim); margin-bottom:10px;
+    }
+    .profile-visitor-desc { font-size:15px; color:var(--text-muted); font-style:italic; margin-bottom:28px; line-height:1.7; }
+    .profile-magic-form {
+      background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+      padding:24px 28px; text-align:left;
+    }
+    .profile-magic-title {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.22em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:16px; text-align:center;
+    }
+    .profile-magic-row { display:flex; gap:8px; }
+    .profile-magic-row input {
+      flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:4px;
+      color:var(--text); font-family:'Crimson Pro',serif; font-size:16px;
+      padding:10px 14px; outline:none; transition:border-color 0.2s;
+    }
+    .profile-magic-row input:focus { border-color:rgba(255,68,68,0.5); }
+    .profile-magic-row input::placeholder { color:var(--text-muted); }
+    .btn-magic {
+      padding:10px 18px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.15em;
+      text-transform:uppercase; background:rgba(255,68,68,0.1); border:1px solid rgba(255,68,68,0.4);
+      color:var(--hc-red); border-radius:4px; cursor:pointer; transition:all 0.2s; white-space:nowrap;
+    }
+    .btn-magic:hover { background:rgba(255,68,68,0.18); }
+    .btn-magic:disabled { opacity:0.4; cursor:default; }
+    .profile-magic-sent {
+      margin-top:14px; padding:10px 14px; border-radius:4px; font-size:14px;
+      background:rgba(68,238,68,0.08); border:1px solid rgba(68,238,68,0.3); color:var(--tier1);
+      display:none;
+    }
+    .profile-magic-sent.show { display:block; }
+
+    /* Onboarding */
+    .onboarding-card {
+      max-width:560px; margin:0 auto;
+      background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:28px 32px;
+    }
+    .onboarding-step-indicator {
+      display:flex; gap:8px; margin-bottom:24px; align-items:center;
+    }
+    .onboarding-step-dot {
+      width:28px; height:28px; border-radius:50%; border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Cinzel',serif; font-size:11px; color:var(--text-muted);
+      transition:all 0.2s;
+    }
+    .onboarding-step-dot.active { border-color:rgba(255,68,68,0.6); color:var(--hc-red); background:rgba(255,68,68,0.08); }
+    .onboarding-step-dot.done   { border-color:rgba(68,238,68,0.4); color:var(--tier1); background:rgba(68,238,68,0.06); }
+    .onboarding-step-line { flex:1; height:1px; background:var(--border); }
+    .onboarding-title {
+      font-family:'Cinzel',serif; font-size:14px; letter-spacing:0.18em; text-transform:uppercase;
+      color:var(--text-dim); margin-bottom:20px;
     }
 
-    .cs-season {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(28px, 5vw, 42px);
-      font-weight: 700;
-      color: var(--text-dim);
-      letter-spacing: 0.08em;
-      margin-bottom: 8px;
-      text-shadow: 0 0 30px rgba(255,68,68,0.2);
+    /* Heroes grid */
+    .heroes-section { margin-bottom:20px; }
+    .heroes-role-label {
+      font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.22em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border);
+    }
+    .heroes-grid { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+    .hero-toggle {
+      display:flex; align-items:center; gap:8px;
+      padding:8px 14px; border-radius:4px; border:1px solid var(--border);
+      background:var(--bg3); cursor:pointer; transition:all 0.2s;
+      font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.1em;
+      color:var(--text-muted); user-select:none;
+    }
+    .hero-toggle:hover { border-color:rgba(255,255,255,0.2); color:var(--text-dim); }
+    .hero-toggle.selected { color:var(--text); }
+    .hero-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .hero-toggle-check { font-size:10px; opacity:0; transition:opacity 0.15s; }
+    .hero-toggle.selected .hero-toggle-check { opacity:1; }
+
+    /* Profile connected */
+    .profile-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:28px; padding-bottom:16px; border-bottom:1px solid var(--border);
+    }
+    .profile-user { display:flex; flex-direction:column; gap:3px; }
+    .profile-username { font-family:'Cinzel',serif; font-size:18px; color:var(--text); }
+    .profile-email { font-size:14px; color:var(--text-muted); font-style:italic; }
+    .btn-logout {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+      padding:7px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:3px;
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s;
+    }
+    .btn-logout:hover { border-color:rgba(255,68,68,0.4); color:var(--hc-red); }
+
+    /* Section persos */
+    .profile-section-title {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.22em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border);
+    }
+    .profile-hero-card {
+      background:var(--bg2); border:1px solid var(--border); border-radius:6px;
+      padding:16px 18px; margin-bottom:10px; transition:border-color 0.2s;
+    }
+    .profile-hero-card.hm-on { border-color:rgba(255,68,68,0.35); }
+    .profile-hero-header {
+      display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
+    }
+    .profile-hero-name { font-family:'Cinzel',serif; font-size:15px; }
+    .profile-hero-role { font-size:13px; color:var(--text-muted); font-style:italic; margin-left:8px; }
+    .hm-toggle-pill {
+      display:flex; align-items:center; gap:8px;
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+    }
+    .hm-toggle-switch {
+      position:relative; width:36px; height:20px; cursor:pointer;
+    }
+    .hm-toggle-switch input { display:none; }
+    .hm-toggle-track {
+      position:absolute; inset:0; border-radius:20px;
+      background:var(--bg3); border:1px solid var(--border); transition:all 0.25s;
+    }
+    .hm-toggle-thumb {
+      position:absolute; top:3px; left:3px; width:12px; height:12px;
+      border-radius:50%; background:var(--text-muted); transition:all 0.25s;
+    }
+    .hm-toggle-switch input:checked ~ .hm-toggle-track {
+      background:rgba(255,68,68,0.15); border-color:rgba(255,68,68,0.5);
+    }
+    .hm-toggle-switch input:checked ~ .hm-toggle-thumb {
+      background:var(--hc-red); transform:translateX(16px);
+    }
+    .profile-hero-stats {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px;
+    }
+    .profile-hero-stat { text-align:center; padding:6px; background:rgba(0,0,0,0.2); border-radius:4px; }
+    .profile-hero-stat-val { font-family:'Cinzel',serif; font-size:15px; color:var(--teal-light); }
+    .profile-hero-stat-val.dead { color:rgba(255,68,68,0.7); }
+    .profile-hero-stat-lbl { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); margin-top:2px; }
+    .profile-period {
+      font-size:13px; color:var(--text-muted); font-style:italic; margin-top:6px;
     }
 
-    .cs-season span {
-      color: var(--hc-red);
+    /* Warnings */
+    .profile-warnings { margin-top:28px; }
+    .profile-warning-item {
+      display:flex; align-items:flex-start; gap:12px;
+      padding:12px 16px; background:var(--bg2); border:1px solid rgba(255,68,68,0.25);
+      border-radius:5px; margin-bottom:8px; cursor:pointer; transition:opacity 0.2s;
+    }
+    .profile-warning-item.read { opacity:0.45; }
+    .profile-warning-icon { font-size:18px; flex-shrink:0; }
+    .profile-warning-body { flex:1; }
+    .profile-warning-msg { font-size:15px; color:var(--text-dim); }
+    .profile-warning-time { font-size:12px; color:var(--text-muted); font-style:italic; margin-top:3px; }
+
+    /* Code contact */
+    .profile-contact-box {
+      margin-top:28px; padding:16px 18px; background:var(--bg2); border:1px solid var(--border);
+      border-radius:6px;
+    }
+    .profile-contact-code {
+      font-family:'Cinzel',serif; font-size:20px; letter-spacing:0.2em; color:var(--teal-light);
+      text-align:center; margin:10px 0;
+    }
+    .btn-copy {
+      display:block; width:100%; margin-top:8px;
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.15em; text-transform:uppercase;
+      padding:8px; background:var(--bg3); border:1px solid var(--border); border-radius:3px;
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s; text-align:center;
+    }
+    .btn-copy:hover { border-color:var(--border-bright); color:var(--text-dim); }
+
+    /* ── PROFILE TABS ── */
+    .profile-tabs {
+      display:flex; gap:0; border-bottom:2px solid var(--border);
+      margin-bottom:28px;
+    }
+    .profile-tab-btn {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
+      padding:12px 20px; background:none; border:none; border-bottom:2px solid transparent;
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s; margin-bottom:-2px;
+    }
+    .profile-tab-btn:hover { color:var(--text-dim); }
+    .profile-tab-btn.active { color:var(--hc-red); border-bottom-color:var(--hc-red); }
+
+    /* ── HERO CARDS v2 ── */
+    .hero-card-v2 {
+      background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+      padding:20px 24px; margin-bottom:14px; transition:border-color 0.2s;
+      position:relative;
+    }
+    .hero-card-v2.hm-on { border-color:rgba(255,68,68,0.4); }
+    .hero-card-v2.hm-on::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg, transparent, rgba(255,68,68,0.6), transparent);
+      border-radius:8px 8px 0 0;
+    }
+    .hero-card-v2-header {
+      display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
+    }
+    .hero-card-v2-title {
+      display:flex; align-items:baseline; gap:10px;
+    }
+    .hero-card-v2-name {
+      font-family:'Cinzel',serif; font-size:22px; font-weight:700; letter-spacing:0.05em;
+    }
+    .hero-card-v2-role {
+      font-size:14px; color:var(--text-muted); font-style:italic;
+    }
+    .hero-card-v2-stats {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px;
+    }
+    .hero-stat-block {
+      background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:6px;
+      padding:12px 14px; text-align:center;
+    }
+    .hero-stat-block-val {
+      font-family:'Cinzel',serif; font-size:22px; font-weight:700; color:var(--teal-light);
+      line-height:1;
+    }
+    .hero-stat-block-lbl {
+      font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.2em; text-transform:uppercase;
+      color:var(--text-muted); margin-top:5px;
+    }
+    .hero-card-v2-footer {
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    }
+    .hero-status-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+      padding:5px 12px; border-radius:20px; border:1px solid;
+    }
+    .hero-status-badge.alive {
+      color:var(--tier1); border-color:rgba(68,238,68,0.3); background:rgba(68,238,68,0.06);
+    }
+    .hero-status-badge.dead {
+      color:rgba(255,68,68,0.7); border-color:rgba(255,68,68,0.3); background:rgba(255,68,68,0.06);
+    }
+    .hero-hm-since {
+      font-size:13px; color:var(--text-muted); font-style:italic;
+    }
+    .hero-card-add {
+      background:var(--bg2); border:1px dashed rgba(64,212,212,0.2); border-radius:8px;
+      padding:16px 24px; margin-bottom:10px; display:flex; align-items:center;
+      justify-content:space-between; opacity:0.6; transition:opacity 0.2s;
+    }
+    .hero-card-add:hover { opacity:1; }
+    .hero-card-add-name {
+      font-family:'Cinzel',serif; font-size:16px; font-weight:600;
     }
 
-    .cs-desc {
-      font-size: 17px;
-      color: var(--text-muted);
-      font-style: italic;
-      line-height: 1.7;
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255,68,68,0.12);
+    /* ── EQUIPMENT GRID ── */
+    .equip-hero-selector {
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;
+    }
+    .equip-hero-btn {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+      padding:7px 14px; border-radius:4px; border:1px solid var(--border);
+      background:var(--bg3); color:var(--text-muted); cursor:pointer; transition:all 0.2s;
+    }
+    .equip-hero-btn.active { color:var(--text); }
+    .equip-snapshot-info {
+      font-size:13px; color:var(--text-muted); font-style:italic; margin-bottom:18px;
+    }
+    .equip-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px;
+    }
+    .equip-item {
+      display:flex; align-items:center; gap:12px;
+      background:var(--bg2); border:1px solid var(--border); border-radius:6px;
+      padding:10px 14px; transition:border-color 0.15s;
+    }
+    .equip-item:hover { border-color:rgba(64,212,212,0.35); }
+    .equip-icon {
+      width:42px; height:42px; border-radius:4px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; border:1px solid;
+    }
+    .equip-info { flex:1; min-width:0; }
+    .equip-name {
+      font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden;
+      text-overflow:ellipsis; line-height:1.3;
+    }
+    .equip-meta {
+      display:flex; gap:8px; align-items:center; margin-top:3px;
+    }
+    .equip-slot {
+      font-size:11px; color:var(--text-muted); text-transform:uppercase;
+      letter-spacing:0.1em; font-family:'Cinzel',serif;
+    }
+    .equip-ilvl {
+      font-family:'Cinzel',serif; font-size:12px; font-weight:700;
+      background:rgba(0,0,0,0.4); padding:1px 6px; border-radius:3px;
+    }
+    .equip-gs {
+      font-family:'Cinzel',serif; font-size:11px; color:var(--text-muted);
+    }
+    .equip-totals {
+      background:var(--bg2); border:1px solid var(--border); border-radius:6px;
+      padding:14px 18px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .equip-total-label {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+      color:var(--text-muted);
+    }
+    .equip-total-val {
+      font-family:'Cinzel',serif; font-size:24px; font-weight:700; color:var(--teal-light);
+    }
+    .equip-empty {
+      text-align:center; padding:40px; color:var(--text-muted); font-style:italic; font-size:15px;
     }
 
-    /* ── TEASER PILLARS ── */
-    .cs-pillars {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 44px;
-      max-width: 560px;
+    /* ── HISTORIQUE TAB ── */
+    .hist-section { margin-bottom:28px; }
+    .hist-section-title {
+      font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.22em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);
     }
-    .cs-pillar {
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 18px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: rgba(64,212,212,0.03);
-      font-family: 'Cinzel', serif;
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      transition: all 0.25s;
+    .hist-run-item {
+      display:grid; grid-template-columns:1fr 130px 80px 70px 90px;
+      gap:10px; align-items:center; padding:10px 0;
+      border-bottom:1px solid rgba(64,212,212,0.05); font-size:15px;
     }
-    .cs-pillar:hover {
-      border-color: rgba(255,68,68,0.35);
-      color: var(--text-dim);
-      background: rgba(255,68,68,0.04);
-    }
-    .cs-pillar-icon { font-size: 16px; }
+    .hist-run-item:last-child { border-bottom:none; }
 
-    /* ── SOCIAL ── */
-    .social-links {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
-    }
-    .social-link {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 6px 14px; border: 1px solid var(--border); border-radius: 3px;
-      text-decoration: none; color: var(--text-muted); font-size: 12px;
-      font-family: 'Cinzel', serif; letter-spacing: 0.1em; text-transform: uppercase;
-      transition: all 0.25s; background: rgba(255,255,255,0.02); white-space: nowrap;
-    }
-    .social-link svg { flex-shrink: 0; width: 14px; height: 14px; }
-    .social-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
-    .social-link.twitch:hover  { border-color: var(--twitch);  color: var(--twitch);  box-shadow: 0 0 12px rgba(145,71,255,0.15); }
-    .social-link.discord:hover { border-color: var(--discord); color: var(--discord); box-shadow: 0 0 12px rgba(88,101,242,0.15); }
-    .social-link.youtube:hover { border-color: var(--youtube); color: var(--youtube); box-shadow: 0 0 12px rgba(255,0,0,0.12); }
+    /* ── QUALITY COLORS ── */
+    .q1 { color:#00c700; border-color:rgba(0,199,0,0.4);    background:rgba(0,199,0,0.08); }
+    .q2 { color:#006fe6; border-color:rgba(0,111,230,0.4);  background:rgba(0,111,230,0.08); }
+    .q3 { color:#a920fd; border-color:rgba(169,32,253,0.4); background:rgba(169,32,253,0.08); }
+    .q4 { color:#b79f00; border-color:rgba(183,159,0,0.4);  background:rgba(183,159,0,0.08); }
+    .q5 { color:#b60000; border-color:rgba(182,0,0,0.4);    background:rgba(182,0,0,0.08); }
+    .q6 { color:#e96326; border-color:rgba(233,99,38,0.4);  background:rgba(233,99,38,0.08); }
 
-    /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      padding: 20px 24px;
-      border-top: 1px solid var(--border);
-      font-size: 13px;
-      color: var(--text-muted);
-      font-style: italic;
-      position: relative; z-index: 1;
-      flex-shrink: 0;
+    /* ── SLOT NAMES ── */
+
+    /* ══ PROFIL v2 ══════════════════════════════════════════════════════════════ */
+    /* Sélecteur de héros */
+    .pick-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+    .pick { position:relative; width:54px; height:54px; padding:0; border-radius:8px; overflow:hidden; border:2px solid var(--border); background:var(--bg3); cursor:pointer; transition:transform .15s, border-color .15s; }
+    .pick img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+    .pick:hover { transform:translateY(-2px); }
+    .pick.new { opacity:.45; filter:grayscale(.6); }
+    .pick.new:hover { opacity:.85; }
+    .pick.on { border-color:rgba(255,68,68,.75); }
+    .pick.sel { border-color:var(--hc); box-shadow:0 0 0 2px var(--hc), 0 0 14px var(--hc); }
+    .pick-dot { position:absolute; right:4px; bottom:4px; width:13px; height:13px; border-radius:50%; border:1.5px solid rgba(0,0,0,.7); background:#6ba8a8; }
+    .pick-dot.on { background:#ff4444; box-shadow:0 0 6px #ff4444; }
+    .pick-plus { position:absolute; right:4px; bottom:0; font-weight:700; font-size:18px; color:#fff; text-shadow:0 0 4px #000; }
+
+    /* Prochain trophée */
+    .next-trophy { display:flex; align-items:center; gap:12px; margin-bottom:16px; padding:10px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; }
+    .nt-ico { font-size:22px; }
+    .nt-body { flex:1; min-width:0; }
+    .nt-label { font-size:15px; color:var(--text-muted); margin-bottom:6px; }
+    .nt-pct { font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:var(--text-dim); }
+    .trophy-bar { height:6px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden; }
+    .trophy-bar div { height:100%; background:var(--tc, var(--teal-light)); border-radius:3px; }
+
+    /* Héros en vedette : équipement de chaque côté du portrait */
+    .spot { position:relative; display:grid; grid-template-columns:76px minmax(0,1fr) 76px; gap:16px; align-items:start; padding:18px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .spot::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%, var(--hc-soft), transparent 65%); pointer-events:none; }
+    .spot > * { position:relative; }
+    .spot-slots { display:flex; flex-direction:column; gap:8px; }
+    .gslot { position:relative; width:76px; height:62px; box-sizing:border-box; border-width:2px; border-style:solid; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; }
+    .gslot-ico { font-size:24px; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+    .gslot-ilvl { position:absolute; right:5px; bottom:2px; font-size:13px; font-weight:700; text-shadow:0 1px 2px #000; }
+    .gslot.empty { background:rgba(255,255,255,.02); border-color:rgba(255,255,255,.08); }
+    .gslot.empty .gslot-ico { opacity:.18; }
+    .spot-center { display:flex; flex-direction:column; gap:12px; min-width:0; }
+    .spot-art { width:100%; max-width:360px; margin:0 auto; aspect-ratio:4/5; border-radius:10px; overflow:hidden; background:rgba(0,0,0,.28); border:1px solid var(--border); }
+    .spot-art img { width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
+    .spot-art img.is-square { object-position:center 25%; }
+    .spot-art.dim img { filter:grayscale(.7) brightness(.6); }
+    .spot-name { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+    .spot-name b { font-family:'Cinzel',serif; font-size:34px; letter-spacing:.06em; }
+    .spot-role { font-size:18px; font-style:italic; color:var(--text-muted); }
+    .spot-badges { display:flex; flex-wrap:wrap; gap:8px; }
+    .spot-rank { font-family:'Cinzel',serif; font-size:15px; font-weight:700; letter-spacing:.08em; padding:7px 16px; border-radius:20px; color:#fff; background:var(--rc); border:1px solid rgba(255,255,255,.4); text-shadow:0 1px 3px rgba(0,0,0,.75); }
+    .spot-badges .hero-status-badge { font-size:15px; font-weight:700; letter-spacing:.06em; padding:7px 16px; color:#052b0c; background:#58f06a; border-color:#9bffa8; text-shadow:none; }
+    .rk-badge { font-family:'Cinzel',serif; font-weight:700; color:#fff; background:var(--rc); border:1px solid rgba(255,255,255,.4); text-shadow:0 1px 3px rgba(0,0,0,.75); padding:4px 12px; border-radius:20px; white-space:nowrap; }
+    .spot-surv { padding:10px 12px; background:rgba(0,0,0,.25); border:1px solid var(--border); border-radius:8px; }
+    .spot-surv-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; font-size:17px; color:var(--text-dim); }
+    .spot-surv-top b { font-family:'Cinzel',serif; font-size:24px; color:var(--text); }
+    .spot-surv-rec { font-family:'Cinzel',serif; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); }
+    .spot-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .spot-stat { background:rgba(0,0,0,.28); border:1px solid var(--border); border-radius:8px; padding:10px; text-align:center; }
+    .spot-stat b { display:block; font-family:'Cinzel',serif; font-size:24px; color:var(--teal-light); line-height:1.1; }
+    .spot-stat span { font-family:'Cinzel',serif; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--text-muted); }
+    .spot-add { font-family:'Cinzel',serif; font-size:15px; letter-spacing:.1em; padding:12px 22px; border-radius:6px; cursor:pointer; align-self:flex-start; background:rgba(64,212,212,.12); border:2px solid rgba(64,212,212,.6); color:var(--teal-light); }
+
+    /* Interrupteur HM : gros, deux états explicites, en tête de carte */
+    .hm-banner { border-radius:10px; padding:10px 12px; border:2px solid var(--border); background:rgba(0,0,0,.35); transition:background .2s, border-color .2s, box-shadow .2s; }
+    .hm-banner.on  { border-color:#ff4444; background:linear-gradient(180deg, rgba(255,68,68,.22), rgba(255,68,68,.08)); box-shadow:0 0 16px rgba(255,68,68,.3); }
+    .hm-banner.off { border-color:rgba(255,255,255,.28); }
+    .hm-banner.busy { opacity:.6; pointer-events:none; }
+    .hm-state { display:flex; align-items:center; gap:10px; font-family:'Cinzel',serif; font-weight:700; font-size:15px; letter-spacing:.06em; margin-bottom:3px; }
+    .hm-banner.on .hm-state { color:#ff8a8a; }
+    .hm-banner.off .hm-state { color:var(--text-dim); }
+    .hm-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; background:#7a8a8a; }
+    .hm-banner.on .hm-dot { background:#ff4444; box-shadow:0 0 10px #ff4444; animation:hmpulse 1.6s infinite; }
+    @keyframes hmpulse { 50% { opacity:.45; } }
+    .hm-sub { font-size:14px; line-height:1.35; color:var(--text-dim); margin-bottom:8px; }
+    .hm-since { font-family:'Crimson Pro',serif; font-size:14px; font-weight:500; letter-spacing:0; color:var(--text-dim); }
+    .hm-seg { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .hm-seg button { font-family:'Cinzel',serif; font-weight:700; font-size:14px; letter-spacing:.1em; padding:8px 8px; border-radius:6px; cursor:pointer; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.04); color:var(--text-muted); transition:all .15s; }
+    .hm-seg button:hover:not(.cur) { border-color:rgba(255,255,255,.55); color:var(--text); }
+    .hm-seg button.cur { cursor:default; }
+    .hm-seg button.cur.is-off { background:#4a5858; border-color:#9fb4b4; color:#fff; }
+    .hm-seg button.cur.is-on  { background:#d62f2f; border-color:#ff8a8a; color:#fff; box-shadow:0 0 14px rgba(255,68,68,.55); }
+
+    .spot-danger { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:12px 14px; border-radius:10px; border:2px dashed rgba(255,68,68,.5); background:rgba(255,68,68,.07); }
+    .spot-danger-txt { flex:1; min-width:160px; font-size:15px; line-height:1.35; color:var(--text-dim); }
+    .spot-reset { font-family:'Cinzel',serif; font-weight:700; font-size:16px; letter-spacing:.1em; padding:12px 20px; border-radius:8px; cursor:pointer; color:#fff; background:#a31f1f; border:2px solid #ff6b6b; }
+    .spot-reset:hover { background:#c42626; box-shadow:0 0 14px rgba(255,68,68,.5); }
+    .spot-empty { font-size:18px; font-style:italic; color:var(--text-muted); }
+    .spot-gear-note { font-size:14px; font-style:italic; color:var(--text-muted); text-align:center; }
+
+    /* Trophées */
+    .trophy-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+    .trophy-head b { font-family:'Cinzel',serif; font-size:20px; color:var(--text); }
+    .trophy-head span { font-size:13px; font-style:italic; color:var(--text-muted); }
+    .trophy-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px; }
+    .trophy { padding:14px; text-align:center; background:var(--bg2); border:1px solid var(--border); border-radius:10px; }
+    .trophy.done { border-color:var(--tc); box-shadow:0 0 14px var(--tc-soft); }
+    .trophy-ico { font-size:34px; line-height:1; margin-bottom:8px; }
+    .trophy.locked .trophy-ico { filter:grayscale(1); opacity:.35; }
+    .trophy-title { font-family:'Cinzel',serif; font-size:14px; font-weight:700; color:var(--tc); }
+    .trophy.locked .trophy-title { color:var(--text-muted); }
+    .trophy-desc { margin:4px 0 8px; font-size:13px; line-height:1.35; color:var(--text-muted); }
+    .trophy-prog { margin-top:4px; font-size:12px; color:var(--text-muted); }
+    .trophy-done { font-family:'Cinzel',serif; font-size:11px; letter-spacing:.14em; color:var(--tc); }
+
+    /* Cimetière en pyramide */
+    .grave { display:flex; flex-direction:column; align-items:center; gap:14px; padding:8px 0; }
+    .grave-row { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; }
+    .tomb { width:132px; box-sizing:border-box; padding:12px 8px 10px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.12); border-radius:66px 66px 8px 8px; }
+    .tomb.top { width:176px; border-radius:88px 88px 8px 8px; border-color:rgba(255,255,255,.3); }
+    .tomb-cross { font-size:16px; line-height:1; color:rgba(255,255,255,.35); }
+    .tomb-tag { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.5); }
+    .tomb-art { width:68px; height:68px; margin:8px auto; border-radius:50%; overflow:hidden; border:2px solid rgba(255,255,255,.2); filter:grayscale(1) brightness(.75); }
+    .tomb.top .tomb-art { width:92px; height:92px; }
+    .tomb-art img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+    .tomb-name { font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:#c8c8c8; }
+    .tomb-score { font-family:'Cinzel',serif; font-size:15px; font-weight:700; color:#dcdcdc; }
+    .tomb-meta { font-size:11px; color:rgba(255,255,255,.4); }
+    .grave-more { font-size:13px; font-style:italic; color:var(--text-muted); }
+    .grave-empty { text-align:center; padding:40px 0; font-size:46px; }
+    .grave-empty div { font-size:16px; color:var(--text-dim); margin-top:8px; }
+    .grave-empty span { display:block; font-size:13px; font-style:italic; color:var(--text-muted); margin-top:4px; }
+
+    /* ══ PODIUM et mouvements du classement ═════════════════════════════════════ */
+    .podium { margin:0 0 16px; padding:12px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:10px; }
+    .podium-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-family:'Cinzel',serif; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); }
+    .podium-close { background:none; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; }
+    .podium-row { display:flex; justify-content:center; align-items:flex-end; gap:10px; }
+    .podium-card { flex:1; max-width:240px; padding:10px 8px; text-align:center; background:rgba(0,0,0,.25); border:1px solid var(--border); border-radius:8px; }
+    .podium-card.p1 { padding:16px 8px; border-color:rgba(255,200,60,.55); }
+    .podium-card.p2 { border-color:rgba(200,200,200,.4); }
+    .podium-card.p3 { border-color:rgba(205,127,50,.45); }
+    .podium-medal { font-size:24px; }
+    .podium-name { font-family:'Cinzel',serif; font-size:15px; font-weight:700; color:var(--text); }
+    .podium-hero { font-family:'Cinzel',serif; font-size:11px; letter-spacing:.1em; }
+    .podium-score { font-family:'Cinzel',serif; font-size:14px; color:var(--teal-light); margin-top:2px; }
+    .podium-rank { font-family:'Cinzel',serif; font-size:11px; font-weight:700; }
+    .lb-rank { display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .lb-delta { font-family:'Cinzel',serif; font-size:10px; font-weight:700; line-height:1; }
+    .lb-delta.up { color:#44ee44; }
+    .lb-delta.down { color:#ff6b6b; }
+    .lb-delta.new { color:var(--teal-light); }
+
+    @media (max-width:760px) {
+      .spot { grid-template-columns:1fr 1fr; padding:12px; }
+      .spot-center { grid-column:1 / -1; order:-1; }
+      .gslot { width:100%; }
+      .spot-art { height:260px; }
+      .podium-row { gap:6px; }
+      .podium-name { font-size:13px; }
+      .tomb { width:100px; }
+      .tomb.top { width:140px; }
     }
 
-    @media (max-width: 600px) {
-      .cs-box { padding: 28px 24px; }
-      .cs-pillars { gap: 8px; }
-      .cs-pillar { font-size: 11px; padding: 8px 12px; }
-    }
   </style>
 </head>
 <body>
 
 <div class="top-line"></div>
 
-<nav>
-  <a href="../index.html" class="home-btn" title="Accueil">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-  </a>
-  <div class="nav-sep"></div>
-  <span class="nav-label" data-fr="Fellowship Hardcore" data-en="Fellowship Hardcore">Fellowship Hardcore</span>
-  <div class="lang-toggle">
-    <button class="lang-btn active" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
-    <button class="lang-btn" id="lang-btn-en" onclick="setLang('en')">EN</button>
+<header>
+  <div class="event-title">Fellowship Hardcore</div>
+  <div class="event-subtitle" data-fr="Mourir, c'est recommencer." data-en="Death is just the beginning.">Mourir, c'est recommencer.</div>
+  <div class="event-season">
+    <span data-fr="Saison 1" data-en="Season 1">Saison 1</span>
+    <span style="color:var(--hc-red);opacity:0.7;margin:0 4px">·</span>
+    <span id="active-count">— <span data-fr="héros actifs" data-en="active heroes" style="font-size:12px">héros actifs</span></span>
   </div>
-</nav>
-
-<main>
-
-  <div class="cs-skull">☠️</div>
-
-  <div class="cs-title">Fellowship Hardcore</div>
-  <div class="cs-subtitle" data-fr="Mourir, c'est recommencer." data-en="Death is just the beginning.">Mourir, c'est recommencer.</div>
-
-  <div class="cs-box">
-    <div class="cs-coming" data-fr="Bientôt disponible" data-en="Coming Soon">Bientôt disponible</div>
-    <div class="cs-season"><span data-fr="Automne" data-en="Autumn">Automne</span> 2026</div>
-    <div class="cs-desc" data-fr="La communauté a relevé le défi. L'event Hardcore arrive. Préparez-vous à mourir." data-en="The community rose to the challenge. The Hardcore event is coming. Prepare to die.">
-      La communauté a relevé le défi. L'event Hardcore arrive. Préparez-vous à mourir.
-    </div>
-  </div>
-
-  <div class="cs-pillars">
-    <div class="cs-pillar">
-      <span class="cs-pillar-icon">💀</span>
-      <span data-fr="Mort permanente" data-en="Permadeath">Mort permanente</span>
-    </div>
-    <div class="cs-pillar">
-      <span class="cs-pillar-icon">⚔️</span>
-      <span data-fr="Progression Hardcore" data-en="Hardcore Progression">Progression Hardcore</span>
-    </div>
-    <div class="cs-pillar">
-      <span class="cs-pillar-icon">👑</span>
-      <span data-fr="Capstones & Eternal" data-en="Capstones & Eternal">Capstones & Eternal</span>
-    </div>
-    <div class="cs-pillar">
-      <span class="cs-pillar-icon">📡</span>
-      <span data-fr="Suivi en direct" data-en="Live Tracking">Suivi en direct</span>
-    </div>
-  </div>
-
   <div class="social-links">
     <a href="https://twitch.tv/pouf_hgaming" target="_blank" class="social-link twitch">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
@@ -321,17 +1062,213 @@
       YouTube
     </a>
   </div>
+</header>
+
+<nav>
+  <a href="../index.html" class="tab home-btn" title="Accueil" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:8px 14px;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+  </a>
+  <div class="nav-sep"></div>
+  <button class="tab active" id="tab-leaderboard" onclick="showPage('leaderboard',this)" data-fr="Classement" data-en="Leaderboard">Classement</button>
+  <button class="tab" id="tab-events" onclick="showPage('events',this)" data-fr="Événements" data-en="Events">Événements</button>
+  <button class="tab" id="tab-rules" onclick="showPage('rules',this)" data-fr="Règles" data-en="Rules">Règles</button>
+  <button class="tab" id="tab-profile" onclick="showPage('profile',this)" data-fr="Se connecter" data-en="Sign In">Se connecter</button>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="lang-btn-fr" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" id="lang-btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ── LEADERBOARD ── -->
+  <div id="page-leaderboard" class="page active">
+    <div class="lb-toolbar">
+      <div class="sync-info" id="sync-info">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span id="sync-text">—</span>
+      </div>
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshLeaderboard()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        <span data-fr="Actualiser" data-en="Refresh">Actualiser</span>
+      </button>
+    </div>
+    <div id="lb-podium"></div>
+    <div class="lb-search-row">
+      <div class="lb-search-wrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-muted);flex-shrink:0"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="lb-search" placeholder="Rechercher un joueur…" oninput="onLbSearch()" autocomplete="off">
+        <button class="lb-search-clear" id="lb-search-clear" onclick="clearLbSearch()" style="display:none">✕</button>
+      </div>
+      <div class="lb-count" id="lb-count"></div>
+    </div>
+    <div class="lb-header">
+      <div>#</div>
+      <div data-fr="Joueur" data-en="Player">Joueur</div>
+      <div style="text-align:right" data-fr="Meilleur Score" data-en="Best Score">Meilleur Score</div>
+      <div class="col-attempts" style="text-align:right" data-fr="Tentatives" data-en="Attempts">Tentatives</div>
+      <div style="text-align:right" data-fr="Meilleur Donjon" data-en="Highest Dungeon">Meilleur Donjon</div>
+    </div>
+    <div id="lb-content"><div class="loading" data-fr="Chargement…" data-en="Loading…">Chargement…</div></div>
+    <div id="lb-pagination"></div>
+  </div>
+
+  <!-- ── EVENTS ── -->
+  <div id="page-events" class="page">
+    <div class="section-title" data-fr="Catalogue des événements" data-en="Event Catalogue">Catalogue des événements</div>
+    <div class="events-filters">
+      <button class="evt-filter active" onclick="setEvtFilter('all',this)" data-fr="Tous" data-en="All">Tous</button>
+      <button class="evt-filter" onclick="setEvtFilter('death',this)" data-fr="💀 Morts" data-en="💀 Deaths">💀 Morts</button>
+      <button class="evt-filter" onclick="setEvtFilter('capstone',this)" data-fr="👑 Capstones" data-en="👑 Capstones">👑 Capstones</button>
+    </div>
+    <div id="events-content"><div class="loading" data-fr="Chargement…" data-en="Loading…">Chargement…</div></div>
+  </div>
+
+  <!-- ── RULES ── -->
+  <div id="page-rules" class="page">
+    <div id="rules-content"></div>
+  </div>
+
+  <!-- ── PROFILE (inclut inscription) ── -->
+  <div id="page-profile" class="page">
+    <div id="profile-content">
+      <div class="loading" data-fr="Chargement…" data-en="Loading…">Chargement…</div>
+    </div>
+  </div>
 
 </main>
 
-<footer>
-  <span data-fr="© pouf_hgaming · Fellowship Hardcore arrive à l'Automne 2026" data-en="© pouf_hgaming · Fellowship Hardcore coming Autumn 2026">
-    © pouf_hgaming · Fellowship Hardcore arrive à l'Automne 2026
-  </span>
-</footer>
+<div class="toast" id="toast"></div>
+
+<!-- ── MODAL DÉTAIL JOUEUR ── -->
+<div class="modal-overlay" id="player-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-player-name" id="modal-player-name">—</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ── RESET MODAL ── -->
+<div class="modal-overlay" id="reset-modal" onclick="if(event.target===this)closeResetModal()">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <div class="modal-player-name" style="color:var(--hc-red)">⚠️ <span id="reset-modal-title">Reset</span></div>
+      <button class="modal-close" onclick="closeResetModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:15px;color:var(--text-dim);line-height:1.7;margin-bottom:16px" id="reset-modal-desc"></p>
+      <div style="padding:12px 14px;background:rgba(255,68,68,0.06);border:1px solid rgba(255,68,68,0.2);border-radius:4px;margin-bottom:20px;font-size:14px;color:rgba(255,68,68,0.8)" id="reset-modal-warning"></div>
+      <div class="field">
+        <label id="reset-modal-label"></label>
+        <input type="text" id="reset-confirm-input" placeholder="CONFIRMER" autocomplete="off"
+          style="text-transform:uppercase;letter-spacing:0.1em"
+          oninput="const ok=this.value.toUpperCase()==='CONFIRMER';const btn=document.getElementById('reset-confirm-btn');btn.disabled=!ok;btn.style.opacity=ok?'0.8':'0.4'">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button onclick="closeResetModal()" style="flex:1;font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;padding:10px;background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:4px;cursor:pointer">
+          <span id="reset-cancel-label">Annuler</span>
+        </button>
+        <button id="reset-confirm-btn" disabled onclick="executeReset()"
+          style="flex:1;font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;padding:10px;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.4);color:var(--hc-red);border-radius:4px;cursor:pointer;transition:all 0.2s;opacity:0.4"
+          onmouseover="if(!this.disabled)this.style.opacity='1'"
+          onmouseout="if(!this.disabled)this.style.opacity='0.8'">
+          🔄 <span id="reset-action-label">Reset</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
+  // ── CONFIG ──────────────────────────────────────────────────────────────────
+  const SUPABASE_URL      = 'https://ehsnzujkmtbzikdbqnjt.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_GgNaGBPs4nD65Mt60yGJxA_82DhdeRO';
+  const SEASON            = 'S1';
+  const PAGE_SIZE         = 20;
+  const CACHE_MS          = 60_000;
+
+  // Mapping classe → couleur (couleurs officielles des héros)
+  const CLASS_COLORS = {
+    'Helena':  '#b26731',
+    'Meiko':   '#29dd5c',
+    'Xavian':  '#097265',
+    'Aeona':   '#f99de9',
+    'Sylvie':  '#e74f82',
+    'Vigour':  '#dbd9c3',
+    'Rime':    '#1ca2ec',
+    'Ardeos':  '#e96326',
+    'Elarion': '#925dfc',
+    'Tariq':   '#5179f3',
+    'Mara':    '#94598e',
+    'Gunde':   '#933637',
+  };
+  function classColor(cls) { return CLASS_COLORS[cls] || 'var(--text-muted)'; }
+  function heroImg(cls) { return `../images/heroes/${(cls||'').toLowerCase()}.jpg`; }
+
+  // Nom de zone (gameZone.name des logs Fellowship) → image. Clé normalisée :
+  // "Xul, The Blood Monolith" et "Xul the Blood Monolith" donnent la même clé.
+  const DUNGEON_SLUGS = {
+    'sailorsabyss':'abime-des-marins',   'everdawngrove':'bois-de-laube',
+    'godfallquarry':'carriere-tombe-dieu','wraithtidevault':'caveau-de-lamespectre',
+    'wyrmheart':'coeur-de-guivre',       'theheartoftuzari':'coeur-de-tuzari',
+    'heartoftuzari':'coeur-de-tuzari',   'silkenhollow':'creux-soyeux',
+    'stormwatch':'guet-tempete',         'cithrelsfall':'la-chute-cithrel',
+    'urrakmarkets':'marche-durrak',      'urrakmarket':'marche-durrak',
+    'ruinsofregath':'ruins-of-regath',   'empyreansands':'sables-empyreens',
+    'ransackofdrakheim':'saccage-de-drakheim', 'scryerspeak':'scryers-peak',
+    'xulthebloodmonolith':'xul-the-blood-monolith',
+  };
+  function normDungeon(n) { return (n || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+  function dungeonImg(name) {
+    const slug = DUNGEON_SLUGS[normDungeon(name)];
+    return slug ? `../gloire/images/${slug}.jpg` : null;
+  }
+  function isXul(name) { return name && name.toLowerCase().includes('xul'); }
+
+
+  // Couleurs par tier de donjon
+  const TIER_COLORS = {
+    'Recrue':   '#00c700',
+    'Adepte':   '#006fe6',
+    'Champion': '#a920fd',
+    'Parangon': '#b79f00',
+    'Eternal':  '#b60000',
+  };
+  function tierColor(tierName) {
+    if (!tierName) return 'var(--text-muted)';
+    for (const [tier, color] of Object.entries(TIER_COLORS)) {
+      if (tierName.startsWith(tier)) return color;
+    }
+    return 'var(--text-muted)';
+  }
+
+  // Convertit un difficultyLevel en { tier, level, label }
+  // Recrue 1-4, Adepte 1-4, Champion 1-4, Parangon 1-4, Eternal 1+
+  function diffLevelToRank(dl) {
+    if (!dl || dl <= 0) return { tier: '', level: 0, label: '—' };
+    // Table vérifiée sur FellowshipLogs : dl 16/17/18 = Paragon 1/2/3, dl 22 = Eternal 2,
+    // dl 47/48 = Eternal 27/28. Eternal N = dl - 20 ; paliers de 5 niveaux avant.
+    if (dl > 20) return { tier: 'Eternal', level: dl - 20, label: `Eternal ${dl - 20}` };
+    const tiers = ['Recrue', 'Adepte', 'Champion', 'Parangon'];
+    const t = Math.floor((dl - 1) / 5);
+    const level = ((dl - 1) % 5) + 1;
+    return { tier: tiers[t], level, label: `${tiers[t]} ${level}` };
+  }
+
+  // Clé de tri numérique : Recrue1=1 … Recrue4=4, Adepte1=5 … Parangon4=16, Eternal1=17 …
+  function rankSortKey(dl) {
+    // Les rangs suivent désormais l'ordre des niveaux : Recrue 1 < ... < Paragon 5 < Eternal 1 < ...
+    return dl > 0 ? dl : 0;
+  }
+
+  // ── LANG ────────────────────────────────────────────────────────────────────
   let currentLang = localStorage.getItem('pouf_lang') || 'fr';
+  const fr = () => currentLang === 'fr';
 
   function setLang(lang) {
     currentLang = lang;
@@ -341,9 +1278,1876 @@
     document.querySelectorAll('[data-fr]').forEach(el => {
       el.textContent = el.dataset[lang] || el.dataset.fr;
     });
+    const s = document.getElementById('lb-search');
+    if (s) s.placeholder = fr() ? 'Rechercher un joueur…' : 'Search a player…';
+    renderSyncInfo();
+    renderRules();
+    if (_lbData) renderLbPage();
+    if (_eventsData) renderEvents();
+    if (typeof _profileData !== 'undefined' && _profileData && document.getElementById('profile-tab-content')) {
+      renderProfileConnected(document.getElementById('profile-content'), fr(), null);
+    }
   }
 
+  // ── TOAST ───────────────────────────────────────────────────────────────────
+  function toast(msg, err = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show' + (err ? ' error' : '');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.className = 'toast', 3000);
+  }
+
+  // ── NAVIGATION ──────────────────────────────────────────────────────────────
+  async function showPage(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (id === 'leaderboard') loadLeaderboard();
+    if (id === 'events')      loadEvents();
+    if (id === 'rules')       renderRules();
+    if (id === 'profile')     renderProfilePage();
+  }
+
+  // ── SUPABASE FETCH ───────────────────────────────────────────────────────────
+  async function sbFetch(path, opts = {}) {
+    const res = await fetch(SUPABASE_URL + path, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': opts.prefer || '',
+      },
+      method: opts.method || 'GET',
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+    });
+    if (!res.ok) throw new Error(await res.text());
+    if (res.status === 204) return null;
+    return res.json();
+  }
+
+  // ── SYNC META ────────────────────────────────────────────────────────────────
+  let _syncMeta = null, _syncTimer = null;
+  async function loadSyncMeta() {
+    try {
+      const data = await sbFetch('/rest/v1/hm_sync_meta?id=eq.1&select=last_sync,next_sync,last_status,runs_added,deaths_found');
+      _syncMeta = data?.[0] ?? null;
+      renderSyncInfo();
+      clearInterval(_syncTimer);
+      _syncTimer = setInterval(renderSyncInfo, 1000);
+    } catch(e) { console.warn('sync_meta unavailable'); }
+  }
+
+  function renderSyncInfo() {
+    const dot  = document.getElementById('sync-dot');
+    const text = document.getElementById('sync-text');
+    if (!dot || !text) return;
+    if (!_syncMeta) { text.textContent = '—'; return; }
+    const { last_sync, next_sync, last_status } = _syncMeta;
+    const now = Date.now();
+    dot.className = 'sync-dot ' + (last_status === 'ok' ? 'ok' : last_status === 'error' ? 'error' : '');
+    const agoMs  = last_sync ? now - new Date(last_sync).getTime() : null;
+    const nextMs = next_sync ? new Date(next_sync).getTime() - now : null;
+    let agoStr = '';
+    if (agoMs !== null) { const s = Math.round(agoMs/1000); agoStr = s < 60 ? `${s}s` : `${Math.round(s/60)}min`; }
+    let nextStr = '';
+    if (nextMs !== null && nextMs > 0) {
+      const s = Math.round(nextMs/1000);
+      nextStr = s < 60
+        ? (fr() ? `prochain sync dans ${s}s`   : `next sync in ${s}s`)
+        : (fr() ? `prochain sync dans ${Math.round(s/60)}min` : `next sync in ${Math.round(s/60)}min`);
+    } else if (nextMs !== null) {
+      nextStr = fr() ? 'sync imminent…' : 'syncing soon…';
+      dot.className = 'sync-dot live';
+    }
+    if (last_status === 'error') text.textContent = fr() ? `Erreur sync · ${nextStr}` : `Sync error · ${nextStr}`;
+    else if (agoStr && nextStr)  text.textContent = fr() ? `Mis à jour il y a ${agoStr} · ${nextStr}` : `Updated ${agoStr} ago · ${nextStr}`;
+    else text.textContent = nextStr || '—';
+  }
+
+  // ── LEADERBOARD ─────────────────────────────────────────────────────────────
+  let _lbData = null, _lbCacheTs = 0;
+  let _lbFiltered = [], _lbPage = 1, _expandedPlayer = null;
+
+  async function loadLeaderboard(force = false) {
+    if (force) _lbSnap = null;
+    if (!force && _lbData && Date.now() - _lbCacheTs < CACHE_MS) {
+      renderLeaderboard(_lbData); return;
+    }
+    const btn = document.getElementById('refresh-btn');
+    if (btn) btn.classList.add('spinning');
+    try {
+      // Charger la vue hm_summary + capstones + unlocks en parallèle
+      const [summary, capstones, unlocks] = await Promise.all([
+        sbFetch(`/rest/v1/hm_summary?season=eq.${SEASON}&order=total_rating_score.desc`),
+        sbFetch('/rest/v1/hm_capstones?select=id,tier_name,difficulty_level_threshold&order=difficulty_level_threshold.asc'),
+        sbFetch(`/rest/v1/hm_capstone_unlocks?select=player_id,character_id,capstone_id,attempt_number&season=eq.${SEASON}`),
+        loadLbSnapshot(),
+      ]);
+      _lbData = { summary: summary ?? [], capstones: capstones ?? [], unlocks: unlocks ?? [] };
+      _lbCacheTs = Date.now();
+      renderLeaderboard(_lbData);
+      loadSyncMeta();
+    } catch(e) {
+      document.getElementById('lb-content').innerHTML = `<div class="empty">${fr() ? 'Erreur de chargement.' : 'Loading error.'}</div>`;
+      console.error(e);
+    } finally {
+      if (btn) btn.classList.remove('spinning');
+    }
+  }
+
+  function refreshLeaderboard() { loadLeaderboard(true); }
+
+  // ══ PODIUM + MOUVEMENTS : instantané quotidien du classement ═══════════════════
+  // Lu dans hm_leaderboard_snapshots (voir leaderboard-snapshots.sql). Public, donc visible sans connexion.
+  // null = pas encore chargé · false = aucun instantané (podium masqué) · objet = chargé
+  let _lbSnap = null;
+
+  async function loadLbSnapshot() {
+    if (_lbSnap !== null) return;
+    try {
+      const latest = await sbFetch('/rest/v1/hm_leaderboard_snapshots?select=snapshot_date&order=snapshot_date.desc&limit=1');
+      if (!latest?.length) { _lbSnap = false; return; }
+      const date = latest[0].snapshot_date;
+      const rows = await sbFetch(`/rest/v1/hm_leaderboard_snapshots?snapshot_date=eq.${date}&select=player_id,player_name,rank,score,best_difficulty_level,best_hero&order=rank.asc&limit=500`);
+      _lbSnap = { date, rows: rows ?? [], byPlayer: Object.fromEntries((rows ?? []).map(r => [r.player_id, r])) };
+    } catch (e) { _lbSnap = false; }       // table absente ou erreur réseau : on affiche le classement sans podium
+  }
+
+  // Flèche de mouvement depuis l'instantané (▲ monte, ▼ descend, ✦ nouveau)
+  function lbDeltaHtml(p) {
+    if (!_lbSnap || !_lbSnap.rows.length) return '';
+    const s = _lbSnap.byPlayer[p.player_id];
+    if (!s) return `<div class="lb-delta new" title="${fr() ? 'Nouveau depuis le dernier instantané' : 'New since the last snapshot'}">✦</div>`;
+    const d = s.rank - p.rank;
+    if (d > 0) return `<div class="lb-delta up">▲${d}</div>`;
+    if (d < 0) return `<div class="lb-delta down">▼${-d}</div>`;
+    return '';
+  }
+
+  function renderPodium() {
+    const el = document.getElementById('lb-podium');
+    if (!el) return;
+    const f = fr();
+    const top = _lbSnap ? _lbSnap.rows.filter(r => r.rank <= 3 && (r.score || 0) > 0) : [];
+    let hidden = false;
+    try { hidden = !!_lbSnap && localStorage.getItem('hm_podium_hidden') === _lbSnap.date; } catch (e) {}
+    if (!top.length || hidden) { el.innerHTML = ''; return; }
+    const d = new Date(_lbSnap.date + 'T12:00:00');
+    const ageDays = Math.floor((Date.now() - d.getTime()) / 86400000);
+    const dateStr = d.toLocaleDateString(f ? 'fr-FR' : 'en-GB', { day: '2-digit', month: '2-digit' });
+    const title = ageDays <= 1 ? (f ? "Podium d'hier" : "Yesterday's podium") : (f ? `Podium du ${dateStr}` : `Podium of ${dateStr}`);
+    const medal = { 1: '🥇', 2: '🥈', 3: '🥉' };
+    const cards = [2, 1, 3].map(n => top.find(r => r.rank === n)).filter(Boolean).map(r => {
+      const rk = (r.best_difficulty_level || 0) > 0 ? diffLevelToRank(r.best_difficulty_level) : null;
+      const col = tierColor(rk?.tier);
+      return `<div class="podium-card p${r.rank}">
+        <div class="podium-medal">${medal[r.rank]}</div>
+        <div class="podium-name">${esc(r.player_name)}</div>
+        ${r.best_hero ? `<div class="podium-hero" style="color:${classColor(r.best_hero)}">${esc(r.best_hero)}</div>` : ''}
+        <div class="podium-score">${Math.floor(r.score).toLocaleString()} pts</div>
+        ${rk ? `<div class="podium-rank" style="color:${col}">${rk.label}</div>` : ''}
+      </div>`;
+    }).join('');
+    el.innerHTML = `<div class="podium">
+      <div class="podium-head"><span>🏅 ${title}</span><button class="podium-close" onclick="hidePodium()" title="${f ? 'Masquer jusqu\'au prochain podium' : 'Hide until the next podium'}">✕</button></div>
+      <div class="podium-row">${cards}</div>
+    </div>`;
+  }
+
+  function hidePodium() {
+    try { if (_lbSnap) localStorage.setItem('hm_podium_hidden', _lbSnap.date); } catch (e) {}
+    renderPodium();
+  }
+
+  function renderLeaderboard(data) {
+    // Grouper par player_id
+    const playerMap = new Map();
+    for (const row of data.summary) {
+      if (!playerMap.has(row.player_id)) {
+        playerMap.set(row.player_id, { player_id: row.player_id, player_name: row.player_name, chars: [] });
+      }
+      playerMap.get(row.player_id).chars.push(row);
+    }
+
+    // Calculer best rank + total tentatives par joueur
+    const players = [...playerMap.values()].map(p => {
+      const aliveChars    = p.chars.filter(c => c.status === 'alive');
+      const totalAttempts = p.chars.length;   // une ligne = une tentative (la vue répète le total sur chaque ligne : 6 héros donnaient 36)
+      const bestDl        = Math.max(...p.chars.map(c => c.best_difficulty_level || 0), 0);
+      const bestRank      = diffLevelToRank(bestDl);
+      const sortKey       = rankSortKey(bestDl);
+      // Score = total_rating_score du meilleur personnage (celui avec le plus haut score)
+      const totalScore    = Math.max(...p.chars.map(c => c.total_rating_score || 0), 0);
+      return { ...p, aliveChars, totalAttempts, bestDl, bestRank, sortKey, totalScore };
+    });
+
+    // Tri : meilleur score desc, à égalité highest dungeon, à égalité tentatives asc
+    players.sort((a, b) => b.totalScore - a.totalScore || b.sortKey - a.sortKey || a.totalAttempts - b.totalAttempts);
+    players.forEach((p, i) => { p.rank = i + 1; });   // rang global, indépendant de la recherche
+
+    // Mise à jour compteur header
+    const activeCount = players.reduce((s, p) => s + p.aliveChars.length, 0);
+    const countEl = document.getElementById('active-count');
+    if (countEl) countEl.innerHTML = `${activeCount} <span style="font-size:12px">${fr() ? 'héros actifs' : 'active heroes'}</span>`;
+
+    // Filtre search
+    const q = (document.getElementById('lb-search')?.value || '').toLowerCase().trim();
+    _lbFiltered = q ? players.filter(p =>
+      p.player_name.toLowerCase().includes(q) ||
+      p.chars.some(c => c.character_name.toLowerCase().includes(q) || (c.character_class || '').toLowerCase().includes(q))
+    ) : players;
+
+    const countEl2 = document.getElementById('lb-count');
+    if (countEl2) countEl2.textContent = q ? `${_lbFiltered.length} / ${players.length}` : `${players.length} ${fr() ? 'joueur(s)' : 'player(s)'}`;
+
+    _lbPage = 1;
+    renderLbPage(_lbFiltered, data);
+  }
+
+
+  // Cache des runs par character_id
+  // ── LEADERBOARD v2 ─────────────────────────────────────────────────────────
+
+  const _runsCache  = new Map();
+  const _bdrCache   = new Map(); // best dungeon ratings cache
+
+  async function fetchHeroRuns(characterId) {
+    if (_runsCache.has(characterId)) return _runsCache.get(characterId);
+    try {
+      const runs = await sbFetch(
+        `/rest/v1/hm_runs?character_id=eq.${characterId}&season=eq.${SEASON}` +
+        `&valid=eq.true&order=completed_at.desc&limit=5` +
+        `&select=dungeon_name,difficulty_level,in_time,rating,completed_at,hm_death`
+      );
+      _runsCache.set(characterId, runs ?? []);
+      return runs ?? [];
+    } catch { return []; }
+  }
+
+  async function fetchBestDungeonRatings(characterId) {
+    if (_bdrCache.has(characterId)) return _bdrCache.get(characterId);
+    try {
+      const rows = await sbFetch(
+        `/rest/v1/hm_best_dungeon_ratings?character_id=eq.${characterId}&season=eq.${SEASON}` +
+        `&order=best_rating.desc` +
+        `&select=dungeon_name,best_rating,difficulty_level,completion_time`
+      );
+      _bdrCache.set(characterId, rows ?? []);
+      return rows ?? [];
+    } catch { return []; }
+  }
+
+  function renderLbPage(filtered, data) {
+    filtered = filtered || _lbFiltered;
+    data     = data || _lbData;
+    renderPodium();
+    const total = filtered.length;
+    const pages = Math.ceil(total / PAGE_SIZE);
+    _lbPage     = Math.min(_lbPage, pages || 1);
+    const slice = filtered.slice((_lbPage-1)*PAGE_SIZE, _lbPage*PAGE_SIZE);
+
+    const cont = document.getElementById('lb-content');
+    if (!slice.length) { cont.innerHTML = `<div class="empty">${fr() ? 'Aucun joueur inscrit.' : 'No registered players.'}</div>`; return; }
+
+    cont.innerHTML = slice.map((p, i) => {
+      const rank    = p.rank ?? ((_lbPage-1)*PAGE_SIZE + i + 1);
+      const rankCls = rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+      const f       = fr();
+
+      // Best hero = highest total_rating_score
+      const bestChar = p.chars.reduce((best, c) =>
+        (!best || (c.total_rating_score||0) > (best.total_rating_score||0)) ? c : best, null);
+      const heroCol   = bestChar ? classColor(bestChar.character_class) : 'var(--text-muted)';
+      const isDead    = bestChar?.status === 'dead';
+      const heroName  = bestChar?.character_class || '—';
+
+      // Highest dungeon badge
+      const rankColor = tierColor(p.bestRank.tier);
+      const rankBadge = p.bestDl > 0
+        ? `<span class="rk-badge" style="--rc:${rankColor};font-size:15px">${p.bestRank.label}</span>`
+        : `<span style="color:var(--text-muted);font-size:13px">—</span>`;
+
+      return `
+        <div class="lb-row" id="lbrow-${p.player_id}" onclick="toggleExpand(${p.player_id})">
+          <div class="lb-rank ${rankCls}"><div>${rank}</div>${lbDeltaHtml(p)}</div>
+          <div class="lb-player">
+            <div style="display:flex;align-items:baseline;gap:10px">
+              <div class="lb-player-name">${p.player_name}</div>
+              ${bestChar ? `<span style="display:inline-flex;align-items:center;gap:5px;font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:${heroCol};letter-spacing:0.1em">
+                <span style="width:8px;height:8px;border-radius:50%;background:${isDead?'#ff4444':'#44ee44'};flex-shrink:0;box-shadow:0 0 5px ${isDead?'#ff4444':'#44ee44'}66"></span>
+                ${heroName}
+              </span>` : ''}
+            </div>
+          </div>
+          <div class="lb-ilvl" style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--teal-light)">${p.totalScore > 0 ? Math.floor(p.totalScore) : '—'}</div>
+          <div class="lb-attempts col-attempts" style="font-family:'Cinzel',serif;font-weight:700">${p.totalAttempts}</div>
+          <div class="lb-capstone">${rankBadge}</div>
+        </div>
+        <div class="lb-expand" id="lbexpand-${p.player_id}">
+          ${renderExpandedPlayer(p, data)}
+        </div>`;
+    }).join('');
+
+    renderPagination(pages, filtered, data);
+  }
+
+  function renderExpandedPlayer(p, data) {
+    if (!p.chars.length) return '';
+    const f = fr();
+
+    // Only show ALIVE characters in portraits (latest attempt per class)
+    // Group by character_class, keep most recent attempt
+    const byClass = new Map();
+    for (const c of p.chars) {
+      const existing = byClass.get(c.character_class);
+      if (!existing || c.current_attempt_number > existing.current_attempt_number) {
+        byClass.set(c.character_class, c);
+      }
+    }
+    const latestChars = [...byClass.values()];
+
+    const portraits = latestChars.map(c => {
+      const col    = classColor(c.character_class);
+      const dead   = c.status === 'dead';
+      const img    = heroImg(c.character_class);
+      // Status dot: green = alive, red = dead
+      const dotCol = dead ? '#ff4444' : '#44ee44';
+      return `
+        <div class="hero-portrait ${dead?'dead':''}" id="portrait-${c.character_id}"
+             onclick="selectHeroPortrait('${c.character_id}', ${p.player_id})"
+             title="${c.character_class}"
+             style="border-color:${col}60">
+          <img src="${img}" alt="${c.character_class}"
+               onerror="this.parentNode.style.background='${col}22';this.style.display='none'">
+          <div style="position:absolute;bottom:4px;right:4px;width:9px;height:9px;border-radius:50%;background:${dotCol};border:1.5px solid rgba(0,0,0,0.6);box-shadow:0 0 4px ${dotCol}"></div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="hero-portraits">${portraits}</div>
+      <div id="hero-detail-${p.player_id}">
+        <div style="font-size:13px;color:var(--text-muted);font-style:italic;text-align:center;padding:16px">
+          ${f ? 'Clique sur un héros pour voir ses détails.' : 'Click on a hero to see their details.'}
+        </div>
+      </div>`;
+  }
+
+  let _selectedPortrait = {};
+
+  async function selectHeroPortrait(characterId, playerId) {
+    const player = _lbFiltered?.find(p => p.player_id === playerId);
+    if (!player) return;
+
+    if (_selectedPortrait[playerId] === characterId) {
+      _selectedPortrait[playerId] = null;
+      document.querySelectorAll(`#lbexpand-${playerId} .hero-portrait`).forEach(p => p.classList.remove('active'));
+      document.getElementById(`hero-detail-${playerId}`).innerHTML = '';
+      return;
+    }
+    _selectedPortrait[playerId] = characterId;
+
+    // Find the clicked char
+    const char = player.chars.find(c => c.character_id === characterId);
+    if (!char) return;
+
+    // All attempts for this class
+    const allAttempts = player.chars
+      .filter(c => c.character_class === char.character_class)
+      .sort((a,b) => b.current_attempt_number - a.current_attempt_number);
+
+    // Update portrait highlights
+    const byClass = new Map();
+    for (const c of player.chars) {
+      const existing = byClass.get(c.character_class);
+      if (!existing || c.current_attempt_number > existing.current_attempt_number) {
+        byClass.set(c.character_class, c);
+      }
+    }
+    byClass.forEach(c => {
+      const el = document.getElementById(`portrait-${c.character_id}`);
+      if (el) el.classList.toggle('active', c.character_id === characterId);
+    });
+
+    const f   = fr();
+    const det = document.getElementById(`hero-detail-${playerId}`);
+    await renderHeroDetail(det, char, allAttempts, playerId, f);
+  }
+
+  async function renderHeroDetail(det, char, allAttempts, playerId, f) {
+    const col   = classColor(char.character_class);
+    const rank  = diffLevelToRank(char.best_difficulty_level || 0);
+    const rCol  = tierColor(rank.tier);
+    const score = char.total_rating_score ? Math.floor(char.total_rating_score) : 0;
+    const dead  = char.status === 'dead';
+    const dotCol = dead ? '#ff4444' : '#44ee44';
+
+    // Attempt picklist (only if multiple attempts)
+    const picklistHtml = allAttempts.length > 1
+      ? `<select onchange="switchAttempt(this.value, ${playerId})"
+           style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.1em;
+                  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+                  padding:5px 10px;border-radius:4px;cursor:pointer;margin-bottom:14px">
+          ${allAttempts.map(a =>
+            `<option value="${a.character_id}" ${a.character_id===char.character_id?'selected':''}>
+              ${f?'Tentative':'Attempt'} #${a.current_attempt_number} ${a.status==='dead'?'💀':'⚔️'}
+            </option>`
+          ).join('')}
+        </select>`
+      : '';
+
+    det.innerHTML = `<div class="hero-detail">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <span style="font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:${col}">${char.character_class}</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.12em;padding:4px 10px;border-radius:20px;border:1px solid ${dotCol}40;background:${dotCol}12;color:${dotCol}">
+          <span style="width:7px;height:7px;border-radius:50%;background:${dotCol};display:inline-block"></span>
+          ${dead ? (f?'Mort':'Dead') : (f?'En vie':'Alive')}
+        </span>
+        ${picklistHtml}
+      </div>
+      <div class="hero-detail-stats">
+        <div class="hero-detail-stat">
+          <div class="hero-detail-stat-val" style="color:${rCol||'var(--teal-light)'}">${char.best_rank_label||'—'}</div>
+          <div class="hero-detail-stat-lbl">${f?'Meilleur donjon':'Best dungeon'}</div>
+        </div>
+        <div class="hero-detail-stat">
+          <div class="hero-detail-stat-val">${score > 0 ? score.toLocaleString() : '—'}</div>
+          <div class="hero-detail-stat-lbl">Score total</div>
+        </div>
+        <div class="hero-detail-stat">
+          <div class="hero-detail-stat-val">${char.ilvl_best||'—'}</div>
+          <div class="hero-detail-stat-lbl">${f?'Meilleur ilvl':'Best ilvl'}</div>
+        </div>
+      </div>
+      <div id="dungeon-table-${char.character_id}">
+        <div style="font-size:13px;color:var(--text-muted);font-style:italic;padding:8px 0">${f?'Chargement…':'Loading…'}</div>
+      </div>
+    </div>`;
+
+    await loadDungeonTable(char.character_id, f);
+  }
+
+  async function switchAttempt(characterId, playerId) {
+    const player = _lbFiltered?.find(p => p.player_id === playerId);
+    if (!player) return;
+    const char = player.chars.find(c => c.character_id === characterId);
+    if (!char) return;
+    const allAttempts = player.chars
+      .filter(c => c.character_class === char.character_class)
+      .sort((a,b) => b.current_attempt_number - a.current_attempt_number);
+    const det = document.getElementById(`hero-detail-${playerId}`);
+    await renderHeroDetail(det, char, allAttempts, playerId, fr());
+  }
+
+  async function loadDungeonTable(characterId, f) {
+    const dtEl = document.getElementById(`dungeon-table-${characterId}`);
+    if (!dtEl) return;
+    const bdrs = await fetchBestDungeonRatings(characterId);
+    if (!bdrs.length) {
+      dtEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);font-style:italic;padding:8px 0">${f?'Aucun donjon completé.':'No dungeons completed.'}</div>`;
+      return;
+    }
+    const rows = bdrs.map(bdr => {
+      const img     = dungeonImg(bdr.dungeon_name);
+      const xul     = isXul(bdr.dungeon_name);
+      const dl      = bdr.difficulty_level;
+      const rank2   = dl ? diffLevelToRank(dl) : null;
+      const rc      = rank2 ? tierColor(rank2.tier) : '#ccc';
+      const mins    = bdr.completion_time ? Math.floor(bdr.completion_time/60000) : null;
+      const secs    = bdr.completion_time ? String(Math.floor((bdr.completion_time%60000)/1000)).padStart(2,'0') : null;
+      const timeStr = mins !== null ? `${mins}:${secs}` : '—';
+      return `
+        <div class="dungeon-row">
+          ${img ? `<div class="dungeon-row-bg" style="background-image:url('${img}')"></div>` : ''}
+          <div class="dungeon-row-overlay"></div>
+          <div class="dungeon-row-content">
+            <div class="dungeon-name ${xul?'xul':''}">${bdr.dungeon_name}</div>
+            <div class="dungeon-key" style="color:${rc}">${rank2?.label||'—'}</div>
+            <div class="dungeon-score">${bdr.best_rating ? Math.floor(bdr.best_rating)+' pts' : '—'}</div>
+            <div class="dungeon-time">${timeStr}</div>
+          </div>
+        </div>`;
+    }).join('');
+    dtEl.innerHTML = `
+      <div class="dungeon-table-wrap">
+      <div class="dungeon-table-header">
+        <span>${f?'Donjon':'Dungeon'}</span>
+        <span>${f?'Meilleure clé':'Best key'}</span>
+        <span>Score</span>
+        <span>Temps</span>
+      </div>
+      <div class="dungeon-table">${rows}</div>
+      </div>`;
+  }
+
+  function toggleExpand(playerId) {
+    const row = document.getElementById(`lbrow-${playerId}`);
+    const exp = document.getElementById(`lbexpand-${playerId}`);
+    if (!row || !exp) return;
+    const isOpen = exp.classList.contains('open');
+    document.querySelectorAll('.lb-expand.open').forEach(e => e.classList.remove('open'));
+    document.querySelectorAll('.lb-row.expanded').forEach(r => r.classList.remove('expanded'));
+    _selectedPortrait = {};
+    if (!isOpen) { exp.classList.add('open'); row.classList.add('expanded'); }
+  }
+
+
+    function renderPagination(pages, filtered, data) {
+    const el = document.getElementById('lb-pagination');
+    if (pages <= 1) { el.innerHTML = ''; return; }
+    let html = `<button class="pg-btn" onclick="goLbPage(${_lbPage-1},event)" ${_lbPage===1?'disabled':''}>‹</button>`;
+    for (let i = 1; i <= pages; i++) {
+      if (pages > 7 && Math.abs(i - _lbPage) > 2 && i !== 1 && i !== pages) {
+        if (i === _lbPage - 3 || i === _lbPage + 3) html += `<span class="pg-sep">…</span>`;
+        continue;
+      }
+      html += `<button class="pg-btn ${i===_lbPage?'active':''}" onclick="goLbPage(${i},event)">${i}</button>`;
+    }
+    html += `<button class="pg-btn" onclick="goLbPage(${_lbPage+1},event)" ${_lbPage===pages?'disabled':''}>›</button>`;
+    el.innerHTML = html;
+  }
+
+  function goLbPage(p, e) {
+    e?.stopPropagation();
+    _lbPage = p;
+    renderLbPage();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── SEARCH ──────────────────────────────────────────────────────────────────
+  function onLbSearch() {
+    const q = document.getElementById('lb-search').value;
+    document.getElementById('lb-search-clear').style.display = q ? 'block' : 'none';
+    if (_lbData) renderLeaderboard(_lbData);
+  }
+  function clearLbSearch() {
+    document.getElementById('lb-search').value = '';
+    document.getElementById('lb-search-clear').style.display = 'none';
+    if (_lbData) renderLeaderboard(_lbData);
+  }
+
+  // ── MODAL ───────────────────────────────────────────────────────────────────
+  function openModal(playerId) {
+    if (!_lbData) return;
+    const p = [...new Map(_lbData.summary.map(r => [r.player_id, r])).values()]
+      .find(r => r.player_id === playerId);
+    if (!p) return;
+    document.getElementById('modal-player-name').textContent = p.player_name;
+    // corps généré par renderExpandedPlayer via lbData
+    document.getElementById('player-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('player-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ── EVENTS CATALOGUE ────────────────────────────────────────────────────────
+  let _eventsData = null, _evtFilter = 'all';
+
+  async function loadEvents(force = false) {
+    if (!force && _eventsData) { renderEvents(); return; }
+    document.getElementById('events-content').innerHTML = `<div class="loading">${fr() ? 'Chargement…' : 'Loading…'}</div>`;
+    try {
+      const events = await sbFetch(
+        `/rest/v1/hm_events?season=eq.${SEASON}&event_type=neq.new_attempt&event_type=neq.run_invalidated&order=created_at.desc&limit=200` +
+        `&select=id,event_type,player_id,character_name,character_class,capstone_id,metadata,attempt_number,created_at`
+      );
+      // Charger capstones pour le libellé
+      const caps = _lbData?.capstones || await sbFetch('/rest/v1/hm_capstones?select=id,tier_name,difficulty_level_threshold');
+      _eventsData = { events: events ?? [], capstones: caps ?? [] };
+      renderEvents();
+    } catch(e) {
+      document.getElementById('events-content').innerHTML = `<div class="empty">${fr() ? 'Erreur de chargement.' : 'Loading error.'}</div>`;
+    }
+  }
+
+  function setEvtFilter(f, btn) {
+    _evtFilter = f;
+    document.querySelectorAll('.evt-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderEvents();
+  }
+
+  function renderEvents() {
+    if (!_eventsData) return;
+    const { events, capstones } = _eventsData;
+    const capMap = Object.fromEntries(capstones.map(c => [c.id, c]));
+    const filtered = _evtFilter === 'all' ? events : events.filter(e => e.event_type === _evtFilter);
+    const cont = document.getElementById('events-content');
+    if (!filtered.length) {
+      cont.innerHTML = `<div class="empty">${fr() ? 'Aucun événement.' : 'No events.'}</div>`; return;
+    }
+    cont.innerHTML = `<div class="evt-list">${filtered.map(e => {
+      const d = new Date(e.created_at);
+      const timeStr = d.toLocaleDateString(fr()?'fr-FR':'en-GB', { day:'2-digit', month:'short' })
+        + ' ' + d.toLocaleTimeString(fr()?'fr-FR':'en-GB', { hour:'2-digit', minute:'2-digit' });
+      let icon = '📜', titleHtml = '', metaHtml = '';
+      const heroCol = e.character_class ? classColor(e.character_class) : 'var(--text-dim)';
+      const charSpan = `<strong style="color:${heroCol}">${e.character_name}</strong>${e.character_class ? ` <span style="color:${heroCol};font-size:14px">(${e.character_class})</span>` : ''}`;
+
+      if (e.event_type === 'death') {
+        icon = '💀';
+        const meta = e.metadata || {};
+        // Rang du donjon où le joueur est mort
+        const dl    = meta.difficulty_level;
+        const rank  = dl ? diffLevelToRank(dl) : null;
+        const rankCol = rank ? tierColor(rank.tier) : 'var(--text-muted)';
+        const rankBadge = rank
+          ? `<span style="color:${rankCol};font-size:13px">${rank.label}</span>`
+          : '';
+        titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'est mort(e)' : 'has died'} ${rankBadge}</div>`;
+        metaHtml  = meta.dungeon
+          ? `<div class="evt-meta">${meta.dungeon}${meta.ilvl_at_death ? ` · ilvl ${meta.ilvl_at_death}` : ''}${meta.ps_at_death ? ` · PS ${Math.round(meta.ps_at_death)}` : ''}</div>`
+          : '';
+      } else if (e.event_type === 'capstone') {
+        icon = '👑';
+        const meta  = e.metadata || {};
+        const dl    = meta.difficulty_level;
+        const rank  = dl ? diffLevelToRank(dl) : null;
+        const rankCol = rank ? tierColor(rank.tier) : 'var(--hc-eternal)';
+        const rankLabel = rank ? rank.label : (meta.rank_label || '');
+        const rankBadge = `<span style="font-family:'Cinzel',serif;font-size:12px;color:${rankCol};
+          border:1px solid ${rankCol}40;background:${rankCol}12;
+          padding:2px 8px;border-radius:20px">${rankLabel}</span>`;
+        titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'atteint' : 'reached'} ${rankBadge}</div>`;
+        metaHtml  = meta.dungeon
+          ? `<div class="evt-meta">${meta.dungeon}${meta.rating ? ` · ${Math.floor(meta.rating)} pts` : ''}</div>`
+          : '';
+      } else {
+        titleHtml = `<div class="evt-title">${charSpan} · ${e.event_type}</div>`;
+      }
+      return `<div class="evt-item ${e.event_type}">
+        <div class="evt-icon">${icon}</div>
+        <div class="evt-body">${titleHtml}${metaHtml}</div>
+        <div class="evt-time">${timeStr}</div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  // ── RULES ───────────────────────────────────────────────────────────────────
+  function renderRules() {
+    const f = fr();
+    const XUL_COLOR = '#c4732a';
+    document.getElementById('rules-content').innerHTML = `
+      <div class="rules-section">
+        <div class="rules-section-title">${f ? 'Règles Hardcore' : 'Hardcore Rules'}</div>
+        <div class="rules-list">
+          <div class="rules-item warning">
+            ☠️ <strong>${f ? 'Mort permanente' : 'Permanent Death'}</strong> ${f
+              ? 'Si ton personnage meurt dans un donjon, il repart de zéro. Nouvelle tentative, ilvl 0, tout recommence.'
+              : 'If your character dies in a dungeon, they start over from scratch. New attempt, ilvl 0, everything resets.'}
+          </div>
+          <div class="rules-item">
+            👥 <strong>${f ? 'Groupe 100% Hardcore' : '100% Hardcore Group'}</strong> ${f
+              ? 'Tu ne peux jouer qu\'avec d\'autres joueurs inscrits en mode Hardcore. Un joueur non-HM dans le groupe annule le run pour tout le monde.'
+              : 'You can only play with other players registered in Hardcore mode. A non-HM player in the group invalidates the run for everyone.'}
+          </div>
+          <div class="rules-item">
+            ⚔️ ${f
+              ? 'Chaque joueur peut avoir <strong>plusieurs héros actifs</strong> simultanément, un par héros.'
+              : 'Each player can have <strong>multiple active heroes</strong> simultaneously, one per hero.'}
+          </div>
+          <div class="rules-item warning">
+            🔴 ${f
+              ? 'Le même héros <strong>peut</strong> être joué en HM et Normal simultanément. <strong>ATTENTION</strong> : active/désactive le mode depuis ton profil selon le mode de jeu souhaité.'
+              : 'The same hero <strong>can</strong> be played in HM and Normal simultaneously. <strong>WARNING</strong>: enable/disable the mode from your profile depending on the desired game mode.'}
+          </div>
+          <div class="rules-item">
+            📋 <strong>${f ? 'Live Logs obligatoires' : 'Live Logs mandatory'}</strong> ${f
+              ? 'Les logs Fellowship doivent être actifs pendant chaque donjon. Un donjon sans logs ne sera pas comptabilisé. Privilégie le live log plutôt qu\'un upload de fichier si tu ne veux pas risquer de perdre ta progression.'
+              : 'Fellowship logs must be active during each dungeon. A dungeon without logs will not be counted. Prefer live logging over file upload to avoid risking your progression.'}
+          </div>
+          <div class="rules-item">
+            📊 ${f
+              ? 'Le classement est basé sur le <strong>meilleur donjon timé</strong> réalisé.'
+              : 'Rankings are based on the <strong>best timed dungeon</strong> completed.'}
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-section">
+        <div class="rules-section-title">${f ? 'Progression & Rangs' : 'Progression & Ranks'}</div>
+        <div class="rules-list">
+          <div class="rules-item">
+            ${f
+              ? 'Les rangs progressent du plus bas au plus haut : <strong style="color:#00c700">Recrue 1→4</strong>, <strong style="color:#006fe6">Adepte 1→4</strong>, <strong style="color:#a920fd">Champion 1→4</strong>, <strong style="color:#b79f00">Parangon 1→4</strong>, <strong style="color:#b60000">Eternal 1→∞</strong>'
+              : 'Ranks progress from lowest to highest: <strong style="color:#00c700">Recruit 1→4</strong>, <strong style="color:#006fe6">Adept 1→4</strong>, <strong style="color:#a920fd">Champion 1→4</strong>, <strong style="color:#b79f00">Paragon 1→4</strong>, <strong style="color:#b60000">Eternal 1→∞</strong>'}
+          </div>
+          <div class="rules-item">
+            ${f
+              ? 'Chaque niveau de rang correspond à un <strong>niveau de donjon timé</strong> dans les logs Fellowship. Seuls les donjons complétés dans le temps imparti comptent.'
+              : 'Each rank level corresponds to a <strong>timed dungeon level</strong> in Fellowship logs. Only dungeons completed within the time limit count.'}
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-section">
+        <div class="rules-section-title">${f ? 'Mort & Reset' : 'Death & Reset'}</div>
+        <div class="rules-list">
+          <div class="rules-item">
+            🔄 <strong>${f ? 'Reset automatique' : 'Automatic Reset'}</strong> ${f
+              ? 'La mort est détectée automatiquement via les logs (sync toutes les 15 min). Le personnage passe en statut "mort" et une nouvelle tentative démarre depuis ilvl 0.'
+              : 'Death is detected automatically via logs (sync every 15 min). The character moves to "dead" status and a new attempt starts from ilvl 0.'}
+          </div>
+          <div class="rules-item">
+            📝 <strong>${f ? 'Reset manuel' : 'Manual Reset'}</strong> ${f
+              ? 'Pour les cas particuliers (bug, situation imprévue), le reset peut être demandé depuis ton profil ou en contactant Pouf directement.'
+              : 'For special cases (bug, unexpected situation), a reset can be requested from your profile or by contacting Pouf directly.'}
+          </div>
+          <div class="rules-item warning">
+            🚫 ${f
+              ? 'Si un joueur non-HM est détecté dans ton groupe, le run est <strong>annulé pour tout le groupe</strong>. Tu seras notifié dans ton profil et tu devras repartir de ton équipement précédent.'
+              : 'If a non-HM player is detected in your group, the run is <strong>cancelled for the whole group</strong>. You will be notified in your profile and must resume from your previous gear.'}
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-section">
+        <div class="rules-section-title">${f ? 'Achievements' : 'Achievements'}</div>
+        <table class="capstone-table">
+          <thead><tr><th>Achievement</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#a920fd">🛡️ ${f ? 'Atteindre Champion 4 dans les temps' : 'Achieve Champion 4 in Time'}</td></tr>
+            <tr><td style="color:#b79f00">🏆 ${f ? 'Atteindre Parangon 4 dans les temps' : 'Achieve Paragon 4 in Time'}</td></tr>
+            <tr><td style="color:#b60000">👑 ${f ? 'Atteindre Eternal 5 dans les temps' : 'Achieve Eternal 5 in Time'}</td></tr>
+            <tr><td style="color:#b60000">👑 ${f ? 'Progresser tous les 5 niveaux en Eternal (Eternal 10, 15, 20, 25... jusqu\'à l\'infini théorique)' : 'Progress every 5 Eternal levels (Eternal 10, 15, 20, 25... up to theoretical infinity)'}</td></tr>
+            <tr><td style="color:${XUL_COLOR}">🏜️ ${f ? 'Compléter Xul en Normal' : 'Complete Xul in Normal'}</td></tr>
+            <tr><td style="color:${XUL_COLOR}">🏜️ ${f ? 'Compléter Xul en Héroïque' : 'Complete Xul in Heroic'}</td></tr>
+            <tr><td style="color:${XUL_COLOR}">🏜️ ${f ? 'Compléter Xul en Nightmare' : 'Complete Xul in Nightmare'}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="rules-section">
+        <div class="rules-section-title">${f ? 'Communauté in-game' : 'In-game Community'}</div>
+        <div class="rules-list">
+          <div class="rules-item">
+            💬 ${f
+              ? 'Après complétion de ton profil, tu recevras une invitation à la communauté in-game afin de pouvoir créer des groupes avec d\'autres joueurs Hardcore. N\'hésite pas à contacter Pouf sur <strong>Discord (pouf_hgaming)</strong> ou par <a href="mailto:poufhgaming@googlegroups.com" style="color:var(--hc-red)">email</a> si tu as des difficultés.'
+              : 'After completing your profile, you will receive an invitation to the in-game community so you can create groups with other Hardcore players. Feel free to contact Pouf on <strong>Discord (pouf_hgaming)</strong> or by <a href="mailto:poufhgaming@googlegroups.com" style="color:var(--hc-red)">email</a> if you have any issues.'}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── PROFILE — AUTH SUPABASE ─────────────────────────────────────────────────
+  // Supabase Auth via le SDK léger (fetch direct)
+  const SB_AUTH_URL = SUPABASE_URL + '/auth/v1';
+
+  async function authFetch(path, opts = {}) {
+    const res = await fetch(SB_AUTH_URL + path, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        ...(opts.token ? { 'Authorization': 'Bearer ' + opts.token } : {}),
+      },
+      method: opts.method || 'GET',
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+    });
+    if (!res.ok && res.status !== 204) throw new Error(await res.text());
+    if (res.status === 204) return null;
+    return res.json();
+  }
+
+  // Session stockée localement
+  let _session = null;
+
+  async function getSession() {
+    if (_session) return _session;
+    const raw = localStorage.getItem('hm_session');
+    if (!raw) return null;
+    try {
+      const s = JSON.parse(raw);
+      // Vérifier expiry
+      if (s.expires_at && Date.now() / 1000 > s.expires_at - 60) {
+        localStorage.removeItem('hm_session');
+        return null;
+      }
+      _session = s;
+      return s;
+    } catch { return null; }
+  }
+
+  function saveSession(session) {
+    _session = session;
+    if (session) localStorage.setItem('hm_session', JSON.stringify(session));
+    else localStorage.removeItem('hm_session');
+  }
+
+  async function sendMagicLink(email) {
+    const redirectTo = 'https://dev.poufhgaming.com/fellowship_hardcore/index.html';
+    await authFetch('/magiclink', {
+      method: 'POST',
+      body: { email, redirect_to: redirectTo },
+    });
+  }
+
+  async function signOut() {
+    const session = await getSession();
+    if (session) {
+      await authFetch('/logout', { method: 'POST', token: session.access_token }).catch(() => {});
+    }
+    saveSession(null);
+    _profileData = null;
+    renderProfilePage();
+  }
+
+  // Capturer le token depuis l'URL après le clic sur le magic link
+  // ⚠️  Dans Supabase Dashboard → Auth → URL Configuration :
+  //     Site URL = https://poufhgaming.github.io/hardcore/index.html
+  //     Redirect URLs = https://poufhgaming.github.io/hardcore/index.html
+  async function handleAuthCallback() {
+    const hash = window.location.hash;
+    if (!hash.includes('access_token')) return;
+    const params       = new URLSearchParams(hash.replace('#', ''));
+    const type         = params.get('type');
+    const accessToken  = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const expiresAt    = parseInt(params.get('expires_at')  || '0');
+    const expiresIn    = parseInt(params.get('expires_in')  || '3600');
+    if (!accessToken) return;
+    // Accepter magiclink et recovery
+    if (type && !['magiclink','recovery','signup'].includes(type)) return;
+    const session = {
+      access_token:  accessToken,
+      refresh_token: refreshToken,
+      expires_at:    expiresAt || Math.floor(Date.now() / 1000) + expiresIn,
+    };
+    saveSession(session);
+    history.replaceState(null, '', window.location.pathname);
+    showPage('profile', document.getElementById('tab-profile'));
+  }
+
+  // ── PROFILE DATA ─────────────────────────────────────────────────────────────
+  let _profileData  = null;
+  let _heroClasses  = null;
+
+  async function loadHeroClasses() {
+    if (_heroClasses) return _heroClasses;
+    const data = await sbFetch('/rest/v1/hm_hero_classes?select=*&order=sort_order');
+    _heroClasses = data ?? [];
+    return _heroClasses;
+  }
+
+  async function loadProfileData(session) {
+    const headers = {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + session.access_token,
+    };
+    const base = SUPABASE_URL + '/rest/v1';
+
+    // Récupérer le user_id depuis le token
+    const userRes = await authFetch('/user', { token: session.access_token });
+    const userId = userRes?.id;
+
+    const [profile, warnings, characters, heroClasses] = await Promise.all([
+      fetch(`${base}/hm_profiles?select=*`, { headers }).then(r => r.json()),
+      fetch(`${base}/hm_player_warnings?select=*&order=created_at.desc&limit=20&season=eq.${SEASON}`, { headers }).then(r => r.json()),
+      fetch(`${base}/hm_characters?select=*&season=eq.${SEASON}&user_id=eq.${userId}&order=character_name`, { headers }).then(r => r.json()),
+      loadHeroClasses(),
+    ]);
+
+    // Périodes actives
+    const charIds = (characters ?? []).map(c => c.id).join(',');
+    let periods = [];
+    if (charIds) {
+      periods = await fetch(`${base}/hm_active_periods?character_id=in.(${charIds})&order=active_from.desc`, { headers }).then(r => r.json()).catch(() => []);
+    }
+
+    // Runs (survie, trophées) et score par personnage (cimetière, fiche héros)
+    let runs = [], scores = {};
+    if (charIds) {
+      const arr = x => Array.isArray(x) ? x : [];
+      const [runRows, sumRows] = await Promise.all([
+        fetch(`${base}/hm_runs?character_id=in.(${charIds})&valid=eq.true&select=character_id,dungeon_name,difficulty_level,in_time,completed,completed_at&order=completed_at.desc&limit=1000`, { headers }).then(r => r.json()).catch(() => []),
+        fetch(`${base}/hm_summary?character_id=in.(${charIds})&select=character_id,total_rating_score`, { headers }).then(r => r.json()).catch(() => []),
+      ]);
+      runs = arr(runRows);
+      for (const r of arr(sumRows)) scores[r.character_id] = Number(r.total_rating_score) || 0;
+    }
+    _snapCache = {};
+
+    return {
+      profile: profile?.[0] ?? null,
+      warnings: warnings ?? [],
+      characters: characters ?? [],
+      periods: periods ?? [],
+      heroClasses,
+      runs,
+      scores,
+    };
+  }
+
+  // ── PROFILE RENDER ────────────────────────────────────────────────────────────
+
+  async function renderProfilePage() {
+    const cont = document.getElementById('profile-content');
+    if (!cont) return;
+    const f = fr();
+    const session = await getSession();
+
+    if (!session) {
+      renderProfileVisitor(cont, f);
+      return;
+    }
+
+    cont.innerHTML = `<div class="loading">${f ? 'Chargement de ton profil…' : 'Loading your profile…'}</div>`;
+
+    try {
+      _profileData = await loadProfileData(session);
+    } catch (e) {
+      cont.innerHTML = `<div class="empty">${f ? 'Erreur de chargement.' : 'Loading error.'}</div>`;
+      return;
+    }
+
+    if (!_profileData.profile || !_profileData.profile.onboarding_complete) {
+      renderProfileOnboarding(cont, f, session);
+    } else {
+      renderProfileConnected(cont, f, session);
+    }
+  }
+
+  function renderProfileVisitor(cont, f) {
+    // Tab label: "Se connecter" quand non connecté
+    const tabEl = document.getElementById('tab-profile');
+    if (tabEl) { tabEl.textContent = f ? 'Se connecter' : 'Sign In'; tabEl.setAttribute('data-fr','Se connecter'); tabEl.setAttribute('data-en','Sign In'); }
+    cont.innerHTML = `
+      <div class="profile-visitor">
+        <div class="profile-visitor-title">⚔️ ${f ? 'Mon Profil Hardcore' : 'My Hardcore Profile'}</div>
+        <div class="profile-visitor-desc">${f
+          ? 'Connecte-toi avec ton email pour t\'inscrire à l\'event, activer le mode Hardcore sur tes héros, et suivre ta progression en temps réel.'
+          : 'Sign in with your email to register for the event, enable Hardcore mode on your heroes, and track your progress in real time.'}</div>
+        <div class="profile-magic-form">
+          <div class="profile-magic-title">${f ? 'Connexion / Inscription sans mot de passe' : 'Sign In / Register — passwordless'}</div>
+          <p style="font-size:14px;color:var(--text-muted);font-style:italic;text-align:center;margin-bottom:14px">${f
+            ? 'Entre ton email et reçois un lien magique. Première fois ? Tu configureras ton profil directement.'
+            : 'Enter your email and receive a magic link. First time? You\'ll set up your profile right after.'}</p>
+          <div class="profile-magic-row">
+            <input type="email" id="magic-email" placeholder="${f ? 'ton@email.com' : 'your@email.com'}">
+            <button class="btn-magic" id="magic-btn" onclick="doMagicLink()">
+              ${f ? 'Recevoir le lien' : 'Send link'}
+            </button>
+          </div>
+          <div class="profile-magic-sent" id="magic-sent">
+            ✓ ${f
+              ? 'Lien envoyé ! Vérifie ta boîte mail — et pense à regarder les <strong>spams</strong> si tu ne le vois pas.'
+              : 'Link sent! Check your inbox — and don\'t forget to check your <strong>spam folder</strong> if you don\'t see it.'}
+          </div>
+          <div style="margin-top:12px;font-size:13px;color:var(--text-muted);text-align:center;font-style:italic;display:none" id="magic-spam-hint">
+            📬 ${f
+              ? 'L\'email vient de <strong style="color:var(--text-dim)">onboarding@resend.dev</strong> — si tu ne le trouves pas, vérifie tes spams et marque-le comme "non spam".'
+              : 'The email comes from <strong style="color:var(--text-dim)">onboarding@resend.dev</strong> — if you can\'t find it, check your spam and mark it as "not spam".'}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  async function doMagicLink() {
+    const email = document.getElementById('magic-email')?.value?.trim();
+    const f = fr();
+    if (!email) return;
+    const btn = document.getElementById('magic-btn');
+    btn.disabled = true;
+    btn.textContent = f ? 'Envoi…' : 'Sending…';
+    try {
+      await sendMagicLink(email);
+      document.getElementById('magic-sent').classList.add('show');
+      document.getElementById('magic-spam-hint').style.display = 'block';
+      btn.textContent = f ? 'Envoyé ✓' : 'Sent ✓';
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = f ? 'Réessayer' : 'Retry';
+      toast((f ? 'Erreur : ' : 'Error: ') + (e.message || ''), true);
+    }
+  }
+
+  // Onboarding — variables globales
+  let _onboardingStep = 1;
+  let _onboardingSelectedHeroes = new Set();
+  let _onboardingPlayerName = '';
+  let _onboardingCode = '';
+  let _onboardingFellowshipId = '';
+
+  function renderProfileOnboarding(cont, f, session) {
+    _onboardingStep = 1;
+    _onboardingSelectedHeroes = new Set();
+    renderOnboardingStep(cont, f, session);
+  }
+
+  function renderOnboardingStep(cont, f, session) {
+    const steps = [
+      f ? 'Profil' : 'Profile',
+      f ? 'Mes héros' : 'My heroes',
+      f ? 'Récapitulatif' : 'Summary',
+    ];
+    const dotsHtml = steps.map((s, i) => {
+      const n = i + 1;
+      const cls = n < _onboardingStep ? 'done' : n === _onboardingStep ? 'active' : '';
+      return `${n > 1 ? '<div class="onboarding-step-line"></div>' : ''}
+              <div class="onboarding-step-dot ${cls}">${n < _onboardingStep ? '✓' : n}</div>`;
+    }).join('');
+
+    let body = '';
+
+    if (_onboardingStep === 1) {
+      body = `
+        <div class="onboarding-title">${f ? 'Bienvenue — Configure ton profil' : 'Welcome — Set up your profile'}</div>
+        <p style="font-size:14px;color:var(--text-muted);font-style:italic;margin-bottom:20px;line-height:1.6">${f
+          ? 'Ton nom Fellowship sera utilisé pour identifier tes personnages dans les logs de combat.'
+          : 'Your Fellowship name will be used to identify your characters in combat logs.'}</p>
+
+        <div class="field">
+          <label>${f ? 'Ton nom Fellowship (exact)' : 'Your Fellowship name (exact)'} *</label>
+          <input type="text" id="ob-name" value="${_onboardingPlayerName}" placeholder="${f ? 'Ton nom exact sur FellowshipLogs' : 'Your exact name on FellowshipLogs'}">
+          <div class="field-hint">${f ? 'Doit correspondre exactement à ton nom sur fellowshiplogs.com' : 'Must match exactly your name on fellowshiplogs.com'}</div>
+        </div>
+
+        <div class="field">
+          <label>${f ? 'Ton Fellowship Character ID' : 'Your Fellowship Character ID'} *</label>
+          <input type="number" id="ob-fellowship-id" value="${_onboardingFellowshipId}" placeholder="${f ? 'Ex: 151451' : 'e.g. 151451'}">
+          <div class="field-hint">${f ? 'Visible dans la barre d\'URL sur fellowshiplogs.com' : 'Visible in the URL bar on fellowshiplogs.com'}</div>
+          <div class="join-screenshot" style="margin-top:10px">
+            <div class="join-screenshot-label">${f ? 'Exemple barre d\'URL' : 'Example URL bar'}</div>
+            <div class="join-url-demo">
+              <div class="join-url-bar"><span class="url-dim">fellowshiplogs.com/characters/</span><span class="url-highlight">151451</span><span class="url-dim">/overview</span></div>
+              <div class="join-url-caption">${f ? '👆 Le nombre en surbrillance, c\'est ton ID.' : '👆 The highlighted number is your ID.'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>${f ? 'Fellowship Contact Code (optionnel)' : 'Fellowship Contact Code (optional)'}</label>
+          <input type="text" id="ob-code" value="${_onboardingCode}" placeholder="${f ? 'Visible dans ton profil Fellowship' : 'Visible in your Fellowship profile'}">
+        </div>
+
+        <div style="margin-bottom:20px;padding:14px 16px;background:rgba(255,68,68,0.04);border:1px solid rgba(255,68,68,0.2);border-radius:6px">
+          <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">${f ? 'Activer les logs de combat' : 'Activate combat logs'}</div>
+          <div class="join-step">
+            <div class="join-step-num">1</div>
+            <div class="join-step-body">
+              <div class="join-step-title">${f ? 'Télécharger Archon' : 'Download Archon'}</div>
+              <div class="join-step-desc">${f
+                ? `Télécharge l'application <strong>Archon</strong> et active le paramètre <strong>Activate Combat Log</strong>.<br><a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>`
+                : `Download the <strong>Archon</strong> app and enable <strong>Activate Combat Log</strong>.<br><a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>`}</div>
+            </div>
+          </div>
+          <div class="join-step" style="margin-bottom:0">
+            <div class="join-step-num">2</div>
+            <div class="join-step-body">
+              <div class="join-step-title">${f ? 'Live Logs obligatoires' : 'Live Logs mandatory'}</div>
+              <div class="join-step-desc">${f
+                ? 'Dans Archon, active le mode <strong>Live Logging</strong> avant chaque session. Les logs uploadés manuellement ne sont pas acceptés — risque de perte de progression.'
+                : 'In Archon, enable <strong>Live Logging</strong> mode before each session. Manually uploaded logs are not accepted — risk of losing progression.'}</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-register" onclick="onboardingNext()">
+          ${f ? 'Continuer →' : 'Continue →'}
+        </button>`;
+
+    } else if (_onboardingStep === 2) {
+      const heroes = _heroClasses || [];
+      const roles  = ['Tank', 'Healer', 'DPS'];
+      const heroesHtml = roles.map(role => {
+        const roleHeroes = heroes.filter(h => h.role === role);
+        if (!roleHeroes.length) return '';
+        const items = roleHeroes.map(h => `
+          <div class="hero-toggle ${_onboardingSelectedHeroes.has(h.class_name) ? 'selected' : ''}"
+               onclick="toggleHeroSelect('${h.class_name}')" id="htoggle-${h.class_name}"
+               style="${_onboardingSelectedHeroes.has(h.class_name) ? `border-color:${h.color_hex}60;background:${h.color_hex}15` : ''}">
+            <div class="hero-dot" style="background:${h.color_hex}"></div>
+            <span style="${_onboardingSelectedHeroes.has(h.class_name) ? `color:${h.color_hex}` : ''}">${h.class_name}</span>
+            <span class="hero-toggle-check" style="color:${h.color_hex}">✓</span>
+          </div>`).join('');
+        return `<div class="heroes-section">
+          <div class="heroes-role-label">${role}</div>
+          <div class="heroes-grid">${items}</div>
+        </div>`;
+      }).join('');
+
+      body = `
+        <div class="onboarding-title">${f ? 'Sélectionne tes héros Hardcore' : 'Select your Hardcore heroes'}</div>
+        <div style="font-size:14px;color:var(--text-muted);font-style:italic;margin-bottom:18px">${f
+          ? 'Sélectionne les héros que tu veux jouer en Hardcore. Par défaut ils seront en OFF.'
+          : 'Select the heroes you want to play in Hardcore. They start as OFF.'}</div>
+        ${heroesHtml}
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn-register" onclick="_onboardingStep=1;renderOnboardingStep(document.getElementById('profile-content'),fr(),null)" style="background:none;border-color:var(--border);color:var(--text-muted)">
+            ← ${f ? 'Retour' : 'Back'}
+          </button>
+          <button class="btn-register" onclick="onboardingNext()">
+            ${f ? 'Voir le récapitulatif →' : 'See summary →'}
+          </button>
+        </div>`;
+
+    } else if (_onboardingStep === 3) {
+      const heroes = [..._onboardingSelectedHeroes];
+      const heroesDisplay = heroes.length
+        ? heroes.map(h => {
+            const hData = (_heroClasses || []).find(c => c.class_name === h);
+            return `<span class="recap-hero-tag" style="color:${hData?.color_hex || 'var(--text-muted)'};border-color:${hData?.color_hex || 'var(--border)'}60">${h}</span>`;
+          }).join('')
+        : `<span style="color:var(--text-muted);font-style:italic;font-size:13px">${f ? 'Aucun sélectionné' : 'None selected'}</span>`;
+
+      body = `
+        <div class="onboarding-title">${f ? 'Récapitulatif — Vérifie tes infos' : 'Summary — Check your details'}</div>
+        <div class="recap-card">
+          <div class="recap-row">
+            <span class="recap-label">${f ? 'Nom Fellowship' : 'Fellowship name'}</span>
+            <span class="recap-val">${_onboardingPlayerName}</span>
+          </div>
+          <div class="recap-row">
+            <span class="recap-label">Fellowship ID</span>
+            <span class="recap-val">${_onboardingFellowshipId || '—'}</span>
+          </div>
+          ${_onboardingCode ? `<div class="recap-row">
+            <span class="recap-label">Contact Code</span>
+            <span class="recap-val">${_onboardingCode}</span>
+          </div>` : ''}
+          <div class="recap-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <span class="recap-label">${f ? 'Héros sélectionnés' : 'Selected heroes'}</span>
+            <div class="recap-heroes">${heroesDisplay}</div>
+          </div>
+        </div>
+        <div style="padding:12px 14px;background:rgba(64,212,212,0.04);border:1px solid var(--border);border-radius:4px;font-size:14px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">
+          ℹ️ ${f
+            ? 'Tu recevras une invitation pour rejoindre la communauté in-game sur Fellowship. Pouf t\'enverra l\'invitation directement dans le jeu.'
+            : 'You will receive an invitation to join the in-game community on Fellowship. Pouf will send the invitation directly in-game.'}
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-register" onclick="_onboardingStep=2;renderOnboardingStep(document.getElementById('profile-content'),fr(),null)" style="background:none;border-color:var(--border);color:var(--text-muted)">
+            ← ${f ? 'Retour' : 'Back'}
+          </button>
+          <button class="btn-register" onclick="completeOnboarding()">
+            ${f ? '✓ Confirmer mon inscription' : '✓ Confirm registration'}
+          </button>
+        </div>`;
+    }
+
+    cont.innerHTML = `
+      <div class="onboarding-card">
+        <div class="onboarding-step-indicator">${dotsHtml}</div>
+        ${body}
+      </div>`;
+  }
+
+  function toggleHeroSelect(className) {
+    const hData = (_heroClasses || []).find(h => h.class_name === className);
+    if (_onboardingSelectedHeroes.has(className)) _onboardingSelectedHeroes.delete(className);
+    else _onboardingSelectedHeroes.add(className);
+    const el = document.getElementById('htoggle-' + className);
+    if (el) {
+      const sel = _onboardingSelectedHeroes.has(className);
+      el.classList.toggle('selected', sel);
+      el.style.borderColor = sel ? (hData?.color_hex || 'var(--border)') + '60' : '';
+      el.style.background  = sel ? (hData?.color_hex || '') + '15' : '';
+    }
+  }
+
+  async function onboardingNext() {
+    const f = fr();
+    if (_onboardingStep === 1) {
+      _onboardingPlayerName   = document.getElementById('ob-name')?.value?.trim() || '';
+      _onboardingFellowshipId = document.getElementById('ob-fellowship-id')?.value?.trim() || '';
+      _onboardingCode         = document.getElementById('ob-code')?.value?.trim() || '';
+      if (!_onboardingPlayerName)   { toast(f ? 'Remplis ton nom Fellowship.' : 'Enter your Fellowship name.', true); return; }
+      if (!_onboardingFellowshipId) { toast(f ? 'Le Fellowship ID est obligatoire.' : 'Fellowship ID is required.', true); return; }
+      _onboardingStep = 2;
+    } else if (_onboardingStep === 2) {
+      _onboardingStep = 3;
+    }
+    const session = await getSession();
+    renderOnboardingStep(document.getElementById('profile-content'), f, session);
+  }
+
+  async function completeOnboarding() {
+    const f = fr();
+    const session = await getSession();
+    if (!session) return;
+
+    const btn = document.querySelector('.onboarding-card .btn-register:last-child');
+    if (btn) { btn.disabled = true; btn.textContent = f ? 'Enregistrement…' : 'Saving…'; }
+
+    try {
+      const players = await sbFetch(`/rest/v1/players?name=eq.${encodeURIComponent(_onboardingPlayerName)}&select=id`);
+      const playerId = players?.[0]?.id;
+      if (!playerId) {
+        toast(f ? `Joueur "${_onboardingPlayerName}" introuvable.` : `Player not found.`, true);
+        if (btn) { btn.disabled = false; btn.textContent = f ? '✓ Confirmer' : '✓ Confirm'; }
+        return;
+      }
+
+      const userRes = await authFetch('/user', { token: session.access_token });
+      const userId = userRes.id;
+
+      await fetch(SUPABASE_URL + '/rest/v1/hm_profiles', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify({ id: userId, player_id: playerId, fellowship_contact_code: _onboardingCode || null, onboarding_complete: true }),
+      });
+
+      await sbFetch('/rest/v1/hm_log_aliases', { method: 'POST', prefer: 'return=minimal', body: { player_id: playerId, log_name: _onboardingPlayerName } }).catch(() => {});
+
+      for (const heroClass of _onboardingSelectedHeroes) {
+        await fetch(SUPABASE_URL + '/rest/v1/hm_characters', {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({
+            player_id: playerId, user_id: userId,
+            fellowship_character_id: _onboardingFellowshipId ? parseInt(_onboardingFellowshipId) : null,
+            character_name: _onboardingPlayerName, character_class: heroClass,
+            attempt_number: 1, status: 'alive', hm_enabled: false, season: SEASON,
+          }),
+        });
+      }
+
+      toast(f ? '✓ Inscription confirmée !' : '✓ Registration confirmed!');
+      _profileData = null;
+      await renderProfilePage();
+    } catch (e) {
+      toast((f ? 'Erreur : ' : 'Error: ') + (e.message || ''), true);
+      if (btn) { btn.disabled = false; btn.textContent = f ? '✓ Confirmer' : '✓ Confirm'; }
+    }
+  }
+
+  // ── QUALITY / SLOT HELPERS ────────────────────────────────────────────────
+  const QUALITY_LABELS = {
+    1: { fr:'Recrue', en:'Recruit', cls:'q1' },
+    2: { fr:'Adepte', en:'Adept', cls:'q2' },
+    3: { fr:'Champion', en:'Champion', cls:'q3' },
+    4: { fr:'Héroïque', en:'Heroic', cls:'q4' },
+    5: { fr:'Royal', en:'Royal', cls:'q5' },
+    6: { fr:'Légendaire', en:'Legendary', cls:'q6' },
+  };
+  // gear[] n'a pas de champ slot : l'ordre est fixe (14 pièces), enregistré comme index par le sync
+  const SLOT_NAMES_MAP = {
+    fr: { 0:'Tête',1:'Collier',2:'Épaules',3:'Dos',4:'Torse',5:'Poignets',6:'Mains',7:'Jambes',8:'Pieds',9:'Bague',10:'Bague',11:'Relique',12:'Relique',13:'Arme' },
+    en: { 0:'Head',1:'Neck',2:'Shoulders',3:'Back',4:'Chest',5:'Wrists',6:'Hands',7:'Legs',8:'Feet',9:'Ring',10:'Ring',11:'Relic',12:'Relic',13:'Weapon' },
+  };
+  const SLOT_ICONS_MAP = { 0:'🪖',1:'📿',2:'🛡',3:'🧥',4:'👕',5:'🧤',6:'🧤',7:'👖',8:'👟',9:'💍',10:'💍',11:'💎',12:'💎',13:'⚔️' };
+  function qualityClass(q) { return (QUALITY_LABELS[q]||QUALITY_LABELS[1]).cls; }
+  function slotName(slot, f) { return (slot == null ? null : (f ? SLOT_NAMES_MAP.fr : SLOT_NAMES_MAP.en)[slot]) || (f ? 'Équipement' : 'Gear'); }
+
+  // ══ PROFIL v2 : héros en vedette, trophées, cimetière ═════════════════════════
+  // Ce qui dépend de la saison (échelle de Xul, paliers de trophées) est regroupé ici.
+  const XUL_COLOR  = '#c4732a';
+  const XUL_DL     = { normal: 31, heroic: 43, nightmare: 60 };   // échelle de la saison actuelle
+  const GEAR_LEFT  = [0, 2, 3, 4, 5, 6, 7];       // Tête, Épaules, Dos, Torse, Poignets, Mains, Jambes
+  const GEAR_RIGHT = [1, 8, 9, 10, 11, 12, 13];   // Collier, Pieds, Bague, Bague, Relique, Relique, Arme
+
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  }
+  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.png`; }
+
+  let _activeProfileTab = 'heroes';
+  let _spotClass = null;
+  let _snapCache = {};
+
+  const PROFILE_TABS = [
+    { id:'heroes',    ico:'⚔️', fr:'Mes héros',  en:'My heroes' },
+    { id:'trophies',  ico:'🏆', fr:'Trophées',   en:'Trophies'  },
+    { id:'graveyard', ico:'🪦', fr:'Cimetière',  en:'Graveyard' },
+    { id:'history',   ico:'📋', fr:'Historique', en:'History'   },
+  ];
+
+  // ── Trophées : calculés côté site à partir des runs, aucune table en plus ─────
+  function rankTrophy(id, dl, ico) {
+    const rk = diffLevelToRank(dl);
+    return {
+      id, ico, color: tierColor(rk.tier), target: dl,
+      val: s => s.bestDl,
+      fmt: v => `${v > 0 ? diffLevelToRank(v).label : '—'} / ${rk.label}`,
+      fr: [rk.label, `Termine un donjon dans le temps en ${rk.label}.`],
+      en: [rk.label, `Finish a dungeon within the time limit at ${rk.label}.`],
+    };
+  }
+  function countTrophy(id, ico, metric, target, fr, en, color) {
+    return { id, ico, color: color || '#40d4d4', target, val: s => s[metric], fmt: v => `${Math.min(v, target)} / ${target}`, fr, en };
+  }
+  const TROPHIES = [
+    countTrophy('timed_1',  '⏱️', 'timedTotal', 1,  ['Premier chrono', 'Termine un donjon dans le temps imparti.'], ['First timer', 'Finish a dungeon within the time limit.']),
+    countTrophy('timed_10', '⏱️', 'timedTotal', 10, ['Habitué', 'Termine 10 donjons dans le temps.'], ['Regular', 'Finish 10 dungeons in time.']),
+    countTrophy('timed_50', '⏱️', 'timedTotal', 50, ['Infatigable', 'Termine 50 donjons dans le temps.'], ['Tireless', 'Finish 50 dungeons in time.']),
+    countTrophy('surv_10',  '🛡️', 'maxSurvival', 10, ['Survivant', '10 donjons avec un même héros sans mourir.'], ['Survivor', '10 dungeons with one hero without dying.']),
+    countTrophy('surv_25',  '🛡️', 'maxSurvival', 25, ['Increvable', '25 donjons avec un même héros sans mourir.'], ['Unkillable', '25 dungeons with one hero without dying.']),
+    countTrophy('surv_50',  '🛡️', 'maxSurvival', 50, ['Légende vivante', '50 donjons avec un même héros sans mourir.'], ['Living legend', '50 dungeons with one hero without dying.']),
+    rankTrophy('rank_champion4', 14, '🛡️'),
+    rankTrophy('rank_parangon4', 19, '🏆'),
+    rankTrophy('rank_eternal5',  25, '👑'),
+    rankTrophy('rank_eternal10', 30, '👑'),
+    rankTrophy('rank_eternal20', 40, '👑'),
+    countTrophy('xul_normal',    '🏜️', 'xulNormal',    1, ['Xul : Normal',    'Termine Xul en Normal.'],    ['Xul: Normal',    'Complete Xul on Normal.'],    XUL_COLOR),
+    countTrophy('xul_heroic',    '🏜️', 'xulHeroic',    1, ['Xul : Héroïque',  'Termine Xul en Héroïque.'],  ['Xul: Heroic',    'Complete Xul on Heroic.'],    XUL_COLOR),
+    countTrophy('xul_nightmare', '🏜️', 'xulNightmare', 1, ['Xul : Nightmare', 'Termine Xul en Nightmare.'], ['Xul: Nightmare', 'Complete Xul on Nightmare.'], XUL_COLOR),
+    countTrophy('heroes_3', '🎭', 'heroesPlayed', 3, ['Polyvalent', 'Termine un donjon avec 3 héros différents.'], ['Versatile', 'Finish a dungeon with 3 different heroes.']),
+    countTrophy('heroes_6', '🎭', 'heroesPlayed', 6, ['Troupe complète', 'Termine un donjon avec 6 héros différents.'], ['Full troupe', 'Finish a dungeon with 6 different heroes.']),
+    countTrophy('first_blood', '💀', 'deaths', 1, ['Baptême du feu', "Perds ton premier héros. Mourir, c'est recommencer."], ['Baptism of fire', 'Lose your first hero. Death is just the beginning.'], '#ff4444'),
+  ];
+
+  function computeProfileStats() {
+    const { characters, runs = [] } = _profileData;
+    const byChar = {}, classOf = {};
+    for (const c of characters) { byChar[c.id] = { completed: 0 }; classOf[c.id] = c.character_class; }
+    let timedTotal = 0, bestDl = 0;
+    const xul = { normal: 0, heroic: 0, nightmare: 0 };
+    const classesDone = new Set();
+    for (const r of runs) {
+      if (!r.completed || !byChar[r.character_id]) continue;
+      byChar[r.character_id].completed++;
+      classesDone.add(classOf[r.character_id]);
+      if (/xul/i.test(r.dungeon_name || '')) {                     // Xul : échelle à part
+        for (const [k, dl] of Object.entries(XUL_DL)) if (r.difficulty_level === dl) xul[k] = 1;
+        continue;
+      }
+      if (r.in_time) { timedTotal++; bestDl = Math.max(bestDl, r.difficulty_level || 0); }
+    }
+    const recordByClass = {};
+    let maxSurvival = 0;
+    for (const c of characters) {
+      const n = byChar[c.id].completed;
+      recordByClass[c.character_class] = Math.max(recordByClass[c.character_class] || 0, n);
+      maxSurvival = Math.max(maxSurvival, n);
+    }
+    return {
+      byChar, recordByClass, maxSurvival, timedTotal, bestDl,
+      xulNormal: xul.normal, xulHeroic: xul.heroic, xulNightmare: xul.nightmare,
+      heroesPlayed: classesDone.size,
+      deaths: characters.filter(c => c.status === 'dead').length,
+    };
+  }
+
+  function trophyStates(stats) {
+    return TROPHIES.map(t => {
+      const v = t.val(stats);
+      return { t, v, done: v >= t.target, pct: Math.min(100, Math.round(100 * v / t.target)) };
+    });
+  }
+
+  // ── Coque du profil ──────────────────────────────────────────────────────────
+  function renderProfileConnected(cont, f, session) {
+    const { warnings, characters } = _profileData;
+    const playerName = characters.find(c => c.character_name)?.character_name || '—';
+    const tabEl = document.getElementById('tab-profile');
+    if (tabEl) { tabEl.textContent = f ? 'Gérer mes héros' : 'My Heroes'; tabEl.setAttribute('data-fr', 'Gérer mes héros'); tabEl.setAttribute('data-en', 'My Heroes'); }
+    const unread = warnings.filter(w => !w.read).length;
+    const tabsHtml = PROFILE_TABS.map(t => `
+      <button class="profile-tab-btn ${_activeProfileTab === t.id ? 'active' : ''}" data-tab="${t.id}" onclick="switchProfileTab('${t.id}')">
+        ${t.ico} ${f ? t.fr : t.en}${t.id === 'history' && unread ? `<span style="color:var(--hc-red);margin-left:4px">(${unread})</span>` : ''}
+      </button>`).join('');
+    cont.innerHTML = `
+      <div class="profile-header">
+        <div class="profile-user">
+          <div class="profile-username">${esc(playerName)}</div>
+          <div class="profile-email">${f ? 'Fellowship Hardcore · Saison 1' : 'Fellowship Hardcore · Season 1'}</div>
+        </div>
+        <button class="btn-logout" onclick="signOut()">${f ? 'Déconnexion' : 'Sign out'}</button>
+      </div>
+      <div class="profile-tabs">${tabsHtml}</div>
+      <div id="profile-tab-content"></div>
+      <div style="margin-top:28px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:14px;color:var(--text-muted);line-height:1.7">
+        💬 ${f ? `Un problème ? Contacte Pouf sur <strong style="color:var(--text-dim)">Discord : pouf_hgaming</strong> ou par <a href="mailto:poufhgaming@googlegroups.com" style="color:var(--hc-red)">email</a>.` : `A problem? Contact Pouf on <strong style="color:var(--text-dim)">Discord: pouf_hgaming</strong> or by <a href="mailto:poufhgaming@googlegroups.com" style="color:var(--hc-red)">email</a>.`}
+      </div>`;
+    renderProfileTabContent();
+  }
+
+  function switchProfileTab(tab) {
+    _activeProfileTab = tab;
+    document.querySelectorAll('.profile-tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+    renderProfileTabContent();
+  }
+
+  function renderProfileTabContent() {
+    const cont = document.getElementById('profile-tab-content');
+    if (!cont || !_profileData) return;
+    const f = fr();
+    if (_activeProfileTab === 'heroes')    renderTabHeroes(cont, f);
+    if (_activeProfileTab === 'trophies')  renderTabTrophies(cont, f);
+    if (_activeProfileTab === 'graveyard') renderTabGraveyard(cont, f);
+    if (_activeProfileTab === 'history')   renderTabHistory(cont, f);
+  }
+
+  // ── Onglet 1 : héros en vedette ──────────────────────────────────────────────
+  // Bandeau HM ON/OFF : deux gros boutons explicites + phrase qui dit ce qui se passe réellement.
+  function hmBannerHtml(ch, f, busy) {
+    const on = !!ch.hm_enabled;
+    const period = (_profileData?.periods || []).find(p => p.character_id === ch.id && !p.active_until);
+    const since = on && period ? ` <span class="hm-since">· ${f ? 'depuis le' : 'since'} ${new Date(period.active_from).toLocaleDateString(f ? 'fr-FR' : 'en-GB')}</span>` : '';
+    const state = on ? (f ? 'HARDCORE ACTIVÉ' : 'HARDCORE ON') : (f ? 'HARDCORE DÉSACTIVÉ' : 'HARDCORE OFF');
+    const sub = on
+      ? (f ? 'Tes donjons sont comptés. Une mort en run = héros mort.' : 'Your dungeons count. A death in a run = dead hero.')
+      : (f ? 'Tes donjons ne comptent PAS. Active avant de lancer un run HM.' : 'Your dungeons do NOT count. Turn it on before starting an HM run.');
+    const args = `'${esc(ch.character_class)}','${ch.id}',${ch.player_id}`;
+    return `<div class="hm-banner ${on ? 'on' : 'off'} ${busy ? 'busy' : ''}" id="hm-banner">
+      <div class="hm-state"><span class="hm-dot"></span>${state}${since}</div>
+      <div class="hm-sub">${sub}</div>
+      <div class="hm-seg" role="group" aria-label="HM">
+        <button type="button" class="is-off ${on ? '' : 'cur'}" ${on ? `onclick="toggleHm(${args},false)"` : 'disabled'}>${on ? '' : '✓ '}HM OFF</button>
+        <button type="button" class="is-on ${on ? 'cur' : ''}" ${on ? 'disabled' : `onclick="toggleHm(${args},true)"`}>${on ? '✓ ' : ''}HM ON</button>
+      </div>
+    </div>`;
+  }
+
+  // Met à jour le bandeau et la pastille du sélecteur sans re-rendre la page.
+  function refreshHmUi(charId, busy) {
+    const ch = _profileData?.characters?.find(c => String(c.id) === String(charId));
+    if (!ch) return;
+    const f = fr();
+    const el = document.getElementById('hm-banner');
+    if (el && ch.character_class === _spotClass) el.outerHTML = hmBannerHtml(ch, f, busy);
+    const btn = document.querySelector(`.pick[title^="${ch.character_class.replace(/"/g, '')}"] .pick-dot`);
+    if (btn) btn.className = 'pick-dot ' + (ch.hm_enabled ? 'on' : 'off');
+  }
+
+  function selectSpotHero(cls) { _spotClass = cls; renderProfileTabContent(); }
+
+  // Colonne d'équipement façon écran de jeu. gear = items du snapshot (slot = index 0-13) ou null.
+  function gearColumn(slots, gear, f) {
+    const bySlot = {};
+    if (Array.isArray(gear) && gear.length) {
+      if (gear.every(g => g.slot == null)) {                       // snapshot sans slots fiables : ordre brut
+        const order = [...GEAR_LEFT, ...GEAR_RIGHT];
+        gear.forEach((it, i) => { if (order[i] !== undefined) bySlot[order[i]] = { ...it, _generic: true }; });
+      } else {
+        gear.forEach(it => { if (it.slot != null) bySlot[it.slot] = it; });
+      }
+    }
+    return slots.map(s => {
+      const it = bySlot[s];
+      if (!it) return `<div class="gslot empty" title="${esc(slotName(s, f))}"><span class="gslot-ico">${SLOT_ICONS_MAP[s] || '📦'}</span></div>`;
+      const q  = qualityClass(it.quality || 1);
+      const ps = it.potentialPower ? Math.round(it.potentialPower / 10) : null;
+      const tip = `${it.name || ''}${it._generic ? '' : ' · ' + slotName(s, f)} · ilvl ${it.itemLevel || 0}${ps ? ' · PS ' + ps : ''}`;
+      return `<div class="gslot ${q}" title="${esc(tip)}"><span class="gslot-ico">${it._generic ? '📦' : (SLOT_ICONS_MAP[s] || '📦')}</span><span class="gslot-ilvl">${it.itemLevel || 0}</span></div>`;
+    }).join('');
+  }
+
+  async function loadSpotGear(charId, f) {
+    let snap = _snapCache[charId];
+    if (snap === undefined) {
+      try {
+        const rows = await sbFetch(`/rest/v1/hm_equipment_snapshots?character_id=eq.${charId}&season=eq.${SEASON}&order=created_at.desc&limit=1&select=ilvl,power_score,gear,created_at`);
+        snap = rows?.[0] ?? null;
+      } catch (e) { snap = null; }
+      _snapCache[charId] = snap;
+    }
+    const cur = _profileData?.characters.find(c => c.character_class === _spotClass && c.status === 'alive');
+    if (!cur || cur.id !== charId) return;                         // l'utilisateur a changé de héros entre-temps
+    const L = document.getElementById('spot-left'), R = document.getElementById('spot-right'), note = document.getElementById('spot-gear-note');
+    if (!L || !R) return;
+    L.innerHTML = gearColumn(GEAR_LEFT,  snap?.gear, f);
+    R.innerHTML = gearColumn(GEAR_RIGHT, snap?.gear, f);
+    if (note) {
+      note.textContent = snap
+        ? `${f ? 'Équipement du dernier run HM' : 'Gear from your last HM run'} · ${new Date(snap.created_at).toLocaleDateString(f ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'long' })}`
+        : (f ? "L'équipement est enregistré après ton premier run HM." : 'Gear is saved after your first HM run.');
+    }
+  }
+
+  function renderTabHeroes(cont, f) {
+    const { characters, heroClasses, periods, scores = {} } = _profileData;
+    const stats = computeProfileStats();
+    if (!_spotClass || !heroClasses.some(h => h.class_name === _spotClass)) {
+      const best = characters.filter(c => c.status === 'alive').sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0))[0];
+      _spotClass = best?.character_class || heroClasses[0]?.class_name;
+    }
+    const hero  = heroClasses.find(h => h.class_name === _spotClass);
+    const alive = characters.find(c => c.character_class === _spotClass && c.status === 'alive');
+    const col   = hero?.color_hex || '#40d4d4';
+
+    // Sélecteur : 12 portraits, anneau rouge = HM actif, estompé = pas encore ajouté
+    const picker = heroClasses.map(h => {
+      const a = characters.find(c => c.character_class === h.class_name && c.status === 'alive');
+      const state = !a ? 'new' : (a.hm_enabled ? 'on' : 'off');
+      return `<button class="pick ${state} ${h.class_name === _spotClass ? 'sel' : ''}" style="--hc:${h.color_hex}" onclick="selectSpotHero('${h.class_name}')" title="${esc(h.class_name)}${state === 'on' ? ' · HM ON' : ''}">
+        <img src="${heroImg(h.class_name)}" alt="" onerror="this.style.visibility='hidden'">
+        ${state === 'new' ? '<span class="pick-plus">+</span>' : `<span class="pick-dot ${state}"></span>`}
+      </button>`;
+    }).join('');
+
+    // Prochain trophée (le plus avancé parmi ceux qui restent)
+    const next = trophyStates(stats).filter(s => !s.done).sort((a, b) => b.pct - a.pct)[0];
+    const hintHtml = next ? `
+      <div class="next-trophy">
+        <span class="nt-ico">${next.t.ico}</span>
+        <div class="nt-body">
+          <div class="nt-label">${f ? 'Prochain trophée' : 'Next trophy'} · <b style="color:${next.t.color}">${f ? next.t.fr[0] : next.t.en[0]}</b></div>
+          <div class="trophy-bar"><div style="width:${next.pct}%;background:${next.t.color}"></div></div>
+        </div>
+        <span class="nt-pct">${next.pct}%</span>
+      </div>` : '';
+
+    const artHtml = `
+      <div class="spot-art ${alive ? '' : 'dim'}">
+        <img src="${heroFullImg(_spotClass)}" alt="${esc(_spotClass)}" onerror="this.onerror=null;this.src='${heroImg(_spotClass)}';this.classList.add('is-square')">
+      </div>`;
+
+    let centerHtml;
+    if (alive) {
+      const rk    = diffLevelToRank(alive.best_difficulty_level || 0);
+      const rkCol = tierColor(rk.tier);
+      const surv   = stats.byChar[alive.id]?.completed || 0;
+      const record = Math.max(stats.recordByClass[_spotClass] || 0, surv);
+      const survPct = record > 0 ? Math.round(100 * surv / record) : 0;
+      const survTxt = f ? (surv > 1 ? 'donjons survécus' : 'donjon survécu') : (surv > 1 ? 'dungeons survived' : 'dungeon survived');
+      centerHtml = `
+        <div class="spot-name"><b style="color:${col}">${esc(hero.class_name)}</b><span class="spot-role">${esc(hero.role)}</span></div>
+        ${hmBannerHtml(alive, f)}
+        ${artHtml}
+        <div class="spot-badges">
+          <span class="hero-status-badge alive">⚔️ ${f ? 'En vie' : 'Alive'} · #${alive.attempt_number}</span>
+          ${(alive.best_difficulty_level || 0) > 0 ? `<span class="spot-rank" style="--rc:${rkCol}">${rk.label}</span>` : ''}
+        </div>
+        <div class="spot-surv">
+          <div class="spot-surv-top"><span>🛡️ <b>${surv}</b> ${survTxt}</span><span class="spot-surv-rec">record ${record}</span></div>
+          <div class="trophy-bar"><div style="width:${survPct}%;background:${col}"></div></div>
+        </div>
+        <div class="spot-stats">
+          <div class="spot-stat"><b>${alive.ilvl_current || '—'}</b><span>ilvl</span></div>
+          <div class="spot-stat"><b>${alive.power_score_current ? Math.round(alive.power_score_current).toLocaleString() : '—'}</b><span>Power Score</span></div>
+          <div class="spot-stat"><b>${Math.floor(scores[alive.id] || 0).toLocaleString()}</b><span>Score</span></div>
+        </div>
+        <div class="spot-danger">
+          <div class="spot-danger-txt">${f ? '<b>Ton héros est mort en jeu ?</b> Repars à zéro avec une nouvelle tentative.' : '<b>Did your hero die in game?</b> Start over with a fresh attempt.'}</div>
+          <button class="spot-reset" onclick="openResetModal('${alive.id}','${hero.class_name}')">☠️ ${f ? 'RESET' : 'RESET'}</button>
+        </div>
+        <div class="spot-gear-note" id="spot-gear-note"></div>`;
+    } else {
+      centerHtml = `
+        <div class="spot-name"><b style="color:${col}">${esc(hero?.class_name)}</b><span class="spot-role">${esc(hero?.role)}</span></div>
+        ${artHtml}
+        <div class="spot-empty">${f ? "Ce héros n'est pas encore dans ton profil Hardcore." : 'This hero is not in your Hardcore profile yet.'}</div>
+        <button class="spot-add" onclick="addHeroToProfile('${hero?.class_name}')">+ ${f ? 'Ajouter ce héros' : 'Add this hero'}</button>`;
+    }
+
+    cont.innerHTML = `
+      <div class="pick-row">${picker}</div>
+      ${hintHtml}
+      <div class="spot" style="--hc:${col};--hc-soft:${col}38">
+        <div class="spot-slots" id="spot-left">${gearColumn(GEAR_LEFT, null, f)}</div>
+        <div class="spot-center">${centerHtml}</div>
+        <div class="spot-slots" id="spot-right">${gearColumn(GEAR_RIGHT, null, f)}</div>
+      </div>`;
+    if (alive) loadSpotGear(alive.id, f);
+  }
+
+  // ── Onglet 2 : trophées ──────────────────────────────────────────────────────
+  function renderTabTrophies(cont, f) {
+    const states = trophyStates(computeProfileStats());
+    const done = states.filter(s => s.done).length;
+    const cards = states.map(({ t, v, done: ok, pct }) => {
+      const [title, desc] = f ? t.fr : t.en;
+      return `<div class="trophy ${ok ? 'done' : 'locked'}" style="--tc:${t.color};--tc-soft:${t.color}44">
+        <div class="trophy-ico">${t.ico}</div>
+        <div class="trophy-title">${title}</div>
+        <div class="trophy-desc">${desc}</div>
+        ${ok ? `<div class="trophy-done">✓ ${f ? 'Débloqué' : 'Unlocked'}</div>`
+             : `<div class="trophy-bar"><div style="width:${pct}%"></div></div><div class="trophy-prog">${t.fmt(v)}</div>`}
+      </div>`;
+    }).join('');
+    cont.innerHTML = `
+      <div class="trophy-head"><b>🏆 ${done} / ${states.length}</b><span>${f ? 'Tes trophées restent acquis, même si ton héros meurt.' : 'Your trophies stay yours, even if your hero dies.'}</span></div>
+      <div class="trophy-grid">${cards}</div>`;
+  }
+
+  // ── Onglet 3 : cimetière en pyramide (le plus grand tombé au sommet) ─────────
+  function tombHtml(d, f, top) {
+    const c = d.c;
+    const rk = (c.best_difficulty_level || 0) > 0 ? diffLevelToRank(c.best_difficulty_level).label : '—';
+    const date = c.died_at ? new Date(c.died_at).toLocaleDateString(f ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'short' }) : '';
+    return `<div class="tomb ${top ? 'top' : ''}">
+      ${top ? `<div class="tomb-tag">${f ? 'Le plus grand tombé' : 'Greatest fallen'}</div>` : '<div class="tomb-cross">†</div>'}
+      <div class="tomb-art"><img src="${heroImg(c.character_class)}" alt="" onerror="this.style.visibility='hidden'"></div>
+      <div class="tomb-name">${esc(c.character_class)}</div>
+      <div class="tomb-score">${Math.floor(d.score).toLocaleString()} pts</div>
+      <div class="tomb-meta">${rk} · #${c.attempt_number}${date ? ' · ' + date : ''}</div>
+    </div>`;
+  }
+
+  function renderTabGraveyard(cont, f) {
+    const { characters, scores = {} } = _profileData;
+    const dead = characters.filter(c => c.status === 'dead')
+      .map(c => ({ c, score: scores[c.id] || 0 }))
+      .sort((a, b) => b.score - a.score || (b.c.best_difficulty_level || 0) - (a.c.best_difficulty_level || 0));
+    if (!dead.length) {
+      cont.innerHTML = `<div class="grave-empty">🪦<div>${f ? 'Aucun héros tombé pour le moment.' : 'No fallen hero yet.'}</div><span>${f ? "Mourir, c'est recommencer." : 'Death is just the beginning.'}</span></div>`;
+      return;
+    }
+    const MAX = 15;                                     // 5 rangées : 1 + 2 + 3 + 4 + 5
+    const shown = dead.slice(0, MAX);
+    let i = 0, rows = '';
+    for (let r = 1; i < shown.length; r++) {
+      const row = shown.slice(i, i + r);
+      i += r;
+      rows += `<div class="grave-row">${row.map(d => tombHtml(d, f, d === shown[0])).join('')}</div>`;
+    }
+    const more = dead.length - shown.length;
+    cont.innerHTML = `<div class="grave">${rows}${more > 0 ? `<div class="grave-more">+${more} ${f ? 'autres héros tombés' : 'more fallen heroes'}</div>` : ''}</div>`;
+  }
+
+  // ── Actions du profil : activer / désactiver le HM, ajouter un héros ─────────
+  let _hmBusy = false;
+  async function toggleHm(heroClass, charId, playerId, enabled) {
+    if (_hmBusy) return;
+    const f = fr();
+    const session = await getSession();
+    if (!session) return;
+    const ch = _profileData?.characters?.find(c => String(c.id) === String(charId));
+    if (!ch) { toast(f ? 'Personnage introuvable.' : 'Character not found.', true); return; }
+    _hmBusy = true;
+    refreshHmUi(charId, true);                       // bandeau grisé pendant l'enregistrement
+    try {
+      const headers = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' };
+      const now = new Date().toISOString();
+      let newPeriod = null;
+      if (enabled) {
+        const userRes = await authFetch('/user', { token: session.access_token });
+        const res = await fetch(SUPABASE_URL + '/rest/v1/hm_active_periods', {
+          method: 'POST', headers: { ...headers, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ character_id: charId, user_id: userRes.id, player_id: playerId, active_from: now, season: SEASON }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        newPeriod = { character_id: charId, player_id: playerId, active_from: now, active_until: null };
+      } else {
+        // On refuse de désactiver si la plage ouverte n'a pas pu être fermée : sinon un run en mode normal
+        // pourrait être compté comme Hardcore au prochain sync.
+        const hadOpen = (_profileData?.periods || []).some(p => p.character_id === charId && !p.active_until);
+        const res = await fetch(SUPABASE_URL + `/rest/v1/hm_active_periods?character_id=eq.${charId}&active_until=is.null`, {
+          method: 'PATCH', headers: { ...headers, 'Prefer': 'return=representation' },
+          body: JSON.stringify({ active_until: now, deactivated_by: 'user' }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const closed = await res.json();
+        if (hadOpen && !(Array.isArray(closed) && closed.length)) {
+          throw new Error(f ? 'La plage HM n\'a pas pu être fermée (droits manquants). Préviens Pouf.' : 'The HM period could not be closed (missing permission). Tell Pouf.');
+        }
+      }
+      const res2 = await fetch(SUPABASE_URL + `/rest/v1/hm_characters?id=eq.${charId}`, {
+        method: 'PATCH', headers, body: JSON.stringify({ hm_enabled: enabled }),
+      });
+      if (!res2.ok) throw new Error(await res2.text());
+      // Mise à jour locale : pas de rechargement de la page
+      ch.hm_enabled = enabled;
+      if (enabled) _profileData.periods.push(newPeriod);
+      else _profileData.periods.forEach(p => { if (p.character_id === charId && !p.active_until) { p.active_until = now; p.deactivated_by = 'user'; } });
+      toast(enabled ? (f ? `HM activé · ${heroClass}` : `HM enabled · ${heroClass}`) : (f ? `HM désactivé · ${heroClass}` : `HM disabled · ${heroClass}`));
+    } catch (e) {
+      toast((f ? 'Erreur : ' : 'Error: ') + (e.message || ''), true);
+    } finally {
+      _hmBusy = false;
+      refreshHmUi(charId, false);                    // reflète l'état réel (succès ou échec)
+    }
+  }
+
+  async function addHeroToProfile(heroClass) {
+    const f = fr();
+    const session = await getSession();
+    if (!session || !_profileData) return;
+    const { profile, characters } = _profileData;
+    const playerId = profile?.player_id;
+    const charName = characters[0]?.character_name;
+    if (!playerId || !charName) { toast(f ? 'Profil incomplet.' : 'Incomplete profile.', true); return; }
+    if (characters.some(c => c.character_class === heroClass && c.status === 'alive')) { toast(f ? 'Héros déjà ajouté.' : 'Hero already added.', true); return; }
+    try {
+      const userRes = await authFetch('/user', { token: session.access_token });
+      const res = await fetch(SUPABASE_URL + '/rest/v1/hm_characters', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          player_id: playerId, user_id: userRes.id,
+          fellowship_character_id: characters[0]?.fellowship_character_id ?? null,
+          character_name: charName, character_class: heroClass,
+          attempt_number: 1, status: 'alive', hm_enabled: false, season: SEASON,
+        }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      toast(f ? `${heroClass} ajouté !` : `${heroClass} added!`);
+      _spotClass = heroClass;
+      _profileData = null;
+      await renderProfilePage();
+    } catch (e) {
+      toast((f ? 'Erreur : ' : 'Error: ') + (e.message || ''), true);
+    }
+  }
+
+  async function renderTabHistory(cont, f) {
+    const { warnings, characters, heroClasses } = _profileData;
+    const unread = warnings.filter(w=>!w.read).length;
+    let html = `<div class="hist-section"><div class="hist-section-title">${f?'Avertissements':'Warnings'}${unread?`<span style="color:var(--hc-red);margin-left:6px">(${unread})</span>`:''}</div>`;
+    if (!warnings.length) {
+      html += `<div style="font-size:15px;color:var(--text-muted);font-style:italic;padding:12px 0">${f?'Aucun avertissement.':'No warnings.'}</div>`;
+    } else {
+      for (const w of warnings) {
+        const ic = w.warning_type==='run_invalidated'?'🚫':w.warning_type==='nm_detected'?'🔍':'⚠️';
+        html += `<div class="profile-warning-item ${w.read?'read':''}" onclick="markWarningRead('${w.id}',this)">
+          <div class="profile-warning-icon">${ic}</div>
+          <div class="profile-warning-body">
+            <div class="profile-warning-msg">${f?w.message_fr:w.message_en}</div>
+            <div class="profile-warning-time">${new Date(w.created_at).toLocaleDateString(f?'fr-FR':'en-GB',{day:'2-digit',month:'short',year:'numeric'})}</div>
+          </div>
+        </div>`;
+      }
+    }
+    html += '</div>';
+    const withRuns = characters.filter(c=>c.status==='alive'&&(c.best_difficulty_level||0)>0);
+    if (withRuns.length) {
+      html += `<div class="hist-section"><div class="hist-section-title">${f?'Derniers runs HM':'Recent HM runs'}</div>`;
+      for (const c of withRuns.slice(0,2)) {
+        try {
+          const runs = await sbFetch(`/rest/v1/hm_runs?character_id=eq.${c.id}&season=eq.${SEASON}&valid=eq.true&order=completed_at.desc&limit=5&select=dungeon_name,difficulty_level,in_time,rating,completed_at`);
+          if (runs?.length) {
+            const hd = (heroClasses||[]).find(h=>h.class_name===c.character_class);
+            html += `<div style="font-family:'Cinzel',serif;font-size:12px;color:${hd?.color_hex||'var(--text-muted)'};letter-spacing:0.1em;margin:12px 0 8px">${c.character_class}</div>`;
+            for (const r of runs) {
+              const dl=r.difficulty_level; const rank=dl?diffLevelToRank(dl):null; const rc=rank?tierColor(rank.tier):'var(--text-muted)';
+              html += `<div class="hist-run-item">
+                <span style="color:var(--text-dim)">${r.dungeon_name}</span>
+                <span style="color:${rc};font-family:'Cinzel',serif;font-size:13px">${rank?.label||'—'}</span>
+                <span style="color:var(--teal-light);font-family:'Cinzel',serif;font-size:13px;text-align:right">${r.rating?Math.floor(r.rating)+' pts':'—'}</span>
+                <span style="text-align:center">${r.in_time?'<span style="color:var(--tier1)">✓</span>':'<span style="color:var(--text-muted)">✗</span>'}</span>
+                <span style="color:var(--text-muted);font-size:13px;text-align:right">${new Date(r.completed_at).toLocaleDateString(f?'fr-FR':'en-GB',{day:'2-digit',month:'short'})}</span>
+              </div>`;
+            }
+          }
+        } catch(e) {}
+      }
+      html += '</div>';
+    }
+    cont.innerHTML = html;
+  }
+
+  async function markWarningRead(warningId, el) {
+    const session = await getSession();
+    if (!session || el.classList.contains('read')) return;
+    el.classList.add('read');
+    await fetch(SUPABASE_URL + '/rest/v1/hm_player_warnings?id=eq.' + warningId, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ read: true }),
+    }).catch(() => {});
+  }
+
+  function copyCode(code) {
+    if (!code || code === '—') return;
+    navigator.clipboard.writeText(code).then(() => {
+      toast(fr() ? 'Code copié !' : 'Code copied!');
+    });
+  }
+
+  // ── RESET MODAL ─────────────────────────────────────────────────────────────
+  let _resetCharId = null;
+  let _resetHeroClass = '';
+
+  function openResetModal(charId, heroClass) {
+    const f = fr();
+    _resetCharId   = charId;
+    _resetHeroClass = heroClass;
+    document.getElementById('reset-modal-title').textContent = `Reset ${heroClass}`;
+    document.getElementById('reset-modal-desc').textContent = f
+      ? `Tu es sur le point de réinitialiser ton personnage ${heroClass}. Cette action est irréversible : le personnage sera marqué comme mort et une nouvelle tentative démarrera depuis ilvl 0.`
+      : `You are about to reset your ${heroClass} character. This action is irreversible: the character will be marked as dead and a new attempt will start from ilvl 0.`;
+    document.getElementById('reset-modal-warning').textContent = f
+      ? '☠️ Toute progression sur cette tentative sera perdue définitivement.'
+      : '☠️ All progress on this attempt will be permanently lost.';
+    document.getElementById('reset-modal-label').textContent = f
+      ? 'Tape CONFIRMER pour valider le reset'
+      : 'Type CONFIRMER to confirm the reset';
+    document.getElementById('reset-cancel-label').textContent = f ? 'Annuler' : 'Cancel';
+    document.getElementById('reset-action-label').textContent = f ? 'Confirmer le reset' : 'Confirm reset';
+    document.getElementById('reset-confirm-input').value = '';
+    document.getElementById('reset-confirm-btn').disabled = true;
+    document.getElementById('reset-confirm-btn').style.opacity = '0.4';
+    document.getElementById('reset-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('reset-confirm-input').focus(), 100);
+  }
+
+  function closeResetModal() {
+    document.getElementById('reset-modal').classList.remove('open');
+    document.body.style.overflow = '';
+    _resetCharId = null;
+  }
+
+  async function executeReset() {
+    if (!_resetCharId) return;
+    const f = fr();
+    const session = await getSession();
+    if (!session) return;
+
+    const btn = document.getElementById('reset-confirm-btn');
+    btn.disabled = true;
+    btn.style.opacity = '0.4';
+
+    try {
+      const now = new Date().toISOString();
+      const headers = {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + session.access_token,
+        'Content-Type': 'application/json',
+      };
+
+      // Marquer le perso comme mort
+      await fetch(SUPABASE_URL + `/rest/v1/hm_characters?id=eq.${_resetCharId}`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ status: 'dead', died_at: now, hm_enabled: false }),
+      });
+
+      // Fermer la période active
+      await fetch(SUPABASE_URL + `/rest/v1/hm_active_periods?character_id=eq.${_resetCharId}&active_until=is.null`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ active_until: now, deactivated_by: 'user' }),
+      });
+
+      // Trouver les infos du perso pour créer la nouvelle tentative
+      const chars = _profileData?.characters ?? [];
+      const deadChar = chars.find(c => c.id === _resetCharId);
+      const newAttempt = (deadChar?.attempt_number ?? 0) + 1;
+
+      // Créer nouveau perso
+      await fetch(SUPABASE_URL + '/rest/v1/hm_characters', {
+        method: 'POST',
+        headers: { ...headers, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          player_id:               deadChar?.player_id,
+          user_id:                 (await authFetch('/user', { token: session.access_token })).id,
+          fellowship_character_id: deadChar?.fellowship_character_id,
+          character_name:          deadChar?.character_name,
+          character_class:         _resetHeroClass,
+          attempt_number:          newAttempt,
+          status:                  'alive',
+          hm_enabled:              false,
+          season:                  SEASON,
+        }),
+      });
+
+      closeResetModal();
+      toast(f ? `${_resetHeroClass} réinitialisé. Tentative #${newAttempt} créée.` : `${_resetHeroClass} reset. Attempt #${newAttempt} created.`);
+      _profileData = null;
+      await renderProfilePage();
+    } catch (e) {
+      toast((f ? 'Erreur : ' : 'Error: ') + (e.message || ''), true);
+      btn.disabled = false;
+      btn.style.opacity = '0.8';
+    }
+  }
+
+  // Fermer reset modal avec Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); closeResetModal(); }
+  });
+
+  // ── INIT ────────────────────────────────────────────────────────────────────
   setLang(currentLang);
+  renderRules();
+  loadLeaderboard();
+  handleAuthCallback();
 </script>
 
 </body>
