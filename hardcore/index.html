@@ -972,6 +972,16 @@
     .spot-reset { font-family:'Cinzel',serif; font-weight:700; font-size:16px; letter-spacing:.1em; padding:12px 20px; border-radius:8px; cursor:pointer; color:#fff; background:#a31f1f; border:2px solid #ff6b6b; }
     .spot-reset:hover { background:#c42626; box-shadow:0 0 14px rgba(255,68,68,.5); }
     .spot-empty { font-size:18px; font-style:italic; color:var(--text-muted); }
+    .spot-runs { display:flex; flex-direction:column; gap:4px; max-height:300px; overflow-y:auto; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); }
+    .spot-runs-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:.08em; color:var(--text-muted); margin-bottom:4px; }
+    .spot-runs-empty { font-size:14px; font-style:italic; color:var(--text-muted); }
+    .spot-run { display:grid; grid-template-columns:1fr auto auto auto auto; gap:10px; align-items:center; font-size:14px; padding:4px 0; border-top:1px solid rgba(255,255,255,.05); }
+    .spot-run:first-of-type { border-top:0; }
+    .sr-name { color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .sr-rank { font-family:'Cinzel',serif; font-size:13px; }
+    .sr-pts { color:var(--teal-light); font-family:'Cinzel',serif; font-size:13px; text-align:right; }
+    .sr-time.ok { color:var(--tier1); } .sr-time.ko { color:var(--text-muted); }
+    .sr-date { color:var(--text-muted); font-size:13px; text-align:right; }
     .spot-gear-note { font-size:14px; font-style:italic; color:var(--text-muted); text-align:center; }
 
     /* Trophées */
@@ -1227,6 +1237,29 @@
     'ransackofdrakheim':'saccage-de-drakheim', 'scryerspeak':'scryers-peak',
     'xulthebloodmonolith':'xul-the-blood-monolith',
   };
+  // Noms affichés (FR / EN) par slug d'image. Les noms de zone des logs sont en EN.
+  const DUNGEON_NAMES = {
+    'abime-des-marins':   ['Abîme des marins',      "Sailor's Abyss"],
+    'bois-de-laube':      ["Bois de l'aube",        'Everdawn Grove'],
+    'carriere-tombe-dieu':['Carrière tombe-dieu',   'Godfall Quarry'],
+    'caveau-de-lamespectre':['Caveau de Lamespectre','Wraithtide Vault'],
+    'coeur-de-guivre':    ['Cœur de guivre',        'Wyrmheart'],
+    'coeur-de-tuzari':    ['Cœur de Tuzari',        'The Heart of Tuzari'],
+    'creux-soyeux':       ['Creux soyeux',          'Silken Hollow'],
+    'guet-tempete':       ['Guet-tempête',          'Stormwatch'],
+    'la-chute-cithrel':   ['La chute Cithrel',      "Cithrel's Fall"],
+    'marche-durrak':      ["Marché d'Urrak",        'Urrak Markets'],
+    'ruins-of-regath':    ['Ruins of Regath',       'Ruins of Regath'],      // TODO nom FR
+    'sables-empyreens':   ['Sables empyréens',      'Empyrean Sands'],
+    'saccage-de-drakheim':['Saccage de Drakheim',   'Ransack of Drakheim'],
+    'scryers-peak':       ["Scryer's Peak",         "Scryer's Peak"],        // TODO nom FR
+    'xul-the-blood-monolith':['Xul, the Blood Monolith','Xul, The Blood Monolith'], // TODO nom FR
+  };
+  function dungName(name) {
+    const slug = DUNGEON_SLUGS[normDungeon(name)];
+    const n = slug && DUNGEON_NAMES[slug];
+    return n ? (currentLang === 'fr' ? n[0] : n[1]) : (name || '');
+  }
   function normDungeon(n) { return (n || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
   function dungeonImg(name) {
     const slug = DUNGEON_SLUGS[normDungeon(name)];
@@ -1253,15 +1286,24 @@
 
   // Convertit un difficultyLevel en { tier, level, label }
   // Recrue 1-4, Adepte 1-4, Champion 1-4, Parangon 1-4, Eternal 1+
+  const TIER_EN = { Recrue: 'Recruit', Adepte: 'Adept', Champion: 'Champion', Parangon: 'Paragon', Eternal: 'Eternal' };
+  const tierName = t => currentLang === 'fr' ? t : (TIER_EN[t] || t);
+  // Traduit un libellé stocké en base (« Recrue 2 », « Eternal 5 ») dans la langue courante
+  function rankLabelL(s) {
+    return (s || '').replace(/^(Recrue|Adepte|Champion|Parangon|Eternal|Recruit|Adept|Paragon)/i, m => {
+      const fr0 = { recruit: 'Recrue', adept: 'Adepte', paragon: 'Parangon' }[m.toLowerCase()] || (m[0].toUpperCase() + m.slice(1).toLowerCase());
+      return tierName(fr0);
+    });
+  }
   function diffLevelToRank(dl) {
     if (!dl || dl <= 0) return { tier: '', level: 0, label: '—' };
     // Table vérifiée sur FellowshipLogs : dl 16/17/18 = Paragon 1/2/3, dl 22 = Eternal 2,
     // dl 47/48 = Eternal 27/28. Eternal N = dl - 20 ; paliers de 5 niveaux avant.
-    if (dl > 20) return { tier: 'Eternal', level: dl - 20, label: `Eternal ${dl - 20}` };
+    if (dl > 20) return { tier: 'Eternal', level: dl - 20, label: `${tierName('Eternal')} ${dl - 20}` };
     const tiers = ['Recrue', 'Adepte', 'Champion', 'Parangon'];
     const t = Math.floor((dl - 1) / 5);
     const level = ((dl - 1) % 5) + 1;
-    return { tier: tiers[t], level, label: `${tiers[t]} ${level}` };
+    return { tier: tiers[t], level, label: `${tierName(tiers[t])} ${level}` };
   }
 
   // Clé de tri numérique : Recrue1=1 … Recrue4=4, Adepte1=5 … Parangon4=16, Eternal1=17 …
@@ -1712,7 +1754,7 @@
       </div>
       <div class="hero-detail-stats">
         <div class="hero-detail-stat">
-          <div class="hero-detail-stat-val" style="color:${rCol||'var(--teal-light)'}">${char.best_rank_label||'—'}</div>
+          <div class="hero-detail-stat-val" style="color:${rCol||'var(--teal-light)'}">${char.best_rank_label ? rankLabelL(char.best_rank_label) : '—'}</div>
           <div class="hero-detail-stat-lbl">${f?'Meilleur donjon':'Best dungeon'}</div>
         </div>
         <div class="hero-detail-stat">
@@ -1766,7 +1808,7 @@
           ${img ? `<div class="dungeon-row-bg" style="background-image:url('${img}')"></div>` : ''}
           <div class="dungeon-row-overlay"></div>
           <div class="dungeon-row-content">
-            <div class="dungeon-name ${xul?'xul':''}">${bdr.dungeon_name}</div>
+            <div class="dungeon-name ${xul?'xul':''}">${dungName(bdr.dungeon_name)}</div>
             <div class="dungeon-key" style="color:${rc}">${rank2?.label||'—'}</div>
             <div class="dungeon-score">${bdr.best_rating ? Math.floor(bdr.best_rating)+' pts' : '—'}</div>
             <div class="dungeon-time">${timeStr}</div>
@@ -1779,7 +1821,7 @@
         <span>${f?'Donjon':'Dungeon'}</span>
         <span>${f?'Meilleure clé':'Best key'}</span>
         <span>Score</span>
-        <span>Temps</span>
+        <span>${f?'Temps':'Time'}</span>
       </div>
       <div class="dungeon-table">${rows}</div>
       </div>`;
@@ -1903,7 +1945,7 @@
           : '';
         titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'est mort(e)' : 'has died'} ${rankBadge}</div>`;
         metaHtml  = meta.dungeon
-          ? `<div class="evt-meta">${meta.dungeon}${meta.ilvl_at_death ? ` · ilvl ${meta.ilvl_at_death}` : ''}${meta.ps_at_death ? ` · PS ${Math.round(meta.ps_at_death)}` : ''}</div>`
+          ? `<div class="evt-meta">${dungName(meta.dungeon)}${meta.ilvl_at_death ? ` · ilvl ${meta.ilvl_at_death}` : ''}${meta.ps_at_death ? ` · PS ${Math.round(meta.ps_at_death)}` : ''}</div>`
           : '';
       } else if (e.event_type === 'capstone') {
         icon = '👑';
@@ -1911,13 +1953,13 @@
         const dl    = meta.difficulty_level;
         const rank  = dl ? diffLevelToRank(dl) : null;
         const rankCol = rank ? tierColor(rank.tier) : 'var(--hc-eternal)';
-        const rankLabel = rank ? rank.label : (meta.rank_label || '');
+        const rankLabel = rank ? rank.label : rankLabelL(meta.rank_label || '');
         const rankBadge = `<span style="font-family:'Cinzel',serif;font-size:12px;color:${rankCol};
           border:1px solid ${rankCol}40;background:${rankCol}12;
           padding:2px 8px;border-radius:20px">${rankLabel}</span>`;
         titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'atteint' : 'reached'} ${rankBadge}</div>`;
         metaHtml  = meta.dungeon
-          ? `<div class="evt-meta">${meta.dungeon}${meta.rating ? ` · ${Math.floor(meta.rating)} pts` : ''}</div>`
+          ? `<div class="evt-meta">${dungName(meta.dungeon)}${meta.rating ? ` · ${Math.floor(meta.rating)} pts` : ''}</div>`
           : '';
       } else {
         titleHtml = `<div class="evt-title">${charSpan} · ${e.event_type}</div>`;
@@ -2167,7 +2209,7 @@
     if (charIds) {
       const arr = x => Array.isArray(x) ? x : [];
       const [runRows, sumRows] = await Promise.all([
-        fetch(`${base}/hm_runs?character_id=in.(${charIds})&valid=eq.true&select=character_id,dungeon_name,difficulty_level,in_time,completed,completed_at&order=completed_at.desc&limit=1000`, { headers }).then(r => r.json()).catch(() => []),
+        fetch(`${base}/hm_runs?character_id=in.(${charIds})&valid=eq.true&select=character_id,dungeon_name,difficulty_level,in_time,completed,completed_at,rating&order=completed_at.desc&limit=1000`, { headers }).then(r => r.json()).catch(() => []),
         fetch(`${base}/hm_summary?character_id=in.(${charIds})&select=character_id,total_rating_score`, { headers }).then(r => r.json()).catch(() => []),
       ]);
       runs = arr(runRows);
@@ -2547,7 +2589,7 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
-  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.jpg`; }
+  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.png`; }
 
   let _activeProfileTab = 'heroes';
   let _spotClass = null;
@@ -2772,6 +2814,28 @@
     }
   }
 
+  // Runs comptées pour la tentative en cours, sous la fiche du héros
+  function spotRunsHtml(ch, f) {
+    const runs = (_profileData?.runs || []).filter(r => r.character_id === ch.id)
+      .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at));
+    const rows = runs.map(r => {
+      const rank = r.difficulty_level ? diffLevelToRank(r.difficulty_level) : null;
+      const rc = rank ? tierColor(rank.tier) : 'var(--text-muted)';
+      const d = r.completed_at ? new Date(r.completed_at).toLocaleDateString(f ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'short' }) : '';
+      return `<div class="spot-run">
+        <span class="sr-name">${esc(dungName(r.dungeon_name))}</span>
+        <span class="sr-rank" style="color:${rc}">${rank?.label || '—'}</span>
+        <span class="sr-pts">${r.rating ? Math.floor(r.rating) + ' pts' : '—'}</span>
+        <span class="sr-time ${r.in_time ? 'ok' : 'ko'}" title="${f ? (r.in_time ? 'Dans les temps' : 'Hors temps') : (r.in_time ? 'In time' : 'Over time')}">${r.in_time ? '✓' : '✗'}</span>
+        <span class="sr-date">${d}</span>
+      </div>`;
+    }).join('');
+    return `<div class="spot-runs">
+      <div class="spot-runs-title">${f ? 'Runs de cette tentative' : 'Runs of this attempt'} · ${runs.length}</div>
+      ${rows || `<div class="spot-runs-empty">${f ? 'Aucune run comptée pour le moment.' : 'No run counted yet.'}</div>`}
+    </div>`;
+  }
+
   function renderTabHeroes(cont, f) {
     const { characters, heroClasses, periods, scores = {} } = _profileData;
     const stats = computeProfileStats();
@@ -2840,7 +2904,8 @@
           <div class="spot-danger-txt">${f ? '<b>Ton héros est mort en jeu ?</b> Repars à zéro avec une nouvelle tentative.' : '<b>Did your hero die in game?</b> Start over with a fresh attempt.'}</div>
           <button class="spot-reset" onclick="openResetModal('${alive.id}','${hero.class_name}')">☠️ ${f ? 'RESET' : 'RESET'}</button>
         </div>
-        <div class="spot-gear-note" id="spot-gear-note"></div>`;
+        <div class="spot-gear-note" id="spot-gear-note"></div>
+        ${spotRunsHtml(alive, f)}`;
     } else {
       centerHtml = `
         <div class="spot-name"><b style="color:${col}">${esc(hero?.class_name)}</b><span class="spot-role">${esc(hero?.role)}</span></div>
@@ -3030,7 +3095,7 @@
             for (const r of runs) {
               const dl=r.difficulty_level; const rank=dl?diffLevelToRank(dl):null; const rc=rank?tierColor(rank.tier):'var(--text-muted)';
               html += `<div class="hist-run-item">
-                <span style="color:var(--text-dim)">${r.dungeon_name}</span>
+                <span style="color:var(--text-dim)">${dungName(r.dungeon_name)}</span>
                 <span style="color:${rc};font-family:'Cinzel',serif;font-size:13px">${rank?.label||'—'}</span>
                 <span style="color:var(--teal-light);font-family:'Cinzel',serif;font-size:13px;text-align:right">${r.rating?Math.floor(r.rating)+' pts':'—'}</span>
                 <span style="text-align:center">${r.in_time?'<span style="color:var(--tier1)">✓</span>':'<span style="color:var(--text-muted)">✗</span>'}</span>
