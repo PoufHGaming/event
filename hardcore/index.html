@@ -943,7 +943,7 @@
     .spot-stat span { font-family:'Cinzel',serif; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--text-muted); }
     .spot-add { font-family:'Cinzel',serif; font-size:15px; letter-spacing:.1em; padding:12px 22px; border-radius:6px; cursor:pointer; align-self:flex-start; background:rgba(64,212,212,.12); border:2px solid rgba(64,212,212,.6); color:var(--teal-light); }
 
-    /* Interrupteur HM : gros, deux états explicites, en tête de carte */
+    /* Interrupteur HC : gros, deux états explicites, en tête de carte */
     .hm-banner { border-radius:10px; padding:10px 12px; border:2px solid var(--border); background:rgba(0,0,0,.35); transition:background .2s, border-color .2s, box-shadow .2s; }
     .hm-banner.on  { border-color:#ff4444; background:linear-gradient(180deg, rgba(255,68,68,.22), rgba(255,68,68,.08)); box-shadow:0 0 16px rgba(255,68,68,.3); }
     .hm-banner.off { border-color:rgba(255,255,255,.28); }
@@ -955,6 +955,10 @@
     .hm-banner.on .hm-dot { background:#ff4444; box-shadow:0 0 10px #ff4444; animation:hmpulse 1.6s infinite; }
     @keyframes hmpulse { 50% { opacity:.45; } }
     .hm-sub { font-size:14px; line-height:1.35; color:var(--text-dim); margin-bottom:8px; }
+    .spot-fresh { padding:10px 14px; border-radius:10px; border:2px solid #ffb84d; background:rgba(255,184,77,.12); }
+    .spot-fresh-t { font-family:'Cinzel',serif; font-weight:700; font-size:16px; letter-spacing:.04em; color:#ffd08a; margin-bottom:4px; }
+    .spot-fresh-b { font-size:15px; line-height:1.4; color:var(--text); }
+    .hm-test { margin:-2px 0 8px; padding:5px 9px; font-size:13px; color:#ffd77a; background:rgba(255,200,60,.1); border:1px dashed rgba(255,200,60,.5); border-radius:6px; }
     .hm-since { font-family:'Crimson Pro',serif; font-size:14px; font-weight:500; letter-spacing:0; color:var(--text-dim); }
     .hm-seg { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
     .hm-seg button { font-family:'Cinzel',serif; font-weight:700; font-size:14px; letter-spacing:.1em; padding:8px 8px; border-radius:6px; cursor:pointer; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.04); color:var(--text-muted); transition:all .15s; }
@@ -1941,8 +1945,8 @@
           </div>
           <div class="rules-item">
             👥 <strong>${f ? 'Groupe 100% Hardcore' : '100% Hardcore Group'}</strong> ${f
-              ? 'Tu ne peux jouer qu\'avec d\'autres joueurs inscrits en mode Hardcore. Un joueur non-HM dans le groupe annule le run pour tout le monde.'
-              : 'You can only play with other players registered in Hardcore mode. A non-HM player in the group invalidates the run for everyone.'}
+              ? 'Tu ne peux jouer qu\'avec d\'autres joueurs inscrits en mode Hardcore. Un joueur non-HC dans le groupe annule le run pour tout le monde.'
+              : 'You can only play with other players registered in Hardcore mode. A non-HC player in the group invalidates the run for everyone.'}
           </div>
           <div class="rules-item">
             ⚔️ ${f
@@ -1951,8 +1955,8 @@
           </div>
           <div class="rules-item warning">
             🔴 ${f
-              ? 'Le même héros <strong>peut</strong> être joué en HM et Normal simultanément. <strong>ATTENTION</strong> : active/désactive le mode depuis ton profil selon le mode de jeu souhaité.'
-              : 'The same hero <strong>can</strong> be played in HM and Normal simultaneously. <strong>WARNING</strong>: enable/disable the mode from your profile depending on the desired game mode.'}
+              ? 'Le même héros <strong>peut</strong> être joué en HC et Normal simultanément. <strong>ATTENTION</strong> : active/désactive le mode depuis ton profil selon le mode de jeu souhaité.'
+              : 'The same hero <strong>can</strong> be played in HC and Normal simultaneously. <strong>WARNING</strong>: enable/disable the mode from your profile depending on the desired game mode.'}
           </div>
           <div class="rules-item">
             📋 <strong>${f ? 'Live Logs obligatoires' : 'Live Logs mandatory'}</strong> ${f
@@ -1998,8 +2002,8 @@
           </div>
           <div class="rules-item warning">
             🚫 ${f
-              ? 'Si un joueur non-HM est détecté dans ton groupe, le run est <strong>annulé pour tout le groupe</strong>. Tu seras notifié dans ton profil et tu devras repartir de ton équipement précédent.'
-              : 'If a non-HM player is detected in your group, the run is <strong>cancelled for the whole group</strong>. You will be notified in your profile and must resume from your previous gear.'}
+              ? 'Si un joueur non-HC est détecté dans ton groupe, le run est <strong>annulé pour tout le groupe</strong>. Tu seras notifié dans ton profil et tu devras repartir de ton équipement précédent.'
+              : 'If a non-HC player is detected in your group, the run is <strong>cancelled for the whole group</strong>. You will be notified in your profile and must resume from your previous gear.'}
           </div>
         </div>
       </div>
@@ -2077,7 +2081,9 @@
   }
 
   async function sendMagicLink(email) {
-    const redirectTo = 'https://www.poufhgaming.com/hardcore/index.html';
+    // Même fichier sur dev et prod : le lien du mail ramène sur la page d'où la demande est partie.
+    // ⚠️ Cette URL doit figurer dans Supabase → Auth → URL Configuration → Redirect URLs.
+    const redirectTo = window.location.origin + window.location.pathname;
     await authFetch('/magiclink', {
       method: 'POST',
       body: { email, redirect_to: redirectTo },
@@ -2096,8 +2102,8 @@
 
   // Capturer le token depuis l'URL après le clic sur le magic link
   // ⚠️  Dans Supabase Dashboard → Auth → URL Configuration :
-  //     Site URL = https://poufhgaming.github.io/hardcore/index.html
-  //     Redirect URLs = https://poufhgaming.github.io/hardcore/index.html
+  //     Site URL = URL de la page HC en production
+  //     Redirect URLs = URL de la page HC en production + celle de dev (une par ligne)
   async function handleAuthCallback() {
     const hash = window.location.hash;
     if (!hash.includes('access_token')) return;
@@ -2541,7 +2547,7 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
-  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.png`; }
+  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.jpg`; }
 
   let _activeProfileTab = 'heroes';
   let _spotClass = null;
@@ -2671,7 +2677,7 @@
   }
 
   // ── Onglet 1 : héros en vedette ──────────────────────────────────────────────
-  // Bandeau HM ON/OFF : deux gros boutons explicites + phrase qui dit ce qui se passe réellement.
+  // Bandeau HC ON/OFF : deux gros boutons explicites + phrase qui dit ce qui se passe réellement.
   function hmBannerHtml(ch, f, busy) {
     const on = !!ch.hm_enabled;
     const period = (_profileData?.periods || []).find(p => p.character_id === ch.id && !p.active_until);
@@ -2679,16 +2685,30 @@
     const state = on ? (f ? 'HARDCORE ACTIVÉ' : 'HARDCORE ON') : (f ? 'HARDCORE DÉSACTIVÉ' : 'HARDCORE OFF');
     const sub = on
       ? (f ? 'Tes donjons sont comptés. Une mort en run = héros mort.' : 'Your dungeons count. A death in a run = dead hero.')
-      : (f ? 'Tes donjons ne comptent PAS. Active avant de lancer un run HM.' : 'Your dungeons do NOT count. Turn it on before starting an HM run.');
+      : (f ? 'Tes donjons ne comptent PAS. Active avant de lancer un run HC.' : 'Your dungeons do NOT count. Turn it on before starting an HC run.');
     const args = `'${esc(ch.character_class)}','${ch.id}',${ch.player_id}`;
     return `<div class="hm-banner ${on ? 'on' : 'off'} ${busy ? 'busy' : ''}" id="hm-banner">
       <div class="hm-state"><span class="hm-dot"></span>${state}${since}</div>
       <div class="hm-sub">${sub}</div>
-      <div class="hm-seg" role="group" aria-label="HM">
-        <button type="button" class="is-off ${on ? '' : 'cur'}" ${on ? `onclick="toggleHm(${args},false)"` : 'disabled'}>${on ? '' : '✓ '}HM OFF</button>
-        <button type="button" class="is-on ${on ? 'cur' : ''}" ${on ? 'disabled' : `onclick="toggleHm(${args},true)"`}>${on ? '✓ ' : ''}HM ON</button>
+      ${ch.allow_non_hc ? `<div class="hm-test">🧪 ${f ? 'Mode test : ce personnage peut jouer avec des joueurs non-HC.' : 'Test mode: this character may play with non-HC players.'}</div>` : ''}
+      <div class="hm-seg" role="group" aria-label="HC">
+        <button type="button" class="is-off ${on ? '' : 'cur'}" ${on ? `onclick="toggleHm(${args},false)"` : 'disabled'}>${on ? '' : '✓ '}HC OFF</button>
+        <button type="button" class="is-on ${on ? 'cur' : ''}" ${on ? 'disabled' : `onclick="toggleHm(${args},true)"`}>${on ? '✓ ' : ''}HC ON</button>
       </div>
     </div>`;
+  }
+
+  // Rappel tant que la tentative n'a aucun run : on repart de zéro, équipement retiré.
+  function freshStartHtml(ch, f) {
+    if ((_profileData?.runs || []).some(r => r.character_id === ch.id)) return '';
+    const n = ch.attempt_number || 1;
+    const title = n > 1
+      ? (f ? `Nouvelle tentative #${n} : repars de zéro` : `New attempt #${n}: start from scratch`)
+      : (f ? 'Avant ton premier donjon : pars de zéro' : 'Before your first dungeon: start from scratch');
+    const body = f
+      ? 'Retire <b>tout ton équipement</b> (ilvl 0) avant de lancer ton prochain donjon. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
+      : 'Take off <b>all your gear</b> (ilvl 0) before your next dungeon. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
+    return `<div class="spot-fresh"><div class="spot-fresh-t">🔄 ${title}</div><div class="spot-fresh-b">${body}</div></div>`;
   }
 
   // Met à jour le bandeau et la pastille du sélecteur sans re-rendre la page.
@@ -2717,7 +2737,7 @@
     }
     return slots.map(s => {
       const it = bySlot[s];
-      if (!it) return `<div class="gslot empty" title="${esc(slotName(s, f))}"><span class="gslot-ico">${SLOT_ICONS_MAP[s] || '📦'}</span></div>`;
+      if (!it || (!it.id && !it.name)) return `<div class="gslot empty" title="${esc(slotName(s, f))}"><span class="gslot-ico">${SLOT_ICONS_MAP[s] || '📦'}</span></div>`;
       const q  = qualityClass(it.quality || 1);
       const ps = it.potentialPower ? Math.round(it.potentialPower / 10) : null;
       const tip = `${it.name || ''}${it._generic ? '' : ' · ' + slotName(s, f)} · ilvl ${it.itemLevel || 0}${ps ? ' · PS ' + ps : ''}`;
@@ -2729,9 +2749,14 @@
     let snap = _snapCache[charId];
     if (snap === undefined) {
       try {
-        const rows = await sbFetch(`/rest/v1/hm_equipment_snapshots?character_id=eq.${charId}&season=eq.${SEASON}&order=created_at.desc&limit=1&select=ilvl,power_score,gear,created_at`);
+        const session = await getSession();
+        const res = await fetch(SUPABASE_URL + `/rest/v1/hm_equipment_snapshots?character_id=eq.${charId}&season=eq.${SEASON}&order=created_at.desc&limit=1&select=ilvl,power_score,gear,created_at`, {
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + (session?.access_token || SUPABASE_ANON_KEY) },
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const rows = await res.json();
         snap = rows?.[0] ?? null;
-      } catch (e) { snap = null; }
+      } catch (e) { console.warn('Snapshot équipement illisible :', e); snap = null; }
       _snapCache[charId] = snap;
     }
     const cur = _profileData?.characters.find(c => c.character_class === _spotClass && c.status === 'alive');
@@ -2742,8 +2767,8 @@
     R.innerHTML = gearColumn(GEAR_RIGHT, snap?.gear, f);
     if (note) {
       note.textContent = snap
-        ? `${f ? 'Équipement du dernier run HM' : 'Gear from your last HM run'} · ${new Date(snap.created_at).toLocaleDateString(f ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'long' })}`
-        : (f ? "L'équipement est enregistré après ton premier run HM." : 'Gear is saved after your first HM run.');
+        ? `${f ? 'Équipement du dernier run HC' : 'Gear from your last HC run'} · ${new Date(snap.created_at).toLocaleDateString(f ? 'fr-FR' : 'en-GB', { day: '2-digit', month: 'long' })}`
+        : (f ? "L'équipement est enregistré après ton premier run HC." : 'Gear is saved after your first HC run.');
     }
   }
 
@@ -2758,11 +2783,11 @@
     const alive = characters.find(c => c.character_class === _spotClass && c.status === 'alive');
     const col   = hero?.color_hex || '#40d4d4';
 
-    // Sélecteur : 12 portraits, anneau rouge = HM actif, estompé = pas encore ajouté
+    // Sélecteur : 12 portraits, anneau rouge = HC actif, estompé = pas encore ajouté
     const picker = heroClasses.map(h => {
       const a = characters.find(c => c.character_class === h.class_name && c.status === 'alive');
       const state = !a ? 'new' : (a.hm_enabled ? 'on' : 'off');
-      return `<button class="pick ${state} ${h.class_name === _spotClass ? 'sel' : ''}" style="--hc:${h.color_hex}" onclick="selectSpotHero('${h.class_name}')" title="${esc(h.class_name)}${state === 'on' ? ' · HM ON' : ''}">
+      return `<button class="pick ${state} ${h.class_name === _spotClass ? 'sel' : ''}" style="--hc:${h.color_hex}" onclick="selectSpotHero('${h.class_name}')" title="${esc(h.class_name)}${state === 'on' ? ' · HC ON' : ''}">
         <img src="${heroImg(h.class_name)}" alt="" onerror="this.style.visibility='hidden'">
         ${state === 'new' ? '<span class="pick-plus">+</span>' : `<span class="pick-dot ${state}"></span>`}
       </button>`;
@@ -2796,6 +2821,7 @@
       centerHtml = `
         <div class="spot-name"><b style="color:${col}">${esc(hero.class_name)}</b><span class="spot-role">${esc(hero.role)}</span></div>
         ${hmBannerHtml(alive, f)}
+        ${freshStartHtml(alive, f)}
         ${artHtml}
         <div class="spot-badges">
           <span class="hero-status-badge alive">⚔️ ${f ? 'En vie' : 'Alive'} · #${alive.attempt_number}</span>
@@ -2888,7 +2914,7 @@
     cont.innerHTML = `<div class="grave">${rows}${more > 0 ? `<div class="grave-more">+${more} ${f ? 'autres héros tombés' : 'more fallen heroes'}</div>` : ''}</div>`;
   }
 
-  // ── Actions du profil : activer / désactiver le HM, ajouter un héros ─────────
+  // ── Actions du profil : activer / désactiver le HC, ajouter un héros ─────────
   let _hmBusy = false;
   async function toggleHm(heroClass, charId, playerId, enabled) {
     if (_hmBusy) return;
@@ -2922,7 +2948,7 @@
         if (!res.ok) throw new Error(await res.text());
         const closed = await res.json();
         if (hadOpen && !(Array.isArray(closed) && closed.length)) {
-          throw new Error(f ? 'La plage HM n\'a pas pu être fermée (droits manquants). Préviens Pouf.' : 'The HM period could not be closed (missing permission). Tell Pouf.');
+          throw new Error(f ? 'La plage HC n\'a pas pu être fermée (droits manquants). Préviens Pouf.' : 'The HC period could not be closed (missing permission). Tell Pouf.');
         }
       }
       const res2 = await fetch(SUPABASE_URL + `/rest/v1/hm_characters?id=eq.${charId}`, {
@@ -2933,7 +2959,7 @@
       ch.hm_enabled = enabled;
       if (enabled) _profileData.periods.push(newPeriod);
       else _profileData.periods.forEach(p => { if (p.character_id === charId && !p.active_until) { p.active_until = now; p.deactivated_by = 'user'; } });
-      toast(enabled ? (f ? `HM activé · ${heroClass}` : `HM enabled · ${heroClass}`) : (f ? `HM désactivé · ${heroClass}` : `HM disabled · ${heroClass}`));
+      toast(enabled ? (f ? `HC activé · ${heroClass}` : `HC enabled · ${heroClass}`) : (f ? `HC désactivé · ${heroClass}` : `HC disabled · ${heroClass}`));
     } catch (e) {
       toast((f ? 'Erreur : ' : 'Error: ') + (e.message || ''), true);
     } finally {
@@ -2994,7 +3020,7 @@
     html += '</div>';
     const withRuns = characters.filter(c=>c.status==='alive'&&(c.best_difficulty_level||0)>0);
     if (withRuns.length) {
-      html += `<div class="hist-section"><div class="hist-section-title">${f?'Derniers runs HM':'Recent HM runs'}</div>`;
+      html += `<div class="hist-section"><div class="hist-section-title">${f?'Derniers runs HC':'Recent HC runs'}</div>`;
       for (const c of withRuns.slice(0,2)) {
         try {
           const runs = await sbFetch(`/rest/v1/hm_runs?character_id=eq.${c.id}&season=eq.${SEASON}&valid=eq.true&order=completed_at.desc&limit=5&select=dungeon_name,difficulty_level,in_time,rating,completed_at`);
