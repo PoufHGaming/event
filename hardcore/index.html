@@ -972,6 +972,14 @@
     .spot-reset { font-family:'Cinzel',serif; font-weight:700; font-size:16px; letter-spacing:.1em; padding:12px 20px; border-radius:8px; cursor:pointer; color:#fff; background:#a31f1f; border:2px solid #ff6b6b; }
     .spot-reset:hover { background:#c42626; box-shadow:0 0 14px rgba(255,68,68,.5); }
     .spot-empty { font-size:18px; font-style:italic; color:var(--text-muted); }
+    .fl-card { margin-top:18px; padding:14px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.03); }
+    .fl-card.missing { border-color:rgba(255,170,0,.6); background:rgba(255,170,0,.07); }
+    .fl-card-title { font-family:'Cinzel',serif; font-size:14px; letter-spacing:.06em; color:var(--text-dim); margin-bottom:6px; }
+    .fl-card-ok { color:var(--tier1); font-size:13px; margin-left:6px; }
+    .fl-card-txt { font-size:14px; line-height:1.5; color:var(--text-muted); margin-bottom:10px; }
+    .fl-card-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .fl-card-row input { flex:1; min-width:220px; padding:9px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.15); background:rgba(0,0,0,.25); color:var(--text); font-size:14px; }
+    .fl-card-row button { padding:9px 16px; border-radius:8px; border:1px solid rgba(64,212,212,.5); background:rgba(64,212,212,.12); color:var(--teal-light); cursor:pointer; font-size:14px; }
     .spot-runs { display:flex; flex-direction:column; gap:4px; max-height:300px; overflow-y:auto; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); }
     .spot-runs-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:.08em; color:var(--text-muted); margin-bottom:4px; }
     .spot-runs-empty { font-size:14px; font-style:italic; color:var(--text-muted); }
@@ -2317,6 +2325,7 @@
   let _onboardingPlayerName = '';
   let _onboardingCode = '';
   let _onboardingFellowshipId = '';
+  let _onboardingFlUser = '';
 
   function renderProfileOnboarding(cont, f, session) {
     _onboardingStep = 1;
@@ -2361,6 +2370,21 @@
             <div class="join-url-demo">
               <div class="join-url-bar"><span class="url-dim">fellowshiplogs.com/characters/</span><span class="url-highlight">151451</span><span class="url-dim">/overview</span></div>
               <div class="join-url-caption">${f ? '👆 Le nombre en surbrillance, c\'est ton ID.' : '👆 The highlighted number is your ID.'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>${f ? 'Ton compte Fellowship Logs (lien « All Reports »)' : 'Your Fellowship Logs account (“All Reports” link)'} *</label>
+          <input type="text" id="ob-fl-user" value="${_onboardingFlUser}" placeholder="https://www.fellowshiplogs.com/user/reports-list/14736">
+          <div class="field-hint">${f
+            ? 'Sur fellowshiplogs.com, clique sur ton nom en haut à droite, puis <b>All Reports</b>. Colle l\'adresse de la page (ou juste le nombre à la fin). Indispensable pour retrouver tes donjons non terminés.'
+            : 'On fellowshiplogs.com, click your name at the top right, then <b>All Reports</b>. Paste the page address (or just the number at the end). Needed to find your unfinished dungeons.'}</div>
+          <div class="join-screenshot" style="margin-top:10px">
+            <div class="join-screenshot-label">${f ? 'Exemple barre d\'URL' : 'Example URL bar'}</div>
+            <div class="join-url-demo">
+              <div class="join-url-bar"><span class="url-dim">fellowshiplogs.com/user/reports-list/</span><span class="url-highlight">14736</span></div>
+              <div class="join-url-caption">${f ? '👆 Le nombre en surbrillance, c\'est l\'ID de ton compte.' : '👆 The highlighted number is your account ID.'}</div>
             </div>
           </div>
         </div>
@@ -2451,6 +2475,10 @@
             <span class="recap-label">Fellowship ID</span>
             <span class="recap-val">${_onboardingFellowshipId || '—'}</span>
           </div>
+          <div class="recap-row">
+            <span class="recap-label">${f ? 'Compte Fellowship Logs' : 'Fellowship Logs account'}</span>
+            <span class="recap-val">${parseFlUserId(_onboardingFlUser) || '—'}</span>
+          </div>
           ${_onboardingCode ? `<div class="recap-row">
             <span class="recap-label">Contact Code</span>
             <span class="recap-val">${_onboardingCode}</span>
@@ -2495,14 +2523,24 @@
     }
   }
 
+  // Accepte « 14736 » ou l'URL https://www.fellowshiplogs.com/user/reports-list/14736
+  function parseFlUserId(s) {
+    s = (s || '').trim();
+    if (!s) return null;
+    const m = s.match(/reports-list\/(\d+)/i) || s.match(/^(\d{1,10})$/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+
   async function onboardingNext() {
     const f = fr();
     if (_onboardingStep === 1) {
       _onboardingPlayerName   = document.getElementById('ob-name')?.value?.trim() || '';
       _onboardingFellowshipId = document.getElementById('ob-fellowship-id')?.value?.trim() || '';
       _onboardingCode         = document.getElementById('ob-code')?.value?.trim() || '';
+      _onboardingFlUser       = document.getElementById('ob-fl-user')?.value?.trim() || '';
       if (!_onboardingPlayerName)   { toast(f ? 'Remplis ton nom Fellowship.' : 'Enter your Fellowship name.', true); return; }
       if (!_onboardingFellowshipId) { toast(f ? 'Le Fellowship ID est obligatoire.' : 'Fellowship ID is required.', true); return; }
+      if (!parseFlUserId(_onboardingFlUser)) { toast(f ? 'Colle le lien « All Reports » de ton compte Fellowship Logs (ou son numéro).' : 'Paste your Fellowship Logs “All Reports” link (or its number).', true); return; }
       _onboardingStep = 2;
     } else if (_onboardingStep === 2) {
       _onboardingStep = 3;
@@ -2534,7 +2572,7 @@
       await fetch(SUPABASE_URL + '/rest/v1/hm_profiles', {
         method: 'POST',
         headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-        body: JSON.stringify({ id: userId, player_id: playerId, fellowship_contact_code: _onboardingCode || null, onboarding_complete: true }),
+        body: JSON.stringify({ id: userId, player_id: playerId, fellowship_contact_code: _onboardingCode || null, fellowship_user_id: parseFlUserId(_onboardingFlUser), onboarding_complete: true }),
       });
 
       await sbFetch('/rest/v1/hm_log_aliases', { method: 'POST', prefer: 'return=minimal', body: { player_id: playerId, log_name: _onboardingPlayerName } }).catch(() => {});
@@ -2836,6 +2874,44 @@
     </div>`;
   }
 
+  // Compte personnel Fellowship Logs : modifiable, mis en avant s'il manque
+  function flAccountCardHtml(f) {
+    const cur = _profileData?.profile?.fellowship_user_id;
+    return `<div class="fl-card ${cur ? '' : 'missing'}">
+      <div class="fl-card-title">${f ? '🔗 Ton compte Fellowship Logs' : '🔗 Your Fellowship Logs account'}${cur ? ` <span class="fl-card-ok">✓ ${cur}</span>` : ''}</div>
+      <div class="fl-card-txt">${cur
+        ? (f ? 'Sert à retrouver tes donjons non terminés (morts incluses).' : 'Used to find your unfinished dungeons (deaths included).')
+        : (f ? '<b>À renseigner :</b> sans lui, une mort dans un donjon non terminé peut ne pas être détectée. Sur fellowshiplogs.com : clique sur ton nom en haut à droite, puis <b>All Reports</b>, et colle l\'adresse de la page.'
+             : '<b>Required:</b> without it, a death in an unfinished dungeon may go undetected. On fellowshiplogs.com: click your name at the top right, then <b>All Reports</b>, and paste the page address.')}</div>
+      <div class="fl-card-row">
+        <input type="text" id="fl-user-input" placeholder="https://www.fellowshiplogs.com/user/reports-list/14736" value="${cur ? 'https://www.fellowshiplogs.com/user/reports-list/' + cur : ''}">
+        <button onclick="saveFlUserId()">${f ? 'Enregistrer' : 'Save'}</button>
+      </div>
+    </div>`;
+  }
+
+  async function saveFlUserId() {
+    const f = fr();
+    const id = parseFlUserId(document.getElementById('fl-user-input')?.value);
+    if (!id) { toast(f ? 'Colle le lien « All Reports » (ou son numéro).' : 'Paste the “All Reports” link (or its number).', true); return; }
+    const session = await getSession();
+    if (!session) return;
+    try {
+      const userRes = await authFetch('/user', { token: session.access_token });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/hm_profiles?id=eq.${userRes.id}`, {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ fellowship_user_id: id }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      if (_profileData?.profile) _profileData.profile.fellowship_user_id = id;
+      toast(f ? '✓ Compte enregistré' : '✓ Account saved');
+      renderProfileConnected(document.getElementById('profile-content'), f, session);
+    } catch (e) {
+      toast((f ? 'Erreur : ' : 'Error: ') + (e.message || ''), true);
+    }
+  }
+
   function renderTabHeroes(cont, f) {
     const { characters, heroClasses, periods, scores = {} } = _profileData;
     const stats = computeProfileStats();
@@ -2921,7 +2997,8 @@
         <div class="spot-slots" id="spot-left">${gearColumn(GEAR_LEFT, null, f)}</div>
         <div class="spot-center">${centerHtml}</div>
         <div class="spot-slots" id="spot-right">${gearColumn(GEAR_RIGHT, null, f)}</div>
-      </div>`;
+      </div>
+      ${flAccountCardHtml(f)}`;
     if (alive) loadSpotGear(alive.id, f);
   }
 
