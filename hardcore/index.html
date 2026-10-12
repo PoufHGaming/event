@@ -879,6 +879,7 @@
     .hist-run-item:last-child { border-bottom:none; }
 
     /* ── QUALITY COLORS ── */
+    .q0 { color:#c8c8c8; border-color:rgba(200,200,200,0.4); background:rgba(200,200,200,0.06); }
     .q1 { color:#00c700; border-color:rgba(0,199,0,0.4);    background:rgba(0,199,0,0.08); }
     .q2 { color:#006fe6; border-color:rgba(0,111,230,0.4);  background:rgba(0,111,230,0.08); }
     .q3 { color:#a920fd; border-color:rgba(169,32,253,0.4); background:rgba(169,32,253,0.08); }
@@ -2600,13 +2601,15 @@
   }
 
   // ── QUALITY / SLOT HELPERS ────────────────────────────────────────────────
+  // Raretés des objets (champ `quality` des logs Fellowship), couleurs identiques aux paliers de donjons
   const QUALITY_LABELS = {
-    1: { fr:'Recrue', en:'Recruit', cls:'q1' },
-    2: { fr:'Adepte', en:'Adept', cls:'q2' },
-    3: { fr:'Champion', en:'Champion', cls:'q3' },
-    4: { fr:'Héroïque', en:'Heroic', cls:'q4' },
-    5: { fr:'Royal', en:'Royal', cls:'q5' },
-    6: { fr:'Légendaire', en:'Legendary', cls:'q6' },
+    0: { fr:'Commun',      en:'Common',    cls:'q0' },   // gris / blanc
+    1: { fr:'Peu commun',  en:'Uncommon',  cls:'q1' },   // vert
+    2: { fr:'Rare',        en:'Rare',      cls:'q2' },   // bleu
+    3: { fr:'Épique',      en:'Epic',      cls:'q3' },   // violet
+    4: { fr:'Héroïque',    en:'Heroic',    cls:'q4' },   // jaune
+    5: { fr:'Royal',       en:'Regal',     cls:'q5' },   // rouge
+    6: { fr:'Légendaire',  en:'Legendary', cls:'q6' },   // orange
   };
   // gear[] n'a pas de champ slot : l'ordre est fixe (14 pièces), enregistré comme index par le sync
   const SLOT_NAMES_MAP = {
@@ -2614,7 +2617,8 @@
     en: { 0:'Head',1:'Neck',2:'Shoulders',3:'Back',4:'Chest',5:'Wrists',6:'Hands',7:'Legs',8:'Feet',9:'Ring',10:'Ring',11:'Relic',12:'Relic',13:'Weapon' },
   };
   const SLOT_ICONS_MAP = { 0:'🪖',1:'📿',2:'🛡',3:'🧥',4:'👕',5:'🧤',6:'🧤',7:'👖',8:'👟',9:'💍',10:'💍',11:'💎',12:'💎',13:'⚔️' };
-  function qualityClass(q) { return (QUALITY_LABELS[q]||QUALITY_LABELS[1]).cls; }
+  function qualityClass(q) { return (QUALITY_LABELS[q] ?? QUALITY_LABELS[0]).cls; }
+  function qualityName(q, f) { const l = QUALITY_LABELS[q] ?? QUALITY_LABELS[0]; return f ? l.fr : l.en; }
   function slotName(slot, f) { return (slot == null ? null : (f ? SLOT_NAMES_MAP.fr : SLOT_NAMES_MAP.en)[slot]) || (f ? 'Équipement' : 'Gear'); }
 
   // ══ PROFIL v2 : héros en vedette, trophées, cimetière ═════════════════════════
@@ -2818,9 +2822,9 @@
     return slots.map(s => {
       const it = bySlot[s];
       if (!it || (!it.id && !it.name)) return `<div class="gslot empty" title="${esc(slotName(s, f))}"><span class="gslot-ico">${SLOT_ICONS_MAP[s] || '📦'}</span></div>`;
-      const q  = qualityClass(it.quality || 1);
+      const q  = qualityClass(it.quality ?? 0);
       const ps = it.potentialPower ? Math.round(it.potentialPower / 10) : null;
-      const tip = `${it.name || ''}${it._generic ? '' : ' · ' + slotName(s, f)} · ilvl ${it.itemLevel || 0}${ps ? ' · PS ' + ps : ''}`;
+      const tip = `${it.name || ''}${it._generic ? '' : ' · ' + slotName(s, f)} · ${qualityName(it.quality ?? 0, f)} · ilvl ${it.itemLevel || 0}${ps ? ' · PS ' + ps : ''}`;
       return `<div class="gslot ${q}" title="${esc(tip)}"><span class="gslot-ico">${it._generic ? '📦' : (SLOT_ICONS_MAP[s] || '📦')}</span><span class="gslot-ilvl">${it.itemLevel || 0}</span></div>`;
     }).join('');
   }
