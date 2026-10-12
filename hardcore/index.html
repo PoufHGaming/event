@@ -267,6 +267,7 @@
     }
     .evt-item.death    { border-left:3px solid rgba(255,68,68,0.6); }
     .evt-item.capstone { border-left:3px solid rgba(196,160,255,0.6); }
+    .evt-item.trophy   { border-left:3px solid rgba(255,211,107,0.7); }
     .evt-item.new_attempt { border-left:3px solid rgba(64,212,212,0.4); }
     .evt-icon { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
     .evt-body { flex:1; }
@@ -1153,6 +1154,7 @@
       <button class="evt-filter active" onclick="setEvtFilter('all',this)" data-fr="Tous" data-en="All">Tous</button>
       <button class="evt-filter" onclick="setEvtFilter('death',this)" data-fr="💀 Morts" data-en="💀 Deaths">💀 Morts</button>
       <button class="evt-filter" onclick="setEvtFilter('capstone',this)" data-fr="👑 Capstones" data-en="👑 Capstones">👑 Capstones</button>
+      <button class="evt-filter" onclick="setEvtFilter('trophy',this)" data-fr="🏆 Trophées" data-en="🏆 Trophies">🏆 Trophées</button>
     </div>
     <div id="events-content"><div class="loading" data-fr="Chargement…" data-en="Loading…">Chargement…</div></div>
   </div>
@@ -1981,6 +1983,13 @@
         metaHtml  = meta.dungeon
           ? `<div class="evt-meta">${dungName(meta.dungeon)}${meta.rating ? ` · ${Math.floor(meta.rating)} pts` : ''}</div>`
           : '';
+      } else if (e.event_type === 'trophy') {
+        const meta = e.metadata || {};
+        icon = meta.ico || '🏆';
+        const tCol = meta.color || '#ffd36b';
+        const [tName, tDesc] = (fr() ? meta.fr : meta.en) || meta.fr || ['Trophée', ''];
+        titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'débloque' : 'unlocked'} <span style="font-family:'Cinzel',serif;font-size:12px;color:${tCol};border:1px solid ${tCol}40;background:${tCol}12;padding:2px 8px;border-radius:20px">${esc(tName)}</span></div>`;
+        metaHtml  = tDesc ? `<div class="evt-meta">${esc(tDesc)}</div>` : '';
       } else {
         titleHtml = `<div class="evt-title">${charSpan} · ${e.event_type}</div>`;
       }

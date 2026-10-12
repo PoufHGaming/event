@@ -110,6 +110,32 @@
       overflow: hidden;
     }
 
+    /* ── TROPHY CARD ── */
+    .alert-trophy {
+      background:
+        linear-gradient(180deg,
+          rgba(20,14,4,0.97) 0%,
+          rgba(34,24,8,0.95) 60%,
+          rgba(20,14,4,0.97) 100%);
+      border: 1px solid rgba(255,211,107,0.45);
+      border-top: 3px solid #ffd36b;
+      border-radius: 6px;
+      box-shadow:
+        0 0 0 1px rgba(255,211,107,0.15),
+        0 0 60px rgba(255,211,107,0.25),
+        0 0 120px rgba(255,211,107,0.1),
+        inset 0 1px 0 rgba(255,211,107,0.2);
+      overflow: hidden;
+    }
+    .alert-trophy .alert-type-label { color: #ffd36b; }
+    .alert-trophy .alert-shimmer {
+      background: linear-gradient(90deg, transparent 0%, #ffd36b 30%, #ffffff 50%, #ffd36b 70%, transparent 100%);
+      background-size: 200% 100%;
+    }
+    .alert-trophy .alert-corner { color: #ffd36b; }
+    .alert-trophy-name { font-size: 20px; font-weight: 700; letter-spacing: .04em; }
+    .alert-trophy-desc { font-size: 14px; opacity: .75; font-style: italic; }
+
     /* ── INNER LAYOUT ── */
     .alert-inner {
       display: flex;
@@ -454,6 +480,7 @@
   // ── RENDU ALERTE ─────────────────────────────────────────────────────────────
   function showAlert(evt) {
     const isDeath    = evt.event_type === 'death';
+    const isTrophy   = evt.event_type === 'trophy';
     const heroClass  = evt.character_class || '';
     const heroColor  = CLASS_COLORS[heroClass] || '#aaa';
     const heroIcon   = CLASS_ICONS[heroClass]  || '⚔';
@@ -464,7 +491,7 @@
 
     // Jouer le son
     if (isDeath) playDeathSound();
-    else         playCapstoneSound();
+    else         playCapstoneSound();   // le trophée réutilise le son des capstones
 
     // Construire la carte
     const wrapper = document.getElementById('alert-wrapper');
@@ -490,6 +517,20 @@
         ${rankBadgeHtml}
       `;
       accent = '💀';
+    } else if (isTrophy) {
+      const tName = (meta.fr && meta.fr[0]) || 'Trophée';
+      const tDesc = (meta.fr && meta.fr[1]) || '';
+      const tCol  = meta.color || '#ffd36b';
+      typeLabel = '🏆 trophée débloqué';
+      headline  = `
+        <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
+        <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
+      `;
+      subline = `
+        <span class="alert-trophy-name" style="color:${tCol}">${tName}</span>
+        <span class="alert-trophy-desc">${tDesc}</span>
+      `;
+      accent = meta.ico || '🏆';
     } else {
       // Capstone
       const capTier = meta.tier_name || 'Capstone';
@@ -510,7 +551,7 @@
       : '';
 
     wrapper.innerHTML = `
-      <div class="alert-card alert-${isDeath ? 'death' : 'capstone'}">
+      <div class="alert-card alert-${isDeath ? 'death' : (isTrophy ? 'trophy' : 'capstone')}">
         <div class="alert-shimmer"></div>
         <div class="alert-corner tl"></div>
         <div class="alert-corner tr"></div>
@@ -554,7 +595,7 @@
         `${SUPABASE_URL}/rest/v1/hm_events` +
         `?announced_overlay=eq.false` +
         `&announce_after=lte.${now}` +
-        `&event_type=in.(death,capstone)` +
+        `&event_type=in.(death,capstone,trophy)` +
         `&season=eq.S1` +
         `&order=announce_after.asc` +
         `&limit=10` +
