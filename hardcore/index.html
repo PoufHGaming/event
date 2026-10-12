@@ -2636,8 +2636,8 @@
   // Ce qui dépend de la saison (échelle de Xul, paliers de trophées) est regroupé ici.
   const XUL_COLOR  = '#c4732a';
   const XUL_DL     = { normal: 31, heroic: 43, nightmare: 60 };   // échelle de la saison actuelle
-  const GEAR_LEFT  = [0, 2, 3, 4, 5, 6, 7];       // Tête, Épaules, Dos, Torse, Poignets, Mains, Jambes
-  const GEAR_RIGHT = [1, 8, 9, 10, 11, 12, 13];   // Collier, Pieds, Bague, Bague, Relique, Relique, Arme
+  const GEAR_LEFT  = [0, 2, 3, 4, 6, 7, 8];       // Tête, Épaules, Dos, Torse, Mains, Jambes, Pieds
+  const GEAR_RIGHT = [1, 5, 9, 10, 11, 12, 13];   // Collier, Poignets (brassard), Bague, Bague, Relique, Relique, Arme
 
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -2824,7 +2824,7 @@
     const bySlot = {};
     if (Array.isArray(gear) && gear.length) {
       if (gear.every(g => g.slot == null)) {                       // snapshot sans slots fiables : ordre brut
-        const order = [...GEAR_LEFT, ...GEAR_RIGHT];
+        const order = [0,1,2,3,4,5,6,7,8,9,10,11,12,13];
         gear.forEach((it, i) => { if (order[i] !== undefined) bySlot[order[i]] = { ...it, _generic: true }; });
       } else {
         gear.forEach(it => { if (it.slot != null) bySlot[it.slot] = it; });
