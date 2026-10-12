@@ -919,6 +919,8 @@
     .spot-slots { display:flex; flex-direction:column; gap:8px; }
     .gslot { position:relative; width:76px; height:62px; box-sizing:border-box; border-width:2px; border-style:solid; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; }
     .gslot-ico { font-size:24px; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+    /* Silhouette d'emplacement teintée par la rareté : le masque donne la forme, currentColor (.q0…q6) la couleur */
+    .gslot-ico.sil { width:38px; height:38px; background:currentColor; -webkit-mask:var(--ico) center/contain no-repeat; mask:var(--ico) center/contain no-repeat; }
     .gslot-ilvl { position:absolute; right:5px; bottom:2px; font-size:13px; font-weight:700; text-shadow:0 1px 2px #000; }
     .gslot.empty { background:rgba(255,255,255,.02); border-color:rgba(255,255,255,.08); }
     .gslot.empty .gslot-ico { opacity:.18; }
@@ -2619,6 +2621,12 @@
     fr: { 0:'Tête',1:'Collier',2:'Épaules',3:'Dos',4:'Torse',5:'Poignets',6:'Mains',7:'Jambes',8:'Pieds',9:'Bague',10:'Bague',11:'Relique',12:'Relique',13:'Arme' },
     en: { 0:'Head',1:'Neck',2:'Shoulders',3:'Back',4:'Chest',5:'Wrists',6:'Hands',7:'Legs',8:'Feet',9:'Ring',10:'Ring',11:'Relic',12:'Relic',13:'Weapon' },
   };
+  const SLOT_SIL = { 0:'head',1:'neck',2:'shoulders',3:'back',4:'chest',5:'wrists',6:'hands',7:'legs',8:'feet',9:'ring',10:'ring',11:'relic',12:'relic',13:'weapon' };
+  function slotIco(s, generic) {
+    const f = SLOT_SIL[s];
+    return (!f || generic) ? `<span class="gslot-ico">${generic ? '📦' : (SLOT_ICONS_MAP[s] || '📦')}</span>`
+                           : `<span class="gslot-ico sil" style="--ico:url('../images/gear/${f}.png')"></span>`;
+  }
   const SLOT_ICONS_MAP = { 0:'🪖',1:'📿',2:'🛡',3:'🧥',4:'👕',5:'🧤',6:'🧤',7:'👖',8:'👟',9:'💍',10:'💍',11:'💎',12:'💎',13:'⚔️' };
   function qualityClass(q) { return (QUALITY_LABELS[q] ?? QUALITY_LABELS[0]).cls; }
   function qualityName(q, f) { const l = QUALITY_LABELS[q] ?? QUALITY_LABELS[0]; return f ? l.fr : l.en; }
@@ -2824,11 +2832,11 @@
     }
     return slots.map(s => {
       const it = bySlot[s];
-      if (!it || (!it.id && !it.name)) return `<div class="gslot empty" title="${esc(slotName(s, f))}"><span class="gslot-ico">${SLOT_ICONS_MAP[s] || '📦'}</span></div>`;
+      if (!it || (!it.id && !it.name)) return `<div class="gslot empty" title="${esc(slotName(s, f))}">${slotIco(s, false)}</div>`;
       const q  = qualityClass(it.quality ?? 0);
       const ps = it.potentialPower ? Math.round(it.potentialPower / 10) : null;
       const tip = `${it.name || ''}${it._generic ? '' : ' · ' + slotName(s, f)} · ${qualityName(it.quality ?? 0, f)} · ilvl ${it.itemLevel || 0}${ps ? ' · PS ' + ps : ''}`;
-      return `<div class="gslot ${q}" title="${esc(tip)}"><span class="gslot-ico">${it._generic ? '📦' : (SLOT_ICONS_MAP[s] || '📦')}</span><span class="gslot-ilvl">${it.itemLevel || 0}</span></div>`;
+      return `<div class="gslot ${q}" title="${esc(tip)}">${slotIco(s, !!it._generic)}<span class="gslot-ilvl">${it.itemLevel || 0}</span></div>`;
     }).join('');
   }
 
