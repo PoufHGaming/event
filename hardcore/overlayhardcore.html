@@ -134,7 +134,7 @@
     }
     .alert-trophy .alert-corner { color: #ffd36b; }
     .alert-trophy-name { font-size: 20px; font-weight: 700; letter-spacing: .04em; }
-    .alert-trophy-desc { font-size: 14px; opacity: .75; font-style: italic; }
+    .alert-trophy-desc { font-size: 14px; color: #e9dcc0; opacity: .8; font-style: italic; }
 
     /* ── INNER LAYOUT ── */
     .alert-inner {
@@ -185,6 +185,10 @@
       border-radius: 50%;
       background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.18), transparent 60%);
     }
+
+    /* Image de trophée à la place du médaillon héros */
+    .trophy-img { width: 96px; height: 96px; object-fit: contain; filter: drop-shadow(0 0 14px rgba(255,211,107,0.55)) drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }
+    .trophy-emoji { font-size: 56px; filter: drop-shadow(0 0 10px rgba(255,211,107,0.6)); }
 
     /* ── CONTENT ZONE ── */
     .alert-content {
@@ -530,7 +534,7 @@
         <span class="alert-trophy-name" style="color:${tCol}">${tName}</span>
         <span class="alert-trophy-desc">${tDesc}</span>
       `;
-      accent = meta.ico || '🏆';
+      accent = heroIcon;
     } else {
       // Capstone
       const capTier = meta.tier_name || 'Capstone';
@@ -559,6 +563,8 @@
         <div class="alert-corner br"></div>
         <div class="alert-inner">
           <div class="alert-icon-zone">
+            ${isTrophy ? `<img class="trophy-img" src="../images/trophies/${meta.img || meta.trophy_id}.png" data-emoji="${meta.ico || '🏆'}" alt=""
+                 onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'trophy-emoji',textContent:this.dataset.emoji}))">` : `
             <div class="hero-icon" style="
               border-color: ${heroColor};
               background: radial-gradient(circle at 40% 40%, ${heroColor}30, ${heroColor}08);
@@ -566,7 +572,7 @@
               box-shadow: 0 0 20px ${heroColor}40, inset 0 0 12px ${heroColor}20;
             ">
               <span style="filter:drop-shadow(0 0 6px ${heroColor})">${heroIcon}</span>
-            </div>
+            </div>`}
           </div>
           <div class="alert-content">
             <div class="alert-type-label">${typeLabel}</div>

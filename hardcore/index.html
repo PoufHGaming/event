@@ -270,6 +270,7 @@
     .evt-item.trophy   { border-left:3px solid rgba(255,211,107,0.7); }
     .evt-item.new_attempt { border-left:3px solid rgba(64,212,212,0.4); }
     .evt-icon { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
+    .evt-icon .timg { width:34px; height:34px; margin-left:-3px; }
     .evt-body { flex:1; }
     .evt-title { font-size:16px; color:var(--text); }
     .evt-title strong { color:var(--hc-red); }
@@ -907,6 +908,13 @@
     /* Prochain trophée */
     .next-trophy { display:flex; align-items:center; gap:12px; margin-bottom:16px; padding:10px 14px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; }
     .nt-ico { font-size:22px; }
+    /* Image de trophée (repli sur l'emoji si le fichier manque) */
+    .timg { display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+    .timg img { display:block; width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,.55)); }
+    .timg .temoji { display:none; }
+    .timg.noimg img { display:none; }
+    .timg.noimg .temoji { display:inline; }
+    .nt-ico .timg { width:44px; height:44px; }
     .nt-body { flex:1; min-width:0; }
     .nt-label { font-size:15px; color:var(--text-muted); margin-bottom:6px; }
     .nt-pct { font-family:'Cinzel',serif; font-size:13px; font-weight:700; color:var(--text-dim); }
@@ -1007,10 +1015,13 @@
     .trophy-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
     .trophy-head b { font-family:'Cinzel',serif; font-size:20px; color:var(--text); }
     .trophy-head span { font-size:13px; font-style:italic; color:var(--text-muted); }
+    .trophy-group { display:flex; align-items:baseline; gap:10px; margin:22px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--border); font-family:'Cinzel',serif; font-size:16px; letter-spacing:.08em; color:var(--text); }
+    .trophy-group i { font-style:normal; font-size:12px; color:var(--text-muted); }
     .trophy-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px; }
     .trophy { padding:14px; text-align:center; background:var(--bg2); border:1px solid var(--border); border-radius:10px; }
     .trophy.done { border-color:var(--tc); box-shadow:0 0 14px var(--tc-soft); }
     .trophy-ico { font-size:34px; line-height:1; margin-bottom:8px; }
+    .trophy-ico .timg { width:92px; height:92px; }
     .trophy.locked .trophy-ico { filter:grayscale(1); opacity:.35; }
     .trophy-title { font-family:'Cinzel',serif; font-size:14px; font-weight:700; color:var(--tc); }
     .trophy.locked .trophy-title { color:var(--text-muted); }
@@ -1985,7 +1996,7 @@
           : '';
       } else if (e.event_type === 'trophy') {
         const meta = e.metadata || {};
-        icon = meta.ico || '🏆';
+        icon = trophyImg(meta.img || meta.trophy_id, meta.ico);
         const tCol = meta.color || '#ffd36b';
         const [tName, tDesc] = (fr() ? meta.fr : meta.en) || meta.fr || ['Trophée', ''];
         titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'débloque' : 'unlocked'} <span style="font-family:'Cinzel',serif;font-size:12px;color:${tCol};border:1px solid ${tCol}40;background:${tCol}12;padding:2px 8px;border-radius:20px">${esc(tName)}</span></div>`;
@@ -2671,41 +2682,82 @@
   ];
 
   // ── Trophées : calculés côté site à partir des runs, aucune table en plus ─────
-  function rankTrophy(id, dl, ico) {
-    const rk = diffLevelToRank(dl);
-    return {
-      id, ico, color: tierColor(rk.tier), target: dl,
-      val: s => s.bestDl,
-      fmt: v => `${v > 0 ? diffLevelToRank(v).label : '—'} / ${rk.label}`,
-      fr: [rk.label, `Termine un donjon dans le temps en ${rk.label}.`],
-      en: [rk.label, `Finish a dungeon within the time limit at ${rk.label}.`],
-    };
+  // Image : images/trophies/<img>.png (256×256, fond transparent). Emoji affiché si le fichier est absent.
+  function trophyImg(img, emoji) {
+    return `<span class="timg"><img src="../images/trophies/${esc(img)}.png" alt="" loading="lazy" onerror="this.parentNode.classList.add('noimg')"><span class="temoji">${emoji || '🏆'}</span></span>`;
   }
-  function countTrophy(id, ico, metric, target, fr, en, color) {
-    return { id, ico, color: color || '#40d4d4', target, val: s => s[metric], fmt: v => `${Math.min(v, target)} / ${target}`, fr, en };
+  function mkTrophy(o) {
+    return { ...o, val: s => s[o.metric],
+      fmt: o.fmt || (v => `${Math.min(Math.floor(v), o.target).toLocaleString()} / ${o.target.toLocaleString()}`) };
   }
+  const TROPHY_GROUPS = [
+    { id:'timed',  fr:'Donjons dans les temps', en:'Timed dungeons' },
+    { id:'rating', fr:'Côte',                   en:'Rating' },
+    { id:'gear',   fr:'Gear Score',             en:'Gear Score' },
+    { id:'eternal',fr:'Éternel',                en:'Eternal' },
+    { id:'xul',    fr:'Xul',                    en:'Xul' },
+    { id:'hc',     fr:'Hardcore',               en:'Hardcore' },
+  ];
   const TROPHIES = [
-    countTrophy('timed_1',  '⏱️', 'timedTotal', 1,  ['Premier chrono', 'Termine un donjon dans le temps imparti.'], ['First timer', 'Finish a dungeon within the time limit.']),
-    countTrophy('timed_10', '⏱️', 'timedTotal', 10, ['Habitué', 'Termine 10 donjons dans le temps.'], ['Regular', 'Finish 10 dungeons in time.']),
-    countTrophy('timed_50', '⏱️', 'timedTotal', 50, ['Infatigable', 'Termine 50 donjons dans le temps.'], ['Tireless', 'Finish 50 dungeons in time.']),
-    countTrophy('surv_10',  '🛡️', 'maxSurvival', 10, ['Survivant', '10 donjons avec un même héros sans mourir.'], ['Survivor', '10 dungeons with one hero without dying.']),
-    countTrophy('surv_25',  '🛡️', 'maxSurvival', 25, ['Increvable', '25 donjons avec un même héros sans mourir.'], ['Unkillable', '25 dungeons with one hero without dying.']),
-    countTrophy('surv_50',  '🛡️', 'maxSurvival', 50, ['Légende vivante', '50 donjons avec un même héros sans mourir.'], ['Living legend', '50 dungeons with one hero without dying.']),
-    rankTrophy('rank_champion4', 14, '🛡️'),
-    rankTrophy('rank_parangon4', 19, '🏆'),
-    rankTrophy('rank_eternal5',  25, '👑'),
-    rankTrophy('rank_eternal10', 30, '👑'),
-    rankTrophy('rank_eternal20', 40, '👑'),
-    countTrophy('xul_normal',    '🏜️', 'xulNormal',    1, ['Xul : Normal',    'Termine Xul en Normal.'],    ['Xul: Normal',    'Complete Xul on Normal.'],    XUL_COLOR),
-    countTrophy('xul_heroic',    '🏜️', 'xulHeroic',    1, ['Xul : Héroïque',  'Termine Xul en Héroïque.'],  ['Xul: Heroic',    'Complete Xul on Heroic.'],    XUL_COLOR),
-    countTrophy('xul_nightmare', '🏜️', 'xulNightmare', 1, ['Xul : Nightmare', 'Termine Xul en Nightmare.'], ['Xul: Nightmare', 'Complete Xul on Nightmare.'], XUL_COLOR),
-    countTrophy('heroes_3', '🎭', 'heroesPlayed', 3, ['Polyvalent', 'Termine un donjon avec 3 héros différents.'], ['Versatile', 'Finish a dungeon with 3 different heroes.']),
-    countTrophy('heroes_6', '🎭', 'heroesPlayed', 6, ['Troupe complète', 'Termine un donjon avec 6 héros différents.'], ['Full troupe', 'Finish a dungeon with 6 different heroes.']),
-    countTrophy('first_blood', '💀', 'deaths', 1, ['Baptême du feu', "Perds ton premier héros. Mourir, c'est recommencer."], ['Baptism of fire', 'Lose your first hero. Death is just the beginning.'], '#ff4444'),
+    mkTrophy({ id:"timed_1", group:"timed", img:"Trophy_Coffre", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:1,
+      fr:["Explorateur", "Termine 1 donjon dans les temps."], en:["Explorer", "Finish 1 dungeon within the time limit."] }),
+    mkTrophy({ id:"timed_25", group:"timed", img:"Trophy_Coffre", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:25,
+      fr:["Aventurier", "Termine 25 donjons dans les temps."], en:["Adventurer", "Finish 25 dungeons within the time limit."] }),
+    mkTrophy({ id:"timed_100", group:"timed", img:"Trophy_Coffre", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:100,
+      fr:["Héros", "Termine 100 donjons dans les temps."], en:["Hero", "Finish 100 dungeons within the time limit."] }),
+    mkTrophy({ id:"timed_250", group:"timed", img:"Trophy_Coffre", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:250,
+      fr:["Légende", "Termine 250 donjons dans les temps."], en:["Legend", "Finish 250 dungeons within the time limit."] }),
+    mkTrophy({ id:"rating_750", group:"rating", img:"Trophy_recrue", ico:"🏅", color:"#00c700", metric:"bestScore", target:750,
+      fr:["Recrue", "Obtiens 750 de côte."], en:["Contender", "Reach a rating of 750."] }),
+    mkTrophy({ id:"rating_1650", group:"rating", img:"Trophy_Adept", ico:"🏅", color:"#006fe6", metric:"bestScore", target:1650,
+      fr:["Adepte", "Obtiens 1650 de côte."], en:["Adept", "Reach a rating of 1650."] }),
+    mkTrophy({ id:"rating_3000", group:"rating", img:"Trophy_Champion", ico:"🏅", color:"#a920fd", metric:"bestScore", target:3000,
+      fr:["Champion", "Obtiens 3000 de côte."], en:["Champion", "Reach a rating of 3000."] }),
+    mkTrophy({ id:"rating_4500", group:"rating", img:"Trophy_Parangon", ico:"🏅", color:"#b79f00", metric:"bestScore", target:4500,
+      fr:["Parangon", "Obtiens 4500 de côte."], en:["Paragon", "Reach a rating of 4500."] }),
+    mkTrophy({ id:"gear_2500", group:"gear", img:"Trophy_Gear_Score", ico:"🎽", color:"#c8c8c8", metric:"bestGear", target:2500,
+      fr:["Qualité Inférieure", "Obtiens 2500 de Gear Score."], en:["Inferior Quality", "Reach a Gear Score of 2500."] }),
+    mkTrophy({ id:"gear_5000", group:"gear", img:"Trophy_Gear_Score", ico:"🎽", color:"#006fe6", metric:"bestGear", target:5000,
+      fr:["Qualité Rare", "Obtiens 5000 de Gear Score."], en:["Rare Quality", "Reach a Gear Score of 5000."] }),
+    mkTrophy({ id:"gear_10000", group:"gear", img:"Trophy_Gear_Score", ico:"🎽", color:"#a920fd", metric:"bestGear", target:10000,
+      fr:["Qualité Incroyable", "Obtiens 10000 de Gear Score."], en:["Amazing Quality", "Reach a Gear Score of 10000."] }),
+    mkTrophy({ id:"gear_15000", group:"gear", img:"Trophy_Gear_Score", ico:"🎽", color:"#ff8c1a", metric:"bestGear", target:15000,
+      fr:["Qualité Légendaire", "Obtiens 15000 de Gear Score."], en:["Legendary Quality", "Reach a Gear Score of 15000."] }),
+    mkTrophy({ id:"eternal_1", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:21,
+      fr:["Éternel I", "Termine un donjon Éternel 1 dans les temps."], en:["Eternal I", "Finish an Eternal 1 dungeon within the time limit."],
+      fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 21)).label : '—'} / ${diffLevelToRank(21).label}` }),
+    mkTrophy({ id:"eternal_5", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:25,
+      fr:["Éternel V", "Termine un donjon Éternel 5 dans les temps."], en:["Eternal V", "Finish an Eternal 5 dungeon within the time limit."],
+      fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 25)).label : '—'} / ${diffLevelToRank(25).label}` }),
+    mkTrophy({ id:"eternal_10", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:30,
+      fr:["Éternel X", "Termine un donjon Éternel 10 dans les temps."], en:["Eternal X", "Finish an Eternal 10 dungeon within the time limit."],
+      fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 30)).label : '—'} / ${diffLevelToRank(30).label}` }),
+    mkTrophy({ id:"eternal_15", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:35,
+      fr:["Éternel XV", "Termine un donjon Éternel 15 dans les temps."], en:["Eternal XV", "Finish an Eternal 15 dungeon within the time limit."],
+      fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 35)).label : '—'} / ${diffLevelToRank(35).label}` }),
+    mkTrophy({ id:"eternal_20", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:40,
+      fr:["Éternel XX", "Termine un donjon Éternel 20 dans les temps."], en:["Eternal XX", "Finish an Eternal 20 dungeon within the time limit."],
+      fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 40)).label : '—'} / ${diffLevelToRank(40).label}` }),
+    mkTrophy({ id:"eternal_25", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:45,
+      fr:["Éternel XXV", "Termine un donjon Éternel 25 dans les temps."], en:["Eternal XXV", "Finish an Eternal 25 dungeon within the time limit."],
+      fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 45)).label : '—'} / ${diffLevelToRank(45).label}` }),
+    mkTrophy({ id:"eternal_30", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:50,
+      fr:["Éternel XXX", "Termine un donjon Éternel 30 dans les temps."], en:["Eternal XXX", "Finish an Eternal 30 dungeon within the time limit."],
+      fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 50)).label : '—'} / ${diffLevelToRank(50).label}` }),
+    mkTrophy({ id:"xul_normal", group:"xul", img:"Trophy_Xul_NM", ico:"🏜️", color:"#c4732a", metric:"xulNormal", target:1,
+      fr:["Xul Normal", "Termine Xul en Normal."], en:["Xul Normal", "Complete Xul on Normal."] }),
+    mkTrophy({ id:"xul_heroic", group:"xul", img:"Trophy_Xul_HM", ico:"🏜️", color:"#c4732a", metric:"xulHeroic", target:1,
+      fr:["Xul Héroïque", "Termine Xul en Héroïque."], en:["Xul Heroic", "Complete Xul on Heroic."] }),
+    mkTrophy({ id:"xul_nightmare", group:"xul", img:"Trophy_Xul_NG", ico:"🏜️", color:"#c4732a", metric:"xulNightmare", target:1,
+      fr:["Xul Nightmare", "Termine Xul en Nightmare."], en:["Xul Nightmare", "Complete Xul on Nightmare."] }),
+    mkTrophy({ id:"death", group:"hc", img:"Trophy_Death", ico:"💀", color:"#ff4444", metric:"deaths", target:1,
+      fr:["Mourir, c'est recommencer", "Meurs 1 fois en Hardcore."], en:["Death is just the beginning", "Die once in Hardcore."] }),
+    mkTrophy({ id:"shame", group:"hc", img:"Trophy_Death", ico:"🪦", color:"#ff4444", metric:"shameDeaths", target:1,
+      fr:["Mur de la Honte", "Meurs en Hardcore avec moins de 750 de côte."], en:["Wall of Shame", "Die in Hardcore with a rating under 750."] }),
   ];
 
   function computeProfileStats() {
-    const { characters, runs = [] } = _profileData;
+    const { characters, runs = [], scores = {} } = _profileData;
     const byChar = {}, classOf = {};
     for (const c of characters) { byChar[c.id] = { completed: 0 }; classOf[c.id] = c.character_class; }
     let timedTotal = 0, bestDl = 0;
@@ -2728,8 +2780,13 @@
       recordByClass[c.character_class] = Math.max(recordByClass[c.character_class] || 0, n);
       maxSurvival = Math.max(maxSurvival, n);
     }
+    // Côte = total des meilleurs scores de donjon d'un héros ; on retient le meilleur héros (acquis à vie).
+    const scoreOf = c => Number(scores[c.id]) || 0;
+    const bestScore = Math.max(0, ...characters.map(scoreOf));
+    const bestGear  = Math.max(0, ...characters.map(c => Math.max(Number(c.power_score_best) || 0, Number(c.power_score_current) || 0)));
+    const shameDeaths = characters.filter(c => c.status === 'dead' && scoreOf(c) < 750).length;
     return {
-      byChar, recordByClass, maxSurvival, timedTotal, bestDl,
+      byChar, recordByClass, maxSurvival, timedTotal, bestDl, bestScore, bestGear, shameDeaths,
       xulNormal: xul.normal, xulHeroic: xul.heroic, xulNightmare: xul.nightmare,
       heroesPlayed: classesDone.size,
       deaths: characters.filter(c => c.status === 'dead').length,
@@ -2967,7 +3024,7 @@
     const next = trophyStates(stats).filter(s => !s.done).sort((a, b) => b.pct - a.pct)[0];
     const hintHtml = next ? `
       <div class="next-trophy">
-        <span class="nt-ico">${next.t.ico}</span>
+        <span class="nt-ico">${trophyImg(next.t.img, next.t.ico)}</span>
         <div class="nt-body">
           <div class="nt-label">${f ? 'Prochain trophée' : 'Next trophy'} · <b style="color:${next.t.color}">${f ? next.t.fr[0] : next.t.en[0]}</b></div>
           <div class="trophy-bar"><div style="width:${next.pct}%;background:${next.t.color}"></div></div>
@@ -3035,19 +3092,26 @@
   function renderTabTrophies(cont, f) {
     const states = trophyStates(computeProfileStats());
     const done = states.filter(s => s.done).length;
-    const cards = states.map(({ t, v, done: ok, pct }) => {
+    const card = ({ t, v, done: ok, pct }) => {
       const [title, desc] = f ? t.fr : t.en;
       return `<div class="trophy ${ok ? 'done' : 'locked'}" style="--tc:${t.color};--tc-soft:${t.color}44">
-        <div class="trophy-ico">${t.ico}</div>
+        <div class="trophy-ico">${trophyImg(t.img, t.ico)}</div>
         <div class="trophy-title">${title}</div>
         <div class="trophy-desc">${desc}</div>
         ${ok ? `<div class="trophy-done">✓ ${f ? 'Débloqué' : 'Unlocked'}</div>`
              : `<div class="trophy-bar"><div style="width:${pct}%"></div></div><div class="trophy-prog">${t.fmt(v)}</div>`}
       </div>`;
+    };
+    const sections = TROPHY_GROUPS.map(g => {
+      const items = states.filter(s => s.t.group === g.id);
+      if (!items.length) return '';
+      const got = items.filter(s => s.done).length;
+      return `<div class="trophy-group"><span>${f ? g.fr : g.en}</span><i>${got} / ${items.length}</i></div>
+        <div class="trophy-grid">${items.map(card).join('')}</div>`;
     }).join('');
     cont.innerHTML = `
       <div class="trophy-head"><b>🏆 ${done} / ${states.length}</b><span>${f ? 'Tes trophées restent acquis, même si ton héros meurt.' : 'Your trophies stay yours, even if your hero dies.'}</span></div>
-      <div class="trophy-grid">${cards}</div>`;
+      ${sections}`;
   }
 
   // ── Onglet 3 : cimetière en pyramide (le plus grand tombé au sommet) ─────────
