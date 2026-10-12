@@ -1298,7 +1298,7 @@
   // Clés internes (couleurs, base de données) = noms FR historiques ; affichage selon la langue
   const TIER_NAMES = {
     fr: { Recrue: 'Recrue',    Adepte: 'Adepte', Champion: 'Champion', Parangon: 'Parangon', Eternal: 'Éternel' },
-    en: { Recrue: 'Contender', Adepte: 'Adept',  Champion: 'Champion', Parangon: 'Parangon', Eternal: 'Eternal' },
+    en: { Recrue: 'Contender', Adepte: 'Adept',  Champion: 'Champion', Parangon: 'Paragon',  Eternal: 'Eternal' },
   };
   const tierName = t => (TIER_NAMES[currentLang === 'fr' ? 'fr' : 'en'][t]) || t;
   // Traduit un libellé stocké en base (« Recrue 2 », « Eternal 5 ») dans la langue courante
@@ -2031,7 +2031,7 @@
           <div class="rules-item">
             ${f
               ? 'Les rangs progressent du plus bas au plus haut : <strong style="color:#00c700">Recrue 1→4</strong>, <strong style="color:#006fe6">Adepte 1→4</strong>, <strong style="color:#a920fd">Champion 1→4</strong>, <strong style="color:#b79f00">Parangon 1→4</strong>, <strong style="color:#b60000">Éternel 1→∞</strong>'
-              : 'Ranks progress from lowest to highest: <strong style="color:#00c700">Contender 1→4</strong>, <strong style="color:#006fe6">Adept 1→4</strong>, <strong style="color:#a920fd">Champion 1→4</strong>, <strong style="color:#b79f00">Parangon 1→4</strong>, <strong style="color:#b60000">Eternal 1→∞</strong>'}
+              : 'Ranks progress from lowest to highest: <strong style="color:#00c700">Contender 1→4</strong>, <strong style="color:#006fe6">Adept 1→4</strong>, <strong style="color:#a920fd">Champion 1→4</strong>, <strong style="color:#b79f00">Paragon 1→4</strong>, <strong style="color:#b60000">Eternal 1→∞</strong>'}
           </div>
           <div class="rules-item">
             ${f
@@ -2068,7 +2068,7 @@
           <thead><tr><th>Achievement</th></tr></thead>
           <tbody>
             <tr><td style="color:#a920fd">🛡️ ${f ? 'Atteindre Champion 4 dans les temps' : 'Achieve Champion 4 in Time'}</td></tr>
-            <tr><td style="color:#b79f00">🏆 ${f ? 'Atteindre Parangon 4 dans les temps' : 'Achieve Parangon 4 in Time'}</td></tr>
+            <tr><td style="color:#b79f00">🏆 ${f ? 'Atteindre Parangon 4 dans les temps' : 'Achieve Paragon 4 in Time'}</td></tr>
             <tr><td style="color:#b60000">👑 ${f ? 'Atteindre Éternel 5 dans les temps' : 'Achieve Eternal 5 in Time'}</td></tr>
             <tr><td style="color:#b60000">👑 ${f ? 'Progresser tous les 5 niveaux en Éternel (Éternel 10, 15, 20, 25... jusqu\'à l\'infini théorique)' : 'Progress every 5 Eternal levels (Eternal 10, 15, 20, 25... up to theoretical infinity)'}</td></tr>
             <tr><td style="color:${XUL_COLOR}">🏜️ ${f ? 'Compléter Xul en Normal' : 'Complete Xul in Normal'}</td></tr>
