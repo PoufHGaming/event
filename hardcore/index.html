@@ -916,19 +916,25 @@
     .spot { position:relative; display:grid; grid-template-columns:76px minmax(0,1fr) 76px; gap:16px; align-items:start; padding:18px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
     .spot::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%, var(--hc-soft), transparent 65%); pointer-events:none; }
     .spot > * { position:relative; }
+    .spot-center { padding-top:0; }
     .spot-slots { display:flex; flex-direction:column; gap:8px; }
     .gslot { position:relative; width:76px; height:62px; box-sizing:border-box; border-width:2px; border-style:solid; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; }
     .gslot-ico { font-size:24px; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
     /* Silhouette d'emplacement teintée par la rareté : le masque donne la forme, currentColor (.q0…q6) la couleur */
     .gslot-ico.sil { width:38px; height:38px; background:currentColor; -webkit-mask:var(--ico) center/contain no-repeat; mask:var(--ico) center/contain no-repeat; }
     .gslot-ilvl { position:absolute; right:5px; bottom:2px; font-size:13px; font-weight:700; text-shadow:0 1px 2px #000; }
-    .gslot.empty { background:rgba(255,255,255,.02); border-color:rgba(255,255,255,.08); }
+    .gslot { backdrop-filter:blur(3px); box-shadow:inset 0 0 0 100px rgba(8,12,16,.35); }
+    .gslot.empty { background:rgba(8,12,16,.45); border-color:rgba(255,255,255,.08); }
     .gslot.empty .gslot-ico { opacity:.18; }
     .spot-center { display:flex; flex-direction:column; gap:12px; min-width:0; }
-    .spot-art { width:100%; max-width:360px; margin:0 auto; aspect-ratio:4/5; border-radius:10px; overflow:hidden; background:rgba(0,0,0,.28); border:1px solid var(--border); }
-    .spot-art img { width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
-    .spot-art img.is-square { object-position:center 25%; }
-    .spot-art.dim img { filter:grayscale(.7) brightness(.6); }
+    /* Portrait en fond de la carte : flou + assombri, l'équipement et les infos passent par-dessus */
+    .spot > .spot-bg { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+    .spot-bg img { width:100%; height:100%; object-fit:cover; object-position:center 0%; display:block; transform:scale(1.04); filter:blur(3px) saturate(1.05) brightness(.62); opacity:.55; }
+    .spot-bg img.is-square { object-position:center 25%; }
+    .spot-bg::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg, rgba(8,12,16,.55) 0%, rgba(8,12,16,.12) 30%, rgba(8,12,16,.12) 70%, rgba(8,12,16,.55) 100%); }
+    .spot-bg.dim img { filter:blur(3px) grayscale(.8) brightness(.5); }
+    .spot::before { z-index:1; }
+    .spot > .spot-slots, .spot > .spot-center { z-index:2; }
     .spot-name { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
     .spot-name b { font-family:'Cinzel',serif; font-size:34px; letter-spacing:.06em; }
     .spot-role { font-size:18px; font-style:italic; color:var(--text-muted); }
@@ -936,12 +942,12 @@
     .spot-rank { font-family:'Cinzel',serif; font-size:15px; font-weight:700; letter-spacing:.08em; padding:7px 16px; border-radius:20px; color:#fff; background:var(--rc); border:1px solid rgba(255,255,255,.4); text-shadow:0 1px 3px rgba(0,0,0,.75); }
     .spot-badges .hero-status-badge { font-size:15px; font-weight:700; letter-spacing:.06em; padding:7px 16px; color:#052b0c; background:#58f06a; border-color:#9bffa8; text-shadow:none; }
     .rk-badge { font-family:'Cinzel',serif; font-weight:700; color:#fff; background:var(--rc); border:1px solid rgba(255,255,255,.4); text-shadow:0 1px 3px rgba(0,0,0,.75); padding:4px 12px; border-radius:20px; white-space:nowrap; }
-    .spot-surv { padding:10px 12px; background:rgba(0,0,0,.25); border:1px solid var(--border); border-radius:8px; }
+    .spot-surv { padding:10px 12px; background:rgba(0,0,0,.45); backdrop-filter:blur(4px); border:1px solid var(--border); border-radius:8px; }
     .spot-surv-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; font-size:17px; color:var(--text-dim); }
     .spot-surv-top b { font-family:'Cinzel',serif; font-size:24px; color:var(--text); }
     .spot-surv-rec { font-family:'Cinzel',serif; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); }
     .spot-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .spot-stat { background:rgba(0,0,0,.28); border:1px solid var(--border); border-radius:8px; padding:10px; text-align:center; }
+    .spot-stat { background:rgba(0,0,0,.45); backdrop-filter:blur(4px); border:1px solid var(--border); border-radius:8px; padding:10px; text-align:center; }
     .spot-stat b { display:block; font-family:'Cinzel',serif; font-size:24px; color:var(--teal-light); line-height:1.1; }
     .spot-stat span { font-family:'Cinzel',serif; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--text-muted); }
     .spot-add { font-family:'Cinzel',serif; font-size:15px; letter-spacing:.1em; padding:12px 22px; border-radius:6px; cursor:pointer; align-self:flex-start; background:rgba(64,212,212,.12); border:2px solid rgba(64,212,212,.6); color:var(--teal-light); }
@@ -1052,7 +1058,6 @@
       .spot { grid-template-columns:1fr 1fr; padding:12px; }
       .spot-center { grid-column:1 / -1; order:-1; }
       .gslot { width:100%; }
-      .spot-art { height:260px; }
       .podium-row { gap:6px; }
       .podium-name { font-size:13px; }
       .tomb { width:100px; }
@@ -2961,7 +2966,7 @@
       </div>` : '';
 
     const artHtml = `
-      <div class="spot-art ${alive ? '' : 'dim'}">
+      <div class="spot-bg ${alive ? '' : 'dim'}">
         <img src="${heroFullImg(_spotClass)}" alt="${esc(_spotClass)}" onerror="this.onerror=null;this.src='${heroImg(_spotClass)}';this.classList.add('is-square')">
       </div>`;
 
@@ -2977,7 +2982,6 @@
         <div class="spot-name"><b style="color:${col}">${esc(hero.class_name)}</b><span class="spot-role">${esc(hero.role)}</span></div>
         ${hmBannerHtml(alive, f)}
         ${freshStartHtml(alive, f)}
-        ${artHtml}
         <div class="spot-badges">
           <span class="hero-status-badge alive">⚔️ ${f ? 'En vie' : 'Alive'} · #${alive.attempt_number}</span>
           ${(alive.best_difficulty_level || 0) > 0 ? `<span class="spot-rank" style="--rc:${rkCol}">${rk.label}</span>` : ''}
@@ -3000,7 +3004,6 @@
     } else {
       centerHtml = `
         <div class="spot-name"><b style="color:${col}">${esc(hero?.class_name)}</b><span class="spot-role">${esc(hero?.role)}</span></div>
-        ${artHtml}
         <div class="spot-empty">${f ? "Ce héros n'est pas encore dans ton profil Hardcore." : 'This hero is not in your Hardcore profile yet.'}</div>
         <button class="spot-add" onclick="addHeroToProfile('${hero?.class_name}')">+ ${f ? 'Ajouter ce héros' : 'Add this hero'}</button>`;
     }
@@ -3009,6 +3012,7 @@
       <div class="pick-row">${picker}</div>
       ${hintHtml}
       <div class="spot" style="--hc:${col};--hc-soft:${col}38">
+        ${artHtml}
         <div class="spot-slots" id="spot-left">${gearColumn(GEAR_LEFT, null, f)}</div>
         <div class="spot-center">${centerHtml}</div>
         <div class="spot-slots" id="spot-right">${gearColumn(GEAR_RIGHT, null, f)}</div>
