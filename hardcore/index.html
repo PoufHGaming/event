@@ -935,6 +935,37 @@
     .gslot { backdrop-filter:blur(3px); box-shadow:inset 0 0 0 100px rgba(8,12,16,.6); }
     .gslot.empty { background:rgba(8,12,16,.6); border-color:rgba(255,255,255,.08); }
     .gslot.empty .gslot-ico { opacity:.18; }
+    .gslot[data-itip] { cursor:help; outline:none; }
+    .gslot[data-itip]:hover, .gslot[data-itip]:focus-visible { filter:brightness(1.25); }
+
+    /* ── Infobulle d'objet façon écran de jeu (remplace le title HTML) ── */
+    #itip { position:fixed; left:0; top:0; z-index:9999; width:272px; max-width:calc(100vw - 16px); pointer-events:none;
+            opacity:0; visibility:hidden; transition:opacity .12s ease; border-radius:12px; overflow:hidden;
+            background:#111416; border:1px solid color-mix(in srgb, var(--qc, #c8c8c8) 55%, #000);
+            box-shadow:0 14px 36px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.6), 0 0 22px color-mix(in srgb, var(--qc, #c8c8c8) 22%, transparent); }
+    #itip.show { opacity:1; visibility:visible; }
+    .itip-head { display:flex; align-items:center; gap:12px; padding:13px 14px;
+                 background: radial-gradient(130% 160% at 88% -10%, color-mix(in srgb, var(--qc) 55%, transparent), transparent 62%),
+                             linear-gradient(180deg, color-mix(in srgb, var(--qc) 34%, #0e1215), color-mix(in srgb, var(--qc) 16%, #0e1215)); }
+    .itip-icon { flex:0 0 46px; width:46px; height:46px; border-radius:7px; display:flex; align-items:center; justify-content:center; overflow:hidden;
+                 background:rgba(0,0,0,.45); border:1px solid color-mix(in srgb, var(--qc) 60%, #000); box-shadow:inset 0 0 12px rgba(0,0,0,.6); }
+    .itip-icon img { width:100%; height:100%; object-fit:cover; display:block; }
+    .itip-sil { display:block; width:30px; height:30px; background:var(--qc); -webkit-mask:var(--ico) center/contain no-repeat; mask:var(--ico) center/contain no-repeat; }
+    .itip-emoji { font-size:24px; line-height:1; }
+    .itip-name { font-family:'Cinzel',serif; font-size:16px; font-weight:700; line-height:1.2; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.7); overflow-wrap:anywhere; }
+    .itip-sub  { margin-top:3px; font-size:13px; color:rgba(255,255,255,.62); }
+    .itip-body { padding:12px 16px 14px; font-size:14.5px; color:#e8e8e8; }
+    .itip-row  { display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:3px 0; }
+    .itip-row span { color:rgba(255,255,255,.62); }
+    .itip-row b { font-weight:600; color:#fff; }
+    .itip-row.stat b { color:#58e0a8; }
+    .itip-pips { display:inline-flex; gap:4px; vertical-align:middle; margin-right:8px; }
+    .itip-pips i { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); }
+    .itip-pips i.on { background:var(--qc); border-color:var(--qc); box-shadow:0 0 6px var(--qc); }
+    .itip-sep  { height:1px; background:rgba(255,255,255,.1); margin:9px 0 8px; }
+    .itip-q    { font-family:'Cinzel',serif; font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--qc); }
+    #itip.itip-empty { width:auto; min-width:120px; }
+    #itip.itip-empty .itip-body { padding:9px 14px; }
     .spot-center { display:flex; flex-direction:column; gap:12px; min-width:0; }
     /* Portrait en fond de la carte : flou + assombri, l'équipement et les infos passent par-dessus */
     .spot > .spot-bg { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
@@ -1115,6 +1146,7 @@
   <button class="tab active" id="tab-leaderboard" onclick="showPage('leaderboard',this)" data-fr="Classement" data-en="Leaderboard">Classement</button>
   <button class="tab" id="tab-events" onclick="showPage('events',this)" data-fr="Événements" data-en="Events">Événements</button>
   <button class="tab" id="tab-rules" onclick="showPage('rules',this)" data-fr="Règles" data-en="Rules">Règles</button>
+  <button class="tab" id="tab-trophies" onclick="showPage('trophies',this)" data-fr="Trophées" data-en="Trophies">Trophées</button>
   <button class="tab" id="tab-profile" onclick="showPage('profile',this)" data-fr="Se connecter" data-en="Sign In">Se connecter</button>
   <div class="nav-right">
     <div class="lang-toggle">
@@ -1173,6 +1205,11 @@
   <!-- ── RULES ── -->
   <div id="page-rules" class="page">
     <div id="rules-content"></div>
+  </div>
+
+  <!-- ── TROPHIES (catalogue public) ── -->
+  <div id="page-trophies" class="page">
+    <div id="trophies-content"></div>
   </div>
 
   <!-- ── PROFILE (inclut inscription) ── -->
@@ -1361,6 +1398,7 @@
     if (s) s.placeholder = fr() ? 'Rechercher un joueur…' : 'Search a player…';
     renderSyncInfo();
     renderRules();
+    renderTrophiesPage();
     if (_lbData) renderLbPage();
     if (_eventsData) renderEvents();
     if (typeof _profileData !== 'undefined' && _profileData && document.getElementById('profile-tab-content')) {
@@ -1386,6 +1424,7 @@
     if (id === 'leaderboard') loadLeaderboard();
     if (id === 'events')      loadEvents();
     if (id === 'rules')       renderRules();
+    if (id === 'trophies')    renderTrophiesPage();
     if (id === 'profile')     renderProfilePage();
   }
 
@@ -1761,6 +1800,8 @@
     const score = char.total_rating_score ? Math.floor(char.total_rating_score) : 0;
     const dead  = char.status === 'dead';
     const dotCol = dead ? '#ff4444' : '#44ee44';
+    // Gear Score (= Power Score) : meilleur de la tentative
+    const gearScore = Math.floor(Math.max(Number(char.power_score_best) || 0, Number(char.power_score_current) || 0));
 
     // Attempt picklist (only if multiple attempts)
     const picklistHtml = allAttempts.length > 1
@@ -1795,8 +1836,8 @@
           <div class="hero-detail-stat-lbl">Score total</div>
         </div>
         <div class="hero-detail-stat">
-          <div class="hero-detail-stat-val">${char.ilvl_best||'—'}</div>
-          <div class="hero-detail-stat-lbl">${f?'Meilleur ilvl':'Best ilvl'}</div>
+          <div class="hero-detail-stat-val">${gearScore > 0 ? gearScore.toLocaleString() : '—'}</div>
+          <div class="hero-detail-stat-lbl">${f?'Meilleur Gear Score':'Best Gear Score'}</div>
         </div>
       </div>
       <div id="dungeon-table-${char.character_id}">
@@ -1868,7 +1909,24 @@
     document.querySelectorAll('.lb-expand.open').forEach(e => e.classList.remove('open'));
     document.querySelectorAll('.lb-row.expanded').forEach(r => r.classList.remove('expanded'));
     _selectedPortrait = {};
-    if (!isOpen) { exp.classList.add('open'); row.classList.add('expanded'); }
+    if (!isOpen) {
+      exp.classList.add('open'); row.classList.add('expanded');
+      autoSelectMainHero(playerId);
+    }
+  }
+
+  // Ouvre directement le détail du héros principal (celui affiché à côté du pseudo :
+  // meilleur total_rating_score), sur sa tentative la plus récente — comme les portraits.
+  function autoSelectMainHero(playerId) {
+    const player = _lbFiltered?.find(p => p.player_id === playerId);
+    if (!player || !player.chars.length) return;
+    const main = player.chars.reduce((best, c) =>
+      (!best || (c.total_rating_score || 0) > (best.total_rating_score || 0)) ? c : best, null);
+    if (!main) return;
+    const latest = player.chars
+      .filter(c => c.character_class === main.character_class)
+      .reduce((a, c) => (!a || c.current_attempt_number > a.current_attempt_number) ? c : a, null);
+    if (latest) selectHeroPortrait(latest.character_id, playerId);
   }
 
 
@@ -2015,20 +2073,28 @@
   // ── RULES ───────────────────────────────────────────────────────────────────
   function renderRules() {
     const f = fr();
-    const XUL_COLOR = '#c4732a';
+    const tiers = ['Recrue', 'Adepte', 'Champion', 'Parangon']
+      .map(t => `<strong style="color:${tierColor(t)}">${tierName(t)} 1→4</strong>`).join(', ');
+    const eternal = `<strong style="color:${tierColor('Eternal')}">${tierName('Eternal')} 1→∞</strong>`;
+
     document.getElementById('rules-content').innerHTML = `
       <div class="rules-section">
         <div class="rules-section-title">${f ? 'Règles Hardcore' : 'Hardcore Rules'}</div>
         <div class="rules-list">
           <div class="rules-item warning">
             ☠️ <strong>${f ? 'Mort permanente' : 'Permanent Death'}</strong> ${f
-              ? 'Si ton personnage meurt dans un donjon, il repart de zéro. Nouvelle tentative, ilvl 0, tout recommence.'
-              : 'If your character dies in a dungeon, they start over from scratch. New attempt, ilvl 0, everything resets.'}
+              ? 'Si ton héros meurt dans un donjon, cette tentative est terminée. Tu repars de zéro avec une nouvelle tentative : retire <strong>tout ton équipement</strong> (ilvl 0) avant ton prochain donjon.'
+              : 'If your hero dies in a dungeon, that attempt is over. You start over with a new attempt: take off <strong>all your gear</strong> (ilvl 0) before your next dungeon.'}
+          </div>
+          <div class="rules-item warning">
+            🔁 <strong>${f ? 'Continuer à plusieurs après une mort' : 'Carrying on together after a death'}</strong> ${f
+              ? 'Si un joueur du groupe meurt, le groupe peut continuer à jouer. En revanche, <strong>le joueur mort doit quitter le groupe</strong> (ou rester mort) : s\'il continue avec vous en gardant l\'équipement de sa tentative précédente, les runs du groupe pourront être <strong>annulés</strong>. Un joueur mort ne peut reprendre qu\'en repartant de zéro.'
+              : 'If a player in the group dies, the group may keep playing. However, <strong>the dead player must leave the group</strong> (or stay dead): if they keep playing with you using the gear from their previous attempt, the group\'s runs may be <strong>cancelled</strong>. A dead player can only come back by starting over from scratch.'}
           </div>
           <div class="rules-item">
             👥 <strong>${f ? 'Groupe 100% Hardcore' : '100% Hardcore Group'}</strong> ${f
-              ? 'Tu ne peux jouer qu\'avec d\'autres joueurs inscrits en mode Hardcore. Un joueur non-HC dans le groupe annule le run pour tout le monde.'
-              : 'You can only play with other players registered in Hardcore mode. A non-HC player in the group invalidates the run for everyone.'}
+              ? 'Tu ne peux jouer qu\'avec des joueurs inscrits <strong>dont le mode Hardcore est activé</strong> sur le héros joué. Un joueur non-HC dans le groupe annule le run pour tout le monde.'
+              : 'You can only play with players who are registered <strong>with Hardcore mode enabled</strong> on the hero they play. A non-HC player in the group invalidates the run for everyone.'}
           </div>
           <div class="rules-item">
             ⚔️ ${f
@@ -2037,34 +2103,39 @@
           </div>
           <div class="rules-item warning">
             🔴 ${f
-              ? 'Le même héros <strong>peut</strong> être joué en HC et Normal simultanément. <strong>ATTENTION</strong> : active/désactive le mode depuis ton profil selon le mode de jeu souhaité.'
-              : 'The same hero <strong>can</strong> be played in HC and Normal simultaneously. <strong>WARNING</strong>: enable/disable the mode from your profile depending on the desired game mode.'}
+              ? 'Le même héros <strong>peut</strong> être joué en HC et Normal. <strong>ATTENTION</strong> : active ou désactive le mode HC depuis ton profil selon le mode de jeu souhaité, avant de lancer ton donjon.'
+              : 'The same hero <strong>can</strong> be played in HC and Normal. <strong>WARNING</strong>: enable or disable HC mode from your profile depending on the game mode you want, before starting your dungeon.'}
           </div>
           <div class="rules-item">
             📋 <strong>${f ? 'Live Logs obligatoires' : 'Live Logs mandatory'}</strong> ${f
               ? 'Les logs Fellowship doivent être actifs pendant chaque donjon. Un donjon sans logs ne sera pas comptabilisé. Privilégie le live log plutôt qu\'un upload de fichier si tu ne veux pas risquer de perdre ta progression.'
               : 'Fellowship logs must be active during each dungeon. A dungeon without logs will not be counted. Prefer live logging over file upload to avoid risking your progression.'}
           </div>
-          <div class="rules-item">
-            📊 ${f
-              ? 'Le classement est basé sur le <strong>meilleur donjon timé</strong> réalisé.'
-              : 'Rankings are based on the <strong>best timed dungeon</strong> completed.'}
-          </div>
         </div>
       </div>
 
       <div class="rules-section">
-        <div class="rules-section-title">${f ? 'Progression & Rangs' : 'Progression & Ranks'}</div>
+        <div class="rules-section-title">${f ? 'Classement, Rangs & Score' : 'Leaderboard, Ranks & Score'}</div>
         <div class="rules-list">
           <div class="rules-item">
             ${f
-              ? 'Les rangs progressent du plus bas au plus haut : <strong style="color:#00c700">Recrue 1→4</strong>, <strong style="color:#006fe6">Adepte 1→4</strong>, <strong style="color:#a920fd">Champion 1→4</strong>, <strong style="color:#b79f00">Parangon 1→4</strong>, <strong style="color:#b60000">Éternel 1→∞</strong>'
-              : 'Ranks progress from lowest to highest: <strong style="color:#00c700">Contender 1→4</strong>, <strong style="color:#006fe6">Adept 1→4</strong>, <strong style="color:#a920fd">Champion 1→4</strong>, <strong style="color:#b79f00">Paragon 1→4</strong>, <strong style="color:#b60000">Eternal 1→∞</strong>'}
+              ? `Les rangs progressent du plus bas au plus haut : ${tiers}, puis ${eternal}.`
+              : `Ranks progress from lowest to highest: ${tiers}, then ${eternal}.`}
           </div>
           <div class="rules-item">
             ${f
-              ? 'Chaque niveau de rang correspond à un <strong>niveau de donjon timé</strong> dans les logs Fellowship. Seuls les donjons complétés dans le temps imparti comptent.'
-              : 'Each rank level corresponds to a <strong>timed dungeon level</strong> in Fellowship logs. Only dungeons completed within the time limit count.'}
+              ? 'Seuls les donjons <strong>terminés dans le temps imparti</strong> comptent pour le rang et le score.'
+              : 'Only dungeons <strong>completed within the time limit</strong> count towards rank and score.'}
+          </div>
+          <div class="rules-item">
+            🏅 <strong>Score</strong> ${f
+              ? '(la « côte ») : pour chaque donjon, on retient ta meilleure côte dans les temps ; le Score total d\'un héros est la somme de ces meilleures côtes.'
+              : '(the « rating »): for each dungeon, your best timed rating is kept; a hero\'s total Score is the sum of those best ratings.'}
+          </div>
+          <div class="rules-item">
+            📊 ${f
+              ? 'Le classement est établi sur le <strong>Score total de ton meilleur héros</strong>. À égalité, le donjon le plus haut départage, puis le nombre de tentatives (moins il y en a, mieux c\'est).'
+              : 'The leaderboard is based on the <strong>total Score of your best hero</strong>. Ties are broken by the highest dungeon, then by the number of attempts (fewer is better).'}
           </div>
         </div>
       </div>
@@ -2074,36 +2145,20 @@
         <div class="rules-list">
           <div class="rules-item">
             🔄 <strong>${f ? 'Reset automatique' : 'Automatic Reset'}</strong> ${f
-              ? 'La mort est détectée automatiquement via les logs (sync toutes les 15 min). Le personnage passe en statut "mort" et une nouvelle tentative démarre depuis ilvl 0.'
-              : 'Death is detected automatically via logs (sync every 15 min). The character moves to "dead" status and a new attempt starts from ilvl 0.'}
+              ? 'La mort est détectée automatiquement via les logs. Le héros passe en statut « mort » et une nouvelle tentative démarre à zéro.'
+              : 'Death is detected automatically via the logs. The hero moves to "dead" status and a new attempt starts from scratch.'}
           </div>
           <div class="rules-item">
             📝 <strong>${f ? 'Reset manuel' : 'Manual Reset'}</strong> ${f
-              ? 'Pour les cas particuliers (bug, situation imprévue), le reset peut être demandé depuis ton profil ou en contactant Pouf directement.'
-              : 'For special cases (bug, unexpected situation), a reset can be requested from your profile or by contacting Pouf directly.'}
+              ? 'Si ton héros est mort en jeu mais apparaît toujours « en vie » sur le site, ou pour tout cas particulier (bug, situation imprévue), fais un <strong>reset manuel</strong> depuis ton profil ou contacte Pouf directement.'
+              : 'If your hero died in game but still shows as "alive" on the site, or for any special case (bug, unexpected situation), do a <strong>manual reset</strong> from your profile or contact Pouf directly.'}
           </div>
           <div class="rules-item warning">
             🚫 ${f
-              ? 'Si un joueur non-HC est détecté dans ton groupe, le run est <strong>annulé pour tout le groupe</strong>. Tu seras notifié dans ton profil et tu devras repartir de ton équipement précédent.'
-              : 'If a non-HC player is detected in your group, the run is <strong>cancelled for the whole group</strong>. You will be notified in your profile and must resume from your previous gear.'}
+              ? 'Si un joueur non-HC est détecté dans ton groupe, le run est <strong>annulé pour tout le groupe</strong>. Tu seras notifié dans ton profil et tu devras repartir de ton équipement précédent. Si tu penses qu\'il s\'agit d\'une erreur, contacte Pouf pour faire réexaminer le run.'
+              : 'If a non-HC player is detected in your group, the run is <strong>cancelled for the whole group</strong>. You will be notified in your profile and must resume from your previous gear. If you think it is a mistake, contact Pouf to have the run reviewed.'}
           </div>
         </div>
-      </div>
-
-      <div class="rules-section">
-        <div class="rules-section-title">${f ? 'Achievements' : 'Achievements'}</div>
-        <table class="capstone-table">
-          <thead><tr><th>Achievement</th></tr></thead>
-          <tbody>
-            <tr><td style="color:#a920fd">🛡️ ${f ? 'Atteindre Champion 4 dans les temps' : 'Achieve Champion 4 in Time'}</td></tr>
-            <tr><td style="color:#b79f00">🏆 ${f ? 'Atteindre Parangon 4 dans les temps' : 'Achieve Paragon 4 in Time'}</td></tr>
-            <tr><td style="color:#b60000">👑 ${f ? 'Atteindre Éternel 5 dans les temps' : 'Achieve Eternal 5 in Time'}</td></tr>
-            <tr><td style="color:#b60000">👑 ${f ? 'Progresser tous les 5 niveaux en Éternel (Éternel 10, 15, 20, 25... jusqu\'à l\'infini théorique)' : 'Progress every 5 Eternal levels (Eternal 10, 15, 20, 25... up to theoretical infinity)'}</td></tr>
-            <tr><td style="color:${XUL_COLOR}">🏜️ ${f ? 'Compléter Xul en Normal' : 'Complete Xul in Normal'}</td></tr>
-            <tr><td style="color:${XUL_COLOR}">🏜️ ${f ? 'Compléter Xul en Héroïque' : 'Complete Xul in Heroic'}</td></tr>
-            <tr><td style="color:${XUL_COLOR}">🏜️ ${f ? 'Compléter Xul en Nightmare' : 'Complete Xul in Nightmare'}</td></tr>
-          </tbody>
-        </table>
       </div>
 
       <div class="rules-section">
@@ -2891,6 +2946,73 @@
 
   function selectSpotHero(cls) { _spotClass = cls; renderProfileTabContent(); }
 
+  // ── Infobulle d'objet (structure du jeu : bandeau de rareté + icône + nom, puis lignes de stats) ──
+  // Les données viennent du dernier snapshot : nom, emplacement, rareté, ilvl, Power Score, améliorations.
+  // Icône d'objet : ../images/items/<id>.png si le fichier existe, sinon la silhouette de l'emplacement.
+  let _itipItems = {}, _itipSeq = 0, _itipEl = null, _itipCur = null;
+  const _itipNoIcon = new Set();
+  const QUALITY_HEX = { 0:'#c8c8c8', 1:'#2fd62f', 2:'#3b95ff', 3:'#b24bff', 4:'#e3c21a', 5:'#e03a3a', 6:'#f27a3a' };
+
+  function itipRegister(d) { const k = 'i' + (++_itipSeq); _itipItems[k] = d; return k; }
+
+  function itipHtml(d, f) {
+    if (d.empty) return `<div class="itip-body"><div class="itip-row"><span>${esc(slotName(d.slot, f))}</span><b>${f ? 'Vide' : 'Empty'}</b></div></div>`;
+    const sil = SLOT_SIL[d.slot];
+    const icon = (d.id && !_itipNoIcon.has(d.id))
+      ? `<img src="../images/items/${esc(String(d.id))}.png" alt="" onerror="itipIconFail(this,${Number(d.id) || 0})">`
+      : (sil ? `<span class="itip-sil" style="--ico:url('../images/gear/${sil}.png')"></span>` : `<span class="itip-emoji">📦</span>`);
+    const sub  = d.generic ? qualityName(d.quality, f) : slotName(d.slot, f);
+    const rows = [`<div class="itip-row"><span>${f ? "Niveau d'objet" : 'Item level'}</span><b>${d.ilvl}</b></div>`];
+    if (d.ps) rows.push(`<div class="itip-row stat"><span>Power Score</span><b>+${d.ps}</b></div>`);
+    if (d.maxUp > 0) {
+      const pips = Array.from({ length: d.maxUp }, (_, i) => `<i class="${i < d.up ? 'on' : ''}"></i>`).join('');
+      rows.push(`<div class="itip-row"><span>${f ? 'Améliorations' : 'Upgrades'}</span><b><span class="itip-pips">${pips}</span>${d.up}/${d.maxUp}</b></div>`);
+    }
+    return `<div class="itip-head"><div class="itip-icon">${icon}</div><div><div class="itip-name">${esc(d.name || '')}</div><div class="itip-sub">${esc(sub)}</div></div></div>`
+         + `<div class="itip-body">${rows.join('')}<div class="itip-sep"></div><div class="itip-q">${esc(qualityName(d.quality, f))}</div></div>`;
+  }
+  function itipIconFail(img, id) {
+    _itipNoIcon.add(id);
+    const d = Object.values(_itipItems).find(x => x.id === id);
+    const sil = d && SLOT_SIL[d.slot];
+    img.parentNode.innerHTML = sil ? `<span class="itip-sil" style="--ico:url('../images/gear/${sil}.png')"></span>` : `<span class="itip-emoji">📦</span>`;
+  }
+  function itipMove(x, y) {
+    const el = _itipEl; if (!el) return;
+    const pad = 16, w = el.offsetWidth, h = el.offsetHeight;
+    let L = x + pad, T = y + pad;
+    if (L + w > innerWidth - 8)  L = x - w - pad;
+    if (L < 8) L = 8;
+    if (T + h > innerHeight - 8) T = innerHeight - h - 8;
+    if (T < 8) T = 8;
+    el.style.transform = `translate(${Math.round(L)}px, ${Math.round(T)}px)`;
+  }
+  function itipShow(target, x, y) {
+    const d = _itipItems[target.dataset.itip]; if (!d) return;
+    if (!_itipEl) { _itipEl = document.createElement('div'); _itipEl.id = 'itip'; _itipEl.setAttribute('role', 'tooltip'); document.body.appendChild(_itipEl); }
+    if (_itipCur !== target) {
+      _itipCur = target;
+      _itipEl.className = d.empty ? 'itip-empty' : '';
+      _itipEl.style.setProperty('--qc', d.empty ? '#8aa0a8' : (QUALITY_HEX[d.quality] || QUALITY_HEX[0]));
+      _itipEl.innerHTML = itipHtml(d, fr());
+    }
+    _itipEl.classList.add('show');
+    itipMove(x, y);
+  }
+  function itipHide() { _itipCur = null; if (_itipEl) _itipEl.classList.remove('show'); }
+  document.addEventListener('mouseover', e => { const t = e.target.closest && e.target.closest('[data-itip]'); if (t) itipShow(t, e.clientX, e.clientY); });
+  document.addEventListener('mousemove', e => { if (_itipCur) itipMove(e.clientX, e.clientY); });
+  document.addEventListener('mouseout',  e => { const t = e.target.closest && e.target.closest('[data-itip]'); if (t && !t.contains(e.relatedTarget)) itipHide(); });
+  document.addEventListener('focusin',   e => { const t = e.target.closest && e.target.closest('[data-itip]'); if (t) { const r = t.getBoundingClientRect(); itipShow(t, r.right, r.top); } });
+  document.addEventListener('focusout',  e => { if (e.target.closest && e.target.closest('[data-itip]')) itipHide(); });
+  // Tactile : un appui affiche l'infobulle, un appui ailleurs la masque
+  document.addEventListener('click', e => {
+    if (!(window.matchMedia && matchMedia('(hover: none)').matches)) return;
+    const t = e.target.closest && e.target.closest('[data-itip]');
+    if (t && t !== _itipCur) { const r = t.getBoundingClientRect(); itipShow(t, r.left + r.width / 2 - 136, r.bottom); } else itipHide();
+  });
+  window.addEventListener('scroll', itipHide, { passive: true });
+
   // Colonne d'équipement façon écran de jeu. gear = items du snapshot (slot = index 0-13) ou null.
   function gearColumn(slots, gear, f) {
     const bySlot = {};
@@ -2904,11 +3026,17 @@
     }
     return slots.map(s => {
       const it = bySlot[s];
-      if (!it || (!it.id && !it.name)) return `<div class="gslot empty" title="${esc(slotName(s, f))}">${slotIco(s, false)}</div>`;
+      if (!it || (!it.id && !it.name)) {
+        const k = itipRegister({ empty: true, slot: s });
+        return `<div class="gslot empty" tabindex="0" data-itip="${k}" aria-label="${esc(slotName(s, f))}">${slotIco(s, false)}</div>`;
+      }
       const q  = qualityClass(it.quality ?? 0);
       const ps = it.potentialPower ? Math.round(it.potentialPower / 10) : null;
-      const tip = `${it.name || ''}${it._generic ? '' : ' · ' + slotName(s, f)} · ${qualityName(it.quality ?? 0, f)} · ilvl ${it.itemLevel || 0}${ps ? ' · PS ' + ps : ''}`;
-      return `<div class="gslot ${q}" title="${esc(tip)}">${slotIco(s, !!it._generic)}<span class="gslot-ilvl">${it.itemLevel || 0}</span></div>`;
+      const quality = it.quality ?? 0;
+      const k = itipRegister({ slot: s, id: it.id || 0, name: it.name || '', quality, ilvl: it.itemLevel || 0, ps,
+                               up: it.upgrades || 0, maxUp: it.maxUpgrades || 0, generic: !!it._generic });
+      const label = `${it.name || ''} · ${qualityName(quality, f)} · ilvl ${it.itemLevel || 0}${ps ? ' · PS ' + ps : ''}`;
+      return `<div class="gslot ${q}" tabindex="0" data-itip="${k}" aria-label="${esc(label)}">${slotIco(s, !!it._generic)}<span class="gslot-ilvl">${it.itemLevel || 0}</span></div>`;
     }).join('');
   }
 
@@ -2930,6 +3058,7 @@
     if (!cur || cur.id !== charId) return;                         // l'utilisateur a changé de héros entre-temps
     const L = document.getElementById('spot-left'), R = document.getElementById('spot-right'), note = document.getElementById('spot-gear-note');
     if (!L || !R) return;
+    itipHide(); _itipItems = {}; _itipSeq = 0;                     // nouvelles données d'équipement : on repart de zéro
     L.innerHTML = gearColumn(GEAR_LEFT,  snap?.gear, f);
     R.innerHTML = gearColumn(GEAR_RIGHT, snap?.gear, f);
     if (note) {
@@ -3111,6 +3240,30 @@
     }).join('');
     cont.innerHTML = `
       <div class="trophy-head"><b>🏆 ${done} / ${states.length}</b><span>${f ? 'Tes trophées restent acquis, même si ton héros meurt.' : 'Your trophies stay yours, even if your hero dies.'}</span></div>
+      ${sections}`;
+  }
+
+  // ── Page publique : catalogue de tous les trophées (cartes « débloquées », sans progression) ──
+  function renderTrophiesPage() {
+    const cont = document.getElementById('trophies-content');
+    if (!cont) return;
+    const f = fr();
+    const card = t => {
+      const [title, desc] = f ? t.fr : t.en;
+      return `<div class="trophy done" style="--tc:${t.color};--tc-soft:${t.color}44">
+        <div class="trophy-ico">${trophyImg(t.img, t.ico)}</div>
+        <div class="trophy-title">${title}</div>
+        <div class="trophy-desc">${desc}</div>
+      </div>`;
+    };
+    const sections = TROPHY_GROUPS.map(g => {
+      const items = TROPHIES.filter(t => t.group === g.id);
+      if (!items.length) return '';
+      return `<div class="trophy-group"><span>${f ? g.fr : g.en}</span><i>${items.length}</i></div>
+        <div class="trophy-grid">${items.map(card).join('')}</div>`;
+    }).join('');
+    cont.innerHTML = `
+      <div class="trophy-head"><b>🏆 ${TROPHIES.length} ${f ? 'trophées' : 'trophies'}</b><span>${f ? 'Une fois obtenu, un trophée reste acquis, même si ton héros meurt.' : 'Once earned, a trophy stays yours, even if your hero dies.'}</span></div>
       ${sections}`;
   }
 
@@ -3407,6 +3560,7 @@
   // ── INIT ────────────────────────────────────────────────────────────────────
   setLang(currentLang);
   renderRules();
+  renderTrophiesPage();
   loadLeaderboard();
   handleAuthCallback();
 </script>
