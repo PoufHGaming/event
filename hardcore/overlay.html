@@ -353,10 +353,13 @@
   // ── PARAMÈTRES D'URL ────────────────────────────────────────────────────────
   //   ?lang=fr | en          langue des annonces (défaut : fr)
   //   ?sound=on | off        son des annonces (défaut : on ; accepte aussi 1/0, true/false, mute)
-  // Exemple : overlay.html?lang=en&sound=off
+  //   ?shared=1              mode PARTAGÉ : plusieurs overlays (plusieurs OBS) reçoivent chacun TOUTES les alertes.
+  //                          Sans ce mode, le premier overlay qui interroge la base « consomme » l'alerte pour tout le monde.
+  // Exemple : overlay.html?shared=1&lang=en&sound=off
   const _qs      = new URLSearchParams(location.search);
   const LANG     = (_qs.get('lang') || 'fr').toLowerCase().startsWith('en') ? 'en' : 'fr';
   const SOUND_ON = !['off', '0', 'false', 'no', 'mute', 'muted'].includes((_qs.get('sound') || 'on').toLowerCase());
+  const SHARED   = ['1', 'true', 'on', 'yes'].includes((_qs.get('shared') || '').toLowerCase());
   document.documentElement.lang = LANG;
   const T = {
     fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint' },
@@ -621,6 +624,11 @@
   const MARK_SEEN_URL = `${SUPABASE_URL}/functions/v1/mark-overlay-seen`;
 
   // ── POLLING SUPABASE ─────────────────────────────────────────────────────────
+  const EVENT_SELECT = 'id,event_type,character_name,character_class,attempt_number,metadata,capstone_id';
+  const EVENT_TYPES  = 'event_type=in.(death,capstone,trophy)&season=eq.S1';
+  const SB_HEADERS   = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
+
+  // Mode normal : l'overlay « consomme » les alertes (elles sont marquées annoncées pour tout le monde).
   async function pollEvents() {
     try {
       const now = new Date().toISOString();
@@ -628,17 +636,11 @@
         `${SUPABASE_URL}/rest/v1/hm_events` +
         `?announced_overlay=eq.false` +
         `&announce_after=lte.${now}` +
-        `&event_type=in.(death,capstone,trophy)` +
-        `&season=eq.S1` +
+        `&${EVENT_TYPES}` +
         `&order=announce_after.asc` +
         `&limit=10` +
-        `&select=id,event_type,character_name,character_class,attempt_number,metadata,capstone_id`,
-        {
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-          }
-        }
+        `&select=${EVENT_SELECT}`,
+        { headers: SB_HEADERS }
       );
 
       if (!res.ok) return;
@@ -663,9 +665,47 @@
     }
   }
 
+  // Mode partagé (?shared=1) : n'écrit rien dans la base. Chaque overlay relit les alertes dont l'heure d'annonce vient
+  // de passer et retient dans SON navigateur celles déjà affichées (un rechargement d'OBS ne rejoue rien).
+  const SEEN_KEY       = 'hc_overlay_seen_v1';
+  const SHARED_START   = Date.now() - 3 * 60 * 1000;   // à l'ouverture : on rattrape les 3 dernières minutes seulement
+  const SHARED_KEEP_MS = 6 * 60 * 60 * 1000;
+  let seenIds = {};
+  try { seenIds = JSON.parse(localStorage.getItem(SEEN_KEY) || '{}'); } catch (e) { seenIds = {}; }
+  function rememberSeen(ids) {
+    const t = Date.now();
+    ids.forEach(id => { seenIds[id] = t; });
+    for (const k of Object.keys(seenIds)) if (t - seenIds[k] > SHARED_KEEP_MS) delete seenIds[k];
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(seenIds)); } catch (e) {}
+  }
+  async function pollEventsShared() {
+    try {
+      const now   = new Date().toISOString();
+      const since = new Date(SHARED_START).toISOString();
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/hm_events` +
+        `?announce_after=gte.${since}&announce_after=lte.${now}` +
+        `&${EVENT_TYPES}` +
+        `&order=announce_after.asc` +
+        `&limit=30` +
+        `&select=${EVENT_SELECT},announce_after`,
+        { headers: SB_HEADERS }
+      );
+      if (!res.ok) return;
+      // Clé = id + heure d'annonce : rejouer une alerte en SQL (nouvelle heure d'annonce) la fait revenir dans les overlays partagés
+      const events = (await res.json()).filter(e => !seenIds[e.id + '@' + e.announce_after] && !alertQueue.some(q => q.id === e.id));
+      if (!events.length) return;
+      rememberSeen(events.map(e => e.id + '@' + e.announce_after));
+      enqueueAlerts(events);
+    } catch (e) {
+      console.error('Poll error (shared):', e);
+    }
+  }
+
   // Démarrage
-  pollEvents();
-  setInterval(pollEvents, POLL_INTERVAL_MS);
+  const poll = SHARED ? pollEventsShared : pollEvents;
+  poll();
+  setInterval(poll, POLL_INTERVAL_MS);
 
   // Débloquer AudioContext sur premier clic (requis par les navigateurs)
   document.addEventListener('click', () => {
