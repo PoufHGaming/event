@@ -1042,6 +1042,35 @@
     .spot-gear-note { font-size:14px; font-style:italic; color:var(--text-muted); text-align:center; }
     .spot-gear-note:not(:empty) { align-self:center; padding:5px 14px; border-radius:20px; background:rgba(9,13,17,.78); }
 
+    /* ── Héros en vedette : visuel dégagé, infos aux quatre coins ─────────────────────────────── */
+    .spot { align-items:stretch; }
+    .spot-slots { justify-content:space-between; }
+    .spot-center { min-height:560px; gap:0; }
+    .spot-top { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+    .spot-id { display:flex; flex-direction:column; gap:8px; align-items:flex-start; padding:8px 12px 10px; border-radius:10px; background:rgba(9,13,17,.6); backdrop-filter:blur(4px); }
+    .spot-id .spot-name b { font-size:30px; }
+    .spot-badges .hero-status-badge, .spot-badges .spot-rank { font-size:13px; padding:5px 12px; }
+    .spot-hc { width:270px; max-width:46%; display:flex; flex-direction:column; gap:8px; }
+    .spot-hc .hm-banner { padding:7px 9px; }
+    .spot-hc .hm-state { font-size:13px; margin-bottom:2px; }
+    .spot-hc .hm-sub { font-size:12px; margin-bottom:6px; }
+    .spot-hc .hm-test { font-size:11.5px; padding:3px 7px; margin:0 0 6px; }
+    .spot-hc .hm-seg { gap:5px; }
+    .spot-hc .hm-seg button { font-size:12px; padding:5px 6px; letter-spacing:.08em; }
+    .spot-hc .spot-fresh { padding:7px 10px; }
+    .spot-hc .spot-fresh-t { font-size:13px; margin-bottom:2px; }
+    .spot-hc .spot-fresh-b { font-size:12.5px; line-height:1.3; }
+    .spot-gap { flex:1; min-height:260px; }
+    .spot-bottom { display:flex; flex-direction:column; gap:8px; }
+    .spot-foot { display:flex; justify-content:space-between; align-items:flex-end; gap:10px; flex-wrap:wrap; }
+    .spot-foot .spot-gear-note:empty { display:none; }
+    .spot-foot .spot-gear-note { align-self:flex-end; }
+    .spot-foot .spot-danger { margin-left:auto; flex-wrap:nowrap; gap:10px; padding:5px 6px 5px 11px; border-width:1px; border-radius:8px; }
+    .spot-foot .spot-danger-txt { flex:none; min-width:0; font-size:12px; line-height:1.2; }
+    .spot-foot .spot-reset { font-size:12px; padding:5px 10px; border-width:1px; border-radius:6px; letter-spacing:.08em; }
+    .spot-below { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+    .spot-below .spot-runs { max-height:none; }
+
     /* Trophées */
     .trophy-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
     .trophy-head b { font-family:'Cinzel',serif; font-size:20px; color:var(--text); }
@@ -1100,7 +1129,11 @@
 
     @media (max-width:760px) {
       .spot { grid-template-columns:1fr 1fr; padding:12px; }
-      .spot-center { grid-column:1 / -1; order:-1; }
+      .spot-center { grid-column:1 / -1; order:-1; min-height:0; }
+      .spot-top { flex-direction:column; }
+      .spot-hc { width:100%; max-width:none; }
+      .spot-gap { min-height:140px; }
+      .spot-foot .spot-danger { margin-left:0; }
       .gslot { width:100%; }
       .podium-row { gap:6px; }
       .podium-name { font-size:13px; }
@@ -3166,7 +3199,7 @@
         <img src="${heroFullImg(_spotClass)}" alt="${esc(_spotClass)}" onerror="this.onerror=null;this.src='${heroImg(_spotClass)}';this.classList.add('is-square')">
       </div>`;
 
-    let centerHtml;
+    let centerHtml, belowHtml = '';
     if (alive) {
       const rk    = diffLevelToRank(alive.best_difficulty_level || 0);
       const rkCol = tierColor(rk.tier);
@@ -3175,27 +3208,39 @@
       const survPct = record > 0 ? Math.round(100 * surv / record) : 0;
       const survTxt = f ? (surv > 1 ? 'donjons survécus' : 'donjon survécu') : (surv > 1 ? 'dungeons survived' : 'dungeon survived');
       centerHtml = `
-        <div class="spot-name"><b style="color:${col}">${esc(hero.class_name)}</b><span class="spot-role">${esc(hero.role)}</span></div>
-        ${hmBannerHtml(alive, f)}
-        ${freshStartHtml(alive, f)}
-        <div class="spot-badges">
-          <span class="hero-status-badge alive">⚔️ ${f ? 'En vie' : 'Alive'} · #${alive.attempt_number}</span>
-          ${(alive.best_difficulty_level || 0) > 0 ? `<span class="spot-rank" style="--rc:${rkCol}">${rk.label}</span>` : ''}
+        <div class="spot-top">
+          <div class="spot-id">
+            <div class="spot-name"><b style="color:${col}">${esc(hero.class_name)}</b><span class="spot-role">${esc(hero.role)}</span></div>
+            <div class="spot-badges">
+              <span class="hero-status-badge alive">⚔️ ${f ? 'En vie' : 'Alive'} · #${alive.attempt_number}</span>
+              ${(alive.best_difficulty_level || 0) > 0 ? `<span class="spot-rank" style="--rc:${rkCol}">${rk.label}</span>` : ''}
+            </div>
+          </div>
+          <div class="spot-hc">
+            ${hmBannerHtml(alive, f)}
+            ${freshStartHtml(alive, f)}
+          </div>
         </div>
+        <div class="spot-gap"></div>
+        <div class="spot-bottom">
+          <div class="spot-stats">
+            <div class="spot-stat"><b>${alive.ilvl_current || '—'}</b><span>ilvl</span></div>
+            <div class="spot-stat"><b>${alive.power_score_current ? Math.round(alive.power_score_current).toLocaleString() : '—'}</b><span>Power Score</span></div>
+            <div class="spot-stat"><b>${Math.floor(scores[alive.id] || 0).toLocaleString()}</b><span>Score</span></div>
+          </div>
+          <div class="spot-foot">
+            <div class="spot-gear-note" id="spot-gear-note"></div>
+            <div class="spot-danger">
+              <span class="spot-danger-txt">${f ? '<b>Ton héros est mort en jeu ?</b> Repars de zéro.' : '<b>Did your hero die in game?</b> Start over.'}</span>
+              <button class="spot-reset" onclick="openResetModal('${alive.id}','${hero.class_name}')">☠️ RESET</button>
+            </div>
+          </div>
+        </div>`;
+      belowHtml = `
         <div class="spot-surv">
           <div class="spot-surv-top"><span>🛡️ <b>${surv}</b> ${survTxt}</span><span class="spot-surv-rec">record ${record}</span></div>
           <div class="trophy-bar"><div style="width:${survPct}%;background:${col}"></div></div>
         </div>
-        <div class="spot-stats">
-          <div class="spot-stat"><b>${alive.ilvl_current || '—'}</b><span>ilvl</span></div>
-          <div class="spot-stat"><b>${alive.power_score_current ? Math.round(alive.power_score_current).toLocaleString() : '—'}</b><span>Power Score</span></div>
-          <div class="spot-stat"><b>${Math.floor(scores[alive.id] || 0).toLocaleString()}</b><span>Score</span></div>
-        </div>
-        <div class="spot-danger">
-          <div class="spot-danger-txt">${f ? '<b>Ton héros est mort en jeu ?</b> Repars à zéro avec une nouvelle tentative.' : '<b>Did your hero die in game?</b> Start over with a fresh attempt.'}</div>
-          <button class="spot-reset" onclick="openResetModal('${alive.id}','${hero.class_name}')">☠️ ${f ? 'RESET' : 'RESET'}</button>
-        </div>
-        <div class="spot-gear-note" id="spot-gear-note"></div>
         ${spotRunsHtml(alive, f)}`;
     } else {
       centerHtml = `
@@ -3213,6 +3258,7 @@
         <div class="spot-center">${centerHtml}</div>
         <div class="spot-slots" id="spot-right">${gearColumn(GEAR_RIGHT, null, f)}</div>
       </div>
+      ${belowHtml ? `<div class="spot-below">${belowHtml}</div>` : ''}
       ${flAccountCardHtml(f)}`;
     if (alive) loadSpotGear(alive.id, f);
   }
