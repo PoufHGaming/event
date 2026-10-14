@@ -350,6 +350,30 @@
   const POLL_INTERVAL_MS  = 30_000;
   const ALERT_DURATION_MS = 6_000; // visible 6s avant de sortir
 
+  // ── PARAMÈTRES D'URL ────────────────────────────────────────────────────────
+  //   ?lang=fr | en          langue des annonces (défaut : fr)
+  //   ?sound=on | off        son des annonces (défaut : on ; accepte aussi 1/0, true/false, mute)
+  // Exemple : overlay.html?lang=en&sound=off
+  const _qs      = new URLSearchParams(location.search);
+  const LANG     = (_qs.get('lang') || 'fr').toLowerCase().startsWith('en') ? 'en' : 'fr';
+  const SOUND_ON = !['off', '0', 'false', 'no', 'mute', 'muted'].includes((_qs.get('sound') || 'on').toLowerCase());
+  document.documentElement.lang = LANG;
+  const T = {
+    fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint' },
+    en: { death: '☠ hardcore death', trophy: '🏆 trophy unlocked', trophyDefault: 'Trophy',  attempt: 'ATTEMPT',   reached: 'reached' },
+  }[LANG];
+  const TIER_NAMES = {
+    fr: { Recrue: 'Recrue',    Adepte: 'Adepte', Champion: 'Champion', Parangon: 'Parangon', Eternal: 'Éternel' },
+    en: { Recrue: 'Contender', Adepte: 'Adept',  Champion: 'Champion', Parangon: 'Paragon',  Eternal: 'Eternal' },
+  }[LANG];
+  // Traduit un libellé stocké en base (« Recrue 2 », « Eternal 5 », « Parangon ») dans la langue choisie
+  function tierLabelL(str) {
+    const KEYS = { recrue:'Recrue', contender:'Recrue', recruit:'Recrue', adepte:'Adepte', adept:'Adepte', champion:'Champion',
+                   parangon:'Parangon', paragon:'Parangon', eternal:'Eternal', eternel:'Eternal', 'éternel':'Eternal' };
+    return String(str || '').replace(/^(Recrue|Contender|Recruit|Adepte|Adept|Champion|Parangon|Paragon|Eternal|Eternel|Éternel)/i,
+      m => TIER_NAMES[KEYS[m.toLowerCase()] || m] || m);
+  }
+
   // Mapping classe → couleur
   const CLASS_COLORS = {
     'Helena':  '#b26731', 'Meiko':   '#29dd5c', 'Xavian':  '#097265',
@@ -376,11 +400,11 @@
     if (!dl || dl <= 0) return { tier: '', level: 0, label: '—' };
     // Table vérifiée sur FellowshipLogs : dl 16/17/18 = Paragon 1/2/3, dl 22 = Eternal 2,
     // dl 47/48 = Eternal 27/28. Eternal N = dl - 20 ; paliers de 5 niveaux avant.
-    if (dl > 20) return { tier: 'Eternal', level: dl - 20, label: `Éternel ${dl - 20}` };
+    if (dl > 20) return { tier: 'Eternal', level: dl - 20, label: `${TIER_NAMES.Eternal} ${dl - 20}` };
     const tiers = ['Recrue', 'Adepte', 'Champion', 'Parangon'];
     const t = Math.floor((dl - 1) / 5);
     const level = ((dl - 1) % 5) + 1;
-    return { tier: tiers[t], level, label: `${tiers[t]} ${level}` };
+    return { tier: tiers[t], level, label: `${TIER_NAMES[tiers[t]]} ${level}` };
   }
 
   function tierColor(tier) {
@@ -391,6 +415,7 @@
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   function playDeathSound() {
+    if (!SOUND_ON) return;
     // Son grave, lourd — knell funèbre
     const t = audioCtx.currentTime;
     const osc1 = audioCtx.createOscillator();
@@ -434,6 +459,7 @@
   }
 
   function playCapstoneSound() {
+    if (!SOUND_ON) return;
     // Son montant, victorieux — fanfare courte
     const t = audioCtx.currentTime;
     const notes = [523, 659, 784, 1047]; // Do Mi Sol Do
@@ -511,7 +537,7 @@
     let typeLabel, headline, subline, accent;
 
     if (isDeath) {
-      typeLabel = '☠ mort hardcore';
+      typeLabel = T.death;
       headline  = `
         <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
         <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
@@ -522,10 +548,11 @@
       `;
       accent = '💀';
     } else if (isTrophy) {
-      const tName = (meta.fr && meta.fr[0]) || 'Trophée';
-      const tDesc = (meta.fr && meta.fr[1]) || '';
+      const tTxt  = (LANG === 'en' ? meta.en : meta.fr) || meta.fr || meta.en || [];
+      const tName = tTxt[0] || T.trophyDefault;
+      const tDesc = tTxt[1] || '';
       const tCol  = meta.color || '#ffd36b';
-      typeLabel = '🏆 trophée débloqué';
+      typeLabel = T.trophy;
       headline  = `
         <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
         <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
@@ -537,8 +564,8 @@
       accent = heroIcon;
     } else {
       // Capstone
-      const capTier = meta.tier_name || 'Capstone';
-      typeLabel = `✦ ${capTier} atteint`;
+      const capTier = tierLabelL(meta.tier_name) || 'Capstone';
+      typeLabel = `✦ ${capTier} ${T.reached}`;
       headline  = `
         <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
         <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
@@ -551,7 +578,7 @@
     }
 
     const attemptHtml = isDeath && evt.attempt_number
-      ? `<div class="alert-attempt">TENTATIVE #${evt.attempt_number}</div>`
+      ? `<div class="alert-attempt">${T.attempt} #${evt.attempt_number}</div>`
       : '';
 
     wrapper.innerHTML = `
