@@ -2333,15 +2333,15 @@
     }
 
     // Runs (survie, trophées) et score par personnage (cimetière, fiche héros)
-    let runs = [], scores = {};
+    let runs = [], scores = {}, playerName = '';
     if (charIds) {
       const arr = x => Array.isArray(x) ? x : [];
       const [runRows, sumRows] = await Promise.all([
         fetch(`${base}/hm_runs?character_id=in.(${charIds})&valid=eq.true&select=character_id,dungeon_name,difficulty_level,in_time,completed,completed_at,rating&order=completed_at.desc&limit=1000`, { headers }).then(r => r.json()).catch(() => []),
-        fetch(`${base}/hm_summary?character_id=in.(${charIds})&select=character_id,total_rating_score`, { headers }).then(r => r.json()).catch(() => []),
+        fetch(`${base}/hm_summary?character_id=in.(${charIds})&select=character_id,total_rating_score,player_name`, { headers }).then(r => r.json()).catch(() => []),
       ]);
       runs = arr(runRows);
-      for (const r of arr(sumRows)) scores[r.character_id] = Number(r.total_rating_score) || 0;
+      for (const r of arr(sumRows)) { scores[r.character_id] = Number(r.total_rating_score) || 0; if (r.player_name && !playerName) playerName = r.player_name; }
     }
     _snapCache = {};
 
@@ -2353,6 +2353,7 @@
       heroClasses,
       runs,
       scores,
+      playerName,
     };
   }
 
@@ -2442,7 +2443,8 @@
   // Onboarding — variables globales
   let _onboardingStep = 1;
   let _onboardingSelectedHeroes = new Set();
-  let _onboardingPlayerName = '';
+  let _onboardingPlayerName = '';   // nom du classement (players.name)
+  let _onboardingFlName = '';       // nom Fellowship Logs (hm_characters.character_name) — vide = même nom
   let _onboardingCode = '';
   let _onboardingFellowshipId = '';
   let _onboardingFlUser = '';
@@ -2472,13 +2474,19 @@
       body = `
         <div class="onboarding-title">${f ? 'Bienvenue — Configure ton profil' : 'Welcome — Set up your profile'}</div>
         <p style="font-size:14px;color:var(--text-muted);font-style:italic;margin-bottom:20px;line-height:1.6">${f
-          ? 'Ton nom Fellowship sera utilisé pour identifier tes personnages dans les logs de combat.'
-          : 'Your Fellowship name will be used to identify your characters in combat logs.'}</p>
+          ? 'Ton nom du classement est celui affiché sur le leaderboard. Ton nom Fellowship Logs sert à identifier tes personnages dans les logs de combat.'
+          : 'Your leaderboard name is the one shown on the leaderboard. Your Fellowship Logs name is used to identify your characters in combat logs.'}</p>
 
         <div class="field">
-          <label>${f ? 'Ton nom Fellowship (exact)' : 'Your Fellowship name (exact)'} *</label>
-          <input type="text" id="ob-name" value="${_onboardingPlayerName}" placeholder="${f ? 'Ton nom exact sur FellowshipLogs' : 'Your exact name on FellowshipLogs'}">
-          <div class="field-hint">${f ? 'Doit correspondre exactement à ton nom sur fellowshiplogs.com' : 'Must match exactly your name on fellowshiplogs.com'}</div>
+          <label>${f ? 'Nom du classement (Leaderboard)' : 'Leaderboard name'} *</label>
+          <input type="text" id="ob-name" value="${esc(_onboardingPlayerName)}" placeholder="${f ? 'Le nom sous lequel tu es inscrit à l\'event' : 'The name you registered with for the event'}">
+          <div class="field-hint">${f ? 'Affiché sur le classement. Doit correspondre exactement au nom sous lequel tu as été inscrit.' : 'Shown on the leaderboard. Must match exactly the name you were registered under.'}</div>
+        </div>
+
+        <div class="field">
+          <label>${f ? 'Nom Fellowship Logs' : 'Fellowship Logs name'} <span style="font-weight:400;color:var(--text-muted)">(${f ? 'optionnel' : 'optional'})</span></label>
+          <input type="text" id="ob-fl-name" value="${esc(_onboardingFlName)}" placeholder="${f ? 'Laisse vide si identique au nom du classement' : 'Leave empty if same as leaderboard name'}">
+          <div class="field-hint">${f ? 'Ton nom de personnage exact sur fellowshiplogs.com, s\'il est différent. Si tu laisses vide, le nom du classement est utilisé.' : 'Your exact character name on fellowshiplogs.com, if different. If left empty, the leaderboard name is used.'}</div>
         </div>
 
         <div class="field">
@@ -2588,8 +2596,12 @@
         <div class="onboarding-title">${f ? 'Récapitulatif — Vérifie tes infos' : 'Summary — Check your details'}</div>
         <div class="recap-card">
           <div class="recap-row">
-            <span class="recap-label">${f ? 'Nom Fellowship' : 'Fellowship name'}</span>
-            <span class="recap-val">${_onboardingPlayerName}</span>
+            <span class="recap-label">${f ? 'Nom du classement' : 'Leaderboard name'}</span>
+            <span class="recap-val">${esc(_onboardingPlayerName)}</span>
+          </div>
+          <div class="recap-row">
+            <span class="recap-label">${f ? 'Nom Fellowship Logs' : 'Fellowship Logs name'}</span>
+            <span class="recap-val">${esc(_onboardingFlName || _onboardingPlayerName)}${_onboardingFlName ? '' : ` <span style="color:var(--text-muted);font-size:12px">(${f ? 'identique' : 'same'})</span>`}</span>
           </div>
           <div class="recap-row">
             <span class="recap-label">Fellowship ID</span>
@@ -2655,10 +2667,12 @@
     const f = fr();
     if (_onboardingStep === 1) {
       _onboardingPlayerName   = document.getElementById('ob-name')?.value?.trim() || '';
+      _onboardingFlName       = document.getElementById('ob-fl-name')?.value?.trim() || '';
+      if (_onboardingFlName && _onboardingFlName.toLowerCase() === _onboardingPlayerName.toLowerCase()) _onboardingFlName = _onboardingPlayerName;
       _onboardingFellowshipId = document.getElementById('ob-fellowship-id')?.value?.trim() || '';
       _onboardingCode         = document.getElementById('ob-code')?.value?.trim() || '';
       _onboardingFlUser       = document.getElementById('ob-fl-user')?.value?.trim() || '';
-      if (!_onboardingPlayerName)   { toast(f ? 'Remplis ton nom Fellowship.' : 'Enter your Fellowship name.', true); return; }
+      if (!_onboardingPlayerName)   { toast(f ? 'Remplis ton nom du classement.' : 'Enter your leaderboard name.', true); return; }
       if (!_onboardingFellowshipId) { toast(f ? 'Le Fellowship ID est obligatoire.' : 'Fellowship ID is required.', true); return; }
       if (!parseFlUserId(_onboardingFlUser)) { toast(f ? 'Colle le lien « All Reports » de ton compte Fellowship Logs (ou son numéro).' : 'Paste your Fellowship Logs “All Reports” link (or its number).', true); return; }
       _onboardingStep = 2;
@@ -2678,6 +2692,7 @@
     if (btn) { btn.disabled = true; btn.textContent = f ? 'Enregistrement…' : 'Saving…'; }
 
     try {
+      const flName = _onboardingFlName || _onboardingPlayerName;   // nom utilisé dans les logs (character_name)
       const players = await sbFetch(`/rest/v1/players?name=eq.${encodeURIComponent(_onboardingPlayerName)}&select=id`);
       const playerId = players?.[0]?.id;
       if (!playerId) {
@@ -2695,7 +2710,12 @@
         body: JSON.stringify({ id: userId, player_id: playerId, fellowship_contact_code: _onboardingCode || null, fellowship_user_id: parseFlUserId(_onboardingFlUser), onboarding_complete: true }),
       });
 
-      await sbFetch('/rest/v1/hm_log_aliases', { method: 'POST', prefer: 'return=minimal', body: { player_id: playerId, log_name: _onboardingPlayerName } }).catch(() => {});
+      // Alias de log : doit être envoyé avec le jeton de l'utilisateur (la policy RLS « own alias insert » exige auth.uid())
+      await fetch(SUPABASE_URL + '/rest/v1/hm_log_aliases', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ player_id: playerId, log_name: flName }),
+      }).catch(() => {});
 
       for (const heroClass of _onboardingSelectedHeroes) {
         await fetch(SUPABASE_URL + '/rest/v1/hm_characters', {
@@ -2704,7 +2724,7 @@
           body: JSON.stringify({
             player_id: playerId, user_id: userId,
             fellowship_character_id: _onboardingFellowshipId ? parseInt(_onboardingFellowshipId) : null,
-            character_name: _onboardingPlayerName, character_class: heroClass,
+            character_name: flName, character_class: heroClass,
             attempt_number: 1, status: 'alive', hm_enabled: false, season: SEASON,
           }),
         });
@@ -2891,7 +2911,9 @@
   // ── Coque du profil ──────────────────────────────────────────────────────────
   function renderProfileConnected(cont, f, session) {
     const { warnings, characters } = _profileData;
-    const playerName = characters.find(c => c.character_name)?.character_name || '—';
+    const flName     = characters.find(c => c.character_name)?.character_name || '';
+    const playerName = _profileData.playerName || flName || '—';
+    const flSub      = flName && flName !== playerName ? `<div class="profile-email">Fellowship Logs : ${esc(flName)}</div>` : '';
     const tabEl = document.getElementById('tab-profile');
     if (tabEl) { tabEl.textContent = f ? 'Gérer mes héros' : 'My Heroes'; tabEl.setAttribute('data-fr', 'Gérer mes héros'); tabEl.setAttribute('data-en', 'My Heroes'); }
     const unread = warnings.filter(w => !w.read).length;
@@ -2903,6 +2925,7 @@
       <div class="profile-header">
         <div class="profile-user">
           <div class="profile-username">${esc(playerName)}</div>
+          ${flSub}
           <div class="profile-email">${f ? 'Fellowship Hardcore · Saison 1' : 'Fellowship Hardcore · Season 1'}</div>
         </div>
         <button class="btn-logout" onclick="signOut()">${f ? 'Déconnexion' : 'Sign out'}</button>
@@ -3408,7 +3431,22 @@
     if (!session || !_profileData) return;
     const { profile, characters } = _profileData;
     const playerId = profile?.player_id;
-    const charName = characters[0]?.character_name;
+    // Nom utilisé dans les logs : celui de tes autres héros ; sinon (profil sans héros, ex. après un wipe) l'alias de log
+    // enregistré à l'inscription ; sinon le nom du classement.
+    let charName = characters[0]?.character_name || '';
+    if (!charName && playerId) {
+      const hdr = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token };
+      try {
+        const al = await fetch(SUPABASE_URL + `/rest/v1/hm_log_aliases?player_id=eq.${playerId}&select=log_name&order=created_at.desc&limit=1`, { headers: hdr }).then(r => r.json());
+        charName = Array.isArray(al) && al[0]?.log_name || '';
+      } catch (_) {}
+      if (!charName) {
+        try {
+          const pl = await fetch(SUPABASE_URL + `/rest/v1/players?id=eq.${playerId}&select=name`, { headers: hdr }).then(r => r.json());
+          charName = Array.isArray(pl) && pl[0]?.name || '';
+        } catch (_) {}
+      }
+    }
     if (!playerId || !charName) { toast(f ? 'Profil incomplet.' : 'Incomplete profile.', true); return; }
     if (characters.some(c => c.character_class === heroClass && c.status === 'alive')) { toast(f ? 'Héros déjà ajouté.' : 'Hero already added.', true); return; }
     try {
