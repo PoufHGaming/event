@@ -2253,7 +2253,9 @@
   async function sendMagicLink(email) {
     // Même fichier sur dev et prod : le lien du mail ramène sur la page d'où la demande est partie.
     // ⚠️ Cette URL doit figurer dans Supabase → Auth → URL Configuration → Redirect URLs.
-    const redirectTo = window.location.origin + window.location.pathname;
+    // Forme canonique : « …/hardcore/ » et « …/hardcore/index.html » donnent la même URL, sinon Supabase
+    // la refuse (liste Redirect URLs = correspondance exacte) et renvoie sur la page d'accueil.
+    const redirectTo = window.location.origin + window.location.pathname.replace(/index\.html$/i, '');
     await authFetch('/magiclink', {
       method: 'POST',
       body: { email, redirect_to: redirectTo },
@@ -2276,6 +2278,18 @@
   //     Redirect URLs = URL de la page HC en production + celle de dev (une par ligne)
   async function handleAuthCallback() {
     const hash = window.location.hash;
+    // Lien refusé par Supabase (expiré, déjà utilisé — souvent « consommé » par l'antivirus/le client mail avant le clic)
+    if (/[#&]error(_code|_description)?=/.test(hash)) {
+      const p = new URLSearchParams(hash.replace('#', ''));
+      const code = p.get('error_code') || p.get('error') || '';
+      history.replaceState(null, '', window.location.pathname);
+      const f = fr();
+      toast(code === 'otp_expired'
+        ? (f ? 'Lien de connexion expiré ou déjà utilisé. Redemande un lien et clique dessus directement depuis ta boîte mail.' : 'Sign-in link expired or already used. Request a new one and click it straight from your inbox.')
+        : (f ? 'Connexion impossible : ' : 'Sign-in failed: ') + (p.get('error_description') || code).replace(/\+/g, ' '), true);
+      showPage('profile', document.getElementById('tab-profile'));
+      return;
+    }
     if (!hash.includes('access_token')) return;
     const params       = new URLSearchParams(hash.replace('#', ''));
     const type         = params.get('type');
