@@ -355,11 +355,17 @@
   //   ?sound=on | off        son des annonces (défaut : on ; accepte aussi 1/0, true/false, mute)
   //   ?shared=1              mode PARTAGÉ : plusieurs overlays (plusieurs OBS) reçoivent chacun TOUTES les alertes.
   //                          Sans ce mode, le premier overlay qui interroge la base « consomme » l'alerte pour tout le monde.
-  // Exemple : overlay.html?shared=1&lang=en&sound=off
+  //   ?test=1                affiche UNE alerte de test à l'ouverture (mort par défaut ; ?test=death | capstone | trophy pour choisir).
+  //                          Mode test = aucune lecture ni écriture en base : les vraies alertes ne sont pas consommées.
+  //                          Pour revoir l'alerte : actualiser la source navigateur dans OBS.
+  // Exemple : overlay.html?shared=1&lang=en&sound=off   ·   test : overlay.html?test=1&lang=en
   const _qs      = new URLSearchParams(location.search);
   const LANG     = (_qs.get('lang') || 'fr').toLowerCase().startsWith('en') ? 'en' : 'fr';
   const SOUND_ON = !['off', '0', 'false', 'no', 'mute', 'muted'].includes((_qs.get('sound') || 'on').toLowerCase());
   const SHARED   = ['1', 'true', 'on', 'yes'].includes((_qs.get('shared') || '').toLowerCase());
+  const _test    = (_qs.get('test') || '').toLowerCase();
+  const TEST_ON  = _test !== '' && !['0', 'off', 'false', 'no'].includes(_test);
+  const TEST_TYPE = ['capstone', 'trophy'].includes(_test) ? _test : 'death';
   document.documentElement.lang = LANG;
   const T = {
     fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint' },
@@ -702,10 +708,25 @@
     }
   }
 
+  // Alerte de test (?test=1) : événement fictif, sans aucun appel à la base
+  function testEvent(type) {
+    const base = { id: 'test', character_name: LANG === 'en' ? 'Test Hero' : 'Héros Test', character_class: 'Aeona', attempt_number: 2 };
+    if (type === 'trophy') return { ...base, event_type: 'trophy', metadata: {
+      trophy_id: 'eternal_5', img: 'Trophy_Eternal_2', ico: '👑', color: '#e04040',
+      fr: ['Éternel V', 'Termine un donjon Éternel 5 dans les temps.'], en: ['Eternal V', 'Finish an Eternal 5 dungeon within the time limit.'] } };
+    if (type === 'capstone') return { ...base, event_type: 'capstone', metadata: { tier_name: 'Champion', difficulty_level: 12, dungeon: 'Urrak Markets' } };
+    return { ...base, event_type: 'death', metadata: { dungeon: 'Urrak Markets', difficulty_level: 8 } };
+  }
+
   // Démarrage
-  const poll = SHARED ? pollEventsShared : pollEvents;
-  poll();
-  setInterval(poll, POLL_INTERVAL_MS);
+  if (TEST_ON) {
+    console.info('[overlay] mode test : une alerte « ' + TEST_TYPE + ' », aucune lecture en base');
+    setTimeout(() => enqueueAlerts([testEvent(TEST_TYPE)]), 800);
+  } else {
+    const poll = SHARED ? pollEventsShared : pollEvents;
+    poll();
+    setInterval(poll, POLL_INTERVAL_MS);
+  }
 
   // Débloquer AudioContext sur premier clic (requis par les navigateurs)
   document.addEventListener('click', () => {
