@@ -57,6 +57,7 @@
       transform: translateY(-32px) scale(0.96);
       transition: none;
       position: relative;
+      color: #f2eaea;
     }
 
     .alert-card.show {
@@ -141,14 +142,28 @@
       display: flex;
       align-items: center;
       gap: 0;
-      height: 110px;
+      height: 130px;
       position: relative;
+      z-index: 2;
     }
+
+    /* Image du donjon en fond, assombrie par la couleur de l'alerte pour garder le texte lisible */
+    .alert-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+      filter: saturate(0.9);
+    }
+    .alert-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(var(--tint),var(--a1,0.94)) 0%, rgba(var(--tint),var(--a2,0.74)) 45%, rgba(var(--tint),var(--a3,0.42)) 100%);
+    }
+    .alert-death    { --tint: 14,4,4; }
+    .alert-capstone { --tint: 5,9,24; --a1: 0.88; --a2: 0.62; --a3: 0.34; }   /* donjon bien visible, juste assombri */
 
     /* ── HERO ICON ZONE ── */
     .alert-icon-zone {
-      width: 110px;
-      height: 110px;
+      width: 120px;
+      height: 130px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -165,8 +180,8 @@
     }
 
     .hero-icon {
-      width: 72px;
-      height: 72px;
+      width: 84px;
+      height: 84px;
       border-radius: 50%;
       border: 2px solid;
       display: flex;
@@ -178,6 +193,8 @@
       overflow: hidden;
     }
 
+    .hero-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .alert-death .hero-icon img { filter: grayscale(0.35) brightness(0.92) contrast(1.05); }
     .hero-icon::before {
       content: '';
       position: absolute;
@@ -204,11 +221,12 @@
       font-size: 11px;
       letter-spacing: 0.38em;
       text-transform: uppercase;
-      opacity: 0.55;
-      font-weight: 700;
+      opacity: 0.9;
+      font-weight: 800;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.8);
     }
 
-    .alert-death .alert-type-label { color: #ff8080; }
+    .alert-death .alert-type-label { color: #ff7070; font-size: 14px; opacity: 1; text-shadow: 0 0 14px rgba(255,50,50,0.75), 0 1px 4px #000; }
     .alert-capstone .alert-type-label { color: #c4a0ff; }
 
     .alert-headline {
@@ -244,9 +262,10 @@
     }
 
     .alert-dungeon {
-      opacity: 0.7;
+      color: #f6eeea;
+      text-shadow: 0 1px 6px #000, 0 0 14px rgba(0,0,0,0.8);
       font-family: 'Crimson Pro', serif;
-      font-size: 17px;
+      font-size: 20px;
       font-style: italic;
       font-weight: 400;
       letter-spacing: 0.04em;
@@ -265,7 +284,9 @@
     .alert-attempt {
       font-size: 12px;
       letter-spacing: 0.2em;
-      opacity: 0.45;
+      opacity: 0.85;
+      color: #ffc4c4;
+      text-shadow: 0 1px 4px #000;
       font-weight: 700;
       margin-top: 2px;
     }
@@ -278,8 +299,12 @@
       align-items: center;
       justify-content: center;
       font-size: 48px;
-      opacity: 0.22;
-      filter: blur(0.5px);
+      opacity: 0.3;
+    }
+    .alert-death .alert-accent {
+      font-size: 64px;
+      opacity: 0.95;
+      filter: drop-shadow(0 0 14px rgba(255,50,50,0.8)) drop-shadow(0 2px 4px rgba(0,0,0,0.8));
     }
 
     /* ── SHIMMER LINE (top) ── */
@@ -368,13 +393,22 @@
   const TEST_TYPE = ['capstone', 'trophy'].includes(_test) ? _test : 'death';
   document.documentElement.lang = LANG;
   const T = {
-    fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint' },
-    en: { death: '☠ hardcore death', trophy: '🏆 trophy unlocked', trophyDefault: 'Trophy',  attempt: 'ATTEMPT',   reached: 'reached' },
+    fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint', unlocked: 'débloqué' },
+    en: { death: '☠ hardcore death', trophy: '🏆 trophy unlocked', trophyDefault: 'Trophy',  attempt: 'ATTEMPT',   reached: 'reached', unlocked: 'unlocked' },
   }[LANG];
   const TIER_NAMES = {
     fr: { Recrue: 'Recrue',    Adepte: 'Adepte', Champion: 'Champion', Parangon: 'Parangon', Eternal: 'Éternel' },
     en: { Recrue: 'Contender', Adepte: 'Adept',  Champion: 'Champion', Parangon: 'Paragon',  Eternal: 'Eternal' },
   }[LANG];
+  // Capstone « Recrue » franchi → on annonce la ligue d'après : « Adepte débloqué » (Éternel est le dernier palier : « atteint »)
+  const TIER_KEYS = { recrue:'Recrue', contender:'Recrue', recruit:'Recrue', adepte:'Adepte', adept:'Adepte', champion:'Champion',
+                      parangon:'Parangon', paragon:'Parangon', eternal:'Eternal', eternel:'Eternal', 'éternel':'Eternal' };
+  const TIER_NEXT = { Recrue:'Adepte', Adepte:'Champion', Champion:'Parangon', Parangon:'Eternal' };
+  function nextTierName(str) {
+    const w = String(str || '').trim().split(/\s+/)[0].toLowerCase();
+    const n = TIER_NEXT[TIER_KEYS[w]];
+    return n ? TIER_NAMES[n] : null;
+  }
   // Traduit un libellé stocké en base (« Recrue 2 », « Eternal 5 », « Parangon ») dans la langue choisie
   function tierLabelL(str) {
     const KEYS = { recrue:'Recrue', contender:'Recrue', recruit:'Recrue', adepte:'Adepte', adept:'Adepte', champion:'Champion',
@@ -382,6 +416,31 @@
     return String(str || '').replace(/^(Recrue|Contender|Recruit|Adepte|Adept|Champion|Parangon|Paragon|Eternal|Eternel|Éternel)/i,
       m => TIER_NAMES[KEYS[m.toLowerCase()] || m] || m);
   }
+
+  // Donjons : nom de zone des logs (EN) → image (../gloire/images/<slug>.jpg) et nom affiché (FR / EN)
+  const DUNGEON_SLUGS = {
+    'sailorsabyss':'abime-des-marins',   'everdawngrove':'bois-de-laube',
+    'godfallquarry':'carriere-tombe-dieu','wraithtidevault':'caveau-de-lamespectre',
+    'wyrmheart':'coeur-de-guivre',       'theheartoftuzari':'coeur-de-tuzari',
+    'heartoftuzari':'coeur-de-tuzari',   'silkenhollow':'creux-soyeux',
+    'stormwatch':'guet-tempete',         'cithrelsfall':'la-chute-cithrel',
+    'urrakmarkets':'marche-durrak',      'urrakmarket':'marche-durrak',
+    'ruinsofregath':'ruins-of-regath',   'empyreansands':'sables-empyreens',
+    'ransackofdrakheim':'saccage-de-drakheim', 'scryerspeak':'scryers-peak',
+    'xulthebloodmonolith':'xul-the-blood-monolith',
+  };
+  const DUNGEON_NAMES = {
+    'abime-des-marins':['Abîme des marins',"Sailor's Abyss"], 'bois-de-laube':["Bois de l'aube",'Everdawn Grove'],
+    'carriere-tombe-dieu':['Carrière tombe-dieu','Godfall Quarry'], 'caveau-de-lamespectre':['Caveau de Lamespectre','Wraithtide Vault'],
+    'coeur-de-guivre':['Cœur de guivre','Wyrmheart'], 'coeur-de-tuzari':['Cœur de Tuzari','The Heart of Tuzari'],
+    'creux-soyeux':['Creux soyeux','Silken Hollow'], 'guet-tempete':['Guet-tempête','Stormwatch'],
+    'la-chute-cithrel':['La chute Cithrel',"Cithrel's Fall"], 'marche-durrak':["Marché d'Urrak",'Urrak Markets'],
+    'ruins-of-regath':['Ruins of Regath','Ruins of Regath'], 'sables-empyreens':['Sables empyréens','Empyrean Sands'],
+    'saccage-de-drakheim':['Saccage de Drakheim','Ransack of Drakheim'], 'scryers-peak':["Scryer's Peak","Scryer's Peak"],
+    'xul-the-blood-monolith':['Xul, the Blood Monolith','Xul, The Blood Monolith'],
+  };
+  const dungSlug = n => DUNGEON_SLUGS[String(n || '').toLowerCase().replace(/[^a-z0-9]/g, '')] || null;
+  function dungName(n) { const s = dungSlug(n); return s ? DUNGEON_NAMES[s][LANG === 'en' ? 1 : 0] : (n || ''); }
 
   // Mapping classe → couleur
   const CLASS_COLORS = {
@@ -540,8 +599,16 @@
       : '';
 
     const dungeonHtml = meta.dungeon
-      ? `<span class="alert-dungeon">${meta.dungeon}</span>`
+      ? `<span class="alert-dungeon">${dungName(meta.dungeon)}</span>`
       : '';
+    const dSlug  = dungSlug(meta.dungeon);
+    // Médaillon : portrait du héros (mort) ; image du donjon en pleine luminosité (capstone), portrait du héros si elle manque
+    const heroSrc   = heroClass ? `../images/heroes/${encodeURIComponent(heroClass.toLowerCase())}.jpg` : '';
+    const dungSrc   = dSlug ? `../gloire/images/${dSlug}.jpg` : '';
+    const bubbleImg = (!isDeath && dungSrc)
+      ? `<img class="bubble-dungeon" src="${dungSrc}" alt="" onerror="${heroSrc ? `this.onerror=function(){this.remove()};this.src='${heroSrc}'` : 'this.remove()'}">`
+      : (heroSrc ? `<img src="${heroSrc}" alt="" onerror="this.remove()">` : '');
+    const bgHtml = (!isTrophy && dSlug) ? `<div class="alert-bg" style="background-image:url('../gloire/images/${dSlug}.jpg')"></div>` : '';
 
     let typeLabel, headline, subline, accent;
 
@@ -574,7 +641,8 @@
     } else {
       // Capstone
       const capTier = tierLabelL(meta.tier_name) || 'Capstone';
-      typeLabel = `✦ ${capTier} ${T.reached}`;
+      const nextTier = nextTierName(meta.tier_name);
+      typeLabel = nextTier ? `✦ ${nextTier} ${T.unlocked}` : `✦ ${capTier} ${T.reached}`;
       headline  = `
         <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
         <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
@@ -592,6 +660,7 @@
 
     wrapper.innerHTML = `
       <div class="alert-card alert-${isDeath ? 'death' : (isTrophy ? 'trophy' : 'capstone')}">
+        ${bgHtml}
         <div class="alert-shimmer"></div>
         <div class="alert-corner tl"></div>
         <div class="alert-corner tr"></div>
@@ -608,6 +677,7 @@
               box-shadow: 0 0 20px ${heroColor}40, inset 0 0 12px ${heroColor}20;
             ">
               <span style="filter:drop-shadow(0 0 6px ${heroColor})">${heroIcon}</span>
+              ${bubbleImg}
             </div>`}
           </div>
           <div class="alert-content">
@@ -714,7 +784,7 @@
     if (type === 'trophy') return { ...base, event_type: 'trophy', metadata: {
       trophy_id: 'eternal_5', img: 'Trophy_Eternal_2', ico: '👑', color: '#e04040',
       fr: ['Éternel V', 'Termine un donjon Éternel 5 dans les temps.'], en: ['Eternal V', 'Finish an Eternal 5 dungeon within the time limit.'] } };
-    if (type === 'capstone') return { ...base, event_type: 'capstone', metadata: { tier_name: 'Champion', difficulty_level: 12, dungeon: 'Urrak Markets' } };
+    if (type === 'capstone') return { ...base, event_type: 'capstone', metadata: { tier_name: 'Recrue', difficulty_level: 4, dungeon: 'Urrak Markets' } };
     return { ...base, event_type: 'death', metadata: { dungeon: 'Urrak Markets', difficulty_level: 8 } };
   }
 
