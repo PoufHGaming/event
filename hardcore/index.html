@@ -2812,11 +2812,61 @@
 
     try {
       const flName = _onboardingFlName || _onboardingPlayerName;   // nom utilisé dans les logs (character_name)
-      const players = await sbFetch(`/rest/v1/players?name=eq.${encodeURIComponent(_onboardingPlayerName)}&select=id`);
-      const playerId = players?.[0]?.id;
+      // Recherche du joueur sans tenir compte de la casse ni des espaces / @ parasites (« n4medrop_ttv » = « N4MEDROP_TTV »)
+      const likeEsc = t => t.replace(/[\\%_*]/g, '\\$&');
+      const typed   = _onboardingPlayerName.replace(/^@+/, '').replace(/\s+/g, ' ').trim();
+      const obFail = (html, toastMsg) => {
+        document.getElementById('ob-notfound')?.remove();
+        document.querySelector('.onboarding-card')?.insertAdjacentHTML('beforeend',
+          `<div id="ob-notfound" style="margin-top:14px;padding:12px 14px;border:1px solid rgba(255,68,68,0.45);background:rgba(255,68,68,0.06);border-radius:4px;font-size:14px;line-height:1.6;color:var(--text-dim)">⚠️ ${html}</div>`);
+        toast(toastMsg, true);
+        if (btn) { btn.disabled = false; btn.textContent = f ? '✓ Confirmer mon inscription' : '✓ Confirm registration'; }
+      };
+      // 1) Fonction serveur hm_claim_player : retrouve le joueur OU le crée (nouveau joueur), refuse un nom déjà lié à un autre compte
+      let playerId = null;
+      try {
+        const rr = await fetch(SUPABASE_URL + '/rest/v1/rpc/hm_claim_player', {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ p_name: typed }),
+        });
+        const body = await rr.json().catch(() => null);
+        if (rr.ok && Number.isInteger(body)) playerId = body;
+        else if (JSON.stringify(body || {}).includes('PLAYER_TAKEN')) {
+          obFail(f ? `Le nom <strong>${esc(typed)}</strong> est déjà utilisé par un autre compte. Si c'est bien toi, connecte-toi avec ton compte d'origine ; sinon contacte Pouf.`
+                   : `The name <strong>${esc(typed)}</strong> is already used by another account. If it is really you, sign in with your original account; otherwise contact Pouf.`,
+                 f ? 'Nom déjà utilisé.' : 'Name already taken.');
+          return;
+        } else if (JSON.stringify(body || {}).includes('BAD_NAME')) {
+          obFail(f ? 'Le nom du classement doit faire entre 2 et 40 caractères.' : 'The leaderboard name must be 2 to 40 characters long.', f ? 'Nom invalide.' : 'Invalid name.');
+          return;
+        }
+      } catch (_) {}
+      // 2) Repli (fonction pas encore installée) : recherche d'un joueur existant, sans tenir compte de la casse
       if (!playerId) {
-        toast(f ? `Joueur "${_onboardingPlayerName}" introuvable.` : `Player not found.`, true);
-        if (btn) { btn.disabled = false; btn.textContent = f ? '✓ Confirmer' : '✓ Confirm'; }
+        const players = await sbFetch(`/rest/v1/players?name=ilike.${encodeURIComponent(likeEsc(typed))}&select=id,name&limit=5`);
+        const found   = (players || []).find(x => x.name === typed) || (players || [])[0];
+        playerId = found?.id || null;
+      }
+      if (!playerId) {
+        // Propositions proches (jamais choisies automatiquement : c'est au joueur de confirmer son nom)
+        let hint = '';
+        try {
+          const base = typed.replace(/[\s_\-]*(ttv|tv)$/i, '').replace(/[%*]/g, '');
+          if (base.length >= 3) {
+            const sugg = await sbFetch(`/rest/v1/players?name=ilike.*${encodeURIComponent(likeEsc(base))}*&select=name&limit=5`);
+            if (sugg?.length) hint = sugg.map(x => x.name).join(', ');
+          }
+        } catch (_) {}
+        document.getElementById('ob-notfound')?.remove();
+        document.querySelector('.onboarding-card')?.insertAdjacentHTML('beforeend',
+          `<div id="ob-notfound" style="margin-top:14px;padding:12px 14px;border:1px solid rgba(255,68,68,0.45);background:rgba(255,68,68,0.06);border-radius:4px;font-size:14px;line-height:1.6;color:var(--text-dim)">
+            ⚠️ ${f ? `Aucun joueur inscrit à l'event sous le nom <strong>${esc(typed)}</strong>.` : `No player is registered for the event under the name <strong>${esc(typed)}</strong>.`}
+            ${hint ? `<br>${f ? 'Noms proches' : 'Similar names'} : <strong>${esc(hint)}</strong>` : ''}
+            <br>${f ? 'Reviens à l\'étape 1 et saisis exactement le nom utilisé à l\'inscription à l\'event. Si tu n\'es pas inscrit, contacte Pouf.' : 'Go back to step 1 and enter exactly the name you used to register for the event. If you are not registered, contact Pouf.'}
+          </div>`);
+        toast(f ? `Joueur "${typed}" introuvable.` : `Player "${typed}" not found.`, true);
+        if (btn) { btn.disabled = false; btn.textContent = f ? '✓ Confirmer mon inscription' : '✓ Confirm registration'; }
         return;
       }
 
