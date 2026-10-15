@@ -271,6 +271,20 @@
       letter-spacing: 0.04em;
     }
 
+    .alert-gs-badge {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 3px 14px;
+      border-radius: 20px;
+      border: 1.5px solid #ffcf5a;
+      color: #ffe08a;
+      background: rgba(60,40,0,0.72);
+      box-shadow: 0 0 14px rgba(255,200,80,0.45);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.95);
+      white-space: nowrap;
+    }
+
     .alert-rank-badge {
       font-size: 16px;
       font-weight: 800;
@@ -622,9 +636,13 @@
         <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
         <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
       `;
+      const gsRaw = meta.ps_at_death;
+      const gsHtml = (gsRaw !== undefined && gsRaw !== null && gsRaw !== '' && isFinite(gsRaw))
+        ? `<span class="alert-gs-badge">GS ${Math.round(Number(gsRaw))}</span>` : '';
       subline = `
         ${dungeonHtml}
         ${rankBadgeHtml}
+        ${gsHtml}
       `;
       accent = '💀';
     } else if (isTrophy) {
@@ -790,7 +808,7 @@
       trophy_id: 'eternal_5', img: 'Trophy_Eternal_2', ico: '👑', color: '#e04040',
       fr: ['Éternel V', 'Termine un donjon Éternel 5 dans les temps.'], en: ['Eternal V', 'Finish an Eternal 5 dungeon within the time limit.'] } };
     if (type === 'capstone') return { ...base, event_type: 'capstone', metadata: { tier_name: 'Recrue', difficulty_level: 4, dungeon: 'Urrak Markets' } };
-    return { ...base, event_type: 'death', metadata: { dungeon: 'Urrak Markets', difficulty_level: 8 } };
+    return { ...base, event_type: 'death', metadata: { dungeon: 'Urrak Markets', difficulty_level: 8, ps_at_death: 1840 } };
   }
 
   // Démarrage
