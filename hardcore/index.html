@@ -1088,6 +1088,41 @@
     .trophy-desc { margin:4px 0 8px; font-size:13px; line-height:1.35; color:var(--text-muted); }
     .trophy-prog { margin-top:4px; font-size:12px; color:var(--text-muted); }
     .trophy-done { font-family:'Cinzel',serif; font-size:11px; letter-spacing:.14em; color:var(--tc); }
+    .trophy-pin { margin-top:10px; font-family:'Cinzel',serif; font-size:11px; letter-spacing:.1em; padding:6px 12px; border-radius:6px;
+                  border:1px solid var(--tc); background:transparent; color:var(--tc); cursor:pointer; transition:background .15s, color .15s; }
+    .trophy-pin:hover:not(:disabled) { background:var(--tc-soft); }
+    .trophy-pin.on { background:var(--tc); color:#0b0e10; font-weight:700; }
+    .trophy-pin:disabled { opacity:.35; cursor:not-allowed; }
+
+    /* ── Badges affichés à côté du pseudo (3 max) ── */
+    .bdgs { display:inline-flex; align-items:center; gap:3px; flex-shrink:0; }
+    .bdg { display:inline-flex; width:26px; height:26px; cursor:help; outline:none; transition:transform .15s ease, filter .15s ease; }
+    .bdg .timg { width:100%; height:100%; }
+    .bdg:hover, .bdg:focus-visible { transform:translateY(-2px) scale(1.2); filter:drop-shadow(0 0 7px var(--tc)); }
+    .bdgs.lg { gap:6px; }
+    .bdgs.lg .bdg { width:38px; height:38px; }
+    .profile-name-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .bdg-bar { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:14px 16px; margin-bottom:6px;
+               background:var(--bg2); border:1px solid var(--border); border-radius:10px; }
+    .bdg-bar-t { font-family:'Cinzel',serif; font-size:14px; letter-spacing:.06em; color:var(--text); }
+    .bdg-bar-t small { display:block; margin-top:3px; font-family:inherit; font-size:12px; font-style:italic; letter-spacing:0; color:var(--text-muted); max-width:340px; line-height:1.4; }
+    .bdg-slots { display:flex; gap:12px; }
+    .bdg-slot { position:relative; width:60px; height:60px; display:flex; align-items:center; justify-content:center; border-radius:12px;
+                border:1px dashed rgba(255,255,255,.16); background:rgba(0,0,0,.22); color:var(--text-muted); font-size:20px; outline:none; }
+    .bdg-slot.on { border:1px solid var(--tc); background:radial-gradient(80% 80% at 50% 30%, var(--tc-soft), rgba(0,0,0,.25)); box-shadow:0 0 14px var(--tc-soft); cursor:help; }
+    .bdg-slot .timg { width:48px; height:48px; }
+    .bdg-x { position:absolute; top:-8px; right:-8px; width:22px; height:22px; padding:0; border-radius:50%; display:flex; align-items:center; justify-content:center;
+             border:1px solid var(--border); background:#14181b; color:var(--text-muted); font-size:11px; line-height:1; cursor:pointer; }
+    .bdg-x:hover { background:var(--hc-red); border-color:var(--hc-red); color:#fff; }
+    #itip.itip-badge { width:264px; }
+    .itip-bhead { display:flex; flex-direction:column; align-items:center; text-align:center; padding:18px 16px 12px;
+                  background:radial-gradient(90% 95% at 50% 0%, color-mix(in srgb, var(--qc) 48%, transparent), transparent 72%),
+                             linear-gradient(180deg, color-mix(in srgb, var(--qc) 20%, #0e1215), #0e1215); }
+    .itip-bico { width:92px; height:92px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.65)) drop-shadow(0 0 16px color-mix(in srgb, var(--qc) 60%, transparent)); }
+    .itip-bico .timg { width:100%; height:100%; }
+    .itip-bname { margin-top:8px; font-family:'Cinzel',serif; font-size:17px; font-weight:700; line-height:1.2; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.7); }
+    .itip-bgroup { margin-top:3px; font-family:'Cinzel',serif; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:color-mix(in srgb, var(--qc) 55%, #fff); }
+    .itip-bdesc { text-align:center; font-size:14px; line-height:1.4; color:#dcdcdc; }
 
     /* Cimetière en pyramide */
     .grave { display:flex; flex-direction:column; align-items:center; gap:14px; padding:8px 0; }
@@ -1216,7 +1251,7 @@
       <div>#</div>
       <div data-fr="Joueur" data-en="Player">Joueur</div>
       <div style="text-align:right" data-fr="Meilleur Score" data-en="Best Score">Meilleur Score</div>
-      <div class="col-attempts" style="text-align:right" data-fr="Tentatives" data-en="Attempts">Tentatives</div>
+      <div class="col-attempts" style="text-align:right" data-fr="Morts" data-en="Deaths">Morts</div>
       <div style="text-align:right" data-fr="Meilleur Donjon" data-en="Highest Dungeon">Meilleur Donjon</div>
     </div>
     <div id="lb-content"><div class="loading" data-fr="Chargement…" data-en="Loading…">Chargement…</div></div>
@@ -1530,13 +1565,16 @@
     if (btn) btn.classList.add('spinning');
     try {
       // Charger la vue hm_summary + capstones + unlocks en parallèle
-      const [summary, capstones, unlocks] = await Promise.all([
+      const [summary, capstones, unlocks, badgeRows] = await Promise.all([
         sbFetch(`/rest/v1/hm_summary?season=eq.${SEASON}&order=total_rating_score.desc`),
         sbFetch('/rest/v1/hm_capstones?select=id,tier_name,difficulty_level_threshold&order=difficulty_level_threshold.asc'),
         sbFetch(`/rest/v1/hm_capstone_unlocks?select=player_id,character_id,capstone_id,attempt_number&season=eq.${SEASON}`),
+        sbFetch('/rest/v1/hm_featured_badges?select=player_id,badges').catch(() => []),   // table absente = pas de badges
         loadLbSnapshot(),
       ]);
       _lbData = { summary: summary ?? [], capstones: capstones ?? [], unlocks: unlocks ?? [] };
+      _badgeMap = {};
+      for (const r of (Array.isArray(badgeRows) ? badgeRows : [])) _badgeMap[r.player_id] = r.badges;
       _lbCacheTs = Date.now();
       renderLeaderboard(_lbData);
       loadSyncMeta();
@@ -1590,11 +1628,15 @@
     const dateStr = d.toLocaleDateString(f ? 'fr-FR' : 'en-GB', { day: '2-digit', month: '2-digit' });
     const title = ageDays <= 1 ? (f ? "Podium d'hier" : "Yesterday's podium") : (f ? `Podium du ${dateStr}` : `Podium of ${dateStr}`);
     const medal = { 1: '🥇', 2: '🥈', 3: '🥉' };
-    const cards = [2, 1, 3].map(n => top.find(r => r.rank === n)).filter(Boolean).map(r => {
+    // Disposition classique 2-1-3 si les trois rangs sont distincts ; sinon (ex æquo) simple liste par rang
+    top.sort((a, b) => a.rank - b.rank || (a.player_name || '').localeCompare(b.player_name || ''));
+    const distinct = top.length === 3 && top[0].rank === 1 && top[1].rank === 2 && top[2].rank === 3;
+    const ordered = distinct ? [top[1], top[0], top[2]] : top;
+    const cards = ordered.map(r => {
       const rk = (r.best_difficulty_level || 0) > 0 ? diffLevelToRank(r.best_difficulty_level) : null;
       const col = tierColor(rk?.tier);
       return `<div class="podium-card p${r.rank}">
-        <div class="podium-medal">${medal[r.rank]}</div>
+        <div class="podium-medal">${medal[r.rank] || ''}</div>
         <div class="podium-name">${esc(r.player_name)}</div>
         ${r.best_hero ? `<div class="podium-hero" style="color:${classColor(r.best_hero)}">${esc(r.best_hero)}</div>` : ''}
         <div class="podium-score">${Math.floor(r.score).toLocaleString()} pts</div>
@@ -1622,21 +1664,25 @@
       playerMap.get(row.player_id).chars.push(row);
     }
 
-    // Calculer best rank + total tentatives par joueur
+    // Calculer best rank + total morts par joueur
     const players = [...playerMap.values()].map(p => {
       const aliveChars    = p.chars.filter(c => c.status === 'alive');
-      const totalAttempts = p.chars.length;   // une ligne = une tentative (la vue répète le total sur chaque ligne : 6 héros donnaient 36)
+      const totalDeaths   = p.chars.filter(c => c.status === 'dead').length;   // une ligne = une tentative ; une tentative terminée = une mort
       const bestDl        = Math.max(...p.chars.map(c => c.best_difficulty_level || 0), 0);
       const bestRank      = diffLevelToRank(bestDl);
       const sortKey       = rankSortKey(bestDl);
       // Score = total_rating_score du meilleur personnage (celui avec le plus haut score)
       const totalScore    = Math.max(...p.chars.map(c => c.total_rating_score || 0), 0);
-      return { ...p, aliveChars, totalAttempts, bestDl, bestRank, sortKey, totalScore };
+      return { ...p, aliveChars, totalDeaths, bestDl, bestRank, sortKey, totalScore };
     });
 
-    // Tri : meilleur score desc, à égalité highest dungeon, à égalité tentatives asc
-    players.sort((a, b) => b.totalScore - a.totalScore || b.sortKey - a.sortKey || a.totalAttempts - b.totalAttempts);
-    players.forEach((p, i) => { p.rank = i + 1; });   // rang global, indépendant de la recherche
+    // Tri : meilleur score desc, à égalité highest dungeon, puis moins de morts (ordre d'affichage seulement)
+    players.sort((a, b) => b.totalScore - a.totalScore || b.sortKey - a.sortKey || a.totalDeaths - b.totalDeaths);
+    // Rang global (indépendant de la recherche) : même score affiché = même rang (1, 1, 3…)
+    players.forEach((p, i) => {
+      const prev = players[i - 1];
+      p.rank = (prev && Math.floor(prev.totalScore) === Math.floor(p.totalScore)) ? prev.rank : i + 1;
+    });
 
     // Mise à jour compteur header
     const activeCount = players.reduce((s, p) => s + p.aliveChars.length, 0);
@@ -1724,8 +1770,9 @@
         <div class="lb-row" id="lbrow-${p.player_id}" onclick="toggleExpand(${p.player_id})">
           <div class="lb-rank ${rankCls}"><div>${rank}</div>${lbDeltaHtml(p)}</div>
           <div class="lb-player">
-            <div style="display:flex;align-items:baseline;gap:10px">
+            <div style="display:flex;align-items:center;flex-wrap:wrap;column-gap:10px;row-gap:2px">
               <div class="lb-player-name">${p.player_name}</div>
+              ${badgesHtml(_badgeMap[p.player_id])}
               ${bestChar ? `<span style="display:inline-flex;align-items:center;gap:5px;font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:${heroCol};letter-spacing:0.1em">
                 <span style="width:8px;height:8px;border-radius:50%;background:${isDead?'#ff4444':'#44ee44'};flex-shrink:0;box-shadow:0 0 5px ${isDead?'#ff4444':'#44ee44'}66"></span>
                 ${heroName}
@@ -1733,7 +1780,7 @@
             </div>
           </div>
           <div class="lb-ilvl" style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--teal-light)">${p.totalScore > 0 ? Math.floor(p.totalScore) : '—'}</div>
-          <div class="lb-attempts col-attempts" style="font-family:'Cinzel',serif;font-weight:700">${p.totalAttempts}</div>
+          <div class="lb-attempts col-attempts" style="font-family:'Cinzel',serif;font-weight:700">${p.totalDeaths}</div>
           <div class="lb-capstone">${rankBadge}</div>
         </div>
         <div class="lb-expand" id="lbexpand-${p.player_id}">
@@ -2087,7 +2134,8 @@
           : '';
       } else if (e.event_type === 'trophy') {
         const meta = e.metadata || {};
-        icon = trophyImg(meta.img || meta.trophy_id, meta.ico);
+        const _tt = TROPHIES.find(x => x.id === meta.trophy_id);
+        icon = trophyImg((_tt && _tt.img) || meta.img || meta.trophy_id, meta.ico);
         const tCol = meta.color || '#ffd36b';
         const [tName, tDesc] = (fr() ? meta.fr : meta.en) || meta.fr || ['Trophée', ''];
         titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'débloque' : 'unlocked'} <span style="font-family:'Cinzel',serif;font-size:12px;color:${tCol};border:1px solid ${tCol}40;background:${tCol}12;padding:2px 8px;border-radius:20px">${esc(tName)}</span></div>`;
@@ -2116,8 +2164,8 @@
         <div class="rules-list">
           <div class="rules-item warning">
             ☠️ <strong>${f ? 'Mort permanente' : 'Permanent Death'}</strong> ${f
-              ? 'Si ton héros meurt dans un donjon, cette tentative est terminée. Tu repars de zéro avec une nouvelle tentative : retire <strong>tout ton équipement</strong> (ilvl 0) avant ton prochain donjon.'
-              : 'If your hero dies in a dungeon, that attempt is over. You start over with a new attempt: take off <strong>all your gear</strong> (ilvl 0) before your next dungeon.'}
+              ? 'Si ton héros meurt dans un donjon, cette tentative est terminée. Tu repars de zéro avec une nouvelle tentative : retire <strong>tout ton équipement sauf les objets gris/blancs</strong> (Gear Score entre 0 et 6) avant ton prochain donjon.'
+              : 'If your hero dies in a dungeon, that attempt is over. You start over with a new attempt: take <strong>all your equipment off except gray/white items</strong> (Gear Score between 0 and 6) before your next dungeon.'}
           </div>
           <div class="rules-item warning">
             🔁 <strong>${f ? 'Continuer à plusieurs après une mort' : 'Carrying on together after a death'}</strong> ${f
@@ -2167,8 +2215,8 @@
           </div>
           <div class="rules-item">
             📊 ${f
-              ? 'Le classement est établi sur le <strong>Score total de ton meilleur héros</strong>. À égalité, le donjon le plus haut départage, puis le nombre de tentatives (moins il y en a, mieux c\'est).'
-              : 'The leaderboard is based on the <strong>total Score of your best hero</strong>. Ties are broken by the highest dungeon, then by the number of attempts (fewer is better).'}
+              ? 'Le classement est établi sur le <strong>Score total de ton meilleur héros</strong>. Les joueurs à égalité de score partagent le même rang.'
+              : 'The leaderboard is based on the <strong>total Score of your best hero</strong>. Players with the same score share the same rank.'}
           </div>
         </div>
       </div>
@@ -2339,6 +2387,15 @@
       loadHeroClasses(),
     ]);
 
+    // Badges affichés (3 max)
+    let badges = [];
+    const myPid = profile?.[0]?.player_id;
+    if (myPid) {
+      badges = await fetch(`${base}/hm_featured_badges?player_id=eq.${myPid}&select=badges`, { headers })
+        .then(r => r.json()).then(r => (Array.isArray(r) && r[0]) ? cleanBadges(r[0].badges) : []).catch(() => []);
+      _badgeMap[myPid] = badges;
+    }
+
     // Périodes actives
     const charIds = (characters ?? []).map(c => c.id).join(',');
     let periods = [];
@@ -2368,6 +2425,7 @@
       runs,
       scores,
       playerName,
+      badges,
     };
   }
 
@@ -2821,13 +2879,13 @@
     { id:'hc',     fr:'Hardcore',               en:'Hardcore' },
   ];
   const TROPHIES = [
-    mkTrophy({ id:"timed_1", group:"timed", img:"Trophy_Coffre", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:1,
+    mkTrophy({ id:"timed_1", group:"timed", img:"Trophy_Coffre_1", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:1,
       fr:["Explorateur", "Termine 1 donjon dans les temps."], en:["Explorer", "Finish 1 dungeon within the time limit."] }),
-    mkTrophy({ id:"timed_25", group:"timed", img:"Trophy_Coffre", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:25,
+    mkTrophy({ id:"timed_25", group:"timed", img:"Trophy_Coffre_2", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:25,
       fr:["Aventurier", "Termine 25 donjons dans les temps."], en:["Adventurer", "Finish 25 dungeons within the time limit."] }),
-    mkTrophy({ id:"timed_100", group:"timed", img:"Trophy_Coffre", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:100,
+    mkTrophy({ id:"timed_100", group:"timed", img:"Trophy_Coffre_3", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:100,
       fr:["Héros", "Termine 100 donjons dans les temps."], en:["Hero", "Finish 100 dungeons within the time limit."] }),
-    mkTrophy({ id:"timed_250", group:"timed", img:"Trophy_Coffre", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:250,
+    mkTrophy({ id:"timed_250", group:"timed", img:"Trophy_Coffre_4", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:250,
       fr:["Légende", "Termine 250 donjons dans les temps."], en:["Legend", "Finish 250 dungeons within the time limit."] }),
     mkTrophy({ id:"rating_750", group:"rating", img:"Trophy_recrue", ico:"🏅", color:"#00c700", metric:"bestScore", target:750,
       fr:["Recrue", "Obtiens 750 de côte."], en:["Contender", "Reach a rating of 750."] }),
@@ -2837,33 +2895,33 @@
       fr:["Champion", "Obtiens 3000 de côte."], en:["Champion", "Reach a rating of 3000."] }),
     mkTrophy({ id:"rating_4500", group:"rating", img:"Trophy_Parangon", ico:"🏅", color:"#b79f00", metric:"bestScore", target:4500,
       fr:["Parangon", "Obtiens 4500 de côte."], en:["Paragon", "Reach a rating of 4500."] }),
-    mkTrophy({ id:"gear_2500", group:"gear", img:"Trophy_Gear_Score", ico:"🎽", color:"#c8c8c8", metric:"bestGear", target:2500,
+    mkTrophy({ id:"gear_2500", group:"gear", img:"Trophy_Gear_Score_1", ico:"🎽", color:"#c8c8c8", metric:"bestGear", target:2500,
       fr:["Qualité Inférieure", "Obtiens 2500 de Gear Score."], en:["Inferior Quality", "Reach a Gear Score of 2500."] }),
-    mkTrophy({ id:"gear_5000", group:"gear", img:"Trophy_Gear_Score", ico:"🎽", color:"#006fe6", metric:"bestGear", target:5000,
+    mkTrophy({ id:"gear_5000", group:"gear", img:"Trophy_Gear_Score_2", ico:"🎽", color:"#006fe6", metric:"bestGear", target:5000,
       fr:["Qualité Rare", "Obtiens 5000 de Gear Score."], en:["Rare Quality", "Reach a Gear Score of 5000."] }),
-    mkTrophy({ id:"gear_10000", group:"gear", img:"Trophy_Gear_Score", ico:"🎽", color:"#a920fd", metric:"bestGear", target:10000,
+    mkTrophy({ id:"gear_10000", group:"gear", img:"Trophy_Gear_Score_3", ico:"🎽", color:"#a920fd", metric:"bestGear", target:10000,
       fr:["Qualité Incroyable", "Obtiens 10000 de Gear Score."], en:["Amazing Quality", "Reach a Gear Score of 10000."] }),
-    mkTrophy({ id:"gear_15000", group:"gear", img:"Trophy_Gear_Score", ico:"🎽", color:"#ff8c1a", metric:"bestGear", target:15000,
+    mkTrophy({ id:"gear_15000", group:"gear", img:"Trophy_Gear_Score_4", ico:"🎽", color:"#ff8c1a", metric:"bestGear", target:15000,
       fr:["Qualité Légendaire", "Obtiens 15000 de Gear Score."], en:["Legendary Quality", "Reach a Gear Score of 15000."] }),
-    mkTrophy({ id:"eternal_1", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:21,
+    mkTrophy({ id:"eternal_1", group:"eternal", img:"Trophy_Eternal_1", ico:"👑", color:"#b60000", metric:"bestDl", target:21,
       fr:["Éternel I", "Termine un donjon Éternel 1 dans les temps."], en:["Eternal I", "Finish an Eternal 1 dungeon within the time limit."],
       fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 21)).label : '—'} / ${diffLevelToRank(21).label}` }),
-    mkTrophy({ id:"eternal_5", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:25,
+    mkTrophy({ id:"eternal_5", group:"eternal", img:"Trophy_Eternal_2", ico:"👑", color:"#b60000", metric:"bestDl", target:25,
       fr:["Éternel V", "Termine un donjon Éternel 5 dans les temps."], en:["Eternal V", "Finish an Eternal 5 dungeon within the time limit."],
       fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 25)).label : '—'} / ${diffLevelToRank(25).label}` }),
-    mkTrophy({ id:"eternal_10", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:30,
+    mkTrophy({ id:"eternal_10", group:"eternal", img:"Trophy_Eternal_3", ico:"👑", color:"#b60000", metric:"bestDl", target:30,
       fr:["Éternel X", "Termine un donjon Éternel 10 dans les temps."], en:["Eternal X", "Finish an Eternal 10 dungeon within the time limit."],
       fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 30)).label : '—'} / ${diffLevelToRank(30).label}` }),
-    mkTrophy({ id:"eternal_15", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:35,
+    mkTrophy({ id:"eternal_15", group:"eternal", img:"Trophy_Eternal_4", ico:"👑", color:"#b60000", metric:"bestDl", target:35,
       fr:["Éternel XV", "Termine un donjon Éternel 15 dans les temps."], en:["Eternal XV", "Finish an Eternal 15 dungeon within the time limit."],
       fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 35)).label : '—'} / ${diffLevelToRank(35).label}` }),
-    mkTrophy({ id:"eternal_20", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:40,
+    mkTrophy({ id:"eternal_20", group:"eternal", img:"Trophy_Eternal_5", ico:"👑", color:"#b60000", metric:"bestDl", target:40,
       fr:["Éternel XX", "Termine un donjon Éternel 20 dans les temps."], en:["Eternal XX", "Finish an Eternal 20 dungeon within the time limit."],
       fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 40)).label : '—'} / ${diffLevelToRank(40).label}` }),
-    mkTrophy({ id:"eternal_25", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:45,
+    mkTrophy({ id:"eternal_25", group:"eternal", img:"Trophy_Eternal_6", ico:"👑", color:"#b60000", metric:"bestDl", target:45,
       fr:["Éternel XXV", "Termine un donjon Éternel 25 dans les temps."], en:["Eternal XXV", "Finish an Eternal 25 dungeon within the time limit."],
       fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 45)).label : '—'} / ${diffLevelToRank(45).label}` }),
-    mkTrophy({ id:"eternal_30", group:"eternal", img:"Trophy_Eternal", ico:"👑", color:"#b60000", metric:"bestDl", target:50,
+    mkTrophy({ id:"eternal_30", group:"eternal", img:"Trophy_Eternal_7", ico:"👑", color:"#b60000", metric:"bestDl", target:50,
       fr:["Éternel XXX", "Termine un donjon Éternel 30 dans les temps."], en:["Eternal XXX", "Finish an Eternal 30 dungeon within the time limit."],
       fmt: v => `${v > 20 ? diffLevelToRank(Math.min(v, 50)).label : '—'} / ${diffLevelToRank(50).label}` }),
     mkTrophy({ id:"xul_normal", group:"xul", img:"Trophy_Xul_NM", ico:"🏜️", color:"#c4732a", metric:"xulNormal", target:1,
@@ -2938,7 +2996,7 @@
     cont.innerHTML = `
       <div class="profile-header">
         <div class="profile-user">
-          <div class="profile-username">${esc(playerName)}</div>
+          <div class="profile-name-row"><div class="profile-username">${esc(playerName)}</div><span id="profile-badges">${badgesHtml(_profileData.badges, true)}</span></div>
           ${flSub}
           <div class="profile-email">${f ? 'Fellowship Hardcore · Saison 1' : 'Fellowship Hardcore · Season 1'}</div>
         </div>
@@ -2998,8 +3056,8 @@
       ? (f ? `Nouvelle tentative #${n} : repars de zéro` : `New attempt #${n}: start from scratch`)
       : (f ? 'Avant ton premier donjon : pars de zéro' : 'Before your first dungeon: start from scratch');
     const body = f
-      ? 'Retire <b>tout ton équipement</b> (ilvl 0) avant de lancer ton prochain donjon. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
-      : 'Take off <b>all your gear</b> (ilvl 0) before your next dungeon. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
+      ? 'Retire <b>tout ton équipement sauf les objets gris/blancs</b> : tu dois être entre <b>0 et 6 de Gear Score</b>. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
+      : 'Take <b>all your equipment off except gray/white items</b>: you should be between <b>0 and 6 Gear Score</b>. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
     return `<div class="spot-fresh"><div class="spot-fresh-t">🔄 ${title}</div><div class="spot-fresh-b">${body}</div></div>`;
   }
 
@@ -3058,13 +3116,20 @@
     el.style.transform = `translate(${Math.round(L)}px, ${Math.round(T)}px)`;
   }
   function itipShow(target, x, y) {
-    const d = _itipItems[target.dataset.itip]; if (!d) return;
+    const key = target.dataset.itip;
+    const d = key.startsWith('b_') ? { badge: key.slice(2) } : _itipItems[key]; if (!d) return;
     if (!_itipEl) { _itipEl = document.createElement('div'); _itipEl.id = 'itip'; _itipEl.setAttribute('role', 'tooltip'); document.body.appendChild(_itipEl); }
     if (_itipCur !== target) {
       _itipCur = target;
-      _itipEl.className = d.empty ? 'itip-empty' : '';
-      _itipEl.style.setProperty('--qc', d.empty ? '#8aa0a8' : (QUALITY_HEX[d.quality] || QUALITY_HEX[0]));
-      _itipEl.innerHTML = itipHtml(d, fr());
+      if (d.badge) {
+        _itipEl.className = 'itip-badge';
+        _itipEl.style.setProperty('--qc', trophyById(d.badge)?.color || '#8aa0a8');
+        _itipEl.innerHTML = badgeTipHtml(d.badge, fr());
+      } else {
+        _itipEl.className = d.empty ? 'itip-empty' : '';
+        _itipEl.style.setProperty('--qc', d.empty ? '#8aa0a8' : (QUALITY_HEX[d.quality] || QUALITY_HEX[0]));
+        _itipEl.innerHTML = itipHtml(d, fr());
+      }
     }
     _itipEl.classList.add('show');
     itipMove(x, y);
@@ -3261,7 +3326,7 @@
         <div class="spot-gap"></div>
         <div class="spot-bottom">
           <div class="spot-stats">
-            <div class="spot-stat"><b>${alive.ilvl_current || '—'}</b><span>ilvl</span></div>
+            <div class="spot-stat"><b>${alive.power_score_current ? (alive.ilvl_current || '—') : '—'}</b><span>ilvl</span></div>
             <div class="spot-stat"><b>${alive.power_score_current ? Math.round(alive.power_score_current).toLocaleString() : '—'}</b><span>Power Score</span></div>
             <div class="spot-stat"><b>${Math.floor(scores[alive.id] || 0).toLocaleString()}</b><span>Score</span></div>
           </div>
@@ -3304,16 +3369,31 @@
   function renderTabTrophies(cont, f) {
     const states = trophyStates(computeProfileStats());
     const done = states.filter(s => s.done).length;
+    const sel = cleanBadges(_profileData.badges), full = sel.length >= BADGE_MAX;
     const card = ({ t, v, done: ok, pct }) => {
       const [title, desc] = f ? t.fr : t.en;
+      const pinned = sel.includes(t.id);
+      const pin = !ok ? '' : `<button type="button" class="trophy-pin ${pinned ? 'on' : ''}" onclick="toggleBadge('${t.id}')"
+          ${!pinned && full ? `disabled title="${f ? '3 badges maximum : retire-en un d\'abord' : '3 badges max: remove one first'}"` : `title="${pinned ? (f ? 'Cliquer pour retirer' : 'Click to remove') : ''}"`}>${pinned ? (f ? '✓ Affiché' : '✓ Displayed') : (f ? '📌 Afficher' : '📌 Display')}</button>`;
       return `<div class="trophy ${ok ? 'done' : 'locked'}" style="--tc:${t.color};--tc-soft:${t.color}44">
         <div class="trophy-ico">${trophyImg(t.img, t.ico)}</div>
         <div class="trophy-title">${title}</div>
         <div class="trophy-desc">${desc}</div>
         ${ok ? `<div class="trophy-done">✓ ${f ? 'Débloqué' : 'Unlocked'}</div>`
              : `<div class="trophy-bar"><div style="width:${pct}%"></div></div><div class="trophy-prog">${t.fmt(v)}</div>`}
+        ${pin}
       </div>`;
     };
+    const slots = Array.from({ length: BADGE_MAX }, (_, i) => {
+      const t = sel[i] && trophyById(sel[i]);
+      return t ? `<div class="bdg-slot on" tabindex="0" data-itip="b_${t.id}" style="--tc:${t.color};--tc-soft:${t.color}44">${trophyImg(t.img, t.ico)}<button type="button" class="bdg-x" onclick="event.stopPropagation();toggleBadge('${t.id}')" title="${f ? 'Retirer' : 'Remove'}" aria-label="${f ? 'Retirer' : 'Remove'}">✕</button></div>`
+                 : `<div class="bdg-slot" aria-hidden="true">＋</div>`;
+    }).join('');
+    const badgeBar = `<div class="bdg-bar">
+        <div class="bdg-bar-t">${f ? 'Mes badges' : 'My badges'} · ${sel.length} / ${BADGE_MAX}
+          <small>${f ? 'Choisis jusqu\'à 3 trophées débloqués : ils s\'affichent à côté de ton pseudo, dans le classement et sur ton profil.' : 'Pick up to 3 unlocked trophies: they show next to your name in the leaderboard and on your profile.'}</small></div>
+        <div class="bdg-slots">${slots}</div>
+      </div>`;
     const sections = TROPHY_GROUPS.map(g => {
       const items = states.filter(s => s.t.group === g.id);
       if (!items.length) return '';
@@ -3322,8 +3402,73 @@
         <div class="trophy-grid">${items.map(card).join('')}</div>`;
     }).join('');
     cont.innerHTML = `
+      ${badgeBar}
       <div class="trophy-head"><b>🏆 ${done} / ${states.length}</b><span>${f ? 'Tes trophées restent acquis, même si ton héros meurt.' : 'Your trophies stay yours, even if your hero dies.'}</span></div>
       ${sections}`;
+  }
+
+  // ── Badges affichés : 3 trophées au choix, visibles dans le classement et sur le profil ──
+  const BADGE_MAX = 3;
+  let _badgeMap = {}, _badgeBusy = false;                    // _badgeMap : player_id → [ids de trophées]
+  function trophyById(id) { return TROPHIES.find(t => t.id === id); }
+  function cleanBadges(arr) {
+    const out = [];
+    for (const id of (Array.isArray(arr) ? arr : [])) if (trophyById(id) && !out.includes(id)) out.push(id);
+    return out.slice(0, BADGE_MAX);
+  }
+  function badgesHtml(ids, big) {
+    const list = cleanBadges(ids);
+    if (!list.length) return '';
+    const f = fr();
+    return `<span class="bdgs${big ? ' lg' : ''}">${list.map(id => {
+      const t = trophyById(id);
+      return `<span class="bdg" tabindex="0" data-itip="b_${id}" style="--tc:${t.color}" aria-label="${esc((f ? t.fr : t.en)[0])}">${trophyImg(t.img, t.ico)}</span>`;
+    }).join('')}</span>`;
+  }
+  function badgeTipHtml(id, f) {
+    const t = trophyById(id); if (!t) return '';
+    const [title, desc] = f ? t.fr : t.en;
+    const g = TROPHY_GROUPS.find(x => x.id === t.group);
+    const sibs = TROPHIES.filter(x => x.group === t.group), idx = sibs.indexOf(t) + 1;
+    const tier = sibs.length > 1
+      ? `<div class="itip-sep"></div><div class="itip-row"><span>${f ? 'Palier' : 'Tier'}</span><b><span class="itip-pips">${sibs.map((_, i) => `<i class="${i < idx ? 'on' : ''}"></i>`).join('')}</span>${idx}/${sibs.length}</b></div>` : '';
+    return `<div class="itip-bhead"><div class="itip-bico">${trophyImg(t.img, t.ico)}</div><div class="itip-bname">${esc(title)}</div><div class="itip-bgroup">${esc(g ? (f ? g.fr : g.en) : '')}</div></div>`
+         + `<div class="itip-body"><div class="itip-bdesc">${esc(desc)}</div>${tier}</div>`;
+  }
+  function applyBadges(pid, list) {
+    _profileData.badges = list; _badgeMap[pid] = list;
+    itipHide();
+    const el = document.getElementById('profile-badges');
+    if (el) el.innerHTML = badgesHtml(list, true);
+    const c = document.getElementById('profile-tab-content');
+    if (_activeProfileTab === 'trophies' && c) renderTabTrophies(c, fr());
+  }
+  async function toggleBadge(id) {
+    if (_badgeBusy || !_profileData) return;
+    const f = fr(), pid = _profileData.profile?.player_id;
+    if (!pid || !trophyById(id)) return;
+    const prev = cleanBadges(_profileData.badges);
+    let next;
+    if (prev.includes(id)) next = prev.filter(x => x !== id);
+    else {
+      if (prev.length >= BADGE_MAX) { toast(f ? '3 badges maximum : retire-en un d\'abord.' : '3 badges max: remove one first.', true); return; }
+      next = [...prev, id];
+    }
+    const session = await getSession(); if (!session) return;
+    _badgeBusy = true;
+    applyBadges(pid, next);                                  // affichage immédiat, annulé si l'enregistrement échoue
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/hm_featured_badges?on_conflict=player_id', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({ player_id: pid, badges: next }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+    } catch (e) {
+      applyBadges(pid, prev);
+      toast(f ? 'Impossible d\'enregistrer ce badge.' : 'Could not save this badge.', true);
+      console.error(e);
+    } finally { _badgeBusy = false; }
   }
 
   // ── Page publique : catalogue de tous les trophées (cartes « débloquées », sans progression) ──
@@ -3563,8 +3708,8 @@
     _resetHeroClass = heroClass;
     document.getElementById('reset-modal-title').textContent = `Reset ${heroClass}`;
     document.getElementById('reset-modal-desc').textContent = f
-      ? `Tu es sur le point de réinitialiser ton personnage ${heroClass}. Cette action est irréversible : le personnage sera marqué comme mort et une nouvelle tentative démarrera depuis ilvl 0.`
-      : `You are about to reset your ${heroClass} character. This action is irreversible: the character will be marked as dead and a new attempt will start from ilvl 0.`;
+      ? `Tu es sur le point de réinitialiser ton personnage ${heroClass}. Cette action est irréversible : le personnage sera marqué comme mort et une nouvelle tentative démarrera de zéro.`
+      : `You are about to reset your ${heroClass} character. This action is irreversible: the character will be marked as dead and a new attempt will start from scratch.`;
     document.getElementById('reset-modal-warning').textContent = f
       ? '☠️ Toute progression sur cette tentative sera perdue définitivement.'
       : '☠️ All progress on this attempt will be permanently lost.';
