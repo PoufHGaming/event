@@ -227,7 +227,7 @@
     }
 
     .alert-death .alert-type-label { color: #ff7070; font-size: 14px; opacity: 1; text-shadow: 0 0 14px rgba(255,50,50,0.75), 0 1px 4px #000; }
-    .alert-capstone .alert-type-label { color: #c4a0ff; }
+    .alert-capstone .alert-type-label { color: #c4a0ff; font-size: 14px; opacity: 1; }
 
     .alert-headline {
       display: flex;
@@ -272,12 +272,13 @@
     }
 
     .alert-rank-badge {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      padding: 2px 10px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      padding: 3px 14px;
       border-radius: 20px;
-      border: 1px solid;
+      border: 1.5px solid;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.6);
     }
 
     /* ── ATTEMPT COUNT (death only) ── */
@@ -404,11 +405,8 @@
   const TIER_KEYS = { recrue:'Recrue', contender:'Recrue', recruit:'Recrue', adepte:'Adepte', adept:'Adepte', champion:'Champion',
                       parangon:'Parangon', paragon:'Parangon', eternal:'Eternal', eternel:'Eternal', 'éternel':'Eternal' };
   const TIER_NEXT = { Recrue:'Adepte', Adepte:'Champion', Champion:'Parangon', Parangon:'Eternal' };
-  function nextTierName(str) {
-    const w = String(str || '').trim().split(/\s+/)[0].toLowerCase();
-    const n = TIER_NEXT[TIER_KEYS[w]];
-    return n ? TIER_NAMES[n] : null;
-  }
+  function tierKeyOf(str) { return TIER_KEYS[String(str || '').trim().split(/\s+/)[0].toLowerCase()] || null; }
+  function nextTierKey(str) { return TIER_NEXT[tierKeyOf(str)] || null; }
   // Traduit un libellé stocké en base (« Recrue 2 », « Eternal 5 », « Parangon ») dans la langue choisie
   function tierLabelL(str) {
     const KEYS = { recrue:'Recrue', contender:'Recrue', recruit:'Recrue', adepte:'Adepte', adept:'Adepte', champion:'Champion',
@@ -478,6 +476,12 @@
   function tierColor(tier) {
     return TIER_COLORS[tier] || '#888';
   }
+  // Même teinte, version lumineuse : lisible en texte sur le fond sombre de l'alerte
+  const TIER_BRIGHT = {
+    'Recrue': '#5dff5d', 'Adepte': '#5db0ff', 'Champion': '#d08cff',
+    'Parangon': '#ffd83d', 'Eternal': '#ff7b7b',
+  };
+  function tierBright(tier) { return TIER_BRIGHT[tier] || '#e0e0e0'; }
 
   // ── SON ─────────────────────────────────────────────────────────────────────
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -595,7 +599,7 @@
     const wrapper = document.getElementById('alert-wrapper');
 
     const rankBadgeHtml = rank
-      ? `<span class="alert-rank-badge" style="color:${rankColor};border-color:${rankColor}60;background:${rankColor}18">${rank.label}</span>`
+      ? `<span class="alert-rank-badge" style="color:${tierBright(rank.tier)};border-color:${rankColor};background:linear-gradient(${rankColor}66,${rankColor}66),rgba(0,0,0,0.7);box-shadow:0 0 14px ${rankColor}99">${rank.label}</span>`
       : '';
 
     const dungeonHtml = meta.dungeon
@@ -641,8 +645,9 @@
     } else {
       // Capstone
       const capTier = tierLabelL(meta.tier_name) || 'Capstone';
-      const nextTier = nextTierName(meta.tier_name);
-      typeLabel = nextTier ? `✦ ${nextTier} ${T.unlocked}` : `✦ ${capTier} ${T.reached}`;
+      const nextKey = nextTierKey(meta.tier_name);
+      const labKey  = nextKey || tierKeyOf(meta.tier_name);          // couleur de la ligue annoncée
+      typeLabel = `<span style="color:${tierBright(labKey)};text-shadow:0 0 14px ${tierColor(labKey)},0 1px 4px #000">✦ ${nextKey ? `${TIER_NAMES[nextKey]} ${T.unlocked}` : `${capTier} ${T.reached}`}</span>`;
       headline  = `
         <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
         <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
