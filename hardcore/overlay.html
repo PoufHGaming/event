@@ -285,6 +285,8 @@
       white-space: nowrap;
     }
 
+    .alert-gs-sep { opacity: 0.6; margin: 0 2px; }
+
     .alert-rank-badge {
       font-size: 16px;
       font-weight: 800;
@@ -408,8 +410,8 @@
   const TEST_TYPE = ['capstone', 'trophy'].includes(_test) ? _test : 'death';
   document.documentElement.lang = LANG;
   const T = {
-    fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint', unlocked: 'débloqué' },
-    en: { death: '☠ hardcore death', trophy: '🏆 trophy unlocked', trophyDefault: 'Trophy',  attempt: 'ATTEMPT',   reached: 'reached', unlocked: 'unlocked' },
+    fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint', unlocked: 'débloqué', score: 'SCORE', rank: 'RANG' },
+    en: { death: '☠ hardcore death', trophy: '🏆 trophy unlocked', trophyDefault: 'Trophy',  attempt: 'ATTEMPT',   reached: 'reached', unlocked: 'unlocked', score: 'SCORE', rank: 'RANK' },
   }[LANG];
   const TIER_NAMES = {
     fr: { Recrue: 'Recrue',    Adepte: 'Adepte', Champion: 'Champion', Parangon: 'Parangon', Eternal: 'Éternel' },
@@ -636,9 +638,11 @@
         <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
         <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
       `;
-      const gsRaw = meta.ps_at_death;
-      const gsHtml = (gsRaw !== undefined && gsRaw !== null && gsRaw !== '' && isFinite(gsRaw))
-        ? `<span class="alert-gs-badge">GS ${Math.round(Number(gsRaw))}</span>` : '';
+      const num = v => (v !== undefined && v !== null && v !== '' && isFinite(v)) ? Math.round(Number(v)) : null;
+      const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      const scoreAtDeath = num(meta.score_at_death), rankAtDeath = num(meta.rank_at_death);
+      const gsHtml = scoreAtDeath !== null
+        ? `<span class="alert-gs-badge">${T.score} ${fmt(scoreAtDeath)}${rankAtDeath !== null ? ` <span class="alert-gs-sep">·</span> ${T.rank} ${rankAtDeath}` : ''}</span>` : '';
       subline = `
         ${dungeonHtml}
         ${rankBadgeHtml}
@@ -808,7 +812,7 @@
       trophy_id: 'eternal_5', img: 'Trophy_Eternal_2', ico: '👑', color: '#e04040',
       fr: ['Éternel V', 'Termine un donjon Éternel 5 dans les temps.'], en: ['Eternal V', 'Finish an Eternal 5 dungeon within the time limit.'] } };
     if (type === 'capstone') return { ...base, event_type: 'capstone', metadata: { tier_name: 'Recrue', difficulty_level: 4, dungeon: 'Urrak Markets' } };
-    return { ...base, event_type: 'death', metadata: { dungeon: 'Urrak Markets', difficulty_level: 8, ps_at_death: 1840 } };
+    return { ...base, event_type: 'death', metadata: { dungeon: 'Urrak Markets', difficulty_level: 8, score_at_death: 12345, rank_at_death: 7 } };
   }
 
   // Démarrage

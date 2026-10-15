@@ -269,6 +269,42 @@
     .evt-item.capstone { border-left:3px solid rgba(196,160,255,0.6); }
     .evt-item.trophy   { border-left:3px solid rgba(255,211,107,0.7); }
     .evt-item.new_attempt { border-left:3px solid rgba(64,212,212,0.4); }
+    /* Cartes « overlay » : même langage visuel que les alertes OBS */
+    .evc { position:relative; display:flex; align-items:center; gap:16px; padding:14px 18px 14px 16px; min-height:84px;
+      border:1px solid var(--cb,#55555588); border-top:2px solid var(--c,#555); border-radius:6px; overflow:hidden;
+      background:#0a0e12; box-shadow:0 0 18px var(--cg,#00000022); }
+    .evc-bg { position:absolute; inset:0; z-index:0; background-size:cover; background-position:center; }
+    .evc-bg::after { content:''; position:absolute; inset:0;
+      background:linear-gradient(90deg, rgba(var(--tint),.95) 0%, rgba(var(--tint),.78) 45%, rgba(var(--tint),.45) 100%); }
+    .evc.ev-death    { --tint:14,4,4; }
+    .evc.ev-capstone { --tint:5,9,24; }
+    .evc.ev-trophy   { --tint:18,13,4; }
+    .evc > *:not(.evc-bg) { position:relative; z-index:1; }
+    .evc-bubble { width:56px; height:56px; border-radius:50%; flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center;
+      border:2px solid var(--hc,#d89be8); background:rgba(0,0,0,.45); box-shadow:0 0 14px rgba(0,0,0,.6); font-size:24px; }
+    .evc-bubble img { width:100%; height:100%; object-fit:cover; display:block; }
+    .evc-bubble.tro { border-radius:0; border:0; background:none; box-shadow:none; width:60px; height:60px; overflow:visible; }
+    .evc-bubble .timg { width:60px; height:60px; }
+    .evc-main { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+    .evc-type { font-family:'Cinzel',serif; font-size:11px; font-weight:800; letter-spacing:.2em; text-transform:uppercase;
+      color:var(--tc,#fff); text-shadow:0 0 12px var(--c,#000), 0 1px 3px #000; }
+    .evc-name { font-family:'Cinzel',serif; font-size:19px; font-weight:700; line-height:1.15; text-shadow:0 1px 6px #000; }
+    .evc-name small { font-size:12px; font-weight:600; opacity:.6; margin-left:6px; letter-spacing:.06em; }
+    .evc-sub { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; font-size:14px; }
+    .evc-dung { font-family:'Crimson Pro',serif; font-style:italic; font-size:17px; color:#f6eeea; text-shadow:0 1px 6px #000, 0 0 14px rgba(0,0,0,.8); }
+    .evc-pill { font-family:'Cinzel',serif; font-size:12px; font-weight:800; letter-spacing:.08em; padding:2px 11px; border-radius:20px;
+      border:1.5px solid; white-space:nowrap; text-shadow:0 1px 4px rgba(0,0,0,.95); }
+    .evc-pill.score { color:#ffe08a; border-color:#ffcf5a; background:rgba(60,40,0,.72); box-shadow:0 0 12px rgba(255,200,80,.4); }
+    .evc-desc { font-size:13px; font-style:italic; color:#d9cdb4; text-shadow:0 1px 4px #000; }
+    .evc-side { display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0; }
+    .evc-time { font-family:'Cinzel',serif; font-size:11px; color:#b9c2c2; white-space:nowrap; text-shadow:0 1px 3px #000; }
+    .evc-emoji { font-size:30px; opacity:.85; filter:drop-shadow(0 0 8px var(--c,#000)); line-height:1; }
+    @media (max-width:600px) {
+      .evc { gap:12px; padding:12px; }
+      .evc-bubble { width:46px; height:46px; }
+      .evc-emoji { display:none; }
+      .evc-name { font-size:16px; }
+    }
     .evt-icon { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
     .evt-icon .timg { width:34px; height:34px; margin-left:-3px; }
     .evt-body { flex:1; }
@@ -2096,57 +2132,68 @@
     if (!filtered.length) {
       cont.innerHTML = `<div class="empty">${fr() ? 'Aucun événement.' : 'No events.'}</div>`; return;
     }
+    // Version éclaircie d'une couleur de ligue (texte lisible sur fond sombre)
+    const TIER_BRIGHT = { Recrue:'#5dff5d', Adepte:'#5db0ff', Champion:'#d08cff', Parangon:'#ffd83d', Eternal:'#ff7b7b' };
+    const TIER_ORDER  = ['Recrue', 'Adepte', 'Champion', 'Parangon', 'Eternal'];
+    const tierKeyOf   = str => { const w = String(str || '').trim().split(/\s+/)[0].toLowerCase();
+      return ({ recrue:'Recrue', contender:'Recrue', recruit:'Recrue', adepte:'Adepte', adept:'Adepte', champion:'Champion',
+                parangon:'Parangon', paragon:'Parangon', eternal:'Eternal', eternel:'Eternal', 'éternel':'Eternal' })[w] || null; };
+    const fmtNum = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const hasNum = v => v !== undefined && v !== null && v !== '' && isFinite(v);
+    const rankPill = rank => rank
+      ? `<span class="evc-pill" style="color:${TIER_BRIGHT[rank.tier] || '#fff'};border-color:${tierColor(rank.tier)};background:linear-gradient(${tierColor(rank.tier)}66,${tierColor(rank.tier)}66),rgba(0,0,0,.7);box-shadow:0 0 12px ${tierColor(rank.tier)}99">${rank.label}</span>`
+      : '';
+
     cont.innerHTML = `<div class="evt-list">${filtered.map(e => {
       const d = new Date(e.created_at);
       const timeStr = d.toLocaleDateString(fr()?'fr-FR':'en-GB', { day:'2-digit', month:'short' })
         + ' ' + d.toLocaleTimeString(fr()?'fr-FR':'en-GB', { hour:'2-digit', minute:'2-digit' });
-      let icon = '📜', titleHtml = '', metaHtml = '';
-      const heroCol = e.character_class ? classColor(e.character_class) : 'var(--text-dim)';
-      const charSpan = `<strong style="color:${heroCol}">${e.character_name}</strong>${e.character_class ? ` <span style="color:${heroCol};font-size:14px">(${e.character_class})</span>` : ''}`;
+      const meta = e.metadata || {};
+      const heroCol = e.character_class ? classColor(e.character_class) : '#d89be8';
+      const dImg = meta.dungeon ? dungeonImg(meta.dungeon) : null;
+      const nameHtml = `<div class="evc-name" style="color:${heroCol}">${esc(e.character_name)}${e.character_class ? `<small>${esc(e.character_class)}</small>` : ''}</div>`;
+      const dungHtml = meta.dungeon ? `<span class="evc-dung">${esc(dungName(meta.dungeon))}</span>` : '';
+      const heroFallback = e.character_class ? heroImg(e.character_class) : '';
+      let accent = '#888', typeCol = '#fff', typeLabel = '', bubble = '', sub = '', emoji = '', bg = dImg;
 
       if (e.event_type === 'death') {
-        icon = '💀';
-        const meta = e.metadata || {};
-        // Rang du donjon où le joueur est mort
-        const dl    = meta.difficulty_level;
-        const rank  = dl ? diffLevelToRank(dl) : null;
-        const rankCol = rank ? tierColor(rank.tier) : 'var(--text-muted)';
-        const rankBadge = rank
-          ? `<span style="color:${rankCol};font-size:13px">${rank.label}</span>`
-          : '';
-        titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'est mort(e)' : 'has died'} ${rankBadge}</div>`;
-        metaHtml  = meta.dungeon
-          ? `<div class="evt-meta">${dungName(meta.dungeon)}${meta.ilvl_at_death ? ` · ilvl ${meta.ilvl_at_death}` : ''}${meta.ps_at_death ? ` · PS ${Math.round(meta.ps_at_death)}` : ''}</div>`
-          : '';
+        accent = '#ff4444'; typeCol = '#ff7070'; emoji = '💀';
+        typeLabel = fr() ? '☠ Mort hardcore' : '☠ Hardcore death';
+        bubble = heroFallback ? `<div class="evc-bubble"><img src="${heroFallback}" alt="" loading="lazy" onerror="this.remove()"></div>` : `<div class="evc-bubble">💀</div>`;
+        const rank = meta.difficulty_level ? diffLevelToRank(meta.difficulty_level) : null;
+        const scorePill = hasNum(meta.score_at_death)
+          ? `<span class="evc-pill score">${fr() ? 'SCORE' : 'SCORE'} ${fmtNum(meta.score_at_death)}${hasNum(meta.rank_at_death) ? ` · ${fr() ? 'RANG' : 'RANK'} ${Math.round(meta.rank_at_death)}` : ''}</span>` : '';
+        sub = `${dungHtml}${rankPill(rank)}${scorePill}`;
       } else if (e.event_type === 'capstone') {
-        icon = '👑';
-        const meta  = e.metadata || {};
-        const dl    = meta.difficulty_level;
-        const rank  = dl ? diffLevelToRank(dl) : null;
-        const rankCol = rank ? tierColor(rank.tier) : 'var(--hc-eternal)';
-        const rankLabel = rank ? rank.label : rankLabelL(meta.rank_label || '');
-        const rankBadge = `<span style="font-family:'Cinzel',serif;font-size:12px;color:${rankCol};
-          border:1px solid ${rankCol}40;background:${rankCol}12;
-          padding:2px 8px;border-radius:20px">${rankLabel}</span>`;
-        titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'atteint' : 'reached'} ${rankBadge}</div>`;
-        metaHtml  = meta.dungeon
-          ? `<div class="evt-meta">${dungName(meta.dungeon)}${meta.rating ? ` · ${Math.floor(meta.rating)} pts` : ''}</div>`
-          : '';
+        // Ligue débloquée = la suivante (Recrue → Adepte…) ; le rang affiché reste celui du donjon fait
+        const rank = meta.difficulty_level ? diffLevelToRank(meta.difficulty_level) : null;
+        const capKey  = tierKeyOf(meta.tier_name) || (rank && rank.tier) || 'Eternal';
+        const nextKey = TIER_ORDER[TIER_ORDER.indexOf(capKey) + 1] || null;
+        const labKey  = nextKey || capKey;
+        accent = tierColor(labKey); typeCol = TIER_BRIGHT[labKey] || '#fff'; emoji = labKey === 'Eternal' ? '👑' : '🏆';
+        typeLabel = `✦ ${tierName(labKey)} ${nextKey ? (fr() ? 'débloqué' : 'unlocked') : (fr() ? 'atteint' : 'reached')}`;
+        const rk = rank || (meta.rank_label ? { tier: capKey, label: rankLabelL(meta.rank_label) } : null);
+        bubble = dImg
+          ? `<div class="evc-bubble"><img src="${dImg}" alt="" loading="lazy" onerror="${heroFallback ? `this.onerror=function(){this.remove()};this.src='${heroFallback}'` : 'this.remove()'}"></div>`
+          : `<div class="evc-bubble">${emoji}</div>`;
+        sub = `${dungHtml}${rankPill(rk)}${meta.rating ? `<span class="evc-pill score">${Math.floor(meta.rating)} pts</span>` : ''}`;
       } else if (e.event_type === 'trophy') {
-        const meta = e.metadata || {};
         const _tt = TROPHIES.find(x => x.id === meta.trophy_id);
-        icon = trophyImg((_tt && _tt.img) || meta.img || meta.trophy_id, meta.ico);
         const tCol = meta.color || '#ffd36b';
         const [tName, tDesc] = (fr() ? meta.fr : meta.en) || meta.fr || ['Trophée', ''];
-        titleHtml = `<div class="evt-title">${charSpan} ${fr() ? 'débloque' : 'unlocked'} <span style="font-family:'Cinzel',serif;font-size:12px;color:${tCol};border:1px solid ${tCol}40;background:${tCol}12;padding:2px 8px;border-radius:20px">${esc(tName)}</span></div>`;
-        metaHtml  = tDesc ? `<div class="evt-meta">${esc(tDesc)}</div>` : '';
+        accent = tCol; typeCol = '#ffd98a'; emoji = '🏆'; bg = null;
+        typeLabel = fr() ? '🏆 Trophée débloqué' : '🏆 Trophy unlocked';
+        bubble = `<div class="evc-bubble tro">${trophyImg((_tt && _tt.img) || meta.img || meta.trophy_id, meta.ico)}</div>`;
+        sub = `<span class="evc-pill" style="color:#fff0c8;border-color:${tCol};background:linear-gradient(${tCol}55,${tCol}55),rgba(0,0,0,.7);box-shadow:0 0 12px ${tCol}88">${esc(tName)}</span>`
+            + (tDesc ? `<span class="evc-desc">${esc(tDesc)}</span>` : '');
       } else {
-        titleHtml = `<div class="evt-title">${charSpan} · ${e.event_type}</div>`;
+        typeLabel = esc(e.event_type); bubble = `<div class="evc-bubble">📜</div>`;
       }
-      return `<div class="evt-item ${e.event_type}">
-        <div class="evt-icon">${icon}</div>
-        <div class="evt-body">${titleHtml}${metaHtml}</div>
-        <div class="evt-time">${timeStr}</div>
+      return `<div class="evc ev-${e.event_type}" style="--c:${accent};--cb:${accent}88;--cg:${accent}33;--tc:${typeCol};--hc:${heroCol}">
+        ${bg ? `<div class="evc-bg" style="background-image:url('${bg}')"></div>` : ''}
+        ${bubble}
+        <div class="evc-main"><div class="evc-type">${typeLabel}</div>${nameHtml}<div class="evc-sub">${sub}</div></div>
+        <div class="evc-side"><span class="evc-time">${timeStr}</span><span class="evc-emoji">${emoji}</span></div>
       </div>`;
     }).join('')}</div>`;
   }
