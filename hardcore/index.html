@@ -3142,8 +3142,37 @@
     { id:'gear',   fr:'Gear Score',             en:'Gear Score' },
     { id:'eternal',fr:'Éternel',                en:'Eternal' },
     { id:'xul',    fr:'Xul',                    en:'Xul' },
+    { id:'hero',   fr:'Maîtrise des héros',     en:'Hero mastery' },
+    { id:'intime', fr:'Côte sans dépassement de temps', en:'Rating, always in time' },
     { id:'hc',     fr:'Hardcore',               en:'Hardcore' },
   ];
+  // Maîtrise des héros : 10 000 de côte avec chaque héros, puis avec tous les héros d'un rôle / tous les héros.
+  const HERO_COTE  = 10000;
+  const HERO_ROLES = { Tank:['Helena','Meiko','Xavian'], Healer:['Aeona','Sylvie','Vigour'], DPS:['Rime','Ardeos','Elarion','Tariq','Mara','Gunde'] };
+  const HERO_HEX   = { Helena:'#cfa17f', Meiko:'#29dd5c', Xavian:'#66a8a0', Aeona:'#f99de9', Sylvie:'#f092b2', Vigour:'#dbd9c3',
+                       Rime:'#1ca2ec', Ardeos:'#e96326', Elarion:'#bb9bfd', Tariq:'#5179f3', Mara:'#bd98b9', Gunde:'#bc8283' };
+  const HERO_ALL   = [].concat(HERO_ROLES.Tank, HERO_ROLES.Healer, HERO_ROLES.DPS);
+  const HERO_TROPHIES = HERO_ALL.map(n => ({ id:`hero_${n}`, group:'hero', img:`Trophy_${n}`, ico:'⚔️', color:HERO_HEX[n], metric:`hero_${n}`, target:HERO_COTE,
+    fr:[n, `Atteins 10 000 de côte en Hardcore avec ${n}.`], en:[n, `Reach 10,000 rating in Hardcore with ${n}.`] }));
+  const ROLE_TROPHIES = [
+    { id:'role_tank',   img:'Trophy_Tank',   ico:'🛡️', color:'#3da5ff', metric:'rolesTank',   target:HERO_ROLES.Tank.length,
+      fr:['Tank',   'Atteins 10 000 de côte en Hardcore avec tous les Tanks.'],   en:['Tank',   'Reach 10,000 rating in Hardcore with all Tanks.'] },
+    { id:'role_healer', img:'Trophy_Healer', ico:'💚', color:'#4ade80', metric:'rolesHealer', target:HERO_ROLES.Healer.length,
+      fr:['Healer', 'Atteins 10 000 de côte en Hardcore avec tous les Healers.'], en:['Healer', 'Reach 10,000 rating in Hardcore with all Healers.'] },
+    { id:'role_dps',    img:'Trophy_Dps',    ico:'⚔️', color:'#ff7b5c', metric:'rolesDps',    target:HERO_ROLES.DPS.length,
+      fr:['Dps',    'Atteins 10 000 de côte en Hardcore avec tous les Dps.'],    en:['Dps',    'Reach 10,000 rating in Hardcore with all Dps.'] },
+    { id:'role_all',    img:'Trophy_Heroes', ico:'👑', color:'#f4dd40', metric:'rolesAll',    target:HERO_ALL.length,
+      fr:['Héros',  'Atteins 10 000 de côte en Hardcore avec tous les héros.'],  en:['Heroes', 'Reach 10,000 rating in Hardcore with all Heroes.'] },
+  ].map(o => ({ ...o, group:'hero' }));
+  // Côte atteinte avec uniquement des donjons dans les temps : aucun donjon terminé hors délai pendant la tentative.
+  const INTIME_TROPHIES = [
+    ['I',   4000,  '#00c700', 'Trophy_In_Time_I'],
+    ['II',  6000,  '#006fe6', 'Trophy_In_Time_II'],
+    ['III', 8000,  '#a920fd', 'Trophy_In_Time_III'],
+    ['IV',  10000, '#b79f00', 'Trophy_In_Time_IV'],
+  ].map(([n, v, color, img]) => ({ id:`intime_${v}`, group:'intime', img, ico:'⏱️', color, metric:'inTimeBest', target:v,
+    fr:[`Dans les temps ${n}`, `Atteins ${v.toLocaleString('fr-FR')} de côte avec uniquement des donjons dans les temps (aucun donjon hors délai).`],
+    en:[`In Time ${n}`, `Reach ${v.toLocaleString('en-US')} rating with only timed dungeons (no dungeon finished over time).`] }));
   const TROPHIES = [
     mkTrophy({ id:"timed_1", group:"timed", img:"Trophy_Coffre_1", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:1,
       fr:["Explorateur", "Termine 1 donjon dans les temps."], en:["Explorer", "Finish 1 dungeon within the time limit."] }),
@@ -3200,6 +3229,7 @@
       fr:["Mourir, c'est recommencer", "Meurs 1 fois en Hardcore."], en:["Death is just the beginning", "Die once in Hardcore."] }),
     mkTrophy({ id:"shame", group:"hc", img:"Trophy_Death", ico:"🪦", color:"#ff4444", metric:"shameDeaths", target:1,
       fr:["Mur de la Honte", "Meurs en Hardcore avec moins de 750 de côte."], en:["Wall of Shame", "Die in Hardcore with a rating under 750."] }),
+    ...HERO_TROPHIES.map(mkTrophy), ...ROLE_TROPHIES.map(mkTrophy), ...INTIME_TROPHIES.map(mkTrophy),
   ];
 
   function computeProfileStats() {
@@ -3209,6 +3239,7 @@
     let timedTotal = 0, bestDl = 0;
     const xul = { normal: 0, heroic: 0, nightmare: 0 };
     const classesDone = new Set();
+    const overTime = new Set();                                    // héros ayant terminé un donjon HORS DÉLAI (hors Xul)
     for (const r of runs) {
       if (!r.completed || !byChar[r.character_id]) continue;
       byChar[r.character_id].completed++;
@@ -3218,6 +3249,7 @@
         continue;
       }
       if (r.in_time) { timedTotal++; bestDl = Math.max(bestDl, r.difficulty_level || 0); }
+      else overTime.add(r.character_id);
     }
     const recordByClass = {};
     let maxSurvival = 0;
@@ -3231,7 +3263,16 @@
     const bestScore = Math.max(0, ...characters.map(scoreOf));
     const bestGear  = Math.max(0, ...characters.map(c => Math.max(Number(c.power_score_best) || 0, Number(c.power_score_current) || 0)));
     const shameDeaths = characters.filter(c => c.status === 'dead' && scoreOf(c) < 750).length;
+    // Maîtrise des héros : meilleure côte par héros (toutes tentatives), puis nombre de héros à 10 000 par rôle
+    const heroBest = {};
+    for (const c of characters) { const k = String(c.character_class || '').toLowerCase(); heroBest[k] = Math.max(heroBest[k] || 0, scoreOf(c)); }
+    const heroStats = {};
+    for (const n of HERO_ALL) heroStats[`hero_${n}`] = heroBest[n.toLowerCase()] || 0;
+    const doneIn = list => list.filter(n => (heroBest[n.toLowerCase()] || 0) >= HERO_COTE).length;
+    const inTimeBest = Math.max(0, ...characters.filter(c => !overTime.has(c.id)).map(scoreOf));
     return {
+      ...heroStats, inTimeBest,
+      rolesTank: doneIn(HERO_ROLES.Tank), rolesHealer: doneIn(HERO_ROLES.Healer), rolesDps: doneIn(HERO_ROLES.DPS), rolesAll: doneIn(HERO_ALL),
       byChar, recordByClass, maxSurvival, timedTotal, bestDl, bestScore, bestGear, shameDeaths,
       xulNormal: xul.normal, xulHeroic: xul.heroic, xulNightmare: xul.nightmare,
       heroesPlayed: classesDone.size,
