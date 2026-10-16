@@ -1850,10 +1850,12 @@
 
     // Tri : meilleur score desc, à égalité highest dungeon, puis moins de morts (ordre d'affichage seulement)
     players.sort((a, b) => b.totalScore - a.totalScore || b.sortKey - a.sortKey || a.totalDeaths - b.totalDeaths);
-    // Rang global (indépendant de la recherche) : même score affiché = même rang (1, 1, 3…)
+    // Rang global (indépendant de la recherche) : même score affiché = même rang, et le rang suivant est consécutif (1, 1, 2…)
+    let _rk = 0;
     players.forEach((p, i) => {
       const prev = players[i - 1];
-      p.rank = (prev && Math.floor(prev.totalScore) === Math.floor(p.totalScore)) ? prev.rank : i + 1;
+      if (!prev || Math.floor(prev.totalScore) !== Math.floor(p.totalScore)) _rk++;
+      p.rank = _rk;
     });
 
     // Mise à jour compteur header
