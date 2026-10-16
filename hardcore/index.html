@@ -1212,6 +1212,100 @@
       .tomb.top { width:140px; }
     }
 
+
+    /* ══ FORMULAIRES — lisibles et hiérarchisés ═════════════════════════════════════════════
+       Rôles de couleur : turquoise = action principale / focus · rouge = obligatoire / danger · gris-bleu = aide */
+    .field label, .profile-magic-title { color:var(--teal-light); }
+    .field label { font-size:12px; font-weight:700; letter-spacing:.14em; }
+    .field .req { color:#ff7a7a; margin-left:3px; }
+    .field .opt { font-weight:400; letter-spacing:.06em; text-transform:none; color:#8fbcbc; font-family:'Crimson Pro',serif; font-size:13px; }
+    .field input, .field select, .profile-magic-row input, .fl-card-row input {
+      background:#04090a; border:1.5px solid rgba(114,232,232,.5); border-radius:6px; color:#fff;
+      font-family:'Crimson Pro',serif; font-size:17px; padding:12px 14px; min-height:46px;
+      box-shadow:inset 0 2px 6px rgba(0,0,0,.55);
+    }
+    .field input:hover, .profile-magic-row input:hover, .fl-card-row input:hover { border-color:rgba(114,232,232,.8); }
+    .field input:focus, .field select:focus, .profile-magic-row input:focus, .fl-card-row input:focus {
+      border-color:var(--teal-light); box-shadow:0 0 0 3px rgba(64,212,212,.25), inset 0 2px 6px rgba(0,0,0,.55); background:#050d0e; outline:none;
+    }
+    .field input::placeholder, .profile-magic-row input::placeholder, .fl-card-row input::placeholder { color:rgba(200,240,240,.42); font-style:italic; }
+    .field-hint { color:#9cc7c7; font-style:normal; font-size:13.5px; line-height:1.55; }
+    .field-hint b { color:var(--text); font-weight:600; }
+
+    /* Boutons : principal (plein) / secondaire (contour) */
+    .btn-register, .btn-magic {
+      background:linear-gradient(180deg,#58e0e0,#2fb3b3); border:1px solid #8ff0f0; color:#031212; font-weight:700;
+      box-shadow:0 2px 14px rgba(64,212,212,.28);
+    }
+    .btn-register:hover, .btn-magic:hover { background:linear-gradient(180deg,#72ecec,#3cc4c4); border-color:#c0ffff; box-shadow:0 2px 20px rgba(64,212,212,.45); }
+    .btn-register.secondary { background:transparent; border:1.5px solid rgba(114,232,232,.55); color:var(--teal-light); box-shadow:none; }
+    .btn-register.secondary:hover { background:rgba(64,212,212,.12); border-color:var(--teal-light); }
+    .btn-register:disabled, .btn-magic:disabled { opacity:.45; box-shadow:none; }
+    .btn-register:focus-visible, .btn-magic:focus-visible, .hero-toggle:focus-visible { outline:3px solid rgba(64,212,212,.5); outline-offset:2px; }
+
+    /* Carte et parcours d'inscription */
+    .onboarding-card { max-width:600px; background:#0a1415; border:1px solid rgba(114,232,232,.35); box-shadow:0 10px 40px rgba(0,0,0,.5); padding:30px 34px; }
+    .onboarding-step-indicator { gap:0; margin-bottom:28px; }
+    .ob-step { display:flex; flex-direction:column; align-items:center; gap:7px; min-width:84px; }
+    .ob-step-name { font-family:'Cinzel',serif; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#7fb0b0; text-align:center; }
+    .ob-step.active .ob-step-name { color:var(--teal-light); font-weight:700; }
+    .ob-step.done .ob-step-name { color:#8fe08f; }
+    .onboarding-step-dot { width:34px; height:34px; font-size:13px; border:2px solid rgba(114,232,232,.35); color:#9cc7c7; background:#06100f; }
+    .onboarding-step-dot.active { border-color:var(--teal-light); color:#031212; background:var(--teal-light); box-shadow:0 0 16px rgba(64,212,212,.55); font-weight:700; }
+    .onboarding-step-dot.done { border-color:#44ee44; color:#06210a; background:#44ee44; }
+    .onboarding-step-line { height:2px; background:rgba(114,232,232,.25); margin:0 6px 20px; }
+    .onboarding-step-line.done { background:#44ee44; }
+    .onboarding-title { font-size:17px; color:#fff; letter-spacing:.14em; margin-bottom:8px; }
+    .ob-lead { font-size:15.5px; color:#b6d8d8; line-height:1.6; margin-bottom:22px; }
+
+    /* Sections numérotées de l'étape 1 */
+    .ob-section { border:1px solid rgba(114,232,232,.22); background:rgba(64,212,212,.04); border-radius:8px; padding:18px 18px 4px; margin-bottom:16px; }
+    .ob-section-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .ob-section-num { width:24px; height:24px; border-radius:50%; background:rgba(64,212,212,.18); border:1px solid var(--teal); color:var(--teal-light); font-family:'Cinzel',serif; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .ob-section-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#fff; }
+    details.ob-adv { margin:-4px 0 16px; }
+    details.ob-adv > summary { cursor:pointer; color:var(--teal-light); font-size:14.5px; padding:4px 0; list-style:none; user-select:none; }
+    details.ob-adv > summary::-webkit-details-marker { display:none; }
+    details.ob-adv > summary::before { content:'＋'; display:inline-block; width:20px; color:var(--teal); font-weight:700; }
+    details.ob-adv[open] > summary::before { content:'－'; }
+    details.ob-adv > summary:hover { color:#fff; }
+    details.ob-adv .field { margin-top:12px; }
+    .ob-logs { margin-bottom:20px; padding:16px 18px; background:rgba(240,192,64,.06); border:1px solid rgba(240,192,64,.38); border-radius:8px; }
+    .ob-logs-title { font-family:'Cinzel',serif; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--hc-gold); margin-bottom:12px; }
+    .ob-logs .join-step-num { background:rgba(240,192,64,.15); border-color:rgba(240,192,64,.6); color:var(--hc-gold); }
+    .ob-logs .join-step-title { color:#fff; }
+    .ob-logs .join-step-desc { color:#c4dede; }
+    .ob-logs .join-step-desc a { color:var(--teal-light); border-bottom-color:rgba(114,232,232,.5); }
+    .ob-logs .join-step-desc strong { color:#fff; font-weight:600; }
+    .join-screenshot { background:#071011; border-color:rgba(114,232,232,.3); }
+    .join-url-bar { background:#04090a; color:#a9c9c9; border-color:rgba(114,232,232,.3); }
+    .join-url-caption { color:#a9d0d0; font-style:normal; }
+
+    /* Choix des héros */
+    .hero-toggle { background:#071011; border:1.5px solid rgba(114,232,232,.3); color:#cfe8e8; padding:10px 16px; font-size:13px; }
+    .hero-toggle:hover { border-color:rgba(114,232,232,.75); color:#fff; background:#0b1819; }
+    .hero-toggle.selected { box-shadow:0 0 14px rgba(255,255,255,.08); font-weight:700; color:#fff; }
+    .hero-toggle-check { font-size:13px; }
+    .heroes-role-label { color:var(--teal-light); font-size:11px; border-bottom-color:rgba(114,232,232,.3); }
+
+    /* Récapitulatif */
+    .recap-card { background:#071011; border:1px solid rgba(114,232,232,.35); }
+    .recap-label { color:#8fbcbc; font-size:13.5px; }
+    .recap-val { color:#fff; font-size:14.5px; }
+    .recap-row { border-bottom-color:rgba(114,232,232,.15); }
+    .recap-hero-tag { font-size:12px; padding:3px 10px; }
+    .ob-note { padding:12px 14px; background:rgba(64,212,212,.07); border:1px solid rgba(114,232,232,.35); border-radius:6px; font-size:14.5px; color:#c4e0e0; margin-bottom:16px; line-height:1.6; }
+    .ob-actions { display:flex; gap:10px; }
+    .ob-actions .btn-register.secondary { flex:0 0 34%; }
+    .profile-magic-form { background:#0a1415; border-color:rgba(114,232,232,.35); }
+    @media (max-width:600px) {
+      .onboarding-card { padding:22px 16px; }
+      .ob-step { min-width:60px; }
+      .ob-step-name { font-size:9px; letter-spacing:.08em; }
+      .ob-section { padding:14px 12px 2px; }
+      .ob-actions { flex-direction:column-reverse; }
+      .ob-actions .btn-register.secondary { flex:none; }
+    }
   </style>
 </head>
 <body>
@@ -2323,20 +2417,48 @@
   // Session stockée localement
   let _session = null;
 
-  async function getSession() {
-    if (_session) return _session;
-    const raw = localStorage.getItem('hm_session');
-    if (!raw) return null;
-    try {
-      const s = JSON.parse(raw);
-      // Vérifier expiry
-      if (s.expires_at && Date.now() / 1000 > s.expires_at - 60) {
-        localStorage.removeItem('hm_session');
+  // La session se renouvelle toute seule avec le refresh_token : plus de reconnexion par lien magique tant que
+  // le joueur reste connecté (le jeton d'accès, lui, expire vite : c'est normal et invisible).
+  let _refreshing = null;
+
+  function readStoredSession() {
+    try { return JSON.parse(localStorage.getItem('hm_session') || 'null'); } catch { return null; }
+  }
+
+  async function refreshSession(old) {
+    if (_refreshing) return _refreshing;
+    _refreshing = (async () => {
+      try {
+        // Un autre onglet a peut-être déjà renouvelé la session (le refresh_token ne sert qu'une fois)
+        const stored = readStoredSession();
+        if (stored && stored.refresh_token !== old.refresh_token && stored.expires_at && Date.now() / 1000 < stored.expires_at - 60) {
+          _session = stored; return stored;
+        }
+        if (!old.refresh_token) { saveSession(null); return null; }
+        const r = await authFetch('/token?grant_type=refresh_token', { method: 'POST', body: { refresh_token: old.refresh_token } });
+        const ns = {
+          access_token:  r.access_token,
+          refresh_token: r.refresh_token || old.refresh_token,
+          expires_at:    r.expires_at || Math.floor(Date.now() / 1000) + (r.expires_in || 3600),
+        };
+        saveSession(ns);
+        return ns;
+      } catch (e) {
+        // Réseau coupé : on garde la session stockée pour réessayer plus tard ; refus du serveur : session terminée
+        if (e instanceof TypeError) return null;
+        saveSession(null);
         return null;
-      }
-      _session = s;
-      return s;
-    } catch { return null; }
+      } finally { _refreshing = null; }
+    })();
+    return _refreshing;
+  }
+
+  async function getSession() {
+    const s = _session || readStoredSession();
+    if (!s) return null;
+    if (s.expires_at && Date.now() / 1000 > s.expires_at - 60) return await refreshSession(s);
+    _session = s;
+    return s;
   }
 
   function saveSession(session) {
@@ -2583,8 +2705,8 @@
     const dotsHtml = steps.map((s, i) => {
       const n = i + 1;
       const cls = n < _onboardingStep ? 'done' : n === _onboardingStep ? 'active' : '';
-      return `${n > 1 ? '<div class="onboarding-step-line"></div>' : ''}
-              <div class="onboarding-step-dot ${cls}">${n < _onboardingStep ? '✓' : n}</div>`;
+      return `${n > 1 ? `<div class="onboarding-step-line ${n <= _onboardingStep ? 'done' : ''}"></div>` : ''}
+              <div class="ob-step ${cls}"><div class="onboarding-step-dot ${cls}">${n < _onboardingStep ? '✓' : n}</div><div class="ob-step-name">${s}</div></div>`;
     }).join('');
 
     let body = '';
@@ -2592,73 +2714,78 @@
     if (_onboardingStep === 1) {
       body = `
         <div class="onboarding-title">${f ? 'Bienvenue — Configure ton profil' : 'Welcome — Set up your profile'}</div>
-        <p style="font-size:14px;color:var(--text-muted);font-style:italic;margin-bottom:20px;line-height:1.6">${f
-          ? 'Ton nom du classement est celui affiché sur le leaderboard. Ton nom Fellowship Logs sert à identifier tes personnages dans les logs de combat.'
-          : 'Your leaderboard name is the one shown on the leaderboard. Your Fellowship Logs name is used to identify your characters in combat logs.'}</p>
+        <p class="ob-lead">${f
+          ? 'Trois choses à renseigner (2 minutes). Les champs marqués <span style="color:#ff7a7a">*</span> sont obligatoires.'
+          : 'Three things to fill in (2 minutes). Fields marked <span style="color:#ff7a7a">*</span> are required.'}</p>
 
-        <div class="field">
-          <label>${f ? 'Nom du classement (Leaderboard)' : 'Leaderboard name'} *</label>
-          <input type="text" id="ob-name" value="${esc(_onboardingPlayerName)}" placeholder="${f ? 'Le nom sous lequel tu es inscrit à l\'event' : 'The name you registered with for the event'}">
-          <div class="field-hint">${f ? 'Affiché sur le classement. Doit correspondre exactement au nom sous lequel tu as été inscrit.' : 'Shown on the leaderboard. Must match exactly the name you were registered under.'}</div>
+        <div class="ob-section">
+          <div class="ob-section-head"><div class="ob-section-num">1</div><div class="ob-section-title">${f ? 'Ton nom' : 'Your name'}</div></div>
+          <div class="field">
+            <label for="ob-name">${f ? 'Nom du classement' : 'Leaderboard name'}<span class="req">*</span></label>
+            <input type="text" id="ob-name" value="${esc(_onboardingPlayerName)}" autocomplete="off" placeholder="${f ? 'Ex : Pouf' : 'e.g. Pouf'}">
+            <div class="field-hint">${f ? 'Le nom affiché sur le classement (le nom sous lequel tu t\'inscris à l\'event).' : 'The name shown on the leaderboard (the name you register for the event with).'}</div>
+          </div>
+          <details class="ob-adv" ${_onboardingFlName ? 'open' : ''}>
+            <summary>${f ? 'Mon nom dans les logs est différent' : 'My name in the logs is different'}</summary>
+            <div class="field">
+              <label for="ob-fl-name">${f ? 'Nom Fellowship Logs' : 'Fellowship Logs name'}</label>
+              <input type="text" id="ob-fl-name" value="${esc(_onboardingFlName)}" autocomplete="off" placeholder="${f ? 'Le nom exact de ton personnage' : 'Your exact character name'}">
+              <div class="field-hint">${f ? 'Exactement comme sur fellowshiplogs.com. Laisse vide si c\'est le même que ci-dessus.' : 'Exactly as on fellowshiplogs.com. Leave empty if it is the same as above.'}</div>
+            </div>
+          </details>
         </div>
 
-        <div class="field">
-          <label>${f ? 'Nom Fellowship Logs' : 'Fellowship Logs name'} <span style="font-weight:400;color:var(--text-muted)">(${f ? 'optionnel' : 'optional'})</span></label>
-          <input type="text" id="ob-fl-name" value="${esc(_onboardingFlName)}" placeholder="${f ? 'Laisse vide si identique au nom du classement' : 'Leave empty if same as leaderboard name'}">
-          <div class="field-hint">${f ? 'Ton nom de personnage exact sur fellowshiplogs.com, s\'il est différent. Si tu laisses vide, le nom du classement est utilisé.' : 'Your exact character name on fellowshiplogs.com, if different. If left empty, the leaderboard name is used.'}</div>
-        </div>
-
-        <div class="field">
-          <label>${f ? 'Ton Fellowship Character ID' : 'Your Fellowship Character ID'} *</label>
-          <input type="number" id="ob-fellowship-id" value="${_onboardingFellowshipId}" placeholder="${f ? 'Ex: 151451' : 'e.g. 151451'}">
-          <div class="field-hint">${f ? 'Visible dans la barre d\'URL sur fellowshiplogs.com' : 'Visible in the URL bar on fellowshiplogs.com'}</div>
-          <div class="join-screenshot" style="margin-top:10px">
-            <div class="join-screenshot-label">${f ? 'Exemple barre d\'URL' : 'Example URL bar'}</div>
-            <div class="join-url-demo">
-              <div class="join-url-bar"><span class="url-dim">fellowshiplogs.com/characters/</span><span class="url-highlight">151451</span><span class="url-dim">/overview</span></div>
-              <div class="join-url-caption">${f ? '👆 Le nombre en surbrillance, c\'est ton ID.' : '👆 The highlighted number is your ID.'}</div>
+        <div class="ob-section">
+          <div class="ob-section-head"><div class="ob-section-num">2</div><div class="ob-section-title">${f ? 'Tes identifiants Fellowship' : 'Your Fellowship IDs'}</div></div>
+          <div class="field">
+            <label for="ob-fellowship-id">${f ? 'Character ID' : 'Character ID'}<span class="req">*</span></label>
+            <input type="number" inputmode="numeric" id="ob-fellowship-id" value="${_onboardingFellowshipId}" placeholder="${f ? 'Ex : 151451' : 'e.g. 151451'}">
+            <div class="field-hint">${f ? 'Le nombre dans l\'adresse de ton personnage sur fellowshiplogs.com :' : 'The number in your character\'s address on fellowshiplogs.com:'}</div>
+            <div class="join-screenshot">
+              <div class="join-url-demo">
+                <div class="join-url-bar"><span class="url-dim">fellowshiplogs.com/characters/</span><span class="url-highlight">151451</span><span class="url-dim">/overview</span></div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div class="field">
-          <label>${f ? 'Ton compte Fellowship Logs (lien « All Reports »)' : 'Your Fellowship Logs account (“All Reports” link)'} *</label>
-          <input type="text" id="ob-fl-user" value="${_onboardingFlUser}" placeholder="https://www.fellowshiplogs.com/user/reports-list/14736">
-          <div class="field-hint">${f
-            ? 'Sur fellowshiplogs.com, clique sur ton nom en haut à droite, puis <b>All Reports</b>. Colle l\'adresse de la page (ou juste le nombre à la fin). Indispensable pour retrouver tes donjons non terminés.'
-            : 'On fellowshiplogs.com, click your name at the top right, then <b>All Reports</b>. Paste the page address (or just the number at the end). Needed to find your unfinished dungeons.'}</div>
-          <div class="join-screenshot" style="margin-top:10px">
-            <div class="join-screenshot-label">${f ? 'Exemple barre d\'URL' : 'Example URL bar'}</div>
-            <div class="join-url-demo">
-              <div class="join-url-bar"><span class="url-dim">fellowshiplogs.com/user/reports-list/</span><span class="url-highlight">14736</span></div>
-              <div class="join-url-caption">${f ? '👆 Le nombre en surbrillance, c\'est l\'ID de ton compte.' : '👆 The highlighted number is your account ID.'}</div>
+          <div class="field">
+            <label for="ob-fl-user">${f ? 'Ton compte Fellowship Logs' : 'Your Fellowship Logs account'}<span class="req">*</span></label>
+            <input type="text" id="ob-fl-user" value="${_onboardingFlUser}" autocomplete="off" placeholder="https://www.fellowshiplogs.com/user/reports-list/14736">
+            <div class="field-hint">${f
+              ? 'Sur fellowshiplogs.com : clique sur ton nom (en haut à droite) → <b>All Reports</b>, puis colle l\'adresse de la page (ou juste le nombre à la fin). Sert à retrouver tes donjons non terminés.'
+              : 'On fellowshiplogs.com: click your name (top right) → <b>All Reports</b>, then paste the page address (or just the number at the end). Used to find your unfinished dungeons.'}</div>
+            <div class="join-screenshot">
+              <div class="join-url-demo">
+                <div class="join-url-bar"><span class="url-dim">fellowshiplogs.com/user/reports-list/</span><span class="url-highlight">14736</span></div>
+              </div>
             </div>
           </div>
+          <details class="ob-adv" ${_onboardingCode ? 'open' : ''}>
+            <summary>${f ? 'Ajouter mon Contact Code (optionnel)' : 'Add my Contact Code (optional)'}</summary>
+            <div class="field">
+              <label for="ob-code">Fellowship Contact Code</label>
+              <input type="text" id="ob-code" value="${_onboardingCode}" autocomplete="off" placeholder="${f ? 'Visible dans ton profil Fellowship' : 'Visible in your Fellowship profile'}">
+            </div>
+          </details>
         </div>
 
-        <div class="field">
-          <label>${f ? 'Fellowship Contact Code (optionnel)' : 'Fellowship Contact Code (optional)'}</label>
-          <input type="text" id="ob-code" value="${_onboardingCode}" placeholder="${f ? 'Visible dans ton profil Fellowship' : 'Visible in your Fellowship profile'}">
-        </div>
-
-        <div style="margin-bottom:20px;padding:14px 16px;background:rgba(255,68,68,0.04);border:1px solid rgba(255,68,68,0.2);border-radius:6px">
-          <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">${f ? 'Activer les logs de combat' : 'Activate combat logs'}</div>
+        <div class="ob-logs">
+          <div class="ob-logs-title">⚠ ${f ? 'À faire en jeu : activer les logs' : 'In game: turn on combat logs'}</div>
           <div class="join-step">
             <div class="join-step-num">1</div>
             <div class="join-step-body">
               <div class="join-step-title">${f ? 'Télécharger Archon' : 'Download Archon'}</div>
               <div class="join-step-desc">${f
-                ? `Télécharge l'application <strong>Archon</strong> et active le paramètre <strong>Activate Combat Log</strong>.<br><a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>`
-                : `Download the <strong>Archon</strong> app and enable <strong>Activate Combat Log</strong>.<br><a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>`}</div>
+                ? `Installe <strong>Archon</strong> et active <strong>Activate Combat Log</strong>.<br><a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>`
+                : `Install <strong>Archon</strong> and enable <strong>Activate Combat Log</strong>.<br><a href="https://www.archon.gg/fellowship/articles/help/getting-started" target="_blank" rel="noopener">archon.gg — Getting started</a>`}</div>
             </div>
           </div>
           <div class="join-step" style="margin-bottom:0">
             <div class="join-step-num">2</div>
             <div class="join-step-body">
-              <div class="join-step-title">${f ? 'Live Logs obligatoires' : 'Live Logs mandatory'}</div>
-              <div class="join-step-desc">${f
-                ? 'Dans Archon, active le mode <strong>Live Logging</strong> avant chaque session. Les logs uploadés manuellement ne sont pas acceptés — risque de perte de progression.'
-                : 'In Archon, enable <strong>Live Logging</strong> mode before each session. Manually uploaded logs are not accepted — risk of losing progression.'}</div>
+              <div class="join-step-title">${f ? 'Live Logging obligatoire' : 'Live Logging mandatory'}</div>
+              <div class="join-step-desc" style="margin-bottom:0">${f
+                ? 'Active le <strong>Live Logging</strong> avant chaque session. Les logs envoyés à la main ne sont pas acceptés (risque de perdre ta progression).'
+                : 'Enable <strong>Live Logging</strong> before each session. Manually uploaded logs are not accepted (risk of losing progression).'}</div>
             </div>
           </div>
         </div>
@@ -2676,10 +2803,10 @@
         const items = roleHeroes.map(h => `
           <div class="hero-toggle ${_onboardingSelectedHeroes.has(h.class_name) ? 'selected' : ''}"
                onclick="toggleHeroSelect('${h.class_name}')" id="htoggle-${h.class_name}"
-               style="${_onboardingSelectedHeroes.has(h.class_name) ? `border-color:${h.color_hex}60;background:${h.color_hex}15` : ''}">
-            <div class="hero-dot" style="background:${h.color_hex}"></div>
-            <span style="${_onboardingSelectedHeroes.has(h.class_name) ? `color:${h.color_hex}` : ''}">${h.class_name}</span>
-            <span class="hero-toggle-check" style="color:${h.color_hex}">✓</span>
+               style="${_onboardingSelectedHeroes.has(h.class_name) ? `border-color:${h.color_hex};background:${h.color_hex}38` : ''}">
+            <div class="hero-dot" style="background:${h.color_hex};box-shadow:0 0 0 2px rgba(255,255,255,.25)"></div>
+            <span>${h.class_name}</span>
+            <span class="hero-toggle-check" style="color:#fff">✓</span>
           </div>`).join('');
         return `<div class="heroes-section">
           <div class="heroes-role-label">${role}</div>
@@ -2689,12 +2816,12 @@
 
       body = `
         <div class="onboarding-title">${f ? 'Sélectionne tes héros Hardcore' : 'Select your Hardcore heroes'}</div>
-        <div style="font-size:14px;color:var(--text-muted);font-style:italic;margin-bottom:18px">${f
-          ? 'Sélectionne les héros que tu veux jouer en Hardcore. Par défaut ils seront en OFF.'
-          : 'Select the heroes you want to play in Hardcore. They start as OFF.'}</div>
+        <p class="ob-lead">${f
+          ? 'Touche les héros que tu veux jouer en Hardcore. Tu pourras en ajouter plus tard, et activer le mode HC héros par héros depuis ton profil (ils démarrent sur OFF).'
+          : 'Tap the heroes you want to play in Hardcore. You can add more later, and switch HC mode on hero by hero from your profile (they start OFF).'}</p>
         ${heroesHtml}
-        <div style="display:flex;gap:10px;margin-top:16px">
-          <button class="btn-register" onclick="_onboardingStep=1;renderOnboardingStep(document.getElementById('profile-content'),fr(),null)" style="background:none;border-color:var(--border);color:var(--text-muted)">
+        <div class="ob-actions" style="margin-top:16px">
+          <button class="btn-register secondary" onclick="_onboardingStep=1;renderOnboardingStep(document.getElementById('profile-content'),fr(),null)">
             ← ${f ? 'Retour' : 'Back'}
           </button>
           <button class="btn-register" onclick="onboardingNext()">
@@ -2707,7 +2834,7 @@
       const heroesDisplay = heroes.length
         ? heroes.map(h => {
             const hData = (_heroClasses || []).find(c => c.class_name === h);
-            return `<span class="recap-hero-tag" style="color:${hData?.color_hex || 'var(--text-muted)'};border-color:${hData?.color_hex || 'var(--border)'}60">${h}</span>`;
+            return `<span class="recap-hero-tag" style="color:#fff;border-color:${hData?.color_hex || 'var(--border)'};background:${hData?.color_hex || '#444'}38">${h}</span>`;
           }).join('')
         : `<span style="color:var(--text-muted);font-style:italic;font-size:13px">${f ? 'Aucun sélectionné' : 'None selected'}</span>`;
 
@@ -2739,13 +2866,13 @@
             <div class="recap-heroes">${heroesDisplay}</div>
           </div>
         </div>
-        <div style="padding:12px 14px;background:rgba(64,212,212,0.04);border:1px solid var(--border);border-radius:4px;font-size:14px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">
+        <div class="ob-note">
           ℹ️ ${f
             ? 'Tu recevras une invitation pour rejoindre la communauté in-game sur Fellowship. Pouf t\'enverra l\'invitation directement dans le jeu.'
             : 'You will receive an invitation to join the in-game community on Fellowship. Pouf will send the invitation directly in-game.'}
         </div>
-        <div style="display:flex;gap:10px">
-          <button class="btn-register" onclick="_onboardingStep=2;renderOnboardingStep(document.getElementById('profile-content'),fr(),null)" style="background:none;border-color:var(--border);color:var(--text-muted)">
+        <div class="ob-actions">
+          <button class="btn-register secondary" onclick="_onboardingStep=2;renderOnboardingStep(document.getElementById('profile-content'),fr(),null)">
             ← ${f ? 'Retour' : 'Back'}
           </button>
           <button class="btn-register" onclick="completeOnboarding()">
@@ -2769,8 +2896,8 @@
     if (el) {
       const sel = _onboardingSelectedHeroes.has(className);
       el.classList.toggle('selected', sel);
-      el.style.borderColor = sel ? (hData?.color_hex || 'var(--border)') + '60' : '';
-      el.style.background  = sel ? (hData?.color_hex || '') + '15' : '';
+      el.style.borderColor = sel ? (hData?.color_hex || 'var(--border)') : '';
+      el.style.background  = sel ? (hData?.color_hex || '') + '38' : '';
     }
   }
 
@@ -2945,7 +3072,7 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
-  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.png`; }
+  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.jpg`; }
 
   let _activeProfileTab = 'heroes';
   let _spotClass = null;
@@ -3864,13 +3991,15 @@
       const deadChar = chars.find(c => c.id === _resetCharId);
       const newAttempt = (deadChar?.attempt_number ?? 0) + 1;
 
-      // Créer nouveau perso
-      await fetch(SUPABASE_URL + '/rest/v1/hm_characters', {
+      // Créer nouveau perso (le serveur le crée toujours avec HC « off » : on le rallume juste après si l'ancien était en HC)
+      const wasHc  = !!deadChar?.hm_enabled;
+      const userId = (await authFetch('/user', { token: session.access_token })).id;
+      const created = await fetch(SUPABASE_URL + '/rest/v1/hm_characters', {
         method: 'POST',
-        headers: { ...headers, 'Prefer': 'return=minimal' },
+        headers: { ...headers, 'Prefer': 'return=representation' },
         body: JSON.stringify({
           player_id:               deadChar?.player_id,
-          user_id:                 (await authFetch('/user', { token: session.access_token })).id,
+          user_id:                 userId,
           fellowship_character_id: deadChar?.fellowship_character_id,
           character_name:          deadChar?.character_name,
           character_class:         _resetHeroClass,
@@ -3880,6 +4009,18 @@
           season:                  SEASON,
         }),
       });
+      if (!created.ok) throw new Error(await created.text());
+      // Le HC reste activé après un reset (il l'était avant) : nouvelle plage d'activation + interrupteur sur ON
+      const newChar = (await created.json().catch(() => []))?.[0];
+      if (wasHc && newChar?.id) {
+        const per = await fetch(SUPABASE_URL + '/rest/v1/hm_active_periods', {
+          method: 'POST', headers: { ...headers, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ character_id: newChar.id, user_id: userId, player_id: deadChar.player_id, active_from: new Date().toISOString(), season: SEASON }),
+        });
+        if (per.ok) {
+          await fetch(SUPABASE_URL + `/rest/v1/hm_characters?id=eq.${newChar.id}`, { method: 'PATCH', headers, body: JSON.stringify({ hm_enabled: true }) });
+        }
+      }
 
       closeResetModal();
       toast(f ? `${_resetHeroClass} réinitialisé. Tentative #${newAttempt} créée.` : `${_resetHeroClass} reset. Attempt #${newAttempt} created.`);
