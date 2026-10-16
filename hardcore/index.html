@@ -1188,6 +1188,18 @@
     .podium-card.p2 { border-color:rgba(200,200,200,.4); }
     .podium-card.p3 { border-color:rgba(205,127,50,.45); }
     .podium-medal { font-size:24px; }
+    .podium-card.tie { max-width:360px; flex:1 1 260px; }
+    .podium-tie { font-family:'Cinzel',serif; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px; }
+    .podium-names { margin:2px 0 6px; }
+    .podium-names.scroll, .podium-names.manual { max-height:92px; position:relative; }
+    .podium-names.scroll { overflow:hidden; -webkit-mask-image:linear-gradient(transparent 0, #000 14%, #000 86%, transparent 100%); mask-image:linear-gradient(transparent 0, #000 14%, #000 86%, transparent 100%); }
+    .podium-names.manual { overflow-y:auto; scrollbar-width:thin; }
+    .podium-names-inner { display:block; }
+    .podium-names .podium-name { margin-bottom:3px; }
+    .podium-names.scroll .podium-names-inner { animation:podScroll linear infinite; }
+    .podium-names.scroll:hover .podium-names-inner { animation-play-state:paused; }
+    @keyframes podScroll { from { transform:translateY(0); } to { transform:translateY(-50%); } }
+    .podium-names .podium-name { text-shadow:0 1px 4px rgba(0,0,0,.6); }
     .podium-name { font-family:'Cinzel',serif; font-size:15px; font-weight:700; color:var(--text); }
     .podium-hero { font-family:'Cinzel',serif; font-size:11px; letter-spacing:.1em; }
     .podium-score { font-family:'Cinzel',serif; font-size:14px; color:var(--teal-light); margin-top:2px; }
@@ -1487,6 +1499,14 @@
     'Gunde':   '#933637',
   };
   function classColor(cls) { return CLASS_COLORS[cls] || 'var(--text-muted)'; }
+  // Couleur du héros éclaircie (mélange avec du blanc) : lisible en texte sur fond sombre, même pour les teintes foncées
+  function classColorBright(cls, amt = 0.38) {
+    const c = classColor(cls);
+    const m = /^#([0-9a-f]{6})$/i.exec(c);
+    if (!m) return c;
+    const n = parseInt(m[1], 16), mix = ch => Math.round(ch + (255 - ch) * amt);
+    return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(mix).map(v => v.toString(16).padStart(2, '0')).join('');
+  }
   function heroImg(cls) { return `../images/heroes/${(cls||'').toLowerCase()}.jpg`; }
 
   // Nom de zone (gameZone.name des logs Fellowship) → image. Clé normalisée :
@@ -1758,18 +1778,40 @@
     const dateStr = d.toLocaleDateString(f ? 'fr-FR' : 'en-GB', { day: '2-digit', month: '2-digit' });
     const title = ageDays <= 1 ? (f ? "Podium d'hier" : "Yesterday's podium") : (f ? `Podium du ${dateStr}` : `Podium of ${dateStr}`);
     const medal = { 1: '🥇', 2: '🥈', 3: '🥉' };
-    // Disposition classique 2-1-3 si les trois rangs sont distincts ; sinon (ex æquo) simple liste par rang
+    // Un bloc par rang : les ex æquo (même rang) partagent UNE seule carte avec tous leurs noms, chacun dans la couleur de son héros.
     top.sort((a, b) => a.rank - b.rank || (a.player_name || '').localeCompare(b.player_name || ''));
-    const distinct = top.length === 3 && top[0].rank === 1 && top[1].rank === 2 && top[2].rank === 3;
-    const ordered = distinct ? [top[1], top[0], top[2]] : top;
-    const cards = ordered.map(r => {
-      const rk = (r.best_difficulty_level || 0) > 0 ? diffLevelToRank(r.best_difficulty_level) : null;
+    const groups = [];
+    for (const r of top) {
+      let g = groups[groups.length - 1];
+      if (!g || g.rank !== r.rank) { g = { rank: r.rank, rows: [] }; groups.push(g); }
+      g.rows.push(r);
+    }
+    // Disposition classique 2-1-3 si les trois rangs sont distincts ; sinon simple rangée par rang
+    const distinct = groups.length === 3 && groups[0].rank === 1 && groups[1].rank === 2 && groups[2].rank === 3;
+    const ordered = distinct ? [groups[1], groups[0], groups[2]] : groups;
+    const reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const SCROLL_FROM = 4;   // au-delà de 4 noms, la liste défile toute seule (pause au survol)
+    const cards = ordered.map(g => {
+      const first = g.rows[0];
+      const bestDl = Math.max(...g.rows.map(r => r.best_difficulty_level || 0), 0);
+      const rk = bestDl > 0 ? diffLevelToRank(bestDl) : null;
       const col = tierColor(rk?.tier);
-      return `<div class="podium-card p${r.rank}">
-        <div class="podium-medal">${medal[r.rank] || ''}</div>
-        <div class="podium-name">${esc(r.player_name)}</div>
-        ${r.best_hero ? `<div class="podium-hero" style="color:${classColor(r.best_hero)}">${esc(r.best_hero)}</div>` : ''}
-        <div class="podium-score">${Math.floor(r.score).toLocaleString()} pts</div>
+      const nameHtml = r => `<div class="podium-name" style="color:${r.best_hero ? classColorBright(r.best_hero) : 'var(--text)'}" ${r.best_hero ? `title="${esc(r.best_hero)}"` : ''}>${esc(r.player_name)}</div>`;
+      let names;
+      if (g.rows.length === 1) {
+        names = `${nameHtml(first)}${first.best_hero ? `<div class="podium-hero" style="color:${classColorBright(first.best_hero, 0.2)}">${esc(first.best_hero)}</div>` : ''}`;
+      } else {
+        const list = g.rows.map(nameHtml).join('');
+        const scroll = g.rows.length > SCROLL_FROM && !reduceMotion;
+        names = `<div class="podium-names ${scroll ? 'scroll' : (g.rows.length > SCROLL_FROM ? 'manual' : '')}">
+          <div class="podium-names-inner" ${scroll ? `style="animation-duration:${Math.max(8, g.rows.length * 2.2)}s"` : ''}>${list}${scroll ? list : ''}</div>
+        </div>`;
+      }
+      return `<div class="podium-card p${g.rank} ${g.rows.length > 1 ? 'tie' : ''}">
+        <div class="podium-medal">${medal[g.rank] || ''}</div>
+        ${g.rows.length > 1 ? `<div class="podium-tie">${f ? 'Ex æquo' : 'Tied'} · ${g.rows.length}</div>` : ''}
+        ${names}
+        <div class="podium-score">${Math.floor(first.score).toLocaleString()} pts</div>
         ${rk ? `<div class="podium-rank" style="color:${col}">${rk.label}</div>` : ''}
       </div>`;
     }).join('');
