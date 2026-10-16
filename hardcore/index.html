@@ -3114,7 +3114,7 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
-  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.jpg`; }
+  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.ong`; }
 
   let _activeProfileTab = 'heroes';
   let _spotClass = null;
@@ -3363,8 +3363,8 @@
       ? (f ? `Nouvelle tentative #${n} : repars de zéro` : `New attempt #${n}: start from scratch`)
       : (f ? 'Avant ton premier donjon : pars de zéro' : 'Before your first dungeon: start from scratch');
     const body = f
-      ? 'Retire <b>tout ton équipement sauf les objets gris/blancs</b> : tu dois être entre <b>0 et 6 de Gear Score</b>. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
-      : 'Take <b>all your equipment off except gray/white items</b>: you should be between <b>0 and 6 Gear Score</b>. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
+      ? 'Retire <b>tout ton équipement sauf les objets gris/blancs</b> : tu dois être entre <b>0 et 8 de Gear Score</b>. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
+      : 'Take <b>all your equipment off except gray/white items</b>: you should be between <b>0 and 8 Gear Score</b>. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
     return `<div class="spot-fresh"><div class="spot-fresh-t">🔄 ${title}</div><div class="spot-fresh-b">${body}</div></div>`;
   }
 
