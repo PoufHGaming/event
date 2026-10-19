@@ -394,17 +394,24 @@
 
   // ── PARAMÈTRES D'URL ────────────────────────────────────────────────────────
   //   ?lang=fr | en          langue des annonces (défaut : fr)
-  //   ?sound=on | off        son des annonces (défaut : on ; accepte aussi 1/0, true/false, mute)
-  //   ?shared=1              mode PARTAGÉ : plusieurs overlays (plusieurs OBS) reçoivent chacun TOUTES les alertes.
-  //                          Sans ce mode, le premier overlay qui interroge la base « consomme » l'alerte pour tout le monde.
+  //   ?son=0..100            volume du son des annonces, en % (défaut : 100 = volume d'origine). Ex. ?son=40
+  //                          ?son=0 ou ?son=off coupe le son. (?sound= fonctionne aussi, avec les mêmes valeurs.)
   //   ?test=1                affiche UNE alerte de test à l'ouverture (mort par défaut ; ?test=death | capstone | trophy pour choisir).
   //                          Mode test = aucune lecture ni écriture en base : les vraies alertes ne sont pas consommées.
   //                          Pour revoir l'alerte : actualiser la source navigateur dans OBS.
-  // Exemple : overlay.html?shared=1&lang=en&sound=off   ·   test : overlay.html?test=1&lang=en
+  // Plusieurs overlays (plusieurs OBS) reçoivent chacun TOUTES les alertes : plus aucun réglage à faire pour ça.
+  // (L'ancien mode « consommé par le premier overlay » reste disponible en secret avec ?shared=0.)
+  // Exemple : overlay.html?lang=en&son=40   ·   test : overlay.html?test=1&lang=en
   const _qs      = new URLSearchParams(location.search);
   const LANG     = (_qs.get('lang') || 'fr').toLowerCase().startsWith('en') ? 'en' : 'fr';
-  const SOUND_ON = !['off', '0', 'false', 'no', 'mute', 'muted'].includes((_qs.get('sound') || 'on').toLowerCase());
-  const SHARED   = ['1', 'true', 'on', 'yes'].includes((_qs.get('shared') || '').toLowerCase());
+  // Volume : 100 par défaut (comme avant). Nombre = pourcentage ; off/mute/false/no = coupé ; on/1/true/yes = 100.
+  const _snd     = String(_qs.get('son') ?? _qs.get('sound') ?? 'on').trim().toLowerCase();
+  const VOLUME   = /^\d+(\.\d+)?$/.test(_snd) && _snd !== '1'
+    ? Math.min(100, parseFloat(_snd)) / 100
+    : (['off', 'false', 'no', 'mute', 'muted'].includes(_snd) ? 0 : 1);
+  const SOUND_ON = VOLUME > 0;
+  // Partagé par défaut ; seul ?shared=0 (ou off/false/no) rétablit l'ancien fonctionnement.
+  const SHARED   = !['0', 'off', 'false', 'no'].includes((_qs.get('shared') || '').toLowerCase());
   const _test    = (_qs.get('test') || '').toLowerCase();
   const TEST_ON  = _test !== '' && !['0', 'off', 'false', 'no'].includes(_test);
   const TEST_TYPE = ['capstone', 'trophy'].includes(_test) ? _test : 'death';
@@ -501,6 +508,11 @@
 
   // ── SON ─────────────────────────────────────────────────────────────────────
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // Volume général (?son=40). Courbe au carré : l'oreille perçoit le volume de façon logarithmique,
+  // donc 40 % « sonne » environ 40 % aussi (en linéaire, 40 % ne baissait que très peu). 100 % = son d'origine.
+  const outGain = audioCtx.createGain();
+  outGain.gain.value = VOLUME * VOLUME;
+  outGain.connect(audioCtx.destination);
 
   function playDeathSound() {
     if (!SOUND_ON) return;
@@ -539,7 +551,7 @@
     osc1.connect(gain1); gain1.connect(masterGain);
     osc2.connect(gain2); gain2.connect(masterGain);
     impactOsc.connect(impactGain); impactGain.connect(masterGain);
-    masterGain.connect(audioCtx.destination);
+    masterGain.connect(outGain);
 
     osc1.start(t); osc1.stop(t + 2.5);
     osc2.start(t); osc2.stop(t + 1.8);
@@ -561,7 +573,7 @@
       gain.gain.linearRampToValueAtTime(0.35, start + 0.04);
       gain.gain.exponentialRampToValueAtTime(0.001, start + 0.5);
       osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      gain.connect(outGain);
       osc.start(start);
       osc.stop(start + 0.5);
     });
@@ -573,7 +585,7 @@
     sGain.gain.setValueAtTime(0.3, t + 0.48);
     sGain.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
     sustain.connect(sGain);
-    sGain.connect(audioCtx.destination);
+    sGain.connect(outGain);
     sustain.start(t + 0.48);
     sustain.stop(t + 1.8);
   }
