@@ -305,6 +305,43 @@
       .evc-emoji { display:none; }
       .evc-name { font-size:16px; }
     }
+    /* ── Événements en tableau ── */
+    .et-datebar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:-6px 0 16px; }
+    .et-datebar label { font-family:'Cinzel',serif; font-size:12px; letter-spacing:.08em; color:var(--text-muted); }
+    .et-datebar input[type=date] { background:var(--bg2); border:1px solid var(--border); border-radius:3px; color:var(--text);
+      padding:6px 10px; font:inherit; font-size:15px; color-scheme:dark; }
+    .et-datebar input[type=date]:focus-visible { outline:2px solid var(--teal); outline-offset:2px; }
+    #evt-count { margin-left:auto; color:var(--text-muted); font-size:15px; }
+    .et-wrap { border:1px solid var(--border); border-radius:5px; overflow:hidden; background:var(--bg2); }
+    .et-table { width:100%; border-collapse:collapse; }
+    .et-table th { text-align:left; font-family:'Cinzel',serif; font-size:11px; font-weight:700; letter-spacing:.1em; color:var(--text-muted);
+      background:var(--bg3); padding:9px 12px; white-space:nowrap; }
+    .et-table td { padding:9px 12px; border-top:1px solid rgba(64,212,212,.12); vertical-align:middle; font-size:16px; }
+    .et-table tbody tr:hover td { background:rgba(64,212,212,.05); }
+    .et-table td.t-date { white-space:nowrap; color:var(--text-muted); font-size:14px; box-shadow:inset 3px 0 0 var(--c,#555); }
+    .et-table td.t-att { color:var(--text-muted); text-align:right; font-variant-numeric:tabular-nums; }
+    .et-type { font-family:'Cinzel',serif; font-size:12px; font-weight:700; letter-spacing:.05em; color:var(--tc,#fff); white-space:nowrap; }
+    .et-hero { display:flex; align-items:center; gap:10px; min-width:0; }
+    .et-hero img { width:30px; height:30px; border-radius:50%; object-fit:cover; border:1.5px solid var(--hc); flex:none; }
+    .et-hero b { font-family:'Cinzel',serif; font-size:15px; font-weight:700; color:var(--hc); }
+    .et-hero small { opacity:.6; margin-left:6px; font-size:12px; }
+    .et-detail { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; }
+    .et-table .evc-dung { font-size:16px; text-shadow:none; }
+    .et-table .evc-desc { text-shadow:none; }
+    .et-table .evc-pill { text-shadow:none; }
+    .et-table .timg { width:34px; height:34px; }
+    #events-pagination { display:flex; align-items:center; justify-content:center; gap:4px; margin-top:16px; flex-wrap:wrap; }
+    @media (max-width:700px) {
+      .et-table thead { display:none; }
+      .et-table tr { display:grid; grid-template-columns:1fr auto; gap:6px 10px; padding:10px 12px; border-top:1px solid rgba(64,212,212,.12); border-left:3px solid var(--c,#555); }
+      .et-table td { display:block; border:0; padding:0; box-shadow:none !important; }
+      .et-table tbody tr:hover td { background:none; }
+      .et-table td.t-type { grid-row:1; grid-column:1; }
+      .et-table td.t-date { grid-row:1; grid-column:2; text-align:right; }
+      .et-table td.t-hero, .et-table td.t-detail { grid-column:1 / -1; }
+      .et-table td.t-att { display:none; }
+      #evt-count { margin-left:0; width:100%; }
+    }
     .evt-icon { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
     .evt-icon .timg { width:34px; height:34px; margin-left:-3px; }
     .evt-body { flex:1; }
@@ -1409,7 +1446,16 @@
       <button class="evt-filter" onclick="setEvtFilter('capstone',this)" data-fr="👑 Capstones" data-en="👑 Capstones">👑 Capstones</button>
       <button class="evt-filter" onclick="setEvtFilter('trophy',this)" data-fr="🏆 Trophées" data-en="🏆 Trophies">🏆 Trophées</button>
     </div>
+    <div class="et-datebar">
+      <label for="evt-since" data-fr="Depuis le" data-en="Since">Depuis le</label>
+      <input type="date" id="evt-since" onchange="setEvtSince(this.value)">
+      <button class="evt-filter" id="evt-r-today" onclick="setEvtRange(0)" data-fr="Aujourd'hui" data-en="Today">Aujourd'hui</button>
+      <button class="evt-filter" id="evt-r-7" onclick="setEvtRange(7)" data-fr="7 jours" data-en="7 days">7 jours</button>
+      <button class="evt-filter active" id="evt-r-all" onclick="setEvtRange(null)" data-fr="Tout" data-en="All">Tout</button>
+      <span id="evt-count" aria-live="polite"></span>
+    </div>
     <div id="events-content"><div class="loading" data-fr="Chargement…" data-en="Loading…">Chargement…</div></div>
+    <div id="events-pagination"></div>
   </div>
 
   <!-- ── RULES ── -->
@@ -2234,41 +2280,94 @@
     document.body.style.overflow = '';
   }
 
-  // ── EVENTS CATALOGUE ────────────────────────────────────────────────────────
-  let _eventsData = null, _evtFilter = 'all';
+  // ── EVENTS CATALOGUE (tableau, 20 par page, filtre par date) ───────────────────────────────────────────────
+  const EVT_PAGE_SIZE = 20;
+  let _eventsData = null;                         // page affichée : { events, capstones, total }
+  let _evtFilter = 'all', _evtSince = '', _evtPage = 1, _evtReq = 0;
+  const _ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
   async function loadEvents(force = false) {
     if (!force && _eventsData) { renderEvents(); return; }
-    document.getElementById('events-content').innerHTML = `<div class="loading">${fr() ? 'Chargement…' : 'Loading…'}</div>`;
+    const cont = document.getElementById('events-content');
+    cont.innerHTML = `<div class="loading">${fr() ? 'Chargement…' : 'Loading…'}</div>`;
+    const req = ++_evtReq;
     try {
-      const events = await sbFetch(
-        `/rest/v1/hm_events?season=eq.${SEASON}&event_type=neq.new_attempt&event_type=neq.run_invalidated&order=created_at.desc&limit=200` +
-        `&select=id,event_type,player_id,character_name,character_class,capstone_id,metadata,attempt_number,created_at`
-      );
-      // Charger capstones pour le libellé
-      const caps = _lbData?.capstones || await sbFetch('/rest/v1/hm_capstones?select=id,tier_name,difficulty_level_threshold');
-      _eventsData = { events: events ?? [], capstones: caps ?? [] };
+      // Les événements d'un lot de relecture pas encore validé (alerte « retenue », date 2999) restent masqués
+      let q = `/rest/v1/hm_events?season=eq.${SEASON}&announce_after=lt.2900-01-01T00:00:00Z`;
+      q += _evtFilter === 'all' ? '&event_type=neq.new_attempt&event_type=neq.run_invalidated' : `&event_type=eq.${_evtFilter}`;
+      if (_evtSince) q += `&created_at=gte.${encodeURIComponent(new Date(_evtSince + 'T00:00:00').toISOString())}`;
+      q += `&order=created_at.desc&limit=${EVT_PAGE_SIZE}&offset=${(_evtPage - 1) * EVT_PAGE_SIZE}` +
+           `&select=id,event_type,player_id,character_name,character_class,capstone_id,metadata,attempt_number,created_at`;
+      const res = await fetch(SUPABASE_URL + q, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY, Prefer: 'count=exact' },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const total = Number((res.headers.get('content-range') || '').split('/')[1]);
+      const events = await res.json();
+      const caps = _eventsData?.capstones || _lbData?.capstones || await sbFetch('/rest/v1/hm_capstones?select=id,tier_name,difficulty_level_threshold');
+      if (req !== _evtReq) return;                 // une réponse plus récente est arrivée entre-temps
+      _eventsData = { events: events ?? [], capstones: caps ?? [], total: Number.isFinite(total) ? total : (events ?? []).length };
       renderEvents();
-    } catch(e) {
+    } catch (e) {
+      if (req !== _evtReq) return;
       document.getElementById('events-content').innerHTML = `<div class="empty">${fr() ? 'Erreur de chargement.' : 'Loading error.'}</div>`;
+      document.getElementById('events-pagination').innerHTML = '';
     }
   }
 
   function setEvtFilter(f, btn) {
-    _evtFilter = f;
-    document.querySelectorAll('.evt-filter').forEach(b => b.classList.remove('active'));
+    _evtFilter = f; _evtPage = 1;
+    document.querySelectorAll('.events-filters .evt-filter').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    renderEvents();
+    loadEvents(true);
+  }
+  function syncEvtRangeButtons() {
+    const today = _ymd(new Date()), week = _ymd(new Date(Date.now() - 7 * 86400000));
+    document.getElementById('evt-r-today').classList.toggle('active', _evtSince === today);
+    document.getElementById('evt-r-7').classList.toggle('active', _evtSince === week);
+    document.getElementById('evt-r-all').classList.toggle('active', !_evtSince);
+  }
+  function setEvtSince(v) {                        // v = « AAAA-MM-JJ » ou vide ; la fin est toujours « maintenant »
+    _evtSince = v || ''; _evtPage = 1;
+    document.getElementById('evt-since').value = _evtSince;
+    syncEvtRangeButtons(); loadEvents(true);
+  }
+  function setEvtRange(days) { setEvtSince(days == null ? '' : _ymd(new Date(Date.now() - days * 86400000))); }
+  function goEvtPage(p) {
+    _evtPage = p; loadEvents(true);
+    document.getElementById('page-events').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderEvtPager(total) {
+    const el = document.getElementById('events-pagination');
+    const pages = Math.max(1, Math.ceil(total / EVT_PAGE_SIZE));
+    if (pages <= 1) { el.innerHTML = ''; return; }
+    let html = `<button class="pg-btn" onclick="goEvtPage(${_evtPage - 1})" ${_evtPage === 1 ? 'disabled' : ''} aria-label="${fr() ? 'Page précédente' : 'Previous page'}">‹</button>`;
+    for (let i = 1; i <= pages; i++) {
+      if (pages > 7 && Math.abs(i - _evtPage) > 2 && i !== 1 && i !== pages) {
+        if (i === _evtPage - 3 || i === _evtPage + 3) html += `<span class="pg-sep">…</span>`;
+        continue;
+      }
+      html += `<button class="pg-btn ${i === _evtPage ? 'active' : ''}" onclick="goEvtPage(${i})" ${i === _evtPage ? 'aria-current="page"' : ''}>${i}</button>`;
+    }
+    html += `<button class="pg-btn" onclick="goEvtPage(${_evtPage + 1})" ${_evtPage === pages ? 'disabled' : ''} aria-label="${fr() ? 'Page suivante' : 'Next page'}">›</button>`;
+    el.innerHTML = html;
   }
 
   function renderEvents() {
     if (!_eventsData) return;
-    const { events, capstones } = _eventsData;
+    const { events, capstones, total } = _eventsData;
     const capMap = Object.fromEntries(capstones.map(c => [c.id, c]));
-    const filtered = _evtFilter === 'all' ? events : events.filter(e => e.event_type === _evtFilter);
     const cont = document.getElementById('events-content');
-    if (!filtered.length) {
-      cont.innerHTML = `<div class="empty">${fr() ? 'Aucun événement.' : 'No events.'}</div>`; return;
+    const cnt = document.getElementById('evt-count');
+    const pages = Math.max(1, Math.ceil(total / EVT_PAGE_SIZE));
+    cnt.textContent = total
+      ? (fr() ? `${total} événement${total > 1 ? 's' : ''}${pages > 1 ? ` · page ${_evtPage}/${pages}` : ''}` : `${total} event${total > 1 ? 's' : ''}${pages > 1 ? ` · page ${_evtPage}/${pages}` : ''}`)
+      : '';
+    renderEvtPager(total);
+    if (!events.length) {
+      cont.innerHTML = `<div class="empty">${_evtSince ? (fr() ? 'Aucun événement depuis cette date.' : 'No events since this date.') : (fr() ? 'Aucun événement.' : 'No events.')}</div>`;
+      return;
     }
     // Version éclaircie d'une couleur de ligue (texte lisible sur fond sombre)
     const TIER_BRIGHT = { Recrue:'#5dff5d', Adepte:'#5db0ff', Champion:'#d08cff', Parangon:'#ffd83d', Eternal:'#ff7b7b' };
@@ -2279,61 +2378,60 @@
     const fmtNum = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     const hasNum = v => v !== undefined && v !== null && v !== '' && isFinite(v);
     const rankPill = rank => rank
-      ? `<span class="evc-pill" style="color:${TIER_BRIGHT[rank.tier] || '#fff'};border-color:${tierColor(rank.tier)};background:linear-gradient(${tierColor(rank.tier)}66,${tierColor(rank.tier)}66),rgba(0,0,0,.7);box-shadow:0 0 12px ${tierColor(rank.tier)}99">${rank.label}</span>`
+      ? `<span class="evc-pill" style="color:${TIER_BRIGHT[rank.tier] || '#fff'};border-color:${tierColor(rank.tier)};background:linear-gradient(${tierColor(rank.tier)}66,${tierColor(rank.tier)}66),rgba(0,0,0,.7)">${rank.label}</span>`
       : '';
+    const loc = fr() ? 'fr-FR' : 'en-GB';
 
-    cont.innerHTML = `<div class="evt-list">${filtered.map(e => {
+    const rows = events.map(e => {
       const d = new Date(e.created_at);
-      const timeStr = d.toLocaleDateString(fr()?'fr-FR':'en-GB', { day:'2-digit', month:'short' })
-        + ' ' + d.toLocaleTimeString(fr()?'fr-FR':'en-GB', { hour:'2-digit', minute:'2-digit' });
+      const timeStr = d.toLocaleDateString(loc, { day:'2-digit', month:'short' }) + ' ' + d.toLocaleTimeString(loc, { hour:'2-digit', minute:'2-digit' });
       const meta = e.metadata || {};
       const heroCol = e.character_class ? classColor(e.character_class) : '#d89be8';
-      const dImg = meta.dungeon ? dungeonImg(meta.dungeon) : null;
-      const nameHtml = `<div class="evc-name" style="color:${heroCol}">${esc(e.character_name)}${e.character_class ? `<small>${esc(e.character_class)}</small>` : ''}</div>`;
       const dungHtml = meta.dungeon ? `<span class="evc-dung">${esc(dungName(meta.dungeon))}</span>` : '';
-      const heroFallback = e.character_class ? heroImg(e.character_class) : '';
-      let accent = '#888', typeCol = '#fff', typeLabel = '', bubble = '', sub = '', emoji = '', bg = dImg;
+      let accent = '#888', typeCol = '#fff', typeLabel = '', detail = '';
 
       if (e.event_type === 'death') {
-        accent = '#ff4444'; typeCol = '#ff7070'; emoji = '💀';
-        typeLabel = fr() ? '☠ Mort hardcore' : '☠ Hardcore death';
-        bubble = heroFallback ? `<div class="evc-bubble"><img src="${heroFallback}" alt="" loading="lazy" onerror="this.remove()"></div>` : `<div class="evc-bubble">💀</div>`;
+        accent = '#ff4444'; typeCol = '#ff7070';
+        typeLabel = fr() ? '💀 Mort hardcore' : '💀 Hardcore death';
         const rank = meta.difficulty_level ? diffLevelToRank(meta.difficulty_level) : null;
         const scorePill = hasNum(meta.score_at_death)
-          ? `<span class="evc-pill score">${fr() ? 'SCORE' : 'SCORE'} ${fmtNum(meta.score_at_death)}${hasNum(meta.rank_at_death) ? ` · ${fr() ? 'RANG' : 'RANK'} ${Math.round(meta.rank_at_death)}` : ''}</span>` : '';
-        sub = `${dungHtml}${rankPill(rank)}${scorePill}`;
+          ? `<span class="evc-pill score">SCORE ${fmtNum(meta.score_at_death)}${hasNum(meta.rank_at_death) ? ` · ${fr() ? 'RANG' : 'RANK'} ${Math.round(meta.rank_at_death)}` : ''}</span>` : '';
+        detail = `${dungHtml}${rankPill(rank)}${scorePill}`;
       } else if (e.event_type === 'capstone') {
         // Ligue débloquée = la suivante (Recrue → Adepte…) ; le rang affiché reste celui du donjon fait
         const rank = meta.difficulty_level ? diffLevelToRank(meta.difficulty_level) : null;
         const capKey  = tierKeyOf(meta.tier_name) || (rank && rank.tier) || 'Eternal';
         const nextKey = TIER_ORDER[TIER_ORDER.indexOf(capKey) + 1] || null;
         const labKey  = nextKey || capKey;
-        accent = tierColor(labKey); typeCol = TIER_BRIGHT[labKey] || '#fff'; emoji = labKey === 'Eternal' ? '👑' : '🏆';
-        typeLabel = `✦ ${tierName(labKey)} ${nextKey ? (fr() ? 'débloqué' : 'unlocked') : (fr() ? 'atteint' : 'reached')}`;
+        accent = tierColor(labKey); typeCol = TIER_BRIGHT[labKey] || '#fff';
+        typeLabel = `${labKey === 'Eternal' ? '👑' : '🏆'} ${tierName(labKey)} ${nextKey ? (fr() ? 'débloqué' : 'unlocked') : (fr() ? 'atteint' : 'reached')}`;
         const rk = rank || (meta.rank_label ? { tier: capKey, label: rankLabelL(meta.rank_label) } : null);
-        bubble = dImg
-          ? `<div class="evc-bubble"><img src="${dImg}" alt="" loading="lazy" onerror="${heroFallback ? `this.onerror=function(){this.remove()};this.src='${heroFallback}'` : 'this.remove()'}"></div>`
-          : `<div class="evc-bubble">${emoji}</div>`;
-        sub = `${dungHtml}${rankPill(rk)}${meta.rating ? `<span class="evc-pill score">${Math.floor(meta.rating)} pts</span>` : ''}`;
+        detail = `${dungHtml}${rankPill(rk)}${meta.rating ? `<span class="evc-pill score">${Math.floor(meta.rating)} pts</span>` : ''}`;
       } else if (e.event_type === 'trophy') {
         const _tt = TROPHIES.find(x => x.id === meta.trophy_id);
         const tCol = meta.color || '#ffd36b';
         const [tName, tDesc] = (fr() ? meta.fr : meta.en) || meta.fr || ['Trophée', ''];
-        accent = tCol; typeCol = '#ffd98a'; emoji = '🏆'; bg = null;
+        accent = tCol; typeCol = '#ffd98a';
         typeLabel = fr() ? '🏆 Trophée débloqué' : '🏆 Trophy unlocked';
-        bubble = `<div class="evc-bubble tro">${trophyImg((_tt && _tt.img) || meta.img || meta.trophy_id, meta.ico)}</div>`;
-        sub = `<span class="evc-pill" style="color:#fff0c8;border-color:${tCol};background:linear-gradient(${tCol}55,${tCol}55),rgba(0,0,0,.7);box-shadow:0 0 12px ${tCol}88">${esc(tName)}</span>`
-            + (tDesc ? `<span class="evc-desc">${esc(tDesc)}</span>` : '');
+        detail = trophyImg((_tt && _tt.img) || meta.img || meta.trophy_id, meta.ico)
+          + `<span class="evc-pill" style="color:#fff0c8;border-color:${tCol};background:linear-gradient(${tCol}55,${tCol}55),rgba(0,0,0,.7)">${esc(tName)}</span>`
+          + (tDesc ? `<span class="evc-desc">${esc(tDesc)}</span>` : '');
       } else {
-        typeLabel = esc(e.event_type); bubble = `<div class="evc-bubble">📜</div>`;
+        typeLabel = esc(e.event_type);
       }
-      return `<div class="evc ev-${e.event_type}" style="--c:${accent};--cb:${accent}88;--cg:${accent}33;--tc:${typeCol};--hc:${heroCol}">
-        ${bg ? `<div class="evc-bg" style="background-image:url('${bg}')"></div>` : ''}
-        ${bubble}
-        <div class="evc-main"><div class="evc-type">${typeLabel}</div>${nameHtml}<div class="evc-sub">${sub}</div></div>
-        <div class="evc-side"><span class="evc-time">${timeStr}</span><span class="evc-emoji">${emoji}</span></div>
-      </div>`;
-    }).join('')}</div>`;
+      const avatar = e.character_class ? `<img src="${heroImg(e.character_class)}" alt="" loading="lazy" onerror="this.remove()">` : '';
+      return `<tr style="--c:${accent};--tc:${typeCol};--hc:${heroCol}">
+        <td class="t-date">${timeStr}</td>
+        <td class="t-type"><span class="et-type">${typeLabel}</span></td>
+        <td class="t-hero"><div class="et-hero">${avatar}<span><b>${esc(e.character_name)}</b>${e.character_class ? `<small>${esc(e.character_class)}</small>` : ''}</span></div></td>
+        <td class="t-detail"><div class="et-detail">${detail}</div></td>
+        <td class="t-att">${e.attempt_number ? '#' + e.attempt_number : ''}</td>
+      </tr>`;
+    }).join('');
+
+    cont.innerHTML = `<div class="et-wrap"><table class="et-table"><thead><tr>
+      <th>${fr() ? 'Date' : 'Date'}</th><th>${fr() ? 'Événement' : 'Event'}</th><th>${fr() ? 'Héros' : 'Hero'}</th>
+      <th>${fr() ? 'Détail' : 'Details'}</th><th style="text-align:right">${fr() ? 'Tentative' : 'Attempt'}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
 
   // ── RULES ───────────────────────────────────────────────────────────────────
@@ -3116,7 +3214,7 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
-  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.png`; }
+  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.jpg`; }
 
   let _activeProfileTab = 'heroes';
   let _spotClass = null;
@@ -3365,8 +3463,8 @@
       ? (f ? `Nouvelle tentative #${n} : repars de zéro` : `New attempt #${n}: start from scratch`)
       : (f ? 'Avant ton premier donjon : pars de zéro' : 'Before your first dungeon: start from scratch');
     const body = f
-      ? 'Retire <b>tout ton équipement sauf les objets gris/blancs</b> : tu dois être entre <b>0 et 8 de Gear Score</b>. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
-      : 'Take <b>all your equipment off except gray/white items</b>: you should be between <b>0 and 8 Gear Score</b>. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
+      ? 'Retire <b>tout ton équipement sauf les objets gris/blancs</b> : tu dois être entre <b>0 et 6 de Gear Score</b>. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
+      : 'Take <b>all your equipment off except gray/white items</b>: you should be between <b>0 and 6 Gear Score</b>. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
     return `<div class="spot-fresh"><div class="spot-fresh-t">🔄 ${title}</div><div class="spot-fresh-b">${body}</div></div>`;
   }
 
