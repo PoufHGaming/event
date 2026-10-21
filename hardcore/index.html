@@ -2447,8 +2447,28 @@
         <div class="rules-list">
           <div class="rules-item warning">
             ☠️ <strong>${f ? 'Mort permanente' : 'Permanent Death'}</strong> ${f
-              ? 'Si ton héros meurt dans un donjon, cette tentative est terminée. Tu repars de zéro avec une nouvelle tentative : retire <strong>tout ton équipement sauf les objets gris/blancs</strong> (Gear Score entre 0 et 6) avant ton prochain donjon.'
-              : 'If your hero dies in a dungeon, that attempt is over. You start over with a new attempt: take <strong>all your equipment off except gray/white items</strong> (Gear Score between 0 and 6) before your next dungeon.'}
+              ? 'Si ton héros meurt dans un donjon, cette tentative est terminée. Tu repars de zéro avec une nouvelle tentative : retire <strong>tout ton équipement sauf les objets gris/blancs</strong> (Gear Score entre 0 et 10) avant ton prochain donjon.'
+              : 'If your hero dies in a dungeon, that attempt is over. You start over with a new attempt: take <strong>all your equipment off except gray/white items</strong> (Gear Score between 0 and 10) before your next dungeon.'}
+          </div>
+          <div class="rules-item">
+            🎭 ${f
+              ? '<strong>Compositions atypiques autorisées</strong> pour ce reset (cela pourra changer à l\'avenir).'
+              : '<strong>Odd comps allowed</strong> for this reset (can change in the future).'}
+          </div>
+          <div class="rules-item">
+            ✨ ${f
+              ? 'Tu peux utiliser <strong>tous tes points de talent et tes sorts</strong> dès le début.'
+              : 'You can use <strong>all your talent points and spells</strong> from the beginning.'}
+          </div>
+          <div class="rules-item warning">
+            🚫 ${f
+              ? 'Tu ne peux <strong>pas équiper les objets obtenus via l\'arbre de récompenses</strong>.'
+              : 'You <strong>can\'t equip items earned through the rewards tree</strong>.'}
+          </div>
+          <div class="rules-item">
+            💰 ${f
+              ? 'Tu peux utiliser ton <strong>or et tes matériaux</strong> comme tu veux (mais ils seront probablement détruits si tu meurs).'
+              : 'You can use your <strong>gold and mats</strong> as you like (but they\'re likely to be destroyed if you die).'}
           </div>
           <div class="rules-item warning">
             🔁 <strong>${f ? 'Continuer à plusieurs après une mort' : 'Carrying on together after a death'}</strong> ${f
@@ -3214,7 +3234,7 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
-  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.jpg`; }
+  function heroFullImg(cls) { return `../images/heroes/full/${(cls || '').toLowerCase()}.png`; }
 
   let _activeProfileTab = 'heroes';
   let _spotClass = null;
@@ -3463,8 +3483,8 @@
       ? (f ? `Nouvelle tentative #${n} : repars de zéro` : `New attempt #${n}: start from scratch`)
       : (f ? 'Avant ton premier donjon : pars de zéro' : 'Before your first dungeon: start from scratch');
     const body = f
-      ? 'Retire <b>tout ton équipement sauf les objets gris/blancs</b> : tu dois être entre <b>0 et 6 de Gear Score</b>. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
-      : 'Take <b>all your equipment off except gray/white items</b>: you should be between <b>0 and 6 Gear Score</b>. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
+      ? 'Retire <b>tout ton équipement sauf les objets gris/blancs</b> : tu dois être entre <b>0 et 10 de Gear Score</b>. Si tu gardes un équipement d\'avant, ton run sera <b>signalé comme suspect et pourra être annulé</b>.'
+      : 'Take <b>all your equipment off except gray/white items</b>: you should be between <b>0 and 10 Gear Score</b>. If you keep old gear, your run will be <b>flagged as suspicious and may be cancelled</b>.';
     return `<div class="spot-fresh"><div class="spot-fresh-t">🔄 ${title}</div><div class="spot-fresh-b">${body}</div></div>`;
   }
 
