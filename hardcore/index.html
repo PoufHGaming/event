@@ -540,7 +540,7 @@
     /* Hero detail card */
     .hero-detail { margin-bottom:20px; }
     .hero-detail-stats {
-      display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-bottom:16px;
     }
     .hero-detail-stat {
       background:var(--bg3); border:1px solid var(--border); border-radius:6px;
@@ -1429,9 +1429,9 @@
     <div class="lb-header">
       <div>#</div>
       <div data-fr="Joueur" data-en="Player">Joueur</div>
-      <div style="text-align:right" data-fr="Meilleur Score" data-en="Best Score">Meilleur Score</div>
+      <div style="text-align:right" data-fr="Ilvl moyen max" data-en="Best avg ilvl">Ilvl moyen max</div>
       <div class="col-attempts" style="text-align:right" data-fr="Morts" data-en="Deaths">Morts</div>
-      <div style="text-align:right" data-fr="Meilleur Donjon" data-en="Highest Dungeon">Meilleur Donjon</div>
+      <div style="text-align:right" data-fr="Rang" data-en="Rank">Rang</div>
     </div>
     <div id="lb-content"><div class="loading" data-fr="Chargement…" data-en="Loading…">Chargement…</div></div>
     <div id="lb-pagination"></div>
@@ -1443,7 +1443,7 @@
     <div class="events-filters">
       <button class="evt-filter active" onclick="setEvtFilter('all',this)" data-fr="Tous" data-en="All">Tous</button>
       <button class="evt-filter" onclick="setEvtFilter('death',this)" data-fr="💀 Morts" data-en="💀 Deaths">💀 Morts</button>
-      <button class="evt-filter" onclick="setEvtFilter('capstone',this)" data-fr="👑 Capstones" data-en="👑 Capstones">👑 Capstones</button>
+      <button class="evt-filter" onclick="setEvtFilter('capstone',this)" data-fr="✦ Paliers d'ilvl" data-en="✦ Ilvl milestones">✦ Paliers d'ilvl</button>
       <button class="evt-filter" onclick="setEvtFilter('trophy',this)" data-fr="🏆 Trophées" data-en="🏆 Trophies">🏆 Trophées</button>
     </div>
     <div class="et-datebar">
@@ -1646,6 +1646,25 @@
     return dl > 0 ? dl : 0;
   }
 
+  // ── Rang par ilvl moyen (reset du 22/10) ────────────────────────────────────
+  // L'ilvl moyen MAXIMUM du héros compte jusqu'à Eternal ; une fois Eternal atteint, la côte prend le relais.
+  // Mêmes valeurs dans sync-hm-v3/index.ts et hm/ilvl-rank.sql.
+  const ETERNAL_ILVL = 240;
+  const RANK_STEPS   = [[50, 'Recrue'], [100, 'Adepte'], [150, 'Champion'], [200, 'Parangon']];
+  function rankScoreOf(c) {
+    const il = Math.floor(Number(c.ilvl_best) || 0), r = Math.max(0, Math.floor(Number(c.total_rating_score) || 0));
+    return il >= ETERNAL_ILVL ? ETERNAL_ILVL + r : il;
+  }
+  // Clé interne du rang (couleurs, noms traduits par tierName) pour un score de classement ; '' sous 50 d'ilvl
+  function rankKeyOfScore(score) {
+    if (score >= ETERNAL_ILVL) return 'Eternal';
+    let k = '';
+    for (const [min, key] of RANK_STEPS) if (score >= min) k = key;
+    return k;
+  }
+  const rankNameOfScore = score => { const k = rankKeyOfScore(score); return k ? tierName(k) : '—'; };
+  const scoreUnit = score => score >= ETERNAL_ILVL ? (fr() ? 'pts' : 'pts') : 'ilvl';
+
   // ── LANG ────────────────────────────────────────────────────────────────────
   let currentLang = localStorage.getItem('pouf_lang') || 'fr';
   const fr = () => currentLang === 'fr';
@@ -1839,8 +1858,8 @@
     const SCROLL_FROM = 4;   // au-delà de 4 noms, la liste défile toute seule (pause au survol)
     const cards = ordered.map(g => {
       const first = g.rows[0];
-      const bestDl = Math.max(...g.rows.map(r => r.best_difficulty_level || 0), 0);
-      const rk = bestDl > 0 ? diffLevelToRank(bestDl) : null;
+      const rkKey = rankKeyOfScore(first.score || 0);
+      const rk = rkKey ? { tier: rkKey, label: tierName(rkKey) } : null;
       const col = tierColor(rk?.tier);
       const nameHtml = r => `<div class="podium-name" style="color:${r.best_hero ? classColorBright(r.best_hero) : 'var(--text)'}" ${r.best_hero ? `title="${esc(r.best_hero)}"` : ''}>${esc(r.player_name)}</div>`;
       let names;
@@ -1857,7 +1876,7 @@
         <div class="podium-medal">${medal[g.rank] || ''}</div>
         ${g.rows.length > 1 ? `<div class="podium-tie">${f ? 'Ex æquo' : 'Tied'} · ${g.rows.length}</div>` : ''}
         ${names}
-        <div class="podium-score">${Math.floor(first.score).toLocaleString()} pts</div>
+        <div class="podium-score">${Math.floor(first.score).toLocaleString()} ${scoreUnit(first.score)}</div>
         ${rk ? `<div class="podium-rank" style="color:${col}">${rk.label}</div>` : ''}
       </div>`;
     }).join('');
@@ -1887,10 +1906,12 @@
       const aliveChars    = p.chars.filter(c => c.status === 'alive');
       const totalDeaths   = p.chars.filter(c => c.status === 'dead').length;   // une ligne = une tentative ; une tentative terminée = une mort
       const bestDl        = Math.max(...p.chars.map(c => c.best_difficulty_level || 0), 0);
-      const bestRank      = diffLevelToRank(bestDl);
-      const sortKey       = rankSortKey(bestDl);
-      // Score = total_rating_score du meilleur personnage (celui avec le plus haut score)
-      const totalScore    = Math.max(...p.chars.map(c => c.total_rating_score || 0), 0);
+      // Score de classement = celui du meilleur personnage : ilvl moyen max jusqu'à Eternal, ensuite la côte (voir rankScoreOf)
+      for (const c of p.chars) c.rank_score = rankScoreOf(c);
+      const totalScore    = Math.max(...p.chars.map(c => c.rank_score || 0), 0);
+      const bestRankKey   = rankKeyOfScore(totalScore);
+      const bestRank      = { tier: bestRankKey, label: bestRankKey ? tierName(bestRankKey) : '—' };
+      const sortKey       = Math.floor(totalScore);
       return { ...p, aliveChars, totalDeaths, bestDl, bestRank, sortKey, totalScore };
     });
 
@@ -1973,16 +1994,16 @@
       const rankCls = rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
       const f       = fr();
 
-      // Best hero = highest total_rating_score
+      // Best hero = highest rank score (ilvl max, puis côte à partir d'Eternal)
       const bestChar = p.chars.reduce((best, c) =>
-        (!best || (c.total_rating_score||0) > (best.total_rating_score||0)) ? c : best, null);
+        (!best || (c.rank_score||0) > (best.rank_score||0)) ? c : best, null);
       const heroCol   = bestChar ? classColor(bestChar.character_class) : 'var(--text-muted)';
       const isDead    = bestChar?.status === 'dead';
       const heroName  = bestChar?.character_class || '—';
 
       // Highest dungeon badge
       const rankColor = tierColor(p.bestRank.tier);
-      const rankBadge = p.bestDl > 0
+      const rankBadge = p.bestRank.tier
         ? `<span class="rk-badge" style="--rc:${rankColor};font-size:15px">${p.bestRank.label}</span>`
         : `<span style="color:var(--text-muted);font-size:13px">—</span>`;
 
@@ -1999,7 +2020,7 @@
               </span>` : ''}
             </div>
           </div>
-          <div class="lb-ilvl" style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--teal-light)">${p.totalScore > 0 ? Math.floor(p.totalScore) : '—'}</div>
+          <div class="lb-ilvl" style="font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--teal-light)">${p.totalScore > 0 ? Math.floor(p.totalScore).toLocaleString() + ` <span style="font-size:11px;opacity:.7">${scoreUnit(p.totalScore)}</span>` : '—'}</div>
           <div class="lb-attempts col-attempts" style="font-family:'Cinzel',serif;font-weight:700">${p.totalDeaths}</div>
           <div class="lb-capstone">${rankBadge}</div>
         </div>
@@ -2095,8 +2116,9 @@
 
   async function renderHeroDetail(det, char, allAttempts, playerId, f) {
     const col   = classColor(char.character_class);
-    const rank  = diffLevelToRank(char.best_difficulty_level || 0);
-    const rCol  = tierColor(rank.tier);
+    const rKey  = rankKeyOfScore(rankScoreOf(char));
+    const rCol  = tierColor(rKey);
+    const ilvlBest = Math.floor(Number(char.ilvl_best) || 0);
     const score = char.total_rating_score ? Math.floor(char.total_rating_score) : 0;
     const dead  = char.status === 'dead';
     const dotCol = dead ? '#ff4444' : '#44ee44';
@@ -2128,12 +2150,16 @@
       </div>
       <div class="hero-detail-stats">
         <div class="hero-detail-stat">
-          <div class="hero-detail-stat-val" style="color:${rCol||'var(--teal-light)'}">${char.best_rank_label ? rankLabelL(char.best_rank_label) : '—'}</div>
-          <div class="hero-detail-stat-lbl">${f?'Meilleur donjon':'Best dungeon'}</div>
+          <div class="hero-detail-stat-val" style="color:${rCol||'var(--teal-light)'}">${rKey ? tierName(rKey) : '—'}</div>
+          <div class="hero-detail-stat-lbl">${f?'Rang':'Rank'}</div>
+        </div>
+        <div class="hero-detail-stat">
+          <div class="hero-detail-stat-val">${ilvlBest > 0 ? ilvlBest.toLocaleString() : '—'}</div>
+          <div class="hero-detail-stat-lbl">${f?'Ilvl moyen max':'Best avg ilvl'}</div>
         </div>
         <div class="hero-detail-stat">
           <div class="hero-detail-stat-val">${score > 0 ? score.toLocaleString() : '—'}</div>
-          <div class="hero-detail-stat-lbl">Score total</div>
+          <div class="hero-detail-stat-lbl">${f?'Côte':'Rating'}</div>
         </div>
         <div class="hero-detail-stat">
           <div class="hero-detail-stat-val">${gearScore > 0 ? gearScore.toLocaleString() : '—'}</div>
@@ -2216,12 +2242,12 @@
   }
 
   // Ouvre directement le détail du héros principal (celui affiché à côté du pseudo :
-  // meilleur total_rating_score), sur sa tentative la plus récente — comme les portraits.
+  // meilleur score de classement), sur sa tentative la plus récente — comme les portraits.
   function autoSelectMainHero(playerId) {
     const player = _lbFiltered?.find(p => p.player_id === playerId);
     if (!player || !player.chars.length) return;
     const main = player.chars.reduce((best, c) =>
-      (!best || (c.total_rating_score || 0) > (best.total_rating_score || 0)) ? c : best, null);
+      (!best || (c.rank_score || 0) > (best.rank_score || 0)) ? c : best, null);
     if (!main) return;
     const latest = player.chars
       .filter(c => c.character_class === main.character_class)
@@ -2395,8 +2421,20 @@
         typeLabel = fr() ? '💀 Mort hardcore' : '💀 Hardcore death';
         const rank = meta.difficulty_level ? diffLevelToRank(meta.difficulty_level) : null;
         const scorePill = hasNum(meta.score_at_death)
-          ? `<span class="evc-pill score">SCORE ${fmtNum(meta.score_at_death)}${hasNum(meta.rank_at_death) ? ` · ${fr() ? 'RANG' : 'RANK'} ${Math.round(meta.rank_at_death)}` : ''}</span>` : '';
-        detail = `${dungHtml}${rankPill(rank)}${scorePill}`;
+          ? `<span class="evc-pill score">${meta.score_kind === 'ilvl' ? 'ILVL' : 'SCORE'} ${fmtNum(meta.score_at_death)}${hasNum(meta.rank_at_death) ? ` · ${fr() ? 'RANG' : 'RANK'} ${Math.round(meta.rank_at_death)}` : ''}</span>` : '';
+        const TIERS = { easy: ['Easy', '#5dff5d'], normal: ['Normal', '#5db0ff'], hard: ['Hard', '#ff5a5a'] };
+        const tr = TIERS[meta.tier];
+        const tierPill = tr ? `<span class="evc-pill" style="color:${tr[1]};border-color:${tr[1]};background:linear-gradient(${tr[1]}44,${tr[1]}44),rgba(0,0,0,.7)">${tr[0]}</span>` : '';
+        detail = `${dungHtml}${tierPill || rankPill(rank)}${scorePill}`;
+      } else if (e.event_type === 'capstone' && meta.kind === 'ilvl_milestone') {
+        // Palier d'ilvl : premier donjon terminé avec un ilvl moyen > 75 / 150 / 220
+        const mKey = { 75: 'Recrue', 150: 'Champion', 220: 'Parangon' }[meta.milestone] || 'Recrue';
+        accent = tierColor(mKey); typeCol = TIER_BRIGHT[mKey] || '#fff';
+        typeLabel = fr() ? `✦ Palier ilvl ${meta.milestone} franchi` : `✦ Ilvl ${meta.milestone} milestone reached`;
+        const TIERS = { easy: ['Easy', '#5dff5d'], normal: ['Normal', '#5db0ff'], hard: ['Hard', '#ff5a5a'] };
+        const tr = TIERS[meta.tier];
+        const tierPill = tr ? `<span class="evc-pill" style="color:${tr[1]};border-color:${tr[1]};background:linear-gradient(${tr[1]}44,${tr[1]}44),rgba(0,0,0,.7)">${tr[0]}</span>` : '';
+        detail = `${dungHtml}${tierPill}${hasNum(meta.ilvl) ? `<span class="evc-pill score">ILVL ${Math.round(meta.ilvl)}</span>` : ''}`;
       } else if (e.event_type === 'capstone') {
         // Ligue débloquée = la suivante (Recrue → Adepte…) ; le rang affiché reste celui du donjon fait
         const rank = meta.difficulty_level ? diffLevelToRank(meta.difficulty_level) : null;
@@ -2508,18 +2546,23 @@
           </div>
           <div class="rules-item">
             ${f
-              ? 'Seuls les donjons <strong>terminés dans le temps imparti</strong> comptent pour le rang et le score.'
-              : 'Only dungeons <strong>completed within the time limit</strong> count towards rank and score.'}
+              ? 'Le rang dépend de ton <strong>ilvl moyen maximum</strong> : Recrue dès 50, Adepte 100, Champion 150, Parangon 200, puis Éternel.'
+              : 'Your rank depends on your <strong>best average ilvl</strong>: Contender from 50, Adept 100, Champion 150, Paragon 200, then Eternal.'}
           </div>
           <div class="rules-item">
-            🏅 <strong>Score</strong> ${f
-              ? '(la « côte ») : pour chaque donjon, on retient ta meilleure côte dans les temps ; le Score total d\'un héros est la somme de ces meilleures côtes.'
-              : '(the « rating »): for each dungeon, your best timed rating is kept; a hero\'s total Score is the sum of those best ratings.'}
+            🏅 <strong>${f ? 'Score' : 'Score'}</strong> ${f
+              ? `: l'ilvl moyen maximum de ton héros compte jusqu'à Éternel (${ETERNAL_ILVL} d'ilvl moyen). Ensuite, la côte (somme de tes meilleures côtes par donjon dans les temps) prend le relais.`
+              : `: your hero's best average ilvl counts up to Eternal (${ETERNAL_ILVL} average ilvl). After that, the rating (sum of your best timed rating per dungeon) takes over.`}
           </div>
           <div class="rules-item">
             📊 ${f
-              ? 'Le classement est établi sur le <strong>Score total de ton meilleur héros</strong>. Les joueurs à égalité de score partagent le même rang.'
-              : 'The leaderboard is based on the <strong>total Score of your best hero</strong>. Players with the same score share the same rank.'}
+              ? 'Le classement est établi sur le <strong>score de ton meilleur héros</strong>. Les joueurs à égalité de score partagent le même rang.'
+              : 'The leaderboard is based on the <strong>score of your best hero</strong>. Players with the same score share the same rank.'}
+          </div>
+          <div class="rules-item">
+            ⚙️ ${f
+              ? 'Chaque donjon terminé améliore ton équipement selon son palier : <strong>Easy</strong> 2 pièces +15, <strong>Normal</strong> 1 pièce +15 et 1 pièce +30, <strong>Hard</strong> 1 pièce +45, 1 pièce +30 et 1 pièce +15. Tu peux garder un butin sans l\'équiper, mais pas trop longtemps : un équipement trop élevé pour tes donjons terminés annule le run de tout le groupe.'
+              : 'Each completed dungeon upgrades your gear by tier: <strong>Easy</strong> 2 items +15, <strong>Normal</strong> 1 item +15 and 1 item +30, <strong>Hard</strong> 1 item +45, 1 item +30 and 1 item +15. You may hold loot without equipping it, but not for long: gear that is too high for your completed dungeons cancels the run for the whole group.'}
           </div>
         </div>
       </div>
@@ -3258,7 +3301,7 @@
   }
   const TROPHY_GROUPS = [
     { id:'timed',  fr:'Donjons dans les temps', en:'Timed dungeons' },
-    { id:'rating', fr:'Côte',                   en:'Rating' },
+    { id:'rating', fr:'Rang (ilvl moyen)',      en:'Rank (average ilvl)' },
     { id:'gear',   fr:'Gear Score',             en:'Gear Score' },
     { id:'eternal',fr:'Éternel',                en:'Eternal' },
     { id:'xul',    fr:'Xul',                    en:'Xul' },
@@ -3302,14 +3345,14 @@
       fr:["Héros", "Termine 100 donjons dans les temps."], en:["Hero", "Finish 100 dungeons within the time limit."] }),
     mkTrophy({ id:"timed_250", group:"timed", img:"Trophy_Coffre_4", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:250,
       fr:["Légende", "Termine 250 donjons dans les temps."], en:["Legend", "Finish 250 dungeons within the time limit."] }),
-    mkTrophy({ id:"rating_750", group:"rating", img:"Trophy_recrue", ico:"🏅", color:"#00c700", metric:"bestScore", target:750,
-      fr:["Recrue", "Obtiens 750 de côte."], en:["Contender", "Reach a rating of 750."] }),
-    mkTrophy({ id:"rating_1650", group:"rating", img:"Trophy_Adept", ico:"🏅", color:"#006fe6", metric:"bestScore", target:1650,
-      fr:["Adepte", "Obtiens 1650 de côte."], en:["Adept", "Reach a rating of 1650."] }),
-    mkTrophy({ id:"rating_3000", group:"rating", img:"Trophy_Champion", ico:"🏅", color:"#a920fd", metric:"bestScore", target:3000,
-      fr:["Champion", "Obtiens 3000 de côte."], en:["Champion", "Reach a rating of 3000."] }),
-    mkTrophy({ id:"rating_4500", group:"rating", img:"Trophy_Parangon", ico:"🏅", color:"#b79f00", metric:"bestScore", target:4500,
-      fr:["Parangon", "Obtiens 4500 de côte."], en:["Paragon", "Reach a rating of 4500."] }),
+    mkTrophy({ id:"ilvl_50", group:"rating", img:"Trophy_recrue", ico:"🏅", color:"#00c700", metric:"bestIlvl", target:50,
+      fr:["Recrue", "Atteins 50 d'ilvl moyen."], en:["Contender", "Reach an average ilvl of 50."] }),
+    mkTrophy({ id:"ilvl_100", group:"rating", img:"Trophy_Adept", ico:"🏅", color:"#006fe6", metric:"bestIlvl", target:100,
+      fr:["Adepte", "Atteins 100 d'ilvl moyen."], en:["Adept", "Reach an average ilvl of 100."] }),
+    mkTrophy({ id:"ilvl_150", group:"rating", img:"Trophy_Champion", ico:"🏅", color:"#a920fd", metric:"bestIlvl", target:150,
+      fr:["Champion", "Atteins 150 d'ilvl moyen."], en:["Champion", "Reach an average ilvl of 150."] }),
+    mkTrophy({ id:"ilvl_200", group:"rating", img:"Trophy_Parangon", ico:"🏅", color:"#b79f00", metric:"bestIlvl", target:200,
+      fr:["Parangon", "Atteins 200 d'ilvl moyen."], en:["Paragon", "Reach an average ilvl of 200."] }),
     mkTrophy({ id:"gear_2500", group:"gear", img:"Trophy_Gear_Score_1", ico:"🎽", color:"#c8c8c8", metric:"bestGear", target:2500,
       fr:["Qualité Inférieure", "Obtiens 2500 de Gear Score."], en:["Inferior Quality", "Reach a Gear Score of 2500."] }),
     mkTrophy({ id:"gear_5000", group:"gear", img:"Trophy_Gear_Score_2", ico:"🎽", color:"#006fe6", metric:"bestGear", target:5000,
@@ -3348,7 +3391,7 @@
     mkTrophy({ id:"death", group:"hc", img:"Trophy_Death", ico:"💀", color:"#ff4444", metric:"deaths", target:1,
       fr:["Mourir, c'est recommencer", "Meurs 1 fois en Hardcore."], en:["Death is just the beginning", "Die once in Hardcore."] }),
     mkTrophy({ id:"shame", group:"hc", img:"Trophy_Death", ico:"🪦", color:"#ff4444", metric:"shameDeaths", target:1,
-      fr:["Mur de la Honte", "Meurs en Hardcore avec moins de 750 de côte."], en:["Wall of Shame", "Die in Hardcore with a rating under 750."] }),
+      fr:["Mur de la Honte", "Meurs en Hardcore avec moins de 50 d'ilvl moyen."], en:["Wall of Shame", "Die in Hardcore with an average ilvl under 50."] }),
     ...HERO_TROPHIES.map(mkTrophy), ...ROLE_TROPHIES.map(mkTrophy), ...INTIME_TROPHIES.map(mkTrophy),
   ];
 
@@ -3382,7 +3425,10 @@
     const scoreOf = c => Number(scores[c.id]) || 0;
     const bestScore = Math.max(0, ...characters.map(scoreOf));
     const bestGear  = Math.max(0, ...characters.map(c => Math.max(Number(c.power_score_best) || 0, Number(c.power_score_current) || 0)));
-    const shameDeaths = characters.filter(c => c.status === 'dead' && scoreOf(c) < 750).length;
+    // Rang par ilvl moyen (arrondi inférieur) : meilleur ilvl atteint par un héros, toutes tentatives. Mur de la Honte : mort sous 50 d'ilvl moyen.
+    const ilvlOf = c => Math.floor(Number(c.ilvl_current) || 0);
+    const bestIlvl = Math.max(0, ...characters.map(c => Math.max(Math.floor(Number(c.ilvl_best) || 0), ilvlOf(c))));
+    const shameDeaths = characters.filter(c => c.status === 'dead' && ilvlOf(c) < 50).length;
     // Maîtrise des héros : meilleure côte par héros (toutes tentatives), puis nombre de héros à 10 000 par rôle
     const heroBest = {};
     for (const c of characters) { const k = String(c.character_class || '').toLowerCase(); heroBest[k] = Math.max(heroBest[k] || 0, scoreOf(c)); }
@@ -3393,7 +3439,7 @@
     return {
       ...heroStats, inTimeBest,
       rolesTank: doneIn(HERO_ROLES.Tank), rolesHealer: doneIn(HERO_ROLES.Healer), rolesDps: doneIn(HERO_ROLES.DPS), rolesAll: doneIn(HERO_ALL),
-      byChar, recordByClass, maxSurvival, timedTotal, bestDl, bestScore, bestGear, shameDeaths,
+      byChar, recordByClass, maxSurvival, timedTotal, bestDl, bestScore, bestGear, bestIlvl, shameDeaths,
       xulNormal: xul.normal, xulHeroic: xul.heroic, xulNightmare: xul.nightmare,
       heroesPlayed: classesDone.size,
       deaths: characters.filter(c => c.status === 'dead').length,
@@ -3753,7 +3799,7 @@
         <div class="spot-gap"></div>
         <div class="spot-bottom">
           <div class="spot-stats">
-            <div class="spot-stat"><b>${alive.power_score_current ? (alive.ilvl_current || '—') : '—'}</b><span>ilvl</span></div>
+            <div class="spot-stat"><b>${alive.ilvl_current ? Math.floor(alive.ilvl_current) : '—'}</b><span>ilvl</span></div>
             <div class="spot-stat"><b>${alive.power_score_current ? Math.round(alive.power_score_current).toLocaleString() : '—'}</b><span>Power Score</span></div>
             <div class="spot-stat"><b>${Math.floor(scores[alive.id] || 0).toLocaleString()}</b><span>Score</span></div>
           </div>

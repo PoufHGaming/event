@@ -417,8 +417,8 @@
   const TEST_TYPE = ['capstone', 'trophy'].includes(_test) ? _test : 'death';
   document.documentElement.lang = LANG;
   const T = {
-    fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint', unlocked: 'débloqué', score: 'SCORE', rank: 'RANG' },
-    en: { death: '☠ hardcore death', trophy: '🏆 trophy unlocked', trophyDefault: 'Trophy',  attempt: 'ATTEMPT',   reached: 'reached', unlocked: 'unlocked', score: 'SCORE', rank: 'RANK' },
+    fr: { death: '☠ mort hardcore', trophy: '🏆 trophée débloqué', trophyDefault: 'Trophée', attempt: 'TENTATIVE', reached: 'atteint', unlocked: 'débloqué', score: 'SCORE', ilvl: 'ILVL', rank: 'RANG', milestone: n => `Palier ilvl ${n} franchi` },
+    en: { death: '☠ hardcore death', trophy: '🏆 trophy unlocked', trophyDefault: 'Trophy',  attempt: 'ATTEMPT',   reached: 'reached', unlocked: 'unlocked', score: 'SCORE', ilvl: 'ILVL', rank: 'RANK', milestone: n => `Ilvl ${n} milestone reached` },
   }[LANG];
   const TIER_NAMES = {
     fr: { Recrue: 'Recrue',    Adepte: 'Adepte', Champion: 'Champion', Parangon: 'Parangon', Eternal: 'Éternel' },
@@ -654,10 +654,15 @@
       const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
       const scoreAtDeath = num(meta.score_at_death), rankAtDeath = num(meta.rank_at_death);
       const gsHtml = scoreAtDeath !== null
-        ? `<span class="alert-gs-badge">${T.score} ${fmt(scoreAtDeath)}${rankAtDeath !== null ? ` <span class="alert-gs-sep">·</span> ${T.rank} ${rankAtDeath}` : ''}</span>` : '';
+        ? `<span class="alert-gs-badge">${meta.score_kind === 'ilvl' ? T.ilvl : T.score} ${fmt(scoreAtDeath)}${rankAtDeath !== null ? ` <span class="alert-gs-sep">·</span> ${T.rank} ${rankAtDeath}` : ''}</span>` : '';
+      // Depuis le reset du 22/10 : palier de la run (Easy / Normal / Hard, lu dans le log) à la place d'un rang de ligue
+      const TIERS = { easy: ['Easy', '#5dff5d'], normal: ['Normal', '#5db0ff'], hard: ['Hard', '#ff5a5a'] };
+      const tr = TIERS[meta.tier];
+      const tierBadgeHtml = tr
+        ? `<span class="alert-rank-badge" style="color:${tr[1]};border-color:${tr[1]};background:linear-gradient(${tr[1]}44,${tr[1]}44),rgba(0,0,0,0.7);box-shadow:0 0 14px ${tr[1]}88">${tr[0]}</span>` : '';
       subline = `
         ${dungeonHtml}
-        ${rankBadgeHtml}
+        ${tierBadgeHtml || rankBadgeHtml}
         ${gsHtml}
       `;
       accent = '💀';
@@ -676,6 +681,25 @@
         <span class="alert-trophy-desc">${tDesc}</span>
       `;
       accent = heroIcon;
+    } else if (meta.kind === 'ilvl_milestone') {
+      // Palier d'ilvl : premier donjon terminé avec un ilvl moyen > 75 / 150 / 220
+      const mKey = { 75: 'Recrue', 150: 'Champion', 220: 'Parangon' }[meta.milestone] || 'Recrue';
+      const TIERS = { easy: ['Easy', '#5dff5d'], normal: ['Normal', '#5db0ff'], hard: ['Hard', '#ff5a5a'] };
+      const tr = TIERS[meta.tier];
+      const tierBadgeHtml = tr
+        ? `<span class="alert-rank-badge" style="color:${tr[1]};border-color:${tr[1]};background:linear-gradient(${tr[1]}44,${tr[1]}44),rgba(0,0,0,0.7);box-shadow:0 0 14px ${tr[1]}88">${tr[0]}</span>` : '';
+      const ilvlHtml = (meta.ilvl != null && isFinite(meta.ilvl)) ? `<span class="alert-gs-badge">${T.ilvl} ${Math.round(Number(meta.ilvl))}</span>` : '';
+      typeLabel = `<span style="color:${tierBright(mKey)};text-shadow:0 0 14px ${tierColor(mKey)},0 1px 4px #000">✦ ${T.milestone(meta.milestone)}</span>`;
+      headline  = `
+        <span class="alert-player-name" style="color:${heroColor}">${evt.character_name}</span>
+        <span class="alert-hero-name" style="color:${heroColor}88">${heroClass}</span>
+      `;
+      subline = `
+        ${dungeonHtml}
+        ${tierBadgeHtml}
+        ${ilvlHtml}
+      `;
+      accent = '🏆';
     } else {
       // Capstone
       const capTier = tierLabelL(meta.tier_name) || 'Capstone';
@@ -823,8 +847,8 @@
     if (type === 'trophy') return { ...base, event_type: 'trophy', metadata: {
       trophy_id: 'eternal_5', img: 'Trophy_Eternal_2', ico: '👑', color: '#e04040',
       fr: ['Éternel V', 'Termine un donjon Éternel 5 dans les temps.'], en: ['Eternal V', 'Finish an Eternal 5 dungeon within the time limit.'] } };
-    if (type === 'capstone') return { ...base, event_type: 'capstone', metadata: { tier_name: 'Recrue', difficulty_level: 4, dungeon: 'Urrak Markets' } };
-    return { ...base, event_type: 'death', metadata: { dungeon: 'Urrak Markets', difficulty_level: 8, score_at_death: 12345, rank_at_death: 7 } };
+    if (type === 'capstone') return { ...base, event_type: 'capstone', metadata: { kind: 'ilvl_milestone', milestone: 150, ilvl: 153, tier: 'normal', dungeon: 'Urrak Markets' } };
+    return { ...base, event_type: 'death', metadata: { dungeon: 'Urrak Markets', difficulty_level: 8, tier: 'hard', score_kind: 'ilvl', score_at_death: 142, rank_at_death: 7 } };
   }
 
   // Démarrage
