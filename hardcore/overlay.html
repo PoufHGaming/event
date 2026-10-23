@@ -449,6 +449,7 @@
     'ruinsofregath':'ruins-of-regath',   'empyreansands':'sables-empyreens',
     'ransackofdrakheim':'saccage-de-drakheim', 'scryerspeak':'scryers-peak',
     'xulthebloodmonolith':'xul-the-blood-monolith',
+    'crownofthewild':'crown-of-the-wild',
   };
   const DUNGEON_NAMES = {
     'abime-des-marins':['Abîme des marins',"Sailor's Abyss"], 'bois-de-laube':["Bois de l'aube",'Everdawn Grove'],
@@ -459,6 +460,7 @@
     'ruins-of-regath':['Ruins of Regath','Ruins of Regath'], 'sables-empyreens':['Sables empyréens','Empyrean Sands'],
     'saccage-de-drakheim':['Saccage de Drakheim','Ransack of Drakheim'], 'scryers-peak':["Scryer's Peak","Scryer's Peak"],
     'xul-the-blood-monolith':['Xul, the Blood Monolith','Xul, The Blood Monolith'],
+    'crown-of-the-wild':['Crown of the Wild','Crown of the Wild'],   // TODO nom FR
   };
   const dungSlug = n => DUNGEON_SLUGS[String(n || '').toLowerCase().replace(/[^a-z0-9]/g, '')] || null;
   function dungName(n) { const s = dungSlug(n); return s ? DUNGEON_NAMES[s][LANG === 'en' ? 1 : 0] : (n || ''); }
