@@ -462,6 +462,12 @@
     'xul-the-blood-monolith':['Xul, the Blood Monolith','Xul, The Blood Monolith'],
     'crown-of-the-wild':['Crown of the Wild','Crown of the Wild'],   // TODO nom FR
   };
+  // Difficultés (clé interne du sync : easy / normal / hard ; 'normal' s'affiche « Medium »)
+  const TIER_STYLE = { easy: { label: 'Easy', color: '#0bb70a', text: '#03140a' }, normal: { label: 'Medium', color: '#eed700', text: '#1a1500' }, hard: { label: 'Hard', color: '#b00506', text: '#ffffff' } };
+  function tierBadge(tier) {
+    const st = TIER_STYLE[tier]; if (!st) return '';
+    return `<span class="alert-rank-badge" style="color:${st.text};border-color:${st.color};background:${st.color};text-shadow:none;box-shadow:0 0 14px ${st.color}aa">${st.label}</span>`;
+  }
   const dungSlug = n => DUNGEON_SLUGS[String(n || '').toLowerCase().replace(/[^a-z0-9]/g, '')] || null;
   function dungName(n) { const s = dungSlug(n); return s ? DUNGEON_NAMES[s][LANG === 'en' ? 1 : 0] : (n || ''); }
 
@@ -658,10 +664,7 @@
       const gsHtml = scoreAtDeath !== null
         ? `<span class="alert-gs-badge">${meta.score_kind === 'ilvl' ? T.ilvl : T.score} ${fmt(scoreAtDeath)}${rankAtDeath !== null ? ` <span class="alert-gs-sep">·</span> ${T.rank} ${rankAtDeath}` : ''}</span>` : '';
       // Depuis le reset du 22/10 : palier de la run (Easy / Normal / Hard, lu dans le log) à la place d'un rang de ligue
-      const TIERS = { easy: ['Easy', '#5dff5d'], normal: ['Normal', '#5db0ff'], hard: ['Hard', '#ff5a5a'] };
-      const tr = TIERS[meta.tier];
-      const tierBadgeHtml = tr
-        ? `<span class="alert-rank-badge" style="color:${tr[1]};border-color:${tr[1]};background:linear-gradient(${tr[1]}44,${tr[1]}44),rgba(0,0,0,0.7);box-shadow:0 0 14px ${tr[1]}88">${tr[0]}</span>` : '';
+      const tierBadgeHtml = tierBadge(meta.tier);
       subline = `
         ${dungeonHtml}
         ${tierBadgeHtml || rankBadgeHtml}
@@ -686,10 +689,7 @@
     } else if (meta.kind === 'ilvl_milestone') {
       // Palier d'ilvl : premier donjon terminé avec un ilvl moyen > 75 / 150 / 220
       const mKey = { 75: 'Recrue', 150: 'Champion', 220: 'Parangon' }[meta.milestone] || 'Recrue';
-      const TIERS = { easy: ['Easy', '#5dff5d'], normal: ['Normal', '#5db0ff'], hard: ['Hard', '#ff5a5a'] };
-      const tr = TIERS[meta.tier];
-      const tierBadgeHtml = tr
-        ? `<span class="alert-rank-badge" style="color:${tr[1]};border-color:${tr[1]};background:linear-gradient(${tr[1]}44,${tr[1]}44),rgba(0,0,0,0.7);box-shadow:0 0 14px ${tr[1]}88">${tr[0]}</span>` : '';
+      const tierBadgeHtml = tierBadge(meta.tier);
       const ilvlHtml = (meta.ilvl != null && isFinite(meta.ilvl)) ? `<span class="alert-gs-badge">${T.ilvl} ${Math.round(Number(meta.ilvl))}</span>` : '';
       typeLabel = `<span style="color:${tierBright(mKey)};text-shadow:0 0 14px ${tierColor(mKey)},0 1px 4px #000">✦ ${T.milestone(meta.milestone)}</span>`;
       headline  = `

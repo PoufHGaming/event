@@ -539,6 +539,7 @@
 
     /* Hero detail card */
     .hero-detail { margin-bottom:20px; }
+    .tier-pill { font-family:'Cinzel',serif; font-size:13px; font-weight:800; letter-spacing:.08em; padding:2px 12px; border-radius:20px; border:1px solid; }
     .hero-detail-stats {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-bottom:16px;
     }
@@ -1648,6 +1649,24 @@
     return dl > 0 ? dl : 0;
   }
 
+  // ── Difficultés Easy / Medium / Hard (reset du 22/10) ───────────────────────────────────────────────────────
+  // Clé interne = tier du sync ('normal' s'affiche « Medium »). Aucun chrono sur ces difficultés : « dans les temps » et la côte ne comptent qu'en Éternel.
+  const TIER_STYLE   = { easy:   { label:'Easy',   color:'#0bb70a', text:'#03140a' },
+                         normal: { label:'Medium', color:'#eed700', text:'#1a1500' },
+                         hard:   { label:'Hard',   color:'#b00506', text:'#ffffff' } };
+  const TIER_OF_MODE = { 2:'easy', 3:'normal', 4:'hard' };
+  const TIER_ORDER_N = { easy:1, normal:2, hard:3 };
+  function runTier(r) {                       // game_mode du log, sinon nombre d'affixes (2/3/4) ; null si inconnu (anciennes runs)
+    const t = TIER_OF_MODE[r.game_mode]; if (t) return t;
+    const n = Array.isArray(r.modifiers) ? r.modifiers.length : 0;
+    return n === 2 ? 'easy' : n === 3 ? 'normal' : n === 4 ? 'hard' : null;
+  }
+  const isEternalRun = r => (r.difficulty_level || 0) > 20;      // échelle Éternel : niveau 21 et plus (à adapter quand les logs Éternel du nouveau système seront connus)
+  function tierPill(tier, cls) {
+    const st = TIER_STYLE[tier]; if (!st) return '';
+    return `<span class="${cls || 'evc-pill'}" style="color:${st.text};border-color:${st.color};background:${st.color};text-shadow:none;box-shadow:none">${st.label}</span>`;
+  }
+
   // ── Rang par ilvl moyen (reset du 22/10) ────────────────────────────────────
   // L'ilvl moyen MAXIMUM du héros compte jusqu'à Eternal ; une fois Eternal atteint, la côte prend le relais.
   // Mêmes valeurs dans sync-hm-v3/index.ts et hm/ilvl-rank.sql.
@@ -1966,6 +1985,18 @@
     } catch { return []; }
   }
 
+  const _allRunsCache = new Map();
+  async function fetchHeroCompletedRuns(characterId) {
+    if (_allRunsCache.has(characterId)) return _allRunsCache.get(characterId);
+    const base = `/rest/v1/hm_runs?character_id=eq.${characterId}&season=eq.${SEASON}&valid=eq.true&completed=eq.true&order=completed_at.desc&limit=1000&select=`;
+    try {
+      let rows = await sbFetch(base + 'dungeon_name,difficulty_level,game_mode,modifiers,completion_time,completed_at');
+      if (!Array.isArray(rows)) rows = await sbFetch(base + 'dungeon_name,difficulty_level,modifiers,completion_time,completed_at');   // colonne game_mode absente
+      _allRunsCache.set(characterId, rows ?? []);
+      return rows ?? [];
+    } catch { return []; }
+  }
+
   async function fetchBestDungeonRatings(characterId) {
     if (_bdrCache.has(characterId)) return _bdrCache.get(characterId);
     try {
@@ -2188,31 +2219,49 @@
     await renderHeroDetail(det, char, allAttempts, playerId, fr());
   }
 
+  // Tableau des donjons d'un héros : une ligne par donjon. Easy / Medium / Hard : meilleure difficulté terminée (pas de chrono, pas de côte) ;
+  // Éternel : meilleur niveau et côte (hm_best_dungeon_ratings). Le temps affiché est celui de la meilleure run.
   async function loadDungeonTable(characterId, f) {
     const dtEl = document.getElementById(`dungeon-table-${characterId}`);
     if (!dtEl) return;
-    const bdrs = await fetchBestDungeonRatings(characterId);
-    if (!bdrs.length) {
+    const [runs, bdrs] = await Promise.all([fetchHeroCompletedRuns(characterId), fetchBestDungeonRatings(characterId)]);
+    const by = new Map();                                       // donjon → { tier, time, eternal }
+    const slot = name => { if (!by.has(name)) by.set(name, { name, tier: null, time: null, eternal: null }); return by.get(name); };
+    for (const r of runs) {
+      if (isEternalRun(r)) continue;
+      const tier = runTier(r), o = slot(r.dungeon_name);
+      const better = !tier ? false : !o.tier || TIER_ORDER_N[tier] > TIER_ORDER_N[o.tier];
+      const faster = tier && tier === o.tier && r.completion_time && (!o.time || r.completion_time < o.time);
+      if (better) { o.tier = tier; o.time = r.completion_time || null; }
+      else if (faster) o.time = r.completion_time;
+      else if (!o.tier && !o.time && r.completion_time) o.time = r.completion_time;
+    }
+    for (const b of bdrs) if ((b.difficulty_level || 0) > 20) { const o = slot(b.dungeon_name); o.eternal = b; }
+    const list = [...by.values()];
+    if (!list.length) {
       dtEl.innerHTML = `<div style="font-size:13px;color:var(--text-muted);font-style:italic;padding:8px 0">${f?'Aucun donjon completé.':'No dungeons completed.'}</div>`;
       return;
     }
-    const rows = bdrs.map(bdr => {
-      const img     = dungeonImg(bdr.dungeon_name);
-      const xul     = isXul(bdr.dungeon_name);
-      const dl      = bdr.difficulty_level;
-      const rank2   = dl ? diffLevelToRank(dl) : null;
-      const rc      = rank2 ? tierColor(rank2.tier) : '#ccc';
-      const mins    = bdr.completion_time ? Math.floor(bdr.completion_time/60000) : null;
-      const secs    = bdr.completion_time ? String(Math.floor((bdr.completion_time%60000)/1000)).padStart(2,'0') : null;
+    list.sort((a, b) => (b.eternal ? 1 : 0) - (a.eternal ? 1 : 0) || (b.eternal?.best_rating || 0) - (a.eternal?.best_rating || 0)
+      || (TIER_ORDER_N[b.tier] || 0) - (TIER_ORDER_N[a.tier] || 0) || (a.time || 9e12) - (b.time || 9e12));
+    const rows = list.map(o => {
+      const img  = dungeonImg(o.name);
+      const xul  = isXul(o.name);
+      const ms   = o.eternal ? o.eternal.completion_time : o.time;
+      const mins = ms ? Math.floor(ms/60000) : null;
+      const secs = ms ? String(Math.floor((ms%60000)/1000)).padStart(2,'0') : null;
       const timeStr = mins !== null ? `${mins}:${secs}` : '—';
+      let key = '—';
+      if (o.eternal) { const rk = diffLevelToRank(o.eternal.difficulty_level); key = `<span style="color:${tierColor(rk.tier)}">${rk.label}</span>`; }
+      else if (o.tier) key = tierPill(o.tier, 'tier-pill');
       return `
         <div class="dungeon-row">
           ${img ? `<div class="dungeon-row-bg" style="background-image:url('${img}')"></div>` : ''}
           <div class="dungeon-row-overlay"></div>
           <div class="dungeon-row-content">
-            <div class="dungeon-name ${xul?'xul':''}">${dungName(bdr.dungeon_name)}</div>
-            <div class="dungeon-key" style="color:${rc}">${rank2?.label||'—'}</div>
-            <div class="dungeon-score">${bdr.best_rating ? Math.floor(bdr.best_rating)+' pts' : '—'}</div>
+            <div class="dungeon-name ${xul?'xul':''}">${dungName(o.name)}</div>
+            <div class="dungeon-key">${key}</div>
+            <div class="dungeon-score">${o.eternal?.best_rating ? Math.floor(o.eternal.best_rating)+' pts' : '—'}</div>
             <div class="dungeon-time">${timeStr}</div>
           </div>
         </div>`;
@@ -2221,8 +2270,8 @@
       <div class="dungeon-table-wrap">
       <div class="dungeon-table-header">
         <span>${f?'Donjon':'Dungeon'}</span>
-        <span>${f?'Meilleure clé':'Best key'}</span>
-        <span>Score</span>
+        <span>${f?'Difficulté':'Difficulty'}</span>
+        <span>${f?'Côte':'Rating'}</span>
         <span>${f?'Temps':'Time'}</span>
       </div>
       <div class="dungeon-table">${rows}</div>
@@ -2424,19 +2473,14 @@
         const rank = meta.difficulty_level ? diffLevelToRank(meta.difficulty_level) : null;
         const scorePill = hasNum(meta.score_at_death)
           ? `<span class="evc-pill score">${meta.score_kind === 'ilvl' ? 'ILVL' : 'SCORE'} ${fmtNum(meta.score_at_death)}${hasNum(meta.rank_at_death) ? ` · ${fr() ? 'RANG' : 'RANK'} ${Math.round(meta.rank_at_death)}` : ''}</span>` : '';
-        const TIERS = { easy: ['Easy', '#5dff5d'], normal: ['Normal', '#5db0ff'], hard: ['Hard', '#ff5a5a'] };
-        const tr = TIERS[meta.tier];
-        const tierPill = tr ? `<span class="evc-pill" style="color:${tr[1]};border-color:${tr[1]};background:linear-gradient(${tr[1]}44,${tr[1]}44),rgba(0,0,0,.7)">${tr[0]}</span>` : '';
-        detail = `${dungHtml}${tierPill || rankPill(rank)}${scorePill}`;
+        const tierHtml = tierPill(meta.tier);
+        detail = `${dungHtml}${tierHtml || rankPill(rank)}${scorePill}`;
       } else if (e.event_type === 'capstone' && meta.kind === 'ilvl_milestone') {
         // Palier d'ilvl : premier donjon terminé avec un ilvl moyen > 75 / 150 / 220
         const mKey = { 75: 'Recrue', 150: 'Champion', 220: 'Parangon' }[meta.milestone] || 'Recrue';
         accent = tierColor(mKey); typeCol = TIER_BRIGHT[mKey] || '#fff';
         typeLabel = fr() ? `✦ Palier ilvl ${meta.milestone} franchi` : `✦ Ilvl ${meta.milestone} milestone reached`;
-        const TIERS = { easy: ['Easy', '#5dff5d'], normal: ['Normal', '#5db0ff'], hard: ['Hard', '#ff5a5a'] };
-        const tr = TIERS[meta.tier];
-        const tierPill = tr ? `<span class="evc-pill" style="color:${tr[1]};border-color:${tr[1]};background:linear-gradient(${tr[1]}44,${tr[1]}44),rgba(0,0,0,.7)">${tr[0]}</span>` : '';
-        detail = `${dungHtml}${tierPill}${hasNum(meta.ilvl) ? `<span class="evc-pill score">ILVL ${Math.round(meta.ilvl)}</span>` : ''}`;
+        detail = `${dungHtml}${tierPill(meta.tier)}${hasNum(meta.ilvl) ? `<span class="evc-pill score">ILVL ${Math.round(meta.ilvl)}</span>` : ''}`;
       } else if (e.event_type === 'capstone') {
         // Ligue débloquée = la suivante (Recrue → Adepte…) ; le rang affiché reste celui du donjon fait
         const rank = meta.difficulty_level ? diffLevelToRank(meta.difficulty_level) : null;
@@ -2560,6 +2604,11 @@
             📊 ${f
               ? 'Le classement est établi sur le <strong>score de ton meilleur héros</strong>. Les joueurs à égalité de score partagent le même rang.'
               : 'The leaderboard is based on the <strong>score of your best hero</strong>. Players with the same score share the same rank.'}
+          </div>
+          <div class="rules-item">
+            ⏱️ ${f
+              ? 'Les difficultés <strong>Easy, Medium et Hard</strong> n\'ont pas de chrono : « dans les temps » et la côte ne comptent qu\'à partir de l\'<strong>Éternel</strong>. Avant ça, seuls l\'ilvl moyen et le nombre de donjons terminés par difficulté comptent.'
+              : 'The <strong>Easy, Medium and Hard</strong> difficulties have no timer: « in time » and the rating only count from <strong>Eternal</strong> onwards. Before that, only your average ilvl and the number of dungeons completed per difficulty count.'}
           </div>
           <div class="rules-item">
             ⚙️ ${f
@@ -2784,7 +2833,9 @@
     if (charIds) {
       const arr = x => Array.isArray(x) ? x : [];
       const [runRows, sumRows] = await Promise.all([
-        fetch(`${base}/hm_runs?character_id=in.(${charIds})&valid=eq.true&select=character_id,dungeon_name,difficulty_level,in_time,completed,completed_at,rating&order=completed_at.desc&limit=1000`, { headers }).then(r => r.json()).catch(() => []),
+        fetch(`${base}/hm_runs?character_id=in.(${charIds})&valid=eq.true&select=character_id,dungeon_name,difficulty_level,in_time,completed,completed_at,rating,game_mode,modifiers&order=completed_at.desc&limit=1000`, { headers }).then(r => r.json())
+          .then(rows => Array.isArray(rows) ? rows : fetch(`${base}/hm_runs?character_id=in.(${charIds})&valid=eq.true&select=character_id,dungeon_name,difficulty_level,in_time,completed,completed_at,rating,modifiers&order=completed_at.desc&limit=1000`, { headers }).then(r => r.json()))   // colonne game_mode absente : repli
+          .catch(() => []),
         fetch(`${base}/hm_summary?character_id=in.(${charIds})&select=character_id,total_rating_score,player_name`, { headers }).then(r => r.json()).catch(() => []),
       ]);
       runs = arr(runRows);
@@ -3302,7 +3353,8 @@
       fmt: o.fmt || (v => `${Math.min(Math.floor(v), o.target).toLocaleString()} / ${o.target.toLocaleString()}`) };
   }
   const TROPHY_GROUPS = [
-    { id:'timed',  fr:'Donjons dans les temps', en:'Timed dungeons' },
+    { id:'timed',  fr:'Éternel dans les temps', en:'Eternal, in time' },
+    { id:'tiers',  fr:'Difficulté',             en:'Difficulty' },
     { id:'rating', fr:'Rang (ilvl moyen)',      en:'Rank (average ilvl)' },
     { id:'gear',   fr:'Gear Score',             en:'Gear Score' },
     { id:'eternal',fr:'Éternel',                en:'Eternal' },
@@ -3340,13 +3392,19 @@
     en:[`In Time ${n}`, `Reach ${v.toLocaleString('en-US')} rating with only timed dungeons (no dungeon finished over time).`] }));
   const TROPHIES = [
     mkTrophy({ id:"timed_1", group:"timed", img:"Trophy_Coffre_1", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:1,
-      fr:["Explorateur", "Termine 1 donjon dans les temps."], en:["Explorer", "Finish 1 dungeon within the time limit."] }),
+      fr:["Explorateur", "Termine 1 donjon Éternel dans les temps."], en:["Explorer", "Finish 1 Eternal dungeon within the time limit."] }),
     mkTrophy({ id:"timed_25", group:"timed", img:"Trophy_Coffre_2", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:25,
-      fr:["Aventurier", "Termine 25 donjons dans les temps."], en:["Adventurer", "Finish 25 dungeons within the time limit."] }),
+      fr:["Aventurier", "Termine 25 donjons Éternels dans les temps."], en:["Adventurer", "Finish 25 Eternal dungeons within the time limit."] }),
     mkTrophy({ id:"timed_100", group:"timed", img:"Trophy_Coffre_3", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:100,
-      fr:["Héros", "Termine 100 donjons dans les temps."], en:["Hero", "Finish 100 dungeons within the time limit."] }),
+      fr:["Héros", "Termine 100 donjons Éternels dans les temps."], en:["Hero", "Finish 100 Eternal dungeons within the time limit."] }),
     mkTrophy({ id:"timed_250", group:"timed", img:"Trophy_Coffre_4", ico:"📦", color:"#e0a82e", metric:"timedTotal", target:250,
-      fr:["Légende", "Termine 250 donjons dans les temps."], en:["Legend", "Finish 250 dungeons within the time limit."] }),
+      fr:["Légende", "Termine 250 donjons Éternels dans les temps."], en:["Legend", "Finish 250 Eternal dungeons within the time limit."] }),
+    mkTrophy({ id:"tier_easy", group:"tiers", img:"Trophy_Easy", ico:"🟢", color:"#0bb70a", metric:"dunEasy", target:50,
+      fr:["Easy", "Termine 50 donjons en difficulté Easy ou supérieure."], en:["Easy", "Complete 50 dungeons on Easy difficulty or higher."] }),
+    mkTrophy({ id:"tier_medium", group:"tiers", img:"Trophy_Medium", ico:"🟡", color:"#eed700", metric:"dunMedium", target:50,
+      fr:["Medium", "Termine 50 donjons en difficulté Medium ou supérieure."], en:["Medium", "Complete 50 dungeons on Medium difficulty or higher."] }),
+    mkTrophy({ id:"tier_hard", group:"tiers", img:"Trophy_Hard", ico:"🔴", color:"#b00506", metric:"dunHard", target:50,
+      fr:["Hard", "Termine 50 donjons en difficulté Hard."], en:["Hard", "Complete 50 dungeons on Hard difficulty."] }),
     mkTrophy({ id:"ilvl_50", group:"rating", img:"Trophy_recrue", ico:"🏅", color:"#00c700", metric:"bestIlvl", target:50,
       fr:["Recrue", "Atteins 50 d'ilvl moyen."], en:["Contender", "Reach an average ilvl of 50."] }),
     mkTrophy({ id:"ilvl_100", group:"rating", img:"Trophy_Adept", ico:"🏅", color:"#006fe6", metric:"bestIlvl", target:100,
@@ -3401,7 +3459,7 @@
     const { characters, runs = [], scores = {} } = _profileData;
     const byChar = {}, classOf = {};
     for (const c of characters) { byChar[c.id] = { completed: 0 }; classOf[c.id] = c.character_class; }
-    let timedTotal = 0, bestDl = 0;
+    let timedTotal = 0, bestDl = 0, dunEasy = 0, dunMedium = 0, dunHard = 0;
     const xul = { normal: 0, heroic: 0, nightmare: 0 };
     const classesDone = new Set();
     const overTime = new Set();                                    // héros ayant terminé un donjon HORS DÉLAI (hors Xul)
@@ -3413,7 +3471,12 @@
         for (const [k, dl] of Object.entries(XUL_DL)) if (r.difficulty_level === dl) xul[k] = 1;
         continue;
       }
-      if (r.in_time) { timedTotal++; bestDl = Math.max(bestDl, r.difficulty_level || 0); }
+      if (!isEternalRun(r)) {                                       // Easy / Medium / Hard : pas de chrono, comptés par difficulté
+        const tier = runTier(r);
+        if (tier) { dunEasy++; if (tier !== 'easy') dunMedium++; if (tier === 'hard') dunHard++; }
+        continue;
+      }
+      if (r.in_time) { timedTotal++; bestDl = Math.max(bestDl, r.difficulty_level || 0); }   // « dans les temps » : Éternel seulement
       else overTime.add(r.character_id);
     }
     const recordByClass = {};
@@ -3441,7 +3504,7 @@
     return {
       ...heroStats, inTimeBest,
       rolesTank: doneIn(HERO_ROLES.Tank), rolesHealer: doneIn(HERO_ROLES.Healer), rolesDps: doneIn(HERO_ROLES.DPS), rolesAll: doneIn(HERO_ALL),
-      byChar, recordByClass, maxSurvival, timedTotal, bestDl, bestScore, bestGear, bestIlvl, shameDeaths,
+      byChar, recordByClass, maxSurvival, timedTotal, bestDl, dunEasy, dunMedium, dunHard, bestScore, bestGear, bestIlvl, shameDeaths,
       xulNormal: xul.normal, xulHeroic: xul.heroic, xulNightmare: xul.nightmare,
       heroesPlayed: classesDone.size,
       deaths: characters.filter(c => c.status === 'dead').length,
@@ -4124,22 +4187,23 @@
       }
     }
     html += '</div>';
-    const withRuns = characters.filter(c=>c.status==='alive'&&(c.best_difficulty_level||0)>0);
+    const withRuns = characters.filter(c=>c.status==='alive');
     if (withRuns.length) {
       html += `<div class="hist-section"><div class="hist-section-title">${f?'Derniers runs HC':'Recent HC runs'}</div>`;
       for (const c of withRuns.slice(0,2)) {
         try {
-          const runs = await sbFetch(`/rest/v1/hm_runs?character_id=eq.${c.id}&season=eq.${SEASON}&valid=eq.true&order=completed_at.desc&limit=5&select=dungeon_name,difficulty_level,in_time,rating,completed_at`);
+          const runs = await sbFetch(`/rest/v1/hm_runs?character_id=eq.${c.id}&season=eq.${SEASON}&valid=eq.true&order=completed_at.desc&limit=5&select=dungeon_name,difficulty_level,in_time,rating,completed_at,game_mode,modifiers`).catch(() => null);
+          if (!runs || !Array.isArray(runs)) throw new Error('runs');
           if (runs?.length) {
             const hd = (heroClasses||[]).find(h=>h.class_name===c.character_class);
             html += `<div style="font-family:'Cinzel',serif;font-size:12px;color:${hd?.color_hex||'var(--text-muted)'};letter-spacing:0.1em;margin:12px 0 8px">${c.character_class}</div>`;
             for (const r of runs) {
-              const dl=r.difficulty_level; const rank=dl?diffLevelToRank(dl):null; const rc=rank?tierColor(rank.tier):'var(--text-muted)';
+              const eternal = isEternalRun(r); const rank = eternal ? diffLevelToRank(r.difficulty_level) : null; const tier = eternal ? null : runTier(r);
               html += `<div class="hist-run-item">
                 <span style="color:var(--text-dim)">${dungName(r.dungeon_name)}</span>
-                <span style="color:${rc};font-family:'Cinzel',serif;font-size:13px">${rank?.label||'—'}</span>
-                <span style="color:var(--teal-light);font-family:'Cinzel',serif;font-size:13px;text-align:right">${r.rating?Math.floor(r.rating)+' pts':'—'}</span>
-                <span style="text-align:center">${r.in_time?'<span style="color:var(--tier1)">✓</span>':'<span style="color:var(--text-muted)">✗</span>'}</span>
+                <span style="font-family:'Cinzel',serif;font-size:13px">${eternal ? `<span style="color:${tierColor(rank.tier)}">${rank.label}</span>` : (tierPill(tier, 'tier-pill') || '—')}</span>
+                <span style="color:var(--teal-light);font-family:'Cinzel',serif;font-size:13px;text-align:right">${eternal && r.rating ? Math.floor(r.rating)+' pts' : '—'}</span>
+                <span style="text-align:center">${eternal ? (r.in_time?'<span style="color:var(--tier1)">✓</span>':'<span style="color:var(--text-muted)">✗</span>') : '<span style="color:var(--text-muted)">—</span>'}</span>
                 <span style="color:var(--text-muted);font-size:13px;text-align:right">${new Date(r.completed_at).toLocaleDateString(f?'fr-FR':'en-GB',{day:'2-digit',month:'short'})}</span>
               </div>`;
             }
